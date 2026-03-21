@@ -1,0 +1,153 @@
+/**
+ * Settings page — user profile and preferences management.
+ *
+ * Delegates each section (profile, preferences, shortcuts, data, about)
+ * to focused sub-components. All changes are auto-saved via the
+ * `useUpdateUserMutation` hook.
+ */
+import { useCallback } from "react";
+import {
+  Keyboard,
+  Database,
+  Info,
+  Download,
+  Calendar,
+  Loader2,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ProfileSection } from "@/components/settings/ProfileSection";
+import { PreferencesSection } from "@/components/settings/PreferencesSection";
+import { useUserQuery, useUpdateUserMutation } from "@/hooks/useUser";
+import type { UserSettings } from "@/types/user";
+
+export default function SettingsPage() {
+  const { data: user, isLoading } = useUserQuery();
+  const update = useUpdateUserMutation();
+
+  const save = useCallback(
+    (data: Partial<UserSettings>) => {
+      update.mutate(data);
+    },
+    [update],
+  );
+
+  if (isLoading) {
+    return (
+      <div className="flex h-[60vh] items-center justify-center">
+        <Loader2 className="size-6 animate-spin text-text-tertiary" />
+      </div>
+    );
+  }
+
+  if (!user) return null;
+
+  return (
+    <div className="mx-auto max-w-2xl space-y-8">
+      <div>
+        <h1 className="text-2xl font-semibold text-text-primary">Settings</h1>
+        <p className="mt-1 text-sm text-text-secondary">
+          Manage your profile and preferences.
+        </p>
+      </div>
+
+      {/* Profile (avatar, display name) */}
+      <ProfileSection
+        user={user}
+        onSave={(data) => save(data)}
+      />
+
+      {/* Preferences (timezone, playback speed, font size) */}
+      <PreferencesSection
+        timezone={user.timezone}
+        playbackSpeed={user.playback_speed}
+        fontSize={user.font_size}
+        onSave={(data) => save(data)}
+      />
+
+      {/* Keyboard Shortcuts reference */}
+      <section className="space-y-4 rounded-xl border border-border-default bg-bg-secondary p-5">
+        <div className="flex items-center gap-2">
+          <Keyboard className="size-4 text-accent-green" />
+          <h2 className="text-sm font-semibold text-text-primary">Keyboard Shortcuts</h2>
+        </div>
+        <div className="grid gap-2 text-xs sm:grid-cols-2">
+          {[
+            ["⌘ K", "Search"],
+            ["⌘ ⇧ C", "Toggle Creator / Learner"],
+            ["F", "Focus mode (study view)"],
+            ["N / →", "Next lesson"],
+            ["P / ←", "Previous lesson"],
+            ["M", "Mark lesson complete"],
+            ["?", "Show all shortcuts"],
+            ["Esc", "Exit focus / close modal"],
+          ].map(([key, desc]) => (
+            <div key={key} className="flex items-center justify-between rounded-md bg-bg-tertiary px-3 py-2">
+              <span className="text-text-secondary">{desc}</span>
+              <kbd className="rounded border border-border-default bg-bg-quaternary px-1.5 py-0.5 font-mono text-[10px] text-text-tertiary">
+                {key}
+              </kbd>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Data section */}
+      <section className="space-y-4 rounded-xl border border-border-default bg-bg-secondary p-5">
+        <div className="flex items-center gap-2">
+          <Database className="size-4 text-accent-amber" />
+          <h2 className="text-sm font-semibold text-text-primary">Data</h2>
+        </div>
+        <div className="space-y-3">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-sm font-medium text-text-primary">Export courses</p>
+              <p className="text-xs text-text-tertiary">
+                Download all your courses as JSON files from the Creator dashboard.
+              </p>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => window.location.href = "/"}>
+              <Download className="mr-1.5 size-3.5" />
+              Go to Dashboard
+            </Button>
+          </div>
+          <div className="h-px bg-border-default" />
+          <div>
+            <p className="text-sm font-medium text-text-primary">Account created</p>
+            <p className="mt-0.5 flex items-center gap-1.5 text-xs text-text-secondary">
+              <Calendar className="size-3" />
+              {user.created_at
+                ? new Date(user.created_at).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })
+                : "Unknown"}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* About */}
+      <section className="space-y-3 rounded-xl border border-border-default bg-bg-secondary p-5">
+        <div className="flex items-center gap-2">
+          <Info className="size-4 text-text-secondary" />
+          <h2 className="text-sm font-semibold text-text-primary">About</h2>
+        </div>
+        <div className="space-y-1.5 text-xs text-text-secondary">
+          <p>
+            <span className="font-medium text-text-primary">Learner Verse</span>{" "}
+            — Personal Learning Management System
+          </p>
+          <p>Version 1.0.0 (MVP)</p>
+          <p className="text-text-tertiary">
+            Built with React, FastAPI, and PostgreSQL.
+          </p>
+        </div>
+      </section>
+
+      <p className="text-center text-xs text-text-tertiary">
+        Changes are saved automatically.
+      </p>
+    </div>
+  );
+}

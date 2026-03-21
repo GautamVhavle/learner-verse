@@ -1,0 +1,59 @@
+/**
+ * TypeScript types for courses, tags, and course CRUD payloads.
+ */
+export interface Tag {
+  id: string;
+  name: string;
+}
+
+export interface Course {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string | null;
+  thumbnail_url: string | null;
+  status: "draft" | "ready";
+  is_deleted: boolean;
+  deleted_at: string | null;
+  goal_date: string | null;
+  tags: Tag[];
+  section_count: number;
+  lesson_count: number;
+  has_issues: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CourseListResponse {
+  items: Course[];
+  total: number;
+}
+
+export interface CourseCreate {
+  title: string;
+  description?: string | null;
+  thumbnail_url?: string | null;
+  goal_date?: string | null;
+  tags?: string[];
+}
+
+export interface CourseUpdate {
+  title?: string;
+  description?: string | null;
+  thumbnail_url?: string | null;
+  status?: "draft" | "ready";
+  goal_date?: string | null;
+  tags?: string[];
+}
+
+export interface ValidationError {
+  section: string;
+  lesson: string | null;
+  message: string;
+}
+
+export interface StatusUpdateResponse {
+  status: string;
+  valid: boolean;
+  errors: ValidationError[];
+}
