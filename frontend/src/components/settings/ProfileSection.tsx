@@ -23,7 +23,7 @@ interface ProfileSectionProps {
 export function ProfileSection({ user, onSave }: ProfileSectionProps) {
   const [displayName, setDisplayName] = useState(user.display_name);
   const [saved, setSaved] = useState(false);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   // Sync when server data changes
   useEffect(() => {

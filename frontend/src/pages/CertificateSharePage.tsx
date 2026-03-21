@@ -19,8 +19,7 @@ export default function CertificateSharePage() {
   const { data: certificate, isLoading, error } = useQuery<CertificateResponse>({
     queryKey: ["certificate-share", uid],
     queryFn: async () => {
-      const res = await api.get(`/certificates/share/${uid}`);
-      return res.data;
+      return api.get<CertificateResponse>(`/certificates/share/${uid}`);
     },
     enabled: !!uid,
   });

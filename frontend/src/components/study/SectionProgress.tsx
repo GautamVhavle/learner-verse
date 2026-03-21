@@ -9,8 +9,6 @@ interface SectionProgressProps {
 export function SectionProgress({ completed, total }: SectionProgressProps) {
   if (total === 0) return null;
 
-  const percentage = Math.round((completed / total) * 100);
-
   return (
     <div className="flex items-center gap-2">
       <div className="flex items-center gap-0.5">

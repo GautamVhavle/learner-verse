@@ -76,7 +76,7 @@ export default function CertificatesPage() {
       )}
 
       {/* Detail dialog */}
-      <Dialog open={!!selected} onOpenChange={(open) => { if (!open) { setSelected(null); setCopied(false); } }}>
+      <Dialog open={!!selected} onOpenChange={(open) => { if (!open) { setSelected(null); } }}>
         <DialogContent className="sm:max-w-lg">
           {selected && (
             <div className="space-y-4">

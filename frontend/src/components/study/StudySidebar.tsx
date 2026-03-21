@@ -5,14 +5,11 @@ import { useState, useEffect } from "react";
 import {
   ChevronDown,
   ChevronRight,
-  Video,
-  FileText,
-  Link2,
   Check,
   Circle,
   CircleDot,
 } from "lucide-react";
-import type { Section, Lesson } from "@/types/section";
+import type { Section } from "@/types/section";
 
 interface StudySidebarProps {
   sections: Section[];

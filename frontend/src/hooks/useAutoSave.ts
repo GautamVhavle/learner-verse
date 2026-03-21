@@ -19,9 +19,9 @@ export function useAutoSave<T>({
   enabled = true,
 }: UseAutoSaveOptions<T>) {
   const [status, setStatus] = useState<SaveStatus>("idle");
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const prevDataRef = useRef<string>("");
-  const savedTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const save = useCallback(
     async (toSave: T) => {

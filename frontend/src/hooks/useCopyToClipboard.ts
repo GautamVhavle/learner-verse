@@ -10,7 +10,7 @@ const DEFAULT_RESET_MS = 2000;
 
 export function useCopyToClipboard(resetMs = DEFAULT_RESET_MS) {
   const [copied, setCopied] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const copyToClipboard = useCallback(
     async (text: string) => {
