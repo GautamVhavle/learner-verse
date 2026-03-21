@@ -1,0 +1,78 @@
+"""API endpoints for course-completion certificates."""
+
+import uuid
+
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.api.dependencies import get_current_user
+from app.core.database import get_db
+from app.models.user import User
+from app.schemas.certificate import CertificateResponse
+from app.services.certificate_service import CertificateService
+
+router = APIRouter(prefix="/certificates", tags=["certificates"])
+
+
+@router.get("/share/{certificate_uid}", response_model=CertificateResponse)
+async def get_shared_certificate(
+    certificate_uid: str,
+    db: AsyncSession = Depends(get_db),
+):
+    """Public endpoint: get certificate by its shareable UID (no auth required)."""
+    svc = CertificateService(db)
+    cert = await svc.get_by_uid(certificate_uid)
+    if cert is None:
+        raise HTTPException(
+            status_code=404, detail="Certificate not found."
+        )
+    return CertificateResponse.model_validate(cert)
+
+
+@router.get("", response_model=list[CertificateResponse])
+async def list_certificates(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """List all certificates earned by the current user."""
+    svc = CertificateService(db)
+    certs = await svc.list_certificates(user.id)
+    return [CertificateResponse.model_validate(c) for c in certs]
+
+
+@router.post("/courses/{course_id}", response_model=CertificateResponse)
+async def generate_certificate(
+    course_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Generate a certificate for a completed course."""
+    svc = CertificateService(db)
+    cert = await svc.generate(course_id, user.id, user.display_name)
+    return CertificateResponse.model_validate(cert)
+
+
+@router.get("/courses/{course_id}", response_model=CertificateResponse | None)
+async def get_certificate_by_course(
+    course_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get certificate for a specific course (if it exists)."""
+    svc = CertificateService(db)
+    cert = await svc.get_by_course(course_id, user.id)
+    if cert is None:
+        return None
+    return CertificateResponse.model_validate(cert)
+
+
+@router.get("/{certificate_id}", response_model=CertificateResponse)
+async def get_certificate(
+    certificate_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get a specific certificate by ID."""
+    svc = CertificateService(db)
+    cert = await svc.get_by_id(certificate_id, user.id)
+    return CertificateResponse.model_validate(cert)

@@ -1,0 +1,57 @@
+"""Application settings loaded from environment variables.
+
+Uses pydantic-settings to validate and type-check all configuration.
+A singleton ``settings`` instance is created at module level.
+"""
+
+from pathlib import Path
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_ENV_FILE = Path(__file__).resolve().parents[3] / ".env"
+
+
+class Settings(BaseSettings):
+    """Typed application configuration.
+
+    Values are read from environment variables (or a ``.env`` file).
+    Defaults are provided for local development.
+    """
+    model_config = SettingsConfigDict(
+        env_file=str(_ENV_FILE),
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    # Database
+    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/learnerverse"
+    SECRET_KEY: str = "change-me"
+
+    # Auth
+    SINGLE_USER_MODE: bool = True
+    AUTH0_DOMAIN: str = ""
+    AUTH0_CLIENT_ID: str = ""
+    AUTH0_AUDIENCE: str = ""
+    AUTH0_ISSUER: str = ""
+
+    # Server
+    BACKEND_HOST: str = "0.0.0.0"
+    BACKEND_PORT: int = 8000
+    CORS_ORIGINS: str = "http://localhost:5173"
+
+    # Storage
+    UPLOAD_DIR: str = "./uploads"
+    MAX_UPLOAD_SIZE_MB: int = 5
+
+    # Supabase Storage
+    SUPABASE_URL: str = ""
+    SUPABASE_SERVICE_KEY: str = ""
+    SUPABASE_BUCKET: str = "thumbnails"
+
+    @property
+    def cors_origins_list(self) -> list[str]:
+        """Parse the comma-separated CORS_ORIGINS string into a list."""
+        return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
+
+
+settings = Settings()

@@ -1,0 +1,99 @@
+"""FastAPI application entry point.
+
+Creates the ASGI application, wires up CORS middleware, includes
+the versioned API router, and provides a lifespan hook that ensures
+the default user and Supabase storage bucket exist on startup.
+"""
+
+import logging
+import time
+import traceback
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from sqlalchemy import select
+
+from app.api.dependencies import SINGLE_USER_ID
+from app.api.v1.router import api_v1_router
+from app.core.config import settings
+from app.core.database import async_session_maker
+from app.core.storage import ensure_bucket
+from app.models.user import User
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan hook: ensures the default user and storage bucket exist."""
+    if settings.SINGLE_USER_MODE:
+        await _ensure_default_user()
+
+    # Create the Supabase Storage bucket if missing.
+    try:
+        await ensure_bucket()
+    except Exception as exc:
+        logging.getLogger(__name__).warning(
+            "Supabase Storage unavailable at startup — thumbnail uploads will fail.\n"
+            "Reason: %s",
+            exc,
+        )
+    yield
+
+
+async def _ensure_default_user() -> None:
+    """Auto-create the local development user if it doesn't exist yet."""
+    async with async_session_maker() as session:
+        result = await session.execute(select(User).where(User.id == SINGLE_USER_ID))
+        if result.scalar_one_or_none() is None:
+            user = User(
+                id=SINGLE_USER_ID,
+                email="local@learnerverse.dev",
+                display_name="Local User",
+            )
+            session.add(user)
+            await session.commit()
+
+
+app = FastAPI(
+    title="Learner Verse API",
+    description="Personal Learning Management System",
+    version="0.1.0",
+    lifespan=lifespan,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins_list,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(api_v1_router)
+
+logger = logging.getLogger(__name__)
+
+
+@app.middleware("http")
+async def timing_middleware(request: Request, call_next):
+    start = time.perf_counter()
+    response = await call_next(request)
+    elapsed = (time.perf_counter() - start) * 1000
+    logger.warning("⏱ %s %s → %dms", request.method, request.url.path, elapsed)
+    return response
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    """Catch-all handler so unhandled errors still return CORS headers + details."""
+    logger.error("Unhandled error on %s %s:\n%s", request.method, request.url, traceback.format_exc())
+    return JSONResponse(
+        status_code=500,
+        content={"detail": f"Internal server error: {exc}"},
+    )
+
+
+@app.get("/health")
+async def root_health():
+    return {"status": "ok"}
