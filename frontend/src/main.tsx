@@ -7,6 +7,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import { AuthProvider } from './lib/auth'
 import AppRouter from './router'
+import { Toaster } from './components/ui/sonner'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,6 +20,7 @@ createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <AppRouter />
+        <Toaster />
       </AuthProvider>
     </QueryClientProvider>
   </StrictMode>,

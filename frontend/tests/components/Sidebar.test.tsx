@@ -38,6 +38,12 @@ vi.mock("@/hooks/useEnrollments", () => ({
   }),
 }));
 
+vi.mock("@/hooks/useNotifications", () => ({
+  useUnreadCountQuery: () => ({
+    data: { count: 0 },
+  }),
+}));
+
 // Need to mock the sidebar context for child components
 vi.mock("@/components/ui/sidebar", async () => {
   const actual =
@@ -172,8 +178,8 @@ describe("Sidebar", () => {
     expect(screen.getByText("Browse Courses")).toBeInTheDocument();
     expect(screen.getByText("Goals")).toBeInTheDocument();
     expect(screen.getByText("Certificates")).toBeInTheDocument();
+    expect(screen.getByText("Inbox")).toBeInTheDocument();
     expect(screen.queryByText("Trash")).not.toBeInTheDocument();
-    expect(screen.queryByText("Inbox")).not.toBeInTheDocument();
   });
 
   it("renders brand header with mode label", () => {

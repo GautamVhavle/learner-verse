@@ -39,6 +39,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useMode } from "@/hooks/useMode";
 import { useCoursesQuery } from "@/hooks/useCourses";
 import { useEnrolledCoursesQuery } from "@/hooks/useEnrollments";
+import { NotificationBadge } from "@/components/notification/NotificationBadge";
 import {
   CREATOR_LINKS,
   CREATOR_EXTRA,
@@ -97,6 +98,7 @@ export function AppSidebar({
               Soon
             </span>
           )}
+          {item.path === "/inbox" && !item.comingSoon && <NotificationBadge />}
         </SidebarMenuButton>
       </SidebarMenuItem>
     );

@@ -12,14 +12,29 @@ export default defineConfig({
   },
   projects: [
     {
-      name: "auth",
-      testMatch: "auth.spec.ts",
+      name: "default",
+      testIgnore: "auth.spec.ts",
       use: { ...devices["Desktop Chrome"] },
     },
+    {
+      name: "auth",
+      testMatch: "auth.spec.ts",
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: "http://localhost:5174",
+      },
+    },
   ],
-  webServer: {
-    command: "npm run dev",
-    url: "http://localhost:5173",
-    reuseExistingServer: true,
-  },
+  webServer: [
+    {
+      command: "VITE_SINGLE_USER_MODE=true npx vite --port 5173",
+      url: "http://localhost:5173",
+      reuseExistingServer: !process.env.CI,
+    },
+    {
+      command: "npx vite --port 5174",
+      url: "http://localhost:5174",
+      reuseExistingServer: !process.env.CI,
+    },
+  ],
 });

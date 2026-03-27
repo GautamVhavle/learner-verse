@@ -43,3 +43,6 @@ class User(Base):
     certificates: Mapped[list["Certificate"]] = relationship(
         back_populates="user", cascade="all, delete-orphan", lazy="noload"
     )
+    notifications: Mapped[list["Notification"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", lazy="noload"
+    )

@@ -52,6 +52,7 @@ vi.mock("@/hooks/useCourses", () => ({
 
 vi.mock("react-router", () => ({
   useNavigate: () => vi.fn(),
+  useLocation: () => ({ pathname: "/learner/goals", search: "", hash: "", state: null, key: "default" }),
 }));
 
 import GoalsPage from "@/pages/GoalsPage";

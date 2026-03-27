@@ -10,6 +10,7 @@ from app.api.v1.endpoints import (
     goals,
     health,
     lessons,
+    notifications,
     opengraph,
     progress,
     search,
@@ -31,6 +32,7 @@ api_v1_router.include_router(study.router)
 api_v1_router.include_router(progress.router)
 api_v1_router.include_router(certificates.router)
 api_v1_router.include_router(goals.router)
+api_v1_router.include_router(notifications.router)
 api_v1_router.include_router(stats.router)
 api_v1_router.include_router(search.router)
 api_v1_router.include_router(youtube.router)

@@ -56,8 +56,7 @@ test.describe("Auth — multi-user mode (Auth0)", () => {
     ]);
 
     expect(page.url()).toContain("lightningzzz.us.auth0.com");
-    // Auth0 New Universal Login routes signup to /u/signup
-    expect(page.url()).toMatch(/screen_hint=signup|\/u\/signup/);
+    expect(page.url()).toContain("screen_hint=signup");
   });
 
   test("unknown routes show 404 page", async ({ page }) => {

@@ -20,6 +20,7 @@ import GoalsPage from "@/pages/GoalsPage";
 import StatsPage from "@/pages/StatsPage";
 import LoginPage from "@/pages/LoginPage";
 import SettingsPage from "@/pages/SettingsPage";
+import InboxPage from "@/pages/InboxPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import ModeRedirectPage from "@/pages/ModeRedirectPage";
 
@@ -50,7 +51,7 @@ export default function AppRouter() {
             <Route path="stats" element={<StatsPage />} />
             <Route path="trash" element={<TrashPage />} />
             <Route path="settings" element={<SettingsPage />} />
-            <Route path="inbox" element={<PlaceholderPage title="Quick Capture" />} />
+            <Route path="inbox" element={<InboxPage />} />
           </Route>
 
           <Route
@@ -74,7 +75,7 @@ export default function AppRouter() {
             <Route path="goals" element={<GoalsPage />} />
             <Route path="stats" element={<StatsPage />} />
             <Route path="settings" element={<SettingsPage />} />
-            <Route path="inbox" element={<PlaceholderPage title="Quick Capture" />} />
+            <Route path="inbox" element={<InboxPage />} />
           </Route>
 
           {/* Public certificate share page */}
@@ -97,18 +98,5 @@ export default function AppRouter() {
         </Routes>
       </ErrorBoundary>
     </BrowserRouter>
-  );
-}
-
-function PlaceholderPage({ title }: { title: string }) {
-  return (
-    <div className="flex h-[60vh] items-center justify-center">
-      <div className="text-center">
-        <h2 className="text-2xl font-semibold text-text-primary">{title}</h2>
-        <p className="mt-2 text-sm text-text-secondary">
-          Coming soon in a future phase.
-        </p>
-      </div>
-    </div>
   );
 }
