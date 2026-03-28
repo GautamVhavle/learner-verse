@@ -27,6 +27,10 @@ vi.mock("@/hooks/useUser", () => ({
     mutate: mockMutate,
     isPending: false,
   }),
+  useUploadAvatarMutation: () => ({
+    mutate: vi.fn(),
+    isPending: false,
+  }),
 }));
 
 import SettingsPage from "@/pages/SettingsPage";

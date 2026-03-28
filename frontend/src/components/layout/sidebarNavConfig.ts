@@ -11,7 +11,6 @@ import {
   BarChart3,
   Bookmark,
   Calendar,
-  Compass,
   FileText,
   Globe,
   HelpCircle,
@@ -49,7 +48,6 @@ export const CREATOR_EXTRA: NavLink[] = [];
 export const LEARNER_LINKS: NavLink[] = [
   { title: "Dashboard", icon: LayoutDashboard, path: "/" },
   { title: "Course Hub", icon: Globe, path: "/hub" },
-  { title: "Browse Courses", icon: Compass, path: "/browse" },
   { title: "Inbox", icon: Inbox, path: "/inbox" },
   { title: "Goals", icon: Target, path: "/goals" },
   { title: "Stats", icon: BarChart3, path: "/stats" },

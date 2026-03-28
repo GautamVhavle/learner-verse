@@ -1,14 +1,19 @@
 /**
- * Course Hub page — public course discovery with search, filters, and ratings.
+ * Course Hub page — unified course discovery with public/private tabs.
+ *
+ * "Public" tab shows all community-published courses.
+ * "My Courses" tab shows the current user's own courses with stats.
  */
 import { useState, useDeferredValue } from "react";
 import { useNavigate } from "react-router";
-import { Search, SlidersHorizontal, Globe, Loader2 } from "lucide-react";
+import { Search, SlidersHorizontal, Globe, Lock, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { HubCourseCard } from "@/components/hub/HubCourseCard";
-import { useHubCoursesQuery } from "@/hooks/useHub";
+import { useHubCoursesQuery, useMyCoursesQuery } from "@/hooks/useHub";
 import { useMode } from "@/hooks/useMode";
+
+type Tab = "public" | "mine";
 
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest" },
@@ -23,22 +28,42 @@ export default function CourseHubPage() {
   const { mode } = useMode();
   const modePrefix = mode === "creator" ? "/creator" : "/learner";
 
+  const [tab, setTab] = useState<Tab>("public");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<"newest" | "oldest" | "title">("newest");
   const [page, setPage] = useState(1);
 
   const deferredSearch = useDeferredValue(search);
 
-  const { data, isLoading } = useHubCoursesQuery({
+  const queryParams = {
     search: deferredSearch || undefined,
     sort,
     page,
     per_page: PER_PAGE,
-  });
+  };
 
-  const courses = data?.items ?? [];
-  const total = data?.total ?? 0;
+  const publicQuery = useHubCoursesQuery(tab === "public" ? queryParams : {});
+  const myQuery = useMyCoursesQuery(tab === "mine" ? queryParams : {});
+
+  const activeQuery = tab === "public" ? publicQuery : myQuery;
+  const courses = activeQuery.data?.items ?? [];
+  const total = activeQuery.data?.total ?? 0;
   const totalPages = Math.ceil(total / PER_PAGE);
+  const isLoading = activeQuery.isLoading;
+
+  const handleTabChange = (newTab: Tab) => {
+    setTab(newTab);
+    setPage(1);
+  };
+
+  const handleCourseClick = (courseId: string) => {
+    if (tab === "mine") {
+      // Navigate to course editor for own courses
+      navigate(`${modePrefix}/courses/${courseId}/edit`);
+    } else {
+      navigate(`${modePrefix}/hub/${courseId}`);
+    }
+  };
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -49,8 +74,34 @@ export default function CourseHubPage() {
           <h1 className="text-2xl font-semibold text-text-primary">Course Hub</h1>
         </div>
         <p className="mt-1 text-sm text-text-secondary">
-          Discover and enroll in courses published by the community.
+          Browse public community courses or manage your own.
         </p>
+      </div>
+
+      {/* Tab Toggle */}
+      <div className="flex items-center gap-1 rounded-lg border border-border-default bg-bg-secondary p-1">
+        <button
+          onClick={() => handleTabChange("public")}
+          className={`flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+            tab === "public"
+              ? "bg-bg-primary text-text-primary shadow-sm"
+              : "text-text-tertiary hover:text-text-secondary"
+          }`}
+        >
+          <Globe className="size-3.5" />
+          Public Courses
+        </button>
+        <button
+          onClick={() => handleTabChange("mine")}
+          className={`flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+            tab === "mine"
+              ? "bg-bg-primary text-text-primary shadow-sm"
+              : "text-text-tertiary hover:text-text-secondary"
+          }`}
+        >
+          <Lock className="size-3.5" />
+          My Courses
+        </button>
       </div>
 
       {/* Search + Filters */}
@@ -63,7 +114,7 @@ export default function CourseHubPage() {
               setSearch(e.target.value);
               setPage(1);
             }}
-            placeholder="Search courses..."
+            placeholder={tab === "public" ? "Search public courses..." : "Search my courses..."}
             className="pl-9"
             data-testid="hub-search"
           />
@@ -90,7 +141,8 @@ export default function CourseHubPage() {
       {/* Results count */}
       {!isLoading && (
         <p className="text-xs text-text-tertiary">
-          {total} course{total !== 1 ? "s" : ""} available
+          {total} course{total !== 1 ? "s" : ""}{" "}
+          {tab === "public" ? "available" : "in your library"}
         </p>
       )}
 
@@ -108,7 +160,7 @@ export default function CourseHubPage() {
             <HubCourseCard
               key={course.id}
               course={course}
-              onClick={() => navigate(`${modePrefix}/hub/${course.id}`)}
+              onClick={() => handleCourseClick(course.id)}
             />
           ))}
         </div>
@@ -117,9 +169,17 @@ export default function CourseHubPage() {
       {/* Empty state */}
       {!isLoading && courses.length === 0 && (
         <div className="flex h-48 flex-col items-center justify-center gap-2 rounded-xl border border-border-default bg-bg-secondary">
-          <Globe className="size-10 text-text-tertiary" />
+          {tab === "public" ? (
+            <Globe className="size-10 text-text-tertiary" />
+          ) : (
+            <Lock className="size-10 text-text-tertiary" />
+          )}
           <p className="text-sm text-text-secondary">
-            {search ? "No courses match your search." : "No public courses available yet."}
+            {search
+              ? "No courses match your search."
+              : tab === "public"
+                ? "No public courses available yet."
+                : "You haven't created any courses yet."}
           </p>
           {search && (
             <Button variant="outline" size="sm" onClick={() => setSearch("")}>

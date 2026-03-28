@@ -36,6 +36,7 @@ import {
 import { ModeToggle } from "@/components/layout/ModeToggle";
 import { NavUser } from "@/components/layout/NavUser";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserQuery } from "@/hooks/useUser";
 import { useMode } from "@/hooks/useMode";
 import { useCoursesQuery } from "@/hooks/useCourses";
 import { useEnrolledCoursesQuery } from "@/hooks/useEnrollments";
@@ -59,7 +60,8 @@ export function AppSidebar({
 }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user: authUser } = useAuth();
+  const { data: profile } = useUserQuery();
   const { isCreator } = useMode();
 
   // Fetch courses for the sidebar list
@@ -253,9 +255,9 @@ export function AppSidebar({
       {/* User Footer */}
       <SidebarFooter>
         <NavUser
-          name={user?.displayName ?? "User"}
-          email={user?.email ?? ""}
-          avatar={user?.avatarUrl ?? undefined}
+          name={profile?.display_name ?? authUser?.displayName ?? "User"}
+          email={profile?.email ?? authUser?.email ?? ""}
+          avatar={profile?.avatar_url ?? authUser?.avatarUrl ?? undefined}
         />
       </SidebarFooter>
 

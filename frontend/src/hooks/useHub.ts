@@ -1,5 +1,6 @@
 /**
- * React Query hooks for the Course Hub — public course discovery and ratings.
+ * React Query hooks for the Course Hub — public course discovery,
+ * private (my) courses, and ratings.
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -29,6 +30,20 @@ export function useHubCoursesQuery(params: HubParams = {}) {
   return useQuery<CourseListResponse>({
     queryKey: ["hub-courses", params],
     queryFn: () => api.get(`/hub/courses${query ? `?${query}` : ""}`),
+  });
+}
+
+export function useMyCoursesQuery(params: HubParams = {}) {
+  const qs = new URLSearchParams();
+  if (params.search) qs.set("search", params.search);
+  if (params.sort) qs.set("sort", params.sort);
+  if (params.page) qs.set("page", String(params.page));
+  if (params.per_page) qs.set("per_page", String(params.per_page));
+  const query = qs.toString();
+
+  return useQuery<CourseListResponse>({
+    queryKey: ["hub-my-courses", params],
+    queryFn: () => api.get(`/hub/my-courses${query ? `?${query}` : ""}`),
   });
 }
 

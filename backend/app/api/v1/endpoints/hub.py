@@ -94,6 +94,78 @@ async def list_hub_courses(
     return CourseListResponse(items=items, total=total)
 
 
+# ── My Courses (Private View) ─────────────────────────────────
+
+@router.get("/my-courses", response_model=CourseListResponse)
+async def list_my_courses(
+    search: str | None = Query(None, max_length=200),
+    sort: str = Query("newest", pattern=r"^(newest|oldest|title)$"),
+    page: int = Query(1, ge=1),
+    per_page: int = Query(20, ge=1, le=100),
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """List the current user's own courses (all statuses) with hub-style stats."""
+    repo = CourseRepository(db)
+    rating_repo = RatingRepository(db)
+    section_repo = SectionRepository(db)
+
+    all_courses = await repo.list_courses(user.id, search=search)
+
+    # Sort
+    if sort == "oldest":
+        all_courses.sort(key=lambda c: c.created_at)
+    elif sort == "title":
+        all_courses.sort(key=lambda c: c.title.lower())
+    else:
+        all_courses.sort(key=lambda c: c.created_at, reverse=True)
+
+    total = len(all_courses)
+    start = (page - 1) * per_page
+    courses = all_courses[start : start + per_page]
+
+    if not courses:
+        return CourseListResponse(items=[], total=total)
+
+    course_ids = [c.id for c in courses]
+    sections_map = await section_repo.list_by_courses(course_ids)
+    rating_stats = await rating_repo.get_stats_batch(course_ids)
+    enrollment_counts = await enrollment_repo.get_enrollment_counts_batch(db, course_ids=course_ids)
+
+    items = []
+    for c in courses:
+        sections = sections_map.get(c.id, [])
+        section_count = len(sections)
+        lesson_count = sum(len(s.lessons) for s in sections)
+        avg, r_count = rating_stats.get(c.id, (0.0, 0))
+        e_count = enrollment_counts.get(c.id, 0)
+
+        items.append(CourseResponse(
+            id=c.id,
+            user_id=c.user_id,
+            title=c.title,
+            description=c.description,
+            thumbnail_url=c.thumbnail_url,
+            status=c.status,
+            is_public=c.is_public,
+            is_deleted=c.is_deleted,
+            deleted_at=c.deleted_at,
+            goal_date=c.goal_date,
+            tags=[{"id": t.id, "name": t.name} for t in (c.tags or [])],
+            section_count=section_count,
+            lesson_count=lesson_count,
+            has_issues=False,
+            enrollment_count=e_count,
+            average_rating=avg,
+            rating_count=r_count,
+            creator_name=user.display_name,
+            created_at=c.created_at,
+            updated_at=c.updated_at,
+        ))
+
+    return CourseListResponse(items=items, total=total)
+
+
 @router.get("/courses/{course_id}", response_model=CourseResponse)
 async def get_hub_course(
     course_id: uuid.UUID,

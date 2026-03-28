@@ -44,6 +44,18 @@ vi.mock("@/hooks/useNotifications", () => ({
   }),
 }));
 
+vi.mock("@/hooks/useUser", () => ({
+  useUserQuery: () => ({
+    data: {
+      id: "00000000-0000-0000-0000-000000000001",
+      email: "local@learnerverse.dev",
+      display_name: "Local User",
+      avatar_url: null,
+    },
+    isLoading: false,
+  }),
+}));
+
 // Need to mock the sidebar context for child components
 vi.mock("@/components/ui/sidebar", async () => {
   const actual =
@@ -174,7 +186,7 @@ describe("Sidebar", () => {
     );
     expect(screen.getByText("Dashboard")).toBeInTheDocument();
     expect(screen.getByText("Library")).toBeInTheDocument();
-    expect(screen.getByText("Browse Courses")).toBeInTheDocument();
+    expect(screen.getByText("Course Hub")).toBeInTheDocument();
     expect(screen.getByText("Goals")).toBeInTheDocument();
     expect(screen.getByText("Certificates")).toBeInTheDocument();
     expect(screen.getByText("Inbox")).toBeInTheDocument();
