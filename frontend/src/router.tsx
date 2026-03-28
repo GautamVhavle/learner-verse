@@ -25,6 +25,8 @@ import NotFoundPage from "@/pages/NotFoundPage";
 import ModeRedirectPage from "@/pages/ModeRedirectPage";
 import CourseHubPage from "@/pages/CourseHubPage";
 import HubCourseDetailPage from "@/pages/HubCourseDetailPage";
+import CreatorAnalyticsPage from "@/pages/CreatorAnalyticsPage";
+import CourseAnalyticsDetailPage from "@/pages/CourseAnalyticsDetailPage";
 
 export default function AppRouter() {
   return (
@@ -54,6 +56,8 @@ export default function AppRouter() {
             <Route path="trash" element={<TrashPage />} />
             <Route path="hub" element={<CourseHubPage />} />
             <Route path="hub/:courseId" element={<HubCourseDetailPage />} />
+            <Route path="analytics" element={<CreatorAnalyticsPage />} />
+            <Route path="analytics/:courseId" element={<CourseAnalyticsDetailPage />} />
             <Route path="settings" element={<SettingsPage />} />
             <Route path="inbox" element={<InboxPage />} />
           </Route>

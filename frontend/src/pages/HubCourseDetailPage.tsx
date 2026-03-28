@@ -8,6 +8,7 @@ import {
   BookOpen,
   Clock,
   Layers,
+  Link2,
   Loader2,
   Users,
   LogIn,
@@ -18,6 +19,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StarRating } from "@/components/hub/StarRating";
+import { toast } from "sonner";
 import { useHubCourseQuery, useRatingsQuery, useCreateRatingMutation, useDeleteRatingMutation } from "@/hooks/useHub";
 import { useEnrollMutation, useUnenrollMutation, useEnrolledCoursesQuery } from "@/hooks/useEnrollments";
 import { useAuth } from "@/hooks/useAuth";
@@ -188,6 +190,24 @@ export default function HubCourseDetailPage() {
               >
                 <LogIn className="mr-1.5 size-4" />
                 {enrollMutation.isPending ? "Enrolling..." : "Enroll Now"}
+              </Button>
+            )}
+            {course.is_public && (
+              <Button
+                variant="outline"
+                onClick={async () => {
+                  const apiBase = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
+                  const shareUrl = `${apiBase}/share/course/${course.id}`;
+                  try {
+                    await navigator.clipboard.writeText(shareUrl);
+                    toast.success("Share link copied to clipboard");
+                  } catch {
+                    toast.error("Failed to copy link");
+                  }
+                }}
+              >
+                <Link2 className="mr-1.5 size-4" />
+                Share
               </Button>
             )}
           </div>

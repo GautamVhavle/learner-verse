@@ -36,7 +36,7 @@ export interface NavLink {
 export const CREATOR_LINKS: NavLink[] = [
   { title: "Dashboard", icon: LayoutDashboard, path: "/" },
   { title: "Course Hub", icon: Globe, path: "/hub" },
-  { title: "Analytics", icon: LineChart, path: "/analytics", comingSoon: true },
+  { title: "Analytics", icon: LineChart, path: "/analytics" },
   { title: "Certificates", icon: Award, path: "/certificates" },
   { title: "Trash", icon: Trash2, path: "/trash" },
 ];
