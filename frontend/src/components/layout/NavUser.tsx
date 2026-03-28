@@ -1,7 +1,8 @@
 /**
- * Sidebar user menu with avatar, settings, and sign-out actions.
+ * Sidebar user footer — click avatar/name to open profile,
+ * click the chevron arrow for sign-out dropdown.
  */
-import { LogOut, Settings, User } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -9,8 +10,6 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -50,73 +49,52 @@ export function NavUser({ name, email, avatar }: NavUserProps) {
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            className="flex w-full min-w-0 items-center gap-2 overflow-hidden rounded-md p-2 text-left hover:bg-sidebar-accent"
-            data-testid="user-menu-trigger"
+        <div className="flex w-full min-w-0 items-center gap-2 rounded-md p-2">
+          {/* Clicking avatar / name → opens profile settings */}
+          <button
+            onClick={() => navigate("/settings")}
+            className="flex min-w-0 flex-1 items-center gap-2 rounded-md text-left transition-colors hover:opacity-80"
+            data-testid="user-profile-trigger"
           >
-              <Avatar className="h-8 w-8 rounded-lg">
-                {avatar && <AvatarImage src={avatar} alt={name} />}
-                <AvatarFallback className="rounded-lg">
-                  {getInitials(name)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{name}</span>
-                <span className="truncate text-xs text-muted-foreground">
-                  {email}
-                </span>
-              </div>
-              <ChevronsUpDown className="ml-auto size-4" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
-            align="end"
-            sideOffset={4}
-          >
-            <DropdownMenuGroup>
-              <DropdownMenuLabel className="p-0 font-normal">
-                <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                  <Avatar className="h-8 w-8 rounded-lg">
-                    {avatar && <AvatarImage src={avatar} alt={name} />}
-                    <AvatarFallback className="rounded-lg">
-                      {getInitials(name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-medium">{name}</span>
-                    <span className="truncate text-xs text-muted-foreground">
-                      {email}
-                    </span>
-                  </div>
-                </div>
-              </DropdownMenuLabel>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => navigate("/settings")}>
-                <User />
-                Profile
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate("/settings")}>
-                <Settings />
-                Settings
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            {!SINGLE_USER_MODE && (
-              <>
-                <DropdownMenuSeparator />
+            <Avatar className="h-8 w-8 shrink-0 rounded-lg">
+              {avatar && <AvatarImage src={avatar} alt={name} />}
+              <AvatarFallback className="rounded-lg">
+                {getInitials(name)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-medium">{name}</span>
+              <span className="truncate text-xs text-muted-foreground">
+                {email}
+              </span>
+            </div>
+          </button>
+
+          {/* Arrow → sign-out dropdown */}
+          {!SINGLE_USER_MODE && (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                className="flex shrink-0 items-center justify-center rounded-md p-1 text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
+                data-testid="user-menu-trigger"
+              >
+                <ChevronsUpDown className="size-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="min-w-40 rounded-lg"
+                side={isMobile ? "bottom" : "right"}
+                align="end"
+                sideOffset={4}
+              >
                 <DropdownMenuGroup>
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut />
                     Sign out
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
       </SidebarMenuItem>
     </SidebarMenu>
   );
