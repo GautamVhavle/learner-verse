@@ -41,6 +41,10 @@ export function useEvaluateNotificationsMutation() {
         }
       }
     },
+  });
+}
+
+export function useMarkReadMutation() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) =>
