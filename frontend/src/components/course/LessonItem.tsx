@@ -12,6 +12,7 @@ import {
   Pencil,
   Video,
   StickyNote,
+  ClipboardCheck,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -91,6 +92,8 @@ export function LessonItem({
       {/* Lesson type icon */}
       {(lesson.lesson_type ?? "video") === "video" ? (
         <Video className={`size-4 shrink-0 ${lesson.youtube_url ? "text-accent-blue" : "text-text-tertiary"}`} />
+      ) : (lesson.lesson_type ?? "video") === "quiz" ? (
+        <ClipboardCheck className="size-4 shrink-0 text-purple-500" />
       ) : (
         <StickyNote className="size-4 shrink-0 text-amber-500" />
       )}
@@ -131,6 +134,11 @@ export function LessonItem({
       {(lesson.lesson_type ?? "video") === "note" && (
         <span className="shrink-0 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
           Reading Lesson
+        </span>
+      )}
+      {(lesson.lesson_type ?? "video") === "quiz" && (
+        <span className="shrink-0 rounded bg-purple-100 px-1.5 py-0.5 text-[10px] font-medium text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
+          Quiz · {lesson.quiz_questions?.length ?? 0} Q
         </span>
       )}
 

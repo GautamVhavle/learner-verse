@@ -3,8 +3,8 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Float, String, func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Boolean, DateTime, Float, String, Text, func
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
@@ -32,6 +32,9 @@ class User(Base):
     playback_speed: Mapped[float] = mapped_column(Float, default=1.0)
     font_size: Mapped[str] = mapped_column(String(10), default="normal")
     onboarding_complete: Mapped[bool] = mapped_column(Boolean, default=False)
+    bio: Mapped[str | None] = mapped_column(Text, nullable=True)
+    profile_tags: Mapped[list] = mapped_column(JSONB, nullable=False, server_default="[]")
+    is_profile_public: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

@@ -8,12 +8,12 @@ from pydantic import BaseModel, Field
 
 class LessonCreate(BaseModel):
     title: str = Field(..., min_length=1, max_length=200)
-    lesson_type: str = Field("video", pattern=r"^(video|note)$")
+    lesson_type: str = Field("video", pattern=r"^(video|note|quiz)$")
 
 
 class LessonUpdate(BaseModel):
     title: str | None = Field(None, min_length=1, max_length=200)
-    lesson_type: str | None = Field(None, pattern=r"^(video|note)$")
+    lesson_type: str | None = Field(None, pattern=r"^(video|note|quiz)$")
     youtube_url: str | None = None
     youtube_title: str | None = None
     youtube_thumbnail: str | None = None
@@ -52,6 +52,18 @@ class ReferenceLinkResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class QuizQuestionResponse(BaseModel):
+    id: uuid.UUID
+    lesson_id: uuid.UUID
+    question: str
+    options: list[str]
+    correct_option: int
+    position: int
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
 class LessonResponse(BaseModel):
     id: uuid.UUID
     section_id: uuid.UUID
@@ -64,6 +76,7 @@ class LessonResponse(BaseModel):
     youtube_channel: str | None = None
     notes_markdown: str | None = None
     reference_links: list[ReferenceLinkResponse] = []
+    quiz_questions: list[QuizQuestionResponse] = []
     position: int
     created_at: datetime
     updated_at: datetime

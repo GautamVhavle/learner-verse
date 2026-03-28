@@ -14,6 +14,8 @@ from app.models.course_study_state import CourseStudyState
 from app.models.lesson import Lesson
 from app.models.lesson_progress import LessonProgress
 from app.models.notification import Notification
+from app.models.quiz_attempt import QuizAttempt
+from app.models.quiz_question import QuizQuestion
 from app.models.rating import CourseRating
 from app.models.reference_link import ReferenceLink
 from app.models.section import Section
@@ -32,6 +34,8 @@ __all__ = [
     "Lesson",
     "LessonProgress",
     "Notification",
+    "QuizAttempt",
+    "QuizQuestion",
     "ReferenceLink",
     "Section",
     "StudyNote",

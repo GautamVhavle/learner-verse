@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 
 from app.models.lesson import Lesson
+from app.models.quiz_question import QuizQuestion
 from app.models.reference_link import ReferenceLink
 
 
@@ -31,10 +32,10 @@ class LessonRepository:
         return lesson
 
     async def get_by_id(self, lesson_id: uuid.UUID) -> Lesson | None:
-        """Fetch a lesson with its reference links eagerly loaded (single JOIN)."""
+        """Fetch a lesson with its reference links and quiz questions eagerly loaded."""
         result = await self.db.execute(
             select(Lesson)
-            .options(joinedload(Lesson.reference_links))
+            .options(joinedload(Lesson.reference_links), joinedload(Lesson.quiz_questions))
             .where(Lesson.id == lesson_id)
         )
         return result.unique().scalar_one_or_none()
@@ -43,7 +44,7 @@ class LessonRepository:
         """Return all lessons in a section, ordered by position."""
         result = await self.db.execute(
             select(Lesson)
-            .options(joinedload(Lesson.reference_links))
+            .options(joinedload(Lesson.reference_links), joinedload(Lesson.quiz_questions))
             .where(Lesson.section_id == section_id)
             .order_by(Lesson.position)
         )

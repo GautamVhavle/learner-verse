@@ -50,3 +50,6 @@ class Lesson(Base):
     reference_links: Mapped[list["ReferenceLink"]] = relationship(
         back_populates="lesson", cascade="all, delete-orphan", passive_deletes=True, order_by="ReferenceLink.position"
     )
+    quiz_questions: Mapped[list["QuizQuestion"]] = relationship(
+        cascade="all, delete-orphan", passive_deletes=True, order_by="QuizQuestion.position"
+    )

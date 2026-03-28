@@ -5,13 +5,14 @@
  * The type toggle at the top controls which sections are visible.
  */
 import { useState, useCallback } from "react";
-import { ArrowLeft, Video, FileText, Link2, StickyNote } from "lucide-react";
+import { ArrowLeft, Video, FileText, Link2, StickyNote, ClipboardCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { YouTubeInput } from "@/components/lesson/YouTubeInput";
 import { YouTubeEmbed } from "@/components/lesson/YouTubeEmbed";
 import { MarkdownEditor } from "@/components/lesson/MarkdownEditor";
 import { LinkCard } from "@/components/lesson/LinkCard";
 import { LinkInput } from "@/components/lesson/LinkInput";
+import { QuizEditor } from "@/components/lesson/QuizEditor";
 import { extractVideoId } from "@/lib/youtube";
 import type { Lesson, LessonUpdate, ReferenceLinkCreate, LessonType } from "@/types/section";
 
@@ -19,6 +20,7 @@ const MAX_REFERENCE_LINKS = 20;
 
 interface LessonDetailPanelProps {
   lesson: Lesson;
+  courseId: string;
   onUpdate: (data: LessonUpdate) => void;
   onAddReferenceLink: (data: ReferenceLinkCreate) => void;
   onDeleteReferenceLink: (linkId: string) => void;
@@ -27,6 +29,7 @@ interface LessonDetailPanelProps {
 
 export function LessonDetailPanel({
   lesson,
+  courseId,
   onUpdate,
   onAddReferenceLink,
   onDeleteReferenceLink,
@@ -34,6 +37,7 @@ export function LessonDetailPanel({
 }: LessonDetailPanelProps) {
   const lessonType: LessonType = lesson.lesson_type ?? "video";
   const isVideo = lessonType === "video";
+  const isQuiz = lessonType === "quiz";
 
   const videoId = lesson.youtube_url
     ? extractVideoId(lesson.youtube_url)
@@ -82,33 +86,32 @@ export function LessonDetailPanel({
         role="radiogroup"
         aria-label="Lesson type"
       >
-        <button
-          role="radio"
-          aria-checked={isVideo}
-          onClick={() => handleTypeChange("video")}
-          className={`flex flex-1 items-center justify-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-            isVideo
-              ? "bg-bg-primary text-text-primary shadow-sm"
-              : "text-text-tertiary hover:text-text-secondary"
-          }`}
-        >
-          <Video className="size-4" />
-          Video Lesson
-        </button>
-        <button
-          role="radio"
-          aria-checked={!isVideo}
-          onClick={() => handleTypeChange("note")}
-          className={`flex flex-1 items-center justify-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-            !isVideo
-              ? "bg-bg-primary text-text-primary shadow-sm"
-              : "text-text-tertiary hover:text-text-secondary"
-          }`}
-        >
-          <StickyNote className="size-4" />
-          Reading Lesson
-        </button>
+        {([
+          { type: "video" as LessonType, icon: Video, label: "Video" },
+          { type: "note" as LessonType, icon: StickyNote, label: "Reading" },
+          { type: "quiz" as LessonType, icon: ClipboardCheck, label: "Quiz" },
+        ]).map(({ type, icon: Icon, label }) => (
+          <button
+            key={type}
+            role="radio"
+            aria-checked={lessonType === type}
+            onClick={() => handleTypeChange(type)}
+            className={`flex flex-1 items-center justify-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+              lessonType === type
+                ? "bg-bg-primary text-text-primary shadow-sm"
+                : "text-text-tertiary hover:text-text-secondary"
+            }`}
+          >
+            <Icon className="size-4" />
+            {label}
+          </button>
+        ))}
       </div>
+
+      {/* ── Quiz Editor (quiz type only) ────────────────────── */}
+      {isQuiz && (
+        <QuizEditor lessonId={lesson.id} courseId={courseId} />
+      )}
 
       {/* ── YouTube Video Section (video type only) ───────────── */}
       {isVideo && (
@@ -138,60 +141,64 @@ export function LessonDetailPanel({
         </section>
       )}
 
-      {/* ── Markdown Notes Section ────────────────────────────── */}
-      <section className="space-y-3">
-        <div className="flex items-center gap-2">
-          <FileText className="size-4 text-text-secondary" />
-          <h3 className="text-sm font-medium text-text-primary">Notes</h3>
-        </div>
-
-        <MarkdownEditor
-          value={markdown}
-          onChange={setMarkdown}
-          onBlur={handleMarkdownBlur}
-        />
-      </section>
-
-      {/* ── Reference Links Section ───────────────────────────── */}
-      <section className="space-y-3">
-        <div className="flex items-center justify-between">
+      {/* ── Markdown Notes Section (video & note types) ───────── */}
+      {!isQuiz && (
+        <section className="space-y-3">
           <div className="flex items-center gap-2">
-            <Link2 className="size-4 text-text-secondary" />
-            <h3 className="text-sm font-medium text-text-primary">
-              Reference Links
-            </h3>
+            <FileText className="size-4 text-text-secondary" />
+            <h3 className="text-sm font-medium text-text-primary">Notes</h3>
           </div>
+
+          <MarkdownEditor
+            value={markdown}
+            onChange={setMarkdown}
+            onBlur={handleMarkdownBlur}
+          />
+        </section>
+      )}
+
+      {/* ── Reference Links Section (video & note types) ──────── */}
+      {!isQuiz && (
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Link2 className="size-4 text-text-secondary" />
+              <h3 className="text-sm font-medium text-text-primary">
+                Reference Links
+              </h3>
+            </div>
+            {links.length > 0 && (
+              <span className="text-xs tabular-nums text-text-tertiary">
+                {links.length} / {MAX_REFERENCE_LINKS}
+              </span>
+            )}
+          </div>
+
+          {/* Existing links */}
           {links.length > 0 && (
-            <span className="text-xs tabular-nums text-text-tertiary">
-              {links.length} / {MAX_REFERENCE_LINKS}
-            </span>
+            <div className="space-y-2">
+              {links.map((link) => (
+                <LinkCard
+                  key={link.id}
+                  link={link}
+                  onRemove={() => onDeleteReferenceLink(link.id)}
+                />
+              ))}
+            </div>
           )}
-        </div>
 
-        {/* Existing links */}
-        {links.length > 0 && (
-          <div className="space-y-2">
-            {links.map((link) => (
-              <LinkCard
-                key={link.id}
-                link={link}
-                onRemove={() => onDeleteReferenceLink(link.id)}
-              />
-            ))}
-          </div>
-        )}
+          {/* Add new link */}
+          {!atLinkLimit && (
+            <LinkInput onAdd={onAddReferenceLink} />
+          )}
 
-        {/* Add new link */}
-        {!atLinkLimit && (
-          <LinkInput onAdd={onAddReferenceLink} />
-        )}
-
-        {atLinkLimit && (
-          <p className="text-xs text-text-tertiary">
-            Maximum of {MAX_REFERENCE_LINKS} reference links reached.
-          </p>
-        )}
-      </section>
+          {atLinkLimit && (
+            <p className="text-xs text-text-tertiary">
+              Maximum of {MAX_REFERENCE_LINKS} reference links reached.
+            </p>
+          )}
+        </section>
+      )}
     </div>
   );
 }

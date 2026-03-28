@@ -57,10 +57,11 @@ export default function CourseHubPage() {
   };
 
   const handleCourseClick = (courseId: string) => {
-    if (tab === "mine") {
-      // Navigate to course editor for own courses
+    if (tab === "mine" && mode === "creator") {
+      // Creator can go directly to builder for their own courses
       navigate(`${modePrefix}/courses/${courseId}/edit`);
     } else {
+      // Learner or public tab — go to hub detail page
       navigate(`${modePrefix}/hub/${courseId}`);
     }
   };

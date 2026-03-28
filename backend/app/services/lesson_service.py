@@ -68,13 +68,14 @@ class LessonService:
             )
         lesson = await self.lesson_repo.create(section_id=section_id, title=data.title, lesson_type=data.lesson_type)
         await self.db.commit()
-        # New lesson — construct response directly (no reference links yet)
+        # New lesson — construct response directly (no links or questions yet)
         return LessonResponse(
             id=lesson.id,
             section_id=lesson.section_id,
             title=lesson.title,
             lesson_type=getattr(lesson, "lesson_type", "video"),
             reference_links=[],
+            quiz_questions=[],
             position=lesson.position,
             created_at=lesson.created_at,
             updated_at=lesson.updated_at,

@@ -13,6 +13,7 @@ interface CourseGridProps {
   onEdit: (course: Course) => void;
   onDelete: (id: string) => void;
   onDuplicate: (id: string) => void;
+  onTogglePublic?: (id: string, isPublic: boolean) => void;
   duplicatingId?: string | null;
   statusFilter: string | null;
   onStatusFilterChange: (status: string | null) => void;
@@ -32,6 +33,7 @@ export function CourseGrid({
   onEdit,
   onDelete,
   onDuplicate,
+  onTogglePublic,
   duplicatingId,
   statusFilter,
   onStatusFilterChange,
@@ -84,6 +86,7 @@ export function CourseGrid({
               onEdit={onEdit}
               onDelete={onDelete}
               onDuplicate={onDuplicate}
+              onTogglePublic={onTogglePublic}
               isDuplicating={duplicatingId === course.id}
             />
           ))}

@@ -16,6 +16,9 @@ class UserResponse(BaseModel):
     playback_speed: float = 1.0
     font_size: str = "normal"
     onboarding_complete: bool = False
+    bio: str | None = None
+    profile_tags: list[str] = []
+    is_profile_public: bool = False
     created_at: datetime
     updated_at: datetime
 
@@ -29,3 +32,42 @@ class UserUpdate(BaseModel):
     playback_speed: float | None = Field(None, ge=0.25, le=4.0)
     font_size: str | None = Field(None, pattern=r"^(normal|large|xl)$")
     onboarding_complete: bool | None = None
+    bio: str | None = Field(None, max_length=500)
+    profile_tags: list[str] | None = Field(None, max_length=10)
+    is_profile_public: bool | None = None
+
+
+class PublicProfileResponse(BaseModel):
+    """Public-facing profile — no email, no private settings."""
+    id: uuid.UUID
+    display_name: str
+    avatar_url: str | None = None
+    bio: str | None = None
+    profile_tags: list[str] = []
+    member_since: datetime
+
+    # Stats
+    total_courses_completed: int = 0
+    total_lessons_completed: int = 0
+    current_streak: int = 0
+    longest_streak: int = 0
+    total_active_days: int = 0
+
+    # Certificates
+    certificates: list["PublicCertificateItem"] = []
+
+    # Activity heatmap
+    activity_heatmap: list["ActivityDayItem"] = []
+
+    model_config = {"from_attributes": True}
+
+
+class PublicCertificateItem(BaseModel):
+    certificate_uid: str
+    course_title: str
+    completed_at: datetime
+
+
+class ActivityDayItem(BaseModel):
+    date: str
+    count: int

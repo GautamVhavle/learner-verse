@@ -75,12 +75,13 @@ export function useCourseBuilder(courseId: string | undefined) {
 
   // ── Lesson handlers ───────────────────────────────────────
 
-  const handleAddLesson = (sectionId: string, type: "video" | "note" = "video") => {
+  const handleAddLesson = (sectionId: string, type: "video" | "note" | "quiz" = "video") => {
     const section = sections?.find((s) => s.id === sectionId);
     const count = section?.lessons.length ?? 0;
+    const defaultTitle = type === "quiz" ? `Quiz ${count + 1}` : `Lesson ${count + 1}`;
     createLesson.mutate({
       sectionId,
-      data: { title: `Lesson ${count + 1}`, lesson_type: type },
+      data: { title: defaultTitle, lesson_type: type },
     });
   };
 

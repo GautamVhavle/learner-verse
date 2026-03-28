@@ -16,12 +16,17 @@ import {
   Play,
   MessageSquare,
   Trash2,
+  Video,
+  StickyNote,
+  ClipboardCheck,
+  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StarRating } from "@/components/hub/StarRating";
 import { toast } from "sonner";
 import { useHubCourseQuery, useRatingsQuery, useCreateRatingMutation, useDeleteRatingMutation } from "@/hooks/useHub";
 import { useEnrollMutation, useUnenrollMutation, useEnrolledCoursesQuery } from "@/hooks/useEnrollments";
+import { useCourseProgressQuery } from "@/hooks/useProgress";
 import { useAuth } from "@/hooks/useAuth";
 import { useMode } from "@/hooks/useMode";
 import { api } from "@/lib/api";
@@ -54,6 +59,8 @@ export default function HubCourseDetailPage() {
   });
 
   const isEnrolled = enrolledData?.items.some((c) => c.id === courseId) ?? false;
+  const { data: progress } = useCourseProgressQuery(isEnrolled ? courseId : undefined);
+  const isCompleted = isEnrolled && progress?.percentage === 100;
   const myRating = ratingsData?.items.find((r) => r.user_id === user?.id);
   const ratings = ratingsData?.items ?? [];
 
@@ -166,13 +173,22 @@ export default function HubCourseDetailPage() {
           )}
 
           {/* Action buttons */}
-          <div className="flex gap-3">
+          <div className="flex items-center gap-3">
             {isEnrolled ? (
               <>
-                <Button onClick={() => navigate(`${modePrefix}/study/${course.id}`)}>
-                  <Play className="mr-1.5 size-4" />
-                  Go to Course
-                </Button>
+                {isCompleted ? (
+                  <div className="flex items-center gap-2 rounded-lg bg-accent-green/10 px-4 py-2">
+                    <CheckCircle2 className="size-5 text-accent-green" />
+                    <span className="text-sm font-semibold text-accent-green">
+                      Completed
+                    </span>
+                  </div>
+                ) : (
+                  <Button onClick={() => navigate(`${modePrefix}/study/${course.id}`)}>
+                    <Play className="mr-1.5 size-4" />
+                    {progress ? `Continue (${Math.round(progress.percentage)}%)` : "Go to Course"}
+                  </Button>
+                )}
                 <Button
                   variant="outline"
                   onClick={handleUnenroll}
@@ -226,12 +242,22 @@ export default function HubCourseDetailPage() {
                 </p>
                 {section.lessons.length > 0 && (
                   <ul className="mt-1.5 space-y-0.5 pl-4">
-                    {section.lessons.map((lesson) => (
-                      <li key={lesson.id} className="flex items-center gap-1.5 text-xs text-text-secondary">
-                        <Clock className="size-3 text-text-tertiary" />
-                        {lesson.title}
-                      </li>
-                    ))}
+                    {section.lessons.map((lesson) => {
+                      const icon =
+                        lesson.lesson_type === "quiz" ? (
+                          <ClipboardCheck className="size-3 text-purple-500" />
+                        ) : lesson.lesson_type === "note" ? (
+                          <StickyNote className="size-3 text-amber-500" />
+                        ) : (
+                          <Video className="size-3 text-accent-blue" />
+                        );
+                      return (
+                        <li key={lesson.id} className="flex items-center gap-1.5 text-xs text-text-secondary">
+                          {icon}
+                          {lesson.title}
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
               </div>

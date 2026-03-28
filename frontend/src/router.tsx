@@ -27,6 +27,7 @@ import CourseHubPage from "@/pages/CourseHubPage";
 import HubCourseDetailPage from "@/pages/HubCourseDetailPage";
 import CreatorAnalyticsPage from "@/pages/CreatorAnalyticsPage";
 import CourseAnalyticsDetailPage from "@/pages/CourseAnalyticsDetailPage";
+import PublicProfilePage from "@/pages/PublicProfilePage";
 
 export default function AppRouter() {
   return (
@@ -99,6 +100,9 @@ export default function AppRouter() {
           >
             <Route index element={<CertificateSharePage />} />
           </Route>
+
+          {/* Public profile page */}
+          <Route path="/profile/:userId" element={<PublicProfilePage />} />
 
           {/* Redirect root to mode redirect page */}
           <Route path="/" element={<ModeRedirectPage />} />

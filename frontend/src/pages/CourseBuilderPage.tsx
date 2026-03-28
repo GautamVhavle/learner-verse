@@ -17,6 +17,8 @@ import {
   FileEdit,
   AlertTriangle,
   Globe,
+  Lock,
+  RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionList } from "@/components/course/SectionList";
@@ -24,7 +26,7 @@ import { LessonDetailPanel } from "@/components/lesson/LessonDetailPanel";
 import { CourseStatusBadge } from "@/components/course/CourseStatusBadge";
 import { ValidationErrorsDialog } from "@/components/course/ValidationErrorsDialog";
 import { useCourseBuilder } from "@/hooks/useCourseBuilder";
-import { useUpdateCourseMutation } from "@/hooks/useCourses";
+import { useUpdateCourseMutation, useValidateCourseQuery } from "@/hooks/useCourses";
 import type { ValidationError } from "@/types/course";
 
 export default function CourseBuilderPage() {
@@ -34,6 +36,15 @@ export default function CourseBuilderPage() {
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
   const [showValidation, setShowValidation] = useState(false);
   const updateCourse = useUpdateCourseMutation();
+  const validateQuery = useValidateCourseQuery(courseId);
+
+  const handleShowIssues = async () => {
+    const { data } = await validateQuery.refetch();
+    if (data) {
+      setValidationErrors(data);
+      setShowValidation(true);
+    }
+  };
 
   const {
     course,
@@ -89,12 +100,13 @@ export default function CourseBuilderPage() {
   // Find the selected lesson for the detail panel
   const selectedLesson = selectedLessonId ? findLesson(selectedLessonId) : null;
 
-  // If a lesson is selected, show the detail panel
-  if (selectedLesson) {
+  // If a lesson is selected, show the detail panel (but only in draft mode)
+  if (selectedLesson && course.status !== "ready") {
     return (
       <div className="mx-auto max-w-3xl">
         <LessonDetailPanel
           lesson={selectedLesson}
+          courseId={courseId!}
           onUpdate={(data) => handleUpdateLessonFull(selectedLesson.id, data)}
           onAddReferenceLink={(data) =>
             handleAddReferenceLink(selectedLesson.id, data)
@@ -109,9 +121,32 @@ export default function CourseBuilderPage() {
   }
 
   const isReady = course.status === "ready";
+  const wasPublished = course.enrollment_count > 0 || course.is_public;
 
   return (
     <div className="mx-auto max-w-3xl">
+      {/* Published banner */}
+      {isReady && (
+        <div className="mb-4 flex items-center justify-between rounded-lg border border-accent-green/30 bg-accent-green/5 px-4 py-3">
+          <div className="flex items-center gap-2">
+            <Lock className="size-4 text-accent-green" />
+            <span className="text-sm font-medium text-text-primary">
+              This course is published and read-only.
+            </span>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleBackToDraft}
+            disabled={updateStatus.isPending}
+            className="gap-1.5"
+          >
+            <FileEdit className="size-3.5" />
+            Edit Course
+          </Button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="mb-6 flex flex-col gap-4">
         <div className="flex items-start gap-3">
@@ -133,10 +168,13 @@ export default function CourseBuilderPage() {
             <p className="mt-0.5 text-xs text-text-secondary">
               {sections?.length ?? 0} sections &middot; {totalLessons} lessons
               {course.has_issues && (
-                <span className="ml-2 inline-flex items-center gap-1 text-accent-amber">
+                <button
+                  onClick={handleShowIssues}
+                  className="ml-2 inline-flex cursor-pointer items-center gap-1 text-accent-amber hover:underline"
+                >
                   <AlertTriangle className="size-3" />
                   Has issues
-                </span>
+                </button>
               )}
             </p>
           </div>
@@ -154,18 +192,7 @@ export default function CourseBuilderPage() {
             Preview
           </Button>
 
-          {isReady ? (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleBackToDraft}
-              disabled={updateStatus.isPending}
-              className="gap-1.5"
-            >
-              <FileEdit className="size-3.5" />
-              Back to Draft
-            </Button>
-          ) : (
+          {!isReady && (
             <Button
               size="sm"
               onClick={onMarkReady}
@@ -174,10 +201,12 @@ export default function CourseBuilderPage() {
             >
               {updateStatus.isPending ? (
                 <Loader2 className="size-3.5 animate-spin" />
+              ) : wasPublished ? (
+                <RefreshCw className="size-3.5" />
               ) : (
                 <CheckCircle2 className="size-3.5" />
               )}
-              Mark as Ready
+              {wasPublished ? "Republish" : "Publish"}
             </Button>
           )}
 
@@ -210,20 +239,22 @@ export default function CourseBuilderPage() {
       </div>
 
       {/* Section List */}
-      <SectionList
-        sections={sections ?? []}
-        onAddSection={handleAddSection}
-        onUpdateSection={handleUpdateSection}
-        onDeleteSection={handleDeleteSection}
-        onDuplicateSection={handleDuplicateSection}
-        onReorderSections={handleReorderSections}
+      <div className={isReady ? "pointer-events-none opacity-60" : ""}>
+        <SectionList
+          sections={sections ?? []}
+          onAddSection={handleAddSection}
+          onUpdateSection={handleUpdateSection}
+          onDeleteSection={handleDeleteSection}
+          onDuplicateSection={handleDuplicateSection}
+          onReorderSections={handleReorderSections}
         onAddLesson={handleAddLesson}
         onUpdateLesson={handleUpdateLesson}
         onDeleteLesson={handleDeleteLesson}
         onDuplicateLesson={handleDuplicateLesson}
         onReorderLessons={handleReorderLessons}
-        onLessonClick={setSelectedLessonId}
-      />
+        onLessonClick={isReady ? undefined : setSelectedLessonId}
+        />
+      </div>
 
       {/* Validation errors dialog */}
       <ValidationErrorsDialog

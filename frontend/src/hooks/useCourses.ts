@@ -10,6 +10,7 @@ import type {
   CourseListResponse,
   CourseUpdate,
   StatusUpdateResponse,
+  ValidationError,
 } from "@/types/course";
 
 const COURSES_KEY = ["courses"] as const;
@@ -136,5 +137,13 @@ export function useUploadThumbnailMutation() {
   return useMutation({
     mutationFn: (file: File) =>
       api.upload<{ url: string }>("/uploads/thumbnail", file),
+  });
+}
+
+export function useValidateCourseQuery(courseId: string | undefined) {
+  return useQuery({
+    queryKey: [...COURSES_KEY, courseId, "validate"],
+    queryFn: () => api.get<ValidationError[]>(`/courses/${courseId}/validate`),
+    enabled: false, // Only fetch on demand
   });
 }

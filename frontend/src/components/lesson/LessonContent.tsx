@@ -9,25 +9,35 @@ import { Link2 } from "lucide-react";
 import { YouTubeEmbed } from "@/components/lesson/YouTubeEmbed";
 import { MarkdownRenderer } from "@/components/lesson/MarkdownRenderer";
 import { LinkCard } from "@/components/lesson/LinkCard";
+import { QuizPlayer } from "@/components/lesson/QuizPlayer";
 import { extractVideoId } from "@/lib/youtube";
 import type { Lesson } from "@/types/section";
 
 interface LessonContentProps {
   lesson: Lesson;
+  onQuizCompleted?: () => void;
 }
 
-export function LessonContent({ lesson }: LessonContentProps) {
+export function LessonContent({ lesson, onQuizCompleted }: LessonContentProps) {
   const isVideo = (lesson.lesson_type ?? "video") === "video";
+  const isQuiz = (lesson.lesson_type ?? "video") === "quiz";
   const videoId =
     isVideo && lesson.youtube_url
       ? extractVideoId(lesson.youtube_url)
       : null;
   const links = lesson.reference_links ?? [];
 
-  const hasContent = videoId || lesson.notes_markdown || links.length > 0;
+  const hasContent = videoId || lesson.notes_markdown || links.length > 0 || isQuiz;
 
   return (
     <>
+      {/* Quiz */}
+      {isQuiz && (
+        <section>
+          <QuizPlayer lessonId={lesson.id} onQuizCompleted={onQuizCompleted} />
+        </section>
+      )}
+
       {/* YouTube */}
       {videoId && (
         <section>

@@ -4,6 +4,7 @@
 import { useState } from "react";
 import {
   Copy,
+  Globe,
   MoreHorizontal,
   Pencil,
   Trash2,
@@ -36,6 +37,7 @@ interface CourseCardProps {
   onEdit: (course: Course) => void;
   onDelete: (id: string) => void;
   onDuplicate: (id: string) => void;
+  onTogglePublic?: (id: string, isPublic: boolean) => void;
   isDuplicating?: boolean;
 }
 
@@ -44,6 +46,7 @@ export function CourseCard({
   onEdit,
   onDelete,
   onDuplicate,
+  onTogglePublic,
   isDuplicating,
 }: CourseCardProps) {
   const navigate = useModeAwareNavigate();
@@ -111,6 +114,14 @@ export function CourseCard({
                     <Copy className="size-4" />
                     Duplicate
                   </DropdownMenuItem>
+                  {course.status === "ready" && onTogglePublic && (
+                    <DropdownMenuItem
+                      onClick={() => onTogglePublic(course.id, !course.is_public)}
+                    >
+                      <Globe className="size-4" />
+                      {course.is_public ? "Make Private" : "Make Public"}
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem
                     variant="destructive"
                     onClick={() => onDelete(course.id)}

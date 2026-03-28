@@ -128,10 +128,10 @@ describe("SectionList", () => {
     expect(onAddSection).toHaveBeenCalled();
   });
 
-  it("renders Add Lesson buttons for each section", () => {
+  it("renders Add buttons for each section", () => {
     render(<SectionList {...defaultProps} />);
     const addLessonButtons = screen.getAllByRole("button", {
-      name: /Add Lesson/i,
+      name: /^Add$/i,
     });
     expect(addLessonButtons).toHaveLength(2);
   });
@@ -141,7 +141,7 @@ describe("SectionList", () => {
     const onAddLesson = vi.fn();
     render(<SectionList {...defaultProps} onAddLesson={onAddLesson} />);
     const addLessonButtons = screen.getAllByRole("button", {
-      name: /Add Lesson/i,
+      name: /^Add$/i,
     });
     await user.click(addLessonButtons[0]);
     const videoOption = await screen.findByText("Video Lesson");

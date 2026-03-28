@@ -28,6 +28,7 @@ import {
   Pencil,
   Video,
   StickyNote,
+  ClipboardCheck,
 } from "lucide-react";
 import {
   Collapsible,
@@ -212,6 +213,10 @@ export function SectionItem({
                 <StickyNote className="size-4" />
                 Add Reading Lesson
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onAddLesson("quiz")}>
+                <ClipboardCheck className="size-4" />
+                Add Quiz
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={onDuplicateSection}>
                 <Copy className="size-4" />
                 Duplicate
@@ -267,7 +272,7 @@ export function SectionItem({
                 }
               >
                 <Plus className="size-3.5" />
-                Add Lesson
+                Add
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" sideOffset={4}>
                 <DropdownMenuItem onClick={() => onAddLesson("video")}>
@@ -276,7 +281,11 @@ export function SectionItem({
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => onAddLesson("note")}>
                   <StickyNote className="size-4" />
-                  Add Reading Lesson
+                  Reading Lesson
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onAddLesson("quiz")}>
+                  <ClipboardCheck className="size-4" />
+                  Quiz
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

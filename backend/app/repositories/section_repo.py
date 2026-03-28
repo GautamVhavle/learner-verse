@@ -13,6 +13,7 @@ from sqlalchemy.orm import joinedload, selectinload
 
 from app.models.course import Course
 from app.models.lesson import Lesson
+from app.models.quiz_question import QuizQuestion
 from app.models.reference_link import ReferenceLink
 from app.models.section import Section
 
@@ -35,10 +36,13 @@ class SectionRepository:
         return section
 
     async def get_by_id(self, section_id: uuid.UUID) -> Section | None:
-        """Fetch a section with lessons and reference links (single JOIN query)."""
+        """Fetch a section with lessons, reference links, and quiz questions."""
         result = await self.db.execute(
             select(Section)
-            .options(joinedload(Section.lessons).joinedload(Lesson.reference_links))
+            .options(
+                joinedload(Section.lessons).joinedload(Lesson.reference_links),
+                joinedload(Section.lessons).joinedload(Lesson.quiz_questions),
+            )
             .where(Section.id == section_id)
         )
         return result.unique().scalar_one_or_none()
@@ -47,7 +51,10 @@ class SectionRepository:
         """Return all sections in a course, ordered by position."""
         result = await self.db.execute(
             select(Section)
-            .options(joinedload(Section.lessons).joinedload(Lesson.reference_links))
+            .options(
+                joinedload(Section.lessons).joinedload(Lesson.reference_links),
+                joinedload(Section.lessons).joinedload(Lesson.quiz_questions),
+            )
             .where(Section.course_id == course_id)
             .order_by(Section.position)
         )
@@ -59,7 +66,10 @@ class SectionRepository:
             return {}
         result = await self.db.execute(
             select(Section)
-            .options(joinedload(Section.lessons).joinedload(Lesson.reference_links))
+            .options(
+                joinedload(Section.lessons).joinedload(Lesson.reference_links),
+                joinedload(Section.lessons).joinedload(Lesson.quiz_questions),
+            )
             .where(Section.course_id.in_(course_ids))
             .order_by(Section.course_id, Section.position)
         )
@@ -150,7 +160,10 @@ class SectionRepository:
         # Re-fetch with all relationships loaded
         result = await self.db.execute(
             select(Section)
-            .options(joinedload(Section.lessons).joinedload(Lesson.reference_links))
+            .options(
+                joinedload(Section.lessons).joinedload(Lesson.reference_links),
+                joinedload(Section.lessons).joinedload(Lesson.quiz_questions),
+            )
             .where(Section.id == source_section_id)
         )
         source = result.unique().scalar_one()
@@ -166,7 +179,7 @@ class SectionRepository:
         self.db.add(new_section)
         await self.db.flush()
 
-        # Deep-copy each lesson and its reference links
+        # Deep-copy each lesson and its reference links and quiz questions
         for lesson in source.lessons:
             new_lesson = self._clone_lesson(lesson, new_section.id)
             self.db.add(new_lesson)
@@ -174,6 +187,9 @@ class SectionRepository:
 
             for link in lesson.reference_links:
                 self.db.add(self._clone_reference_link(link, new_lesson.id))
+
+            for question in lesson.quiz_questions:
+                self.db.add(self._clone_quiz_question(question, new_lesson.id))
         await self.db.flush()
 
         return new_section
@@ -184,6 +200,7 @@ class SectionRepository:
         return Lesson(
             section_id=target_section_id,
             title=lesson.title,
+            lesson_type=lesson.lesson_type,
             youtube_url=lesson.youtube_url,
             youtube_title=lesson.youtube_title,
             youtube_thumbnail=lesson.youtube_thumbnail,
@@ -205,6 +222,17 @@ class SectionRepository:
             favicon=link.favicon,
             domain=link.domain,
             position=link.position,
+        )
+
+    @staticmethod
+    def _clone_quiz_question(question: QuizQuestion, target_lesson_id: uuid.UUID) -> QuizQuestion:
+        """Create an in-memory copy of a quiz question for a new lesson."""
+        return QuizQuestion(
+            lesson_id=target_lesson_id,
+            question=question.question,
+            options=list(question.options),
+            correct_option=question.correct_option,
+            position=question.position,
         )
 
     async def _next_position(self, course_id: uuid.UUID) -> int:

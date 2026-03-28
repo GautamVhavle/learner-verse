@@ -1,7 +1,9 @@
 /**
  * TypeScript types for sections, lessons, and reference links.
  */
-export type LessonType = "video" | "note";
+import type { QuizQuestion } from "./quiz";
+
+export type LessonType = "video" | "note" | "quiz";
 
 export interface Lesson {
   id: string;
@@ -15,6 +17,7 @@ export interface Lesson {
   youtube_channel: string | null;
   notes_markdown: string | null;
   reference_links: ReferenceLink[];
+  quiz_questions: QuizQuestion[];
   position: number;
   created_at: string;
   updated_at: string;

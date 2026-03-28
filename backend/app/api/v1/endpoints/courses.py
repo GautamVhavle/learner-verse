@@ -15,6 +15,7 @@ from app.schemas.course import (
     CourseUpdate,
     StatusUpdateRequest,
     StatusUpdateResponse,
+    ValidationError,
 )
 from app.services.course_service import CourseService
 
@@ -127,3 +128,13 @@ async def update_course_status(
 ):
     """Update course status with validation. Returns errors if setting to Ready and course is invalid."""
     return await _service(db).update_status(course_id, user.id, data.status)
+
+
+@router.get("/{course_id}/validate", response_model=list[ValidationError])
+async def validate_course(
+    course_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Run content validation on a course and return the list of issues."""
+    return await _service(db).validate_course(course_id, user.id)

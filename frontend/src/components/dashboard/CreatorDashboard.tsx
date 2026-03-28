@@ -73,6 +73,10 @@ export function CreatorDashboard() {
 
   const isEmpty = !isLoading && courses.length === 0 && !statusFilter && !search;
 
+  const handleTogglePublic = (id: string, isPublic: boolean) => {
+    updateMutation.mutate({ id, data: { is_public: isPublic } });
+  };
+
   return (
     <div>
       {/* Header */}
@@ -109,6 +113,7 @@ export function CreatorDashboard() {
           onEdit={handleEdit}
           onDelete={(id) => deleteMutation.mutate(id)}
           onDuplicate={handleDuplicate}
+          onTogglePublic={handleTogglePublic}
           duplicatingId={duplicatingId}
           statusFilter={statusFilter}
           onStatusFilterChange={setStatusFilter}

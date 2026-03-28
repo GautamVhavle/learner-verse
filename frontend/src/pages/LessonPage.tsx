@@ -15,6 +15,7 @@ import { LessonNavButtons } from "@/components/lesson/LessonNavButtons";
 import { StudyNotes } from "@/components/study/StudyNotes";
 import { StudySidebar } from "@/components/study/StudySidebar";
 import { CompletionButton } from "@/components/study/CompletionButton";
+import { useToggleProgressMutation } from "@/hooks/useProgress";
 import { ProgressBar } from "@/components/study/ProgressBar";
 import { FocusOverlay } from "@/components/study/FocusOverlay";
 import { CelebrationModal } from "@/components/certificate/CelebrationModal";
@@ -42,6 +43,7 @@ export default function LessonPage() {
   const updateState = useUpdateStudyStateMutation();
   const { data: progress } = useCourseProgressQuery(courseId);
   const generateCert = useGenerateCertificateMutation();
+  const toggleProgress = useToggleProgressMutation();
   const [showCelebration, setShowCelebration] = useState(false);
 
   const isLoading = courseLoading || sectionsLoading;
@@ -116,6 +118,17 @@ export default function LessonPage() {
     },
     [progress, courseId, currentLesson, generateCert],
   );
+
+  /** Auto-mark quiz lesson as complete when the learner passes */
+  const handleQuizCompleted = useCallback(() => {
+    if (!currentLesson) return;
+    const alreadyComplete = progress?.lesson_progress?.[currentLesson.id] ?? false;
+    if (alreadyComplete) return;
+    toggleProgress.mutate(
+      { lessonId: currentLesson.id, data: { completed: true } },
+      { onSuccess: () => handleCompletionToggled(true) },
+    );
+  }, [currentLesson, progress, toggleProgress, handleCompletionToggled]);
 
   if (isLoading) {
     return (
@@ -210,8 +223,8 @@ export default function LessonPage() {
               </div>
             </div>
 
-            {/* Lesson body (video, markdown, links) */}
-            <LessonContent lesson={currentLesson} />
+            {/* Lesson body (video, markdown, links, quiz) */}
+            <LessonContent lesson={currentLesson} onQuizCompleted={handleQuizCompleted} />
 
             {/* Study Notes */}
             <StudyNotes lessonId={currentLesson.id} />

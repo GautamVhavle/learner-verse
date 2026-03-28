@@ -305,19 +305,29 @@ class CourseService:
                 )
                 continue
             for lesson in section.lessons:
-                has_content = bool(
-                    lesson.youtube_url
-                    or lesson.notes_markdown
-                    or lesson.reference_links
-                )
-                if not has_content:
-                    errors.append(
-                        ValidationError(
-                            section=section.title,
-                            lesson=lesson.title,
-                            message="Lesson has no content (video, notes, or links).",
+                if lesson.lesson_type == "quiz":
+                    if not lesson.quiz_questions:
+                        errors.append(
+                            ValidationError(
+                                section=section.title,
+                                lesson=lesson.title,
+                                message="Quiz has no questions.",
+                            )
                         )
+                else:
+                    has_content = bool(
+                        lesson.youtube_url
+                        or lesson.notes_markdown
+                        or lesson.reference_links
                     )
+                    if not has_content:
+                        errors.append(
+                            ValidationError(
+                                section=section.title,
+                                lesson=lesson.title,
+                                message="Lesson has no content (video, notes, or links).",
+                            )
+                        )
         return errors
 
     async def validate_course(
