@@ -1,11 +1,8 @@
-"""API endpoints for course CRUD, lifecycle management, and import/export."""
+"""API endpoints for course CRUD and lifecycle management."""
 
-import json
 import uuid
 
-from fastapi import APIRouter, Depends, File, Query, UploadFile, status
-from fastapi.responses import JSONResponse
-from pydantic import ValidationError
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_current_user
@@ -19,9 +16,7 @@ from app.schemas.course import (
     StatusUpdateRequest,
     StatusUpdateResponse,
 )
-from app.schemas.export import CourseExportData
 from app.services.course_service import CourseService
-from app.services.export_service import ExportImportService
 
 router = APIRouter(prefix="/courses", tags=["courses"])
 
@@ -132,71 +127,3 @@ async def update_course_status(
 ):
     """Update course status with validation. Returns errors if setting to Ready and course is invalid."""
     return await _service(db).update_status(course_id, user.id, data.status)
-
-
-@router.get("/{course_id}/export")
-async def export_course(
-    course_id: uuid.UUID,
-    user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-):
-    """Export a course as a JSON file download."""
-    service = ExportImportService(db)
-    data = await service.export_course(course_id, user.id)
-    # Sanitize title for filename
-    safe_title = "".join(c if c.isalnum() or c in " -_" else "" for c in data.title)
-    safe_title = safe_title.strip().replace(" ", "-")[:50] or "course"
-    return JSONResponse(
-        content=data.model_dump(),
-        headers={
-            "Content-Disposition": f'attachment; filename="{safe_title}.json"',
-        },
-    )
-
-
-@router.post("/import", response_model=CourseResponse, status_code=status.HTTP_201_CREATED)
-async def import_course(
-    file: UploadFile = File(...),
-    user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-):
-    """Import a course from a JSON file upload."""
-    data = await _parse_import_file(file)
-    service = ExportImportService(db)
-    return await service.import_course(user.id, data)
-
-
-# ── Import Helpers ───────────────────────────────────────────────
-
-_MAX_IMPORT_SIZE = 10 * 1024 * 1024  # 10 MB
-
-
-async def _parse_import_file(file: UploadFile) -> CourseExportData:
-    """Validate and parse an uploaded JSON course file.
-
-    Checks filename extension, file size, JSON validity, and schema
-    conformance. Returns a validated ``CourseExportData`` or raises
-    an appropriate HTTP error response.
-    """
-    if not file.filename or not file.filename.endswith(".json"):
-        raise _import_error("File must be a .json file.")
-
-    content = await file.read()
-    if len(content) > _MAX_IMPORT_SIZE:
-        raise _import_error("File too large. Maximum 10 MB.")
-
-    try:
-        raw = json.loads(content)
-    except json.JSONDecodeError:
-        raise _import_error("Invalid JSON file.")
-
-    try:
-        return CourseExportData.model_validate(raw)
-    except ValidationError as e:
-        raise _import_error(f"Invalid course format: {e.error_count()} validation errors.")
-
-
-def _import_error(detail: str):
-    """Return an HTTPException for import validation failures."""
-    from fastapi import HTTPException
-    return HTTPException(status_code=400, detail=detail)

@@ -3,7 +3,7 @@
  *
  * Provides a section/lesson tree editor with drag-and-drop reordering,
  * inline title editing, a detail panel for lesson content, course
- * status management, and export. All mutation logic lives in the
+ * status management. All mutation logic lives in the
  * `useCourseBuilder` hook; this component handles layout and routing.
  */
 import { useState } from "react";
@@ -16,7 +16,7 @@ import {
   CheckCircle2,
   FileEdit,
   AlertTriangle,
-  Download,
+  Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionList } from "@/components/course/SectionList";
@@ -24,6 +24,7 @@ import { LessonDetailPanel } from "@/components/lesson/LessonDetailPanel";
 import { CourseStatusBadge } from "@/components/course/CourseStatusBadge";
 import { ValidationErrorsDialog } from "@/components/course/ValidationErrorsDialog";
 import { useCourseBuilder } from "@/hooks/useCourseBuilder";
+import { useUpdateCourseMutation } from "@/hooks/useCourses";
 import type { ValidationError } from "@/types/course";
 
 export default function CourseBuilderPage() {
@@ -32,6 +33,7 @@ export default function CourseBuilderPage() {
   const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
   const [showValidation, setShowValidation] = useState(false);
+  const updateCourse = useUpdateCourseMutation();
 
   const {
     course,
@@ -39,7 +41,6 @@ export default function CourseBuilderPage() {
     isLoading,
     totalLessons,
     updateStatus,
-    exportCourse,
     findLesson,
     handleAddSection,
     handleUpdateSection,
@@ -153,21 +154,6 @@ export default function CourseBuilderPage() {
             Preview
           </Button>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => exportCourse.mutate(courseId!)}
-            disabled={exportCourse.isPending}
-            className="gap-1.5"
-          >
-            {exportCourse.isPending ? (
-              <Loader2 className="size-3.5 animate-spin" />
-            ) : (
-              <Download className="size-3.5" />
-            )}
-            Export
-          </Button>
-
           {isReady ? (
             <Button
               variant="outline"
@@ -192,6 +178,32 @@ export default function CourseBuilderPage() {
                 <CheckCircle2 className="size-3.5" />
               )}
               Mark as Ready
+            </Button>
+          )}
+
+          {isReady && (
+            <Button
+              variant={course.is_public ? "default" : "outline"}
+              size="sm"
+              onClick={() =>
+                updateCourse.mutate({
+                  id: courseId!,
+                  data: { is_public: !course.is_public },
+                })
+              }
+              disabled={updateCourse.isPending}
+              className={`gap-1.5 ${
+                course.is_public
+                  ? "bg-accent-blue/15 text-accent-blue hover:bg-accent-blue/25"
+                  : ""
+              }`}
+            >
+              {updateCourse.isPending ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <Globe className="size-3.5" />
+              )}
+              {course.is_public ? "Public" : "Make Public"}
             </Button>
           )}
         </div>

@@ -71,6 +71,89 @@ class CourseRepository:
         )
         return result.scalar_one()
 
+    # ── Public (Hub) Queries ──────────────────────────────────
+
+    async def list_public_courses(
+        self,
+        *,
+        search: str | None = None,
+        tags: list[str] | None = None,
+        sort_by: str = "newest",
+        page: int = 1,
+        per_page: int = 20,
+    ) -> tuple[list[Course], int]:
+        """Return paginated public courses with filtering and sorting."""
+        from app.models.tag import Tag as TagModel, course_tags
+
+        base = (
+            select(Course)
+            .options(joinedload(Course.tags))
+            .where(
+                Course.is_public.is_(True),
+                Course.status == "ready",
+                Course.is_deleted.is_(False),
+            )
+        )
+        count_q = (
+            select(func.count(Course.id))
+            .where(
+                Course.is_public.is_(True),
+                Course.status == "ready",
+                Course.is_deleted.is_(False),
+            )
+        )
+
+        if search:
+            pattern = f"%{search}%"
+            base = base.where(
+                Course.title.ilike(pattern) | Course.description.ilike(pattern)
+            )
+            count_q = count_q.where(
+                Course.title.ilike(pattern) | Course.description.ilike(pattern)
+            )
+
+        if tags:
+            clean_tags = [t.strip().lower() for t in tags if t.strip()]
+            if clean_tags:
+                base = base.join(course_tags).join(TagModel).where(TagModel.name.in_(clean_tags))
+                count_q = (
+                    count_q.join(course_tags, course_tags.c.course_id == Course.id)
+                    .join(TagModel, TagModel.id == course_tags.c.tag_id)
+                    .where(TagModel.name.in_(clean_tags))
+                )
+
+        if sort_by == "oldest":
+            base = base.order_by(Course.created_at.asc())
+        elif sort_by == "title":
+            base = base.order_by(Course.title.asc())
+        else:  # newest (default)
+            base = base.order_by(Course.created_at.desc())
+
+        offset = (page - 1) * per_page
+        base = base.offset(offset).limit(per_page)
+
+        result = await self.db.execute(base)
+        courses = list(result.unique().scalars().all())
+
+        count_result = await self.db.execute(count_q)
+        total = count_result.scalar_one()
+
+        return courses, total
+
+    async def get_public_by_id(self, course_id: uuid.UUID) -> Course | None:
+        """Fetch a single public course by ID."""
+        result = await self.db.execute(
+            select(Course)
+            .options(joinedload(Course.tags))
+            .where(
+                Course.id == course_id,
+                Course.is_public.is_(True),
+                Course.status == "ready",
+                Course.is_deleted.is_(False),
+            )
+        )
+        return result.unique().scalar_one_or_none()
+
     async def update(self, course: Course, **kwargs) -> Course:
         """Apply partial field updates to an existing course."""
         for key, value in kwargs.items():

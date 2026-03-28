@@ -10,14 +10,12 @@ import {
   Keyboard,
   Database,
   Info,
-  Download,
   Calendar,
   Loader2,
   Sun,
   Moon,
   Monitor,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { ProfileSection } from "@/components/settings/ProfileSection";
 import { PreferencesSection } from "@/components/settings/PreferencesSection";
 import { useUserQuery, useUpdateUserMutation } from "@/hooks/useUser";
@@ -144,19 +142,6 @@ export default function SettingsPage() {
           <h2 className="text-sm font-semibold text-text-primary">Data</h2>
         </div>
         <div className="space-y-3">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-sm font-medium text-text-primary">Export courses</p>
-              <p className="text-xs text-text-tertiary">
-                Download all your courses as JSON files from the Creator dashboard.
-              </p>
-            </div>
-            <Button variant="outline" size="sm" onClick={() => window.location.href = "/"}>
-              <Download className="mr-1.5 size-3.5" />
-              Go to Dashboard
-            </Button>
-          </div>
-          <div className="h-px bg-border-default" />
           <div>
             <p className="text-sm font-medium text-text-primary">Account created</p>
             <p className="mt-0.5 flex items-center gap-1.5 text-xs text-text-secondary">

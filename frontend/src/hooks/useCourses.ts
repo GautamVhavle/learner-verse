@@ -132,37 +132,6 @@ export function useUpdateCourseStatusMutation() {
   });
 }
 
-export function useExportCourse() {
-  return useMutation({
-    mutationFn: async (courseId: string) => {
-      const data = await api.get<Record<string, unknown>>(
-        `/courses/${courseId}/export`,
-      );
-      const blob = new Blob([JSON.stringify(data, null, 2)], {
-        type: "application/json",
-      });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${(data.title as string) || "course"}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-    },
-  });
-}
-
-export function useImportCourseMutation() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (file: File) => api.upload<Course>("/courses/import", file),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: COURSES_KEY });
-      toast.success("Course imported!");
-    },
-    onError: () => toast.error("Failed to import course"),
-  });
-}
-
 export function useUploadThumbnailMutation() {
   return useMutation({
     mutationFn: (file: File) =>

@@ -13,6 +13,7 @@ import {
   Calendar,
   Compass,
   FileText,
+  Globe,
   HelpCircle,
   History,
   Inbox,
@@ -35,6 +36,7 @@ export interface NavLink {
 /** Primary navigation links for Creator mode. */
 export const CREATOR_LINKS: NavLink[] = [
   { title: "Dashboard", icon: LayoutDashboard, path: "/" },
+  { title: "Course Hub", icon: Globe, path: "/hub" },
   { title: "Analytics", icon: LineChart, path: "/analytics", comingSoon: true },
   { title: "Certificates", icon: Award, path: "/certificates" },
   { title: "Trash", icon: Trash2, path: "/trash" },
@@ -46,6 +48,7 @@ export const CREATOR_EXTRA: NavLink[] = [];
 /** Primary navigation links for Learner mode. */
 export const LEARNER_LINKS: NavLink[] = [
   { title: "Dashboard", icon: LayoutDashboard, path: "/" },
+  { title: "Course Hub", icon: Globe, path: "/hub" },
   { title: "Browse Courses", icon: Compass, path: "/browse" },
   { title: "Inbox", icon: Inbox, path: "/inbox" },
   { title: "Goals", icon: Target, path: "/goals" },

@@ -9,6 +9,7 @@ from app.api.v1.endpoints import (
     enrollments,
     goals,
     health,
+    hub,
     lessons,
     notifications,
     opengraph,
@@ -26,6 +27,7 @@ api_v1_router.include_router(health.router, tags=["health"])
 api_v1_router.include_router(auth.router)
 api_v1_router.include_router(courses.router)
 api_v1_router.include_router(enrollments.router)
+api_v1_router.include_router(hub.router)
 api_v1_router.include_router(sections.router)
 api_v1_router.include_router(lessons.router)
 api_v1_router.include_router(study.router)

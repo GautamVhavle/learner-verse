@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -103,3 +103,36 @@ async def is_enrolled(
         )
     )
     return result.scalar_one_or_none() is not None
+
+
+async def get_enrollment_count(
+    session: AsyncSession,
+    *,
+    course_id: uuid.UUID,
+) -> int:
+    """Return the number of enrollments for a course."""
+    result = await session.execute(
+        select(func.count(CourseEnrollment.id)).where(
+            CourseEnrollment.course_id == course_id,
+        )
+    )
+    return result.scalar_one()
+
+
+async def get_enrollment_counts_batch(
+    session: AsyncSession,
+    *,
+    course_ids: list[uuid.UUID],
+) -> dict[uuid.UUID, int]:
+    """Return {course_id: enrollment_count} for multiple courses."""
+    if not course_ids:
+        return {}
+    result = await session.execute(
+        select(
+            CourseEnrollment.course_id,
+            func.count(CourseEnrollment.id),
+        )
+        .where(CourseEnrollment.course_id.in_(course_ids))
+        .group_by(CourseEnrollment.course_id)
+    )
+    return {row[0]: row[1] for row in result.all()}

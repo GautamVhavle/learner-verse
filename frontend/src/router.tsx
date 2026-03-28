@@ -23,6 +23,8 @@ import SettingsPage from "@/pages/SettingsPage";
 import InboxPage from "@/pages/InboxPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import ModeRedirectPage from "@/pages/ModeRedirectPage";
+import CourseHubPage from "@/pages/CourseHubPage";
+import HubCourseDetailPage from "@/pages/HubCourseDetailPage";
 
 export default function AppRouter() {
   return (
@@ -50,6 +52,8 @@ export default function AppRouter() {
             <Route path="goals" element={<GoalsPage />} />
             <Route path="stats" element={<StatsPage />} />
             <Route path="trash" element={<TrashPage />} />
+            <Route path="hub" element={<CourseHubPage />} />
+            <Route path="hub/:courseId" element={<HubCourseDetailPage />} />
             <Route path="settings" element={<SettingsPage />} />
             <Route path="inbox" element={<InboxPage />} />
           </Route>
@@ -74,6 +78,8 @@ export default function AppRouter() {
             <Route path="certificates" element={<CertificatesPage />} />
             <Route path="goals" element={<GoalsPage />} />
             <Route path="stats" element={<StatsPage />} />
+            <Route path="hub" element={<CourseHubPage />} />
+            <Route path="hub/:courseId" element={<HubCourseDetailPage />} />
             <Route path="settings" element={<SettingsPage />} />
             <Route path="inbox" element={<InboxPage />} />
           </Route>

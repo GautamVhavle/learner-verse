@@ -1,9 +1,9 @@
 /**
- * Creator-mode dashboard with course management grid and import/create actions.
+ * Creator-mode dashboard with course management grid and create actions.
  */
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useModeAwareNavigate } from "@/hooks/useModeAwareNavigate";
-import { BookOpen, Plus, Upload, Loader2 } from "lucide-react";
+import { BookOpen, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CourseGrid } from "@/components/course/CourseGrid";
 import { CourseForm } from "@/components/course/CourseForm";
@@ -14,7 +14,6 @@ import {
   useUpdateCourseMutation,
   useDeleteCourseMutation,
   useDuplicateCourseMutation,
-  useImportCourseMutation,
 } from "@/hooks/useCourses";
 import type { Course, CourseCreate, CourseUpdate } from "@/types/course";
 
@@ -35,9 +34,6 @@ export function CreatorDashboard() {
   const updateMutation = useUpdateCourseMutation();
   const deleteMutation = useDeleteCourseMutation();
   const duplicateMutation = useDuplicateCourseMutation();
-  const importMutation = useImportCourseMutation();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [importError, setImportError] = useState<string | null>(null);
 
   const courses = data?.items ?? [];
 
@@ -90,56 +86,12 @@ export function CreatorDashboard() {
           </p>
         </div>
         {!isEmpty && (
-          <div className="flex items-center gap-2">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".json"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                setImportError(null);
-                importMutation.mutate(file, {
-                  onError: (err) =>
-                    setImportError(
-                      err instanceof Error ? err.message : "Import failed",
-                    ),
-                });
-                e.target.value = "";
-              }}
-            />
-            <Button
-              variant="outline"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={importMutation.isPending}
-            >
-              {importMutation.isPending ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <Upload className="size-4" />
-              )}
-              Import
-            </Button>
-            <Button onClick={handleCreate}>
-              <Plus className="size-4" />
-              New Course
-            </Button>
-          </div>
+          <Button onClick={handleCreate}>
+            <Plus className="size-4" />
+            New Course
+          </Button>
         )}
       </div>
-
-      {/* Import feedback */}
-      {importError && (
-        <div className="mb-4 rounded-lg border border-accent-red/30 bg-accent-red/10 px-4 py-2.5 text-sm text-accent-red">
-          Import failed: {importError}
-        </div>
-      )}
-      {importMutation.isSuccess && (
-        <div className="mb-4 rounded-lg border border-accent-green/30 bg-accent-green/10 px-4 py-2.5 text-sm text-accent-green">
-          Course imported successfully!
-        </div>
-      )}
 
       {/* Content */}
       {isEmpty ? (

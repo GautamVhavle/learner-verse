@@ -13,6 +13,7 @@ export interface Course {
   description: string | null;
   thumbnail_url: string | null;
   status: "draft" | "ready";
+  is_public: boolean;
   is_deleted: boolean;
   deleted_at: string | null;
   goal_date: string | null;
@@ -20,6 +21,10 @@ export interface Course {
   section_count: number;
   lesson_count: number;
   has_issues: boolean;
+  enrollment_count: number;
+  average_rating: number;
+  rating_count: number;
+  creator_name: string;
   created_at: string;
   updated_at: string;
 }
@@ -42,6 +47,7 @@ export interface CourseUpdate {
   description?: string | null;
   thumbnail_url?: string | null;
   status?: "draft" | "ready";
+  is_public?: boolean;
   goal_date?: string | null;
   tags?: string[];
 }

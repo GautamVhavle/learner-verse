@@ -23,7 +23,6 @@ import {
 import {
   useCourseQuery,
   useUpdateCourseStatusMutation,
-  useExportCourse,
 } from "@/hooks/useCourses";
 import type { ReorderItem, LessonUpdate, ReferenceLinkCreate } from "@/types/section";
 import type { ValidationError } from "@/types/course";
@@ -34,7 +33,6 @@ export function useCourseBuilder(courseId: string | undefined) {
     useSectionsQuery(courseId);
 
   const updateStatus = useUpdateCourseStatusMutation();
-  const exportCourse = useExportCourse();
 
   const createSection = useCreateSectionMutation(courseId!);
   const updateSection = useUpdateSectionMutation(courseId!);
@@ -169,7 +167,6 @@ export function useCourseBuilder(courseId: string | undefined) {
     isLoading,
     totalLessons,
     updateStatus,
-    exportCourse,
     findLesson,
     handleAddSection,
     handleUpdateSection,

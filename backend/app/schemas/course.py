@@ -28,6 +28,7 @@ class CourseUpdate(BaseModel):
     description: str | None = None
     thumbnail_url: str | None = None
     status: str | None = Field(None, pattern=r"^(draft|ready)$")
+    is_public: bool | None = None
     goal_date: date | None = None
     tags: list[str] | None = Field(None, max_length=20)
 
@@ -39,6 +40,7 @@ class CourseResponse(BaseModel):
     description: str | None = None
     thumbnail_url: str | None = None
     status: str
+    is_public: bool = False
     is_deleted: bool
     deleted_at: datetime | None = None
     goal_date: date | None = None
@@ -46,6 +48,10 @@ class CourseResponse(BaseModel):
     section_count: int = 0
     lesson_count: int = 0
     has_issues: bool = False
+    enrollment_count: int = 0
+    average_rating: float = 0.0
+    rating_count: int = 0
+    creator_name: str = ""
     created_at: datetime
     updated_at: datetime
 

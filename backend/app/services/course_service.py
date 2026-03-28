@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.lesson import Lesson
 from app.models.section import Section
 from app.repositories.course_repo import CourseRepository
+from app.repositories.rating_repo import RatingRepository
 from app.repositories.section_repo import SectionRepository
 from app.schemas.course import (
     CourseCreate,
@@ -31,6 +32,7 @@ class CourseService:
 
     def __init__(self, db: AsyncSession):
         self.repo = CourseRepository(db)
+        self.rating_repo = RatingRepository(db)
         self.section_repo = SectionRepository(db)
         self.db = db
 
@@ -121,6 +123,7 @@ class CourseService:
             description=course.description,
             thumbnail_url=course.thumbnail_url,
             status=course.status,
+            is_public=getattr(course, "is_public", False),
             is_deleted=course.is_deleted,
             deleted_at=course.deleted_at,
             goal_date=course.goal_date,
@@ -128,6 +131,10 @@ class CourseService:
             section_count=section_count,
             lesson_count=lesson_count,
             has_issues=has_issues,
+            enrollment_count=0,
+            average_rating=0.0,
+            rating_count=0,
+            creator_name="",
             created_at=course.created_at,
             updated_at=course.updated_at,
         )

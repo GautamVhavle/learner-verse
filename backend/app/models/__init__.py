@@ -14,6 +14,7 @@ from app.models.course_study_state import CourseStudyState
 from app.models.lesson import Lesson
 from app.models.lesson_progress import LessonProgress
 from app.models.notification import Notification
+from app.models.rating import CourseRating
 from app.models.reference_link import ReferenceLink
 from app.models.section import Section
 from app.models.study_note import StudyNote
@@ -26,6 +27,7 @@ __all__ = [
     "Certificate",
     "Course",
     "CourseEnrollment",
+    "CourseRating",
     "CourseStudyState",
     "Lesson",
     "LessonProgress",
