@@ -160,7 +160,6 @@ describe("Sidebar", () => {
     );
     expect(screen.getByText("Dashboard")).toBeInTheDocument();
     expect(screen.getByText("My Courses")).toBeInTheDocument();
-    expect(screen.getByText("Inbox")).toBeInTheDocument();
     expect(screen.getByText("Certificates")).toBeInTheDocument();
     expect(screen.getByText("Trash")).toBeInTheDocument();
     expect(screen.getByText("Settings")).toBeInTheDocument();

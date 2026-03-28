@@ -35,7 +35,6 @@ export interface NavLink {
 /** Primary navigation links for Creator mode. */
 export const CREATOR_LINKS: NavLink[] = [
   { title: "Dashboard", icon: LayoutDashboard, path: "/" },
-  { title: "Inbox", icon: Inbox, path: "/inbox" },
   { title: "Analytics", icon: LineChart, path: "/analytics", comingSoon: true },
   { title: "Certificates", icon: Award, path: "/certificates" },
   { title: "Trash", icon: Trash2, path: "/trash" },

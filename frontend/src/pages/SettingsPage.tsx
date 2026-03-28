@@ -13,16 +13,21 @@ import {
   Download,
   Calendar,
   Loader2,
+  Sun,
+  Moon,
+  Monitor,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProfileSection } from "@/components/settings/ProfileSection";
 import { PreferencesSection } from "@/components/settings/PreferencesSection";
 import { useUserQuery, useUpdateUserMutation } from "@/hooks/useUser";
+import { useThemeStore, type Theme } from "@/stores/themeStore";
 import type { UserSettings } from "@/types/user";
 
 export default function SettingsPage() {
   const { data: user, isLoading } = useUserQuery();
   const update = useUpdateUserMutation();
+  const { theme, setTheme } = useThemeStore();
 
   const save = useCallback(
     (data: Partial<UserSettings>) => {
@@ -63,6 +68,47 @@ export default function SettingsPage() {
         fontSize={user.font_size}
         onSave={(data) => save(data)}
       />
+
+      {/* Appearance (theme toggle) */}
+      <section className="space-y-4 rounded-xl border border-border-default bg-bg-secondary p-5">
+        <div className="flex items-center gap-2">
+          <Monitor className="size-4 text-accent-blue" />
+          <h2 className="text-sm font-semibold text-text-primary">Appearance</h2>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2">
+          {([
+            { value: "light" as Theme, label: "Light", icon: Sun, description: "Bright and clean" },
+            { value: "dark" as Theme, label: "Dark", icon: Moon, description: "Easy on the eyes" },
+          ]).map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => setTheme(opt.value)}
+              data-testid={`theme-${opt.value}`}
+              className={`group relative flex items-center gap-3 rounded-lg border p-3 text-left transition-all ${
+                theme === opt.value
+                  ? "border-accent-blue bg-accent-blue/5 ring-1 ring-accent-blue/30"
+                  : "border-border-default bg-bg-tertiary hover:border-border-hover"
+              }`}
+            >
+              <div className={`flex size-9 items-center justify-center rounded-lg ${
+                theme === opt.value
+                  ? "bg-accent-blue/10 text-accent-blue"
+                  : "bg-bg-quaternary text-text-tertiary"
+              }`}>
+                <opt.icon className="size-4" />
+              </div>
+              <div>
+                <span className={`text-sm font-medium ${
+                  theme === opt.value ? "text-accent-blue" : "text-text-primary"
+                }`}>
+                  {opt.label}
+                </span>
+                <p className="text-[11px] text-text-tertiary">{opt.description}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+      </section>
 
       {/* Keyboard Shortcuts reference */}
       <section className="space-y-4 rounded-xl border border-border-default bg-bg-secondary p-5">

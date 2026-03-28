@@ -140,24 +140,6 @@ test.describe("Inbox — navigation", () => {
     await expect(page).toHaveURL(/\/learner\/inbox/);
     await expect(page.getByRole("heading", { name: "Inbox" })).toBeVisible();
   });
-
-  test("inbox is accessible from sidebar in creator mode", async ({
-    page,
-  }) => {
-    await page.addInitScript(() => {
-      localStorage.setItem(
-        "learnerverse-mode",
-        JSON.stringify({ state: { mode: "creator" }, version: 0 }),
-      );
-    });
-    await page.goto("/creator/dashboard");
-    await expect(
-      page.getByRole("heading", { name: "My Courses" }),
-    ).toBeVisible();
-    await page.getByRole("button", { name: "Inbox", exact: true }).click();
-    await expect(page).toHaveURL(/\/creator\/inbox/);
-    await expect(page.getByRole("heading", { name: "Inbox" })).toBeVisible();
-  });
 });
 
 // ─── Notification tests (need course + goal setup) ───────────────

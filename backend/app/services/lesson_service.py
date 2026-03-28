@@ -66,7 +66,7 @@ class LessonService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Maximum of {MAX_LESSONS_PER_SECTION} lessons per section.",
             )
-        lesson = await self.lesson_repo.create(section_id=section_id, title=data.title)
+        lesson = await self.lesson_repo.create(section_id=section_id, title=data.title, lesson_type=data.lesson_type)
         await self.db.commit()
         # New lesson — construct response directly (no reference links yet)
         return LessonResponse(
