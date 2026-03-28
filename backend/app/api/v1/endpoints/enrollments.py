@@ -18,6 +18,7 @@ from app.repositories import enrollment_repo
 from app.schemas.course import CourseListResponse
 from app.schemas.enrollment import EnrollmentResponse
 from app.services.course_service import CourseService
+from app.services.notification_service import NotificationService
 
 router = APIRouter(prefix="/enrollments", tags=["enrollments"])
 
@@ -65,6 +66,11 @@ async def enroll_in_course(
         db, user_id=current_user.id, course_id=course_id
     )
     await db.commit()
+
+    # Send enrollment notification
+    notif_svc = NotificationService(db)
+    await notif_svc.notify_enrollment(current_user.id, course.title)
+
     return EnrollmentResponse(
         course_id=enrollment.course_id,
         enrolled_at=enrollment.enrolled_at,

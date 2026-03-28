@@ -11,6 +11,7 @@ from app.core.database import get_db
 from app.models.user import User
 from app.repositories.course_repo import CourseRepository
 from app.schemas.goal import CourseGoalResponse, GoalSetRequest
+from app.services.notification_service import NotificationService
 from app.services.progress_service import ProgressService
 
 router = APIRouter(prefix="/goals", tags=["goals"])
@@ -69,6 +70,11 @@ async def set_goal(
 
     await repo.update(course, goal_date=data.goal_date)
     await db.commit()
+
+    # Send goal-set notification (only when setting a new goal, not removing)
+    if data.goal_date:
+        notif_svc = NotificationService(db)
+        await notif_svc.notify_goal_set(user.id, course.title, data.goal_date)
 
     progress_svc = ProgressService(db)
     progress = await progress_svc.get_course_progress(course_id, user.id)

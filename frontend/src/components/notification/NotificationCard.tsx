@@ -1,12 +1,36 @@
 /**
  * Single notification card with mark-read and delete actions.
  */
-import { AlertTriangle, Bell, Check, Trash2, Clock } from "lucide-react";
+import {
+  AlertTriangle,
+  Award,
+  Bell,
+  BookOpen,
+  Check,
+  Flame,
+  Target,
+  Trash2,
+  Clock,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { NotificationResponse } from "@/types/notification";
 
 const ICON_MAP: Record<string, typeof Bell> = {
   pace_warning: AlertTriangle,
+  enrollment: BookOpen,
+  course_completed: Award,
+  certificate_earned: Award,
+  goal_set: Target,
+  streak_milestone: Flame,
+};
+
+const COLOR_MAP: Record<string, string> = {
+  pace_warning: "bg-amber-500/10 text-amber-400",
+  enrollment: "bg-blue-500/10 text-blue-400",
+  course_completed: "bg-green-500/10 text-green-400",
+  certificate_earned: "bg-yellow-500/10 text-yellow-400",
+  goal_set: "bg-accent-purple/10 text-accent-purple",
+  streak_milestone: "bg-orange-500/10 text-orange-400",
 };
 
 function formatTimeAgo(iso: string): string {
@@ -46,9 +70,7 @@ export function NotificationCard({
       {/* Icon */}
       <div
         className={`mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full ${
-          notification.type === "pace_warning"
-            ? "bg-amber-500/10 text-amber-400"
-            : "bg-accent-purple/10 text-accent-purple"
+          COLOR_MAP[notification.type] ?? "bg-accent-purple/10 text-accent-purple"
         }`}
       >
         <Icon className="size-4" />

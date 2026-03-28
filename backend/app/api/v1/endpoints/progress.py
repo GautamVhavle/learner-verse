@@ -13,6 +13,7 @@ from app.schemas.progress import (
     LessonProgressResponse,
     ProgressToggle,
 )
+from app.services.notification_service import NotificationService
 from app.services.progress_service import ProgressService
 
 router = APIRouter(prefix="/progress", tags=["progress"])
@@ -32,7 +33,15 @@ async def toggle_lesson_progress(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    return await _service(db).toggle_lesson(lesson_id, user.id, data)
+    result = await _service(db).toggle_lesson(lesson_id, user.id, data)
+
+    # Check for course completion + streak milestones
+    notif_svc = NotificationService(db)
+    await notif_svc.check_course_completion_on_lesson_toggle(
+        lesson_id, user.id, data.completed
+    )
+
+    return result
 
 
 @router.get(

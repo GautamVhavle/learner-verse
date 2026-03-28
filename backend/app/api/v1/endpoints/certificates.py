@@ -10,6 +10,7 @@ from app.core.database import get_db
 from app.models.user import User
 from app.schemas.certificate import CertificateResponse
 from app.services.certificate_service import CertificateService
+from app.services.notification_service import NotificationService
 
 router = APIRouter(prefix="/certificates", tags=["certificates"])
 
@@ -49,6 +50,11 @@ async def generate_certificate(
     """Generate a certificate for a completed course."""
     svc = CertificateService(db)
     cert = await svc.generate(course_id, user.id, user.display_name)
+
+    # Send certificate notification
+    notif_svc = NotificationService(db)
+    await notif_svc.notify_certificate_earned(user.id, cert.course_title)
+
     return CertificateResponse.model_validate(cert)
 
 
