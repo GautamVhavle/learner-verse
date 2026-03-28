@@ -2,6 +2,7 @@
  * React Query hooks for tracking and toggling lesson/course progress.
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { api } from "@/lib/api";
 import type {
   CourseProgressResponse,
@@ -80,6 +81,7 @@ export function useToggleProgressMutation() {
           qc.setQueryData(key, data);
         }
       }
+      toast.error("Failed to update progress");
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: [...PROGRESS_KEY, "course"] });

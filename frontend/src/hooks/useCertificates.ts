@@ -2,6 +2,7 @@
  * React Query hooks for fetching and generating course certificates.
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { api } from "@/lib/api";
 import type { CertificateResponse } from "@/types/certificate";
 
@@ -40,6 +41,10 @@ export function useGenerateCertificateMutation() {
       api.post<CertificateResponse>(`/certificates/courses/${courseId}`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [...CERT_KEY] });
+      toast.success("Certificate generated!", {
+        description: "View it on your certificates page.",
+      });
     },
+    onError: () => toast.error("Failed to generate certificate"),
   });
 }

@@ -2,6 +2,7 @@
  * React Query hooks for in-app notifications (list, badge count, mutations).
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { api } from "@/lib/api";
 import type {
   NotificationResponse,
@@ -31,14 +32,15 @@ export function useEvaluateNotificationsMutation() {
   return useMutation({
     mutationFn: () =>
       api.post<NotificationResponse[]>("/notifications/evaluate"),
-    onSuccess: () => {
+    onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: [...NOTIF_KEY] });
       qc.invalidateQueries({ queryKey: [...UNREAD_KEY] });
+      if (data && data.length > 0) {
+        for (const n of data) {
+          toast(n.title, { description: n.message });
+        }
+      }
     },
-  });
-}
-
-export function useMarkReadMutation() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) =>
@@ -58,6 +60,7 @@ export function useMarkAllReadMutation() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [...NOTIF_KEY] });
       qc.invalidateQueries({ queryKey: [...UNREAD_KEY] });
+      toast.success("All notifications marked as read");
     },
   });
 }

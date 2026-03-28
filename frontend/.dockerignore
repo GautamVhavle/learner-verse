@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.git/
+.gitignore
+.env
+.env.*
+*.md
+tests/
+test-results/
+playwright-report/

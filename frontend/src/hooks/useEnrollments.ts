@@ -6,6 +6,7 @@
  * useUnenrollMutation     — unenroll from a course by ID.
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { api } from "@/lib/api";
 import type { CourseListResponse } from "@/types/course";
 import type { EnrollmentResponse } from "@/types/enrollment";
@@ -26,7 +27,11 @@ export function useEnrollMutation() {
   return useMutation({
     mutationFn: (courseId: string) =>
       api.post<EnrollmentResponse>(`/enrollments/${courseId}`, {}),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ENROLLMENTS_KEY }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ENROLLMENTS_KEY });
+      toast.success("Enrolled successfully!", { description: "Start learning now." });
+    },
+    onError: () => toast.error("Failed to enroll"),
   });
 }
 
@@ -36,6 +41,10 @@ export function useUnenrollMutation() {
   return useMutation({
     mutationFn: (courseId: string) =>
       api.delete<void>(`/enrollments/${courseId}`),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ENROLLMENTS_KEY }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ENROLLMENTS_KEY });
+      toast.success("Unenrolled from course");
+    },
+    onError: () => toast.error("Failed to unenroll"),
   });
 }

@@ -2,6 +2,7 @@
  * React Query hooks for course CRUD, status transitions, and trash management.
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { api } from "@/lib/api";
 import type {
   Course,
@@ -49,7 +50,11 @@ export function useCreateCourseMutation() {
   return useMutation({
     mutationFn: (data: CourseCreate) =>
       api.post<Course>("/courses", data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: COURSES_KEY }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: COURSES_KEY });
+      toast.success("Course created!");
+    },
+    onError: () => toast.error("Failed to create course"),
   });
 }
 
@@ -69,7 +74,9 @@ export function useDeleteCourseMutation() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: COURSES_KEY });
       qc.invalidateQueries({ queryKey: TRASH_KEY });
+      toast.success("Course moved to trash");
     },
+    onError: () => toast.error("Failed to delete course"),
   });
 }
 
@@ -80,7 +87,9 @@ export function useRestoreCourseMutation() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: COURSES_KEY });
       qc.invalidateQueries({ queryKey: TRASH_KEY });
+      toast.success("Course restored!");
     },
+    onError: () => toast.error("Failed to restore course"),
   });
 }
 
@@ -88,7 +97,11 @@ export function usePermanentDeleteMutation() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => api.delete<void>(`/courses/${id}/permanent`),
-    onSuccess: () => qc.invalidateQueries({ queryKey: TRASH_KEY }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: TRASH_KEY });
+      toast.success("Course permanently deleted");
+    },
+    onError: () => toast.error("Failed to delete course"),
   });
 }
 
@@ -96,7 +109,11 @@ export function useDuplicateCourseMutation() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => api.post<Course>(`/courses/${id}/duplicate`),
-    onSuccess: () => qc.invalidateQueries({ queryKey: COURSES_KEY }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: COURSES_KEY });
+      toast.success("Course duplicated!");
+    },
+    onError: () => toast.error("Failed to duplicate course"),
   });
 }
 
@@ -105,7 +122,13 @@ export function useUpdateCourseStatusMutation() {
   return useMutation({
     mutationFn: ({ id, status }: { id: string; status: "draft" | "ready" }) =>
       api.put<StatusUpdateResponse>(`/courses/${id}/status`, { status }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: COURSES_KEY }),
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: COURSES_KEY });
+      toast.success(
+        variables.status === "ready" ? "Course published!" : "Course unpublished",
+      );
+    },
+    onError: () => toast.error("Failed to update course status"),
   });
 }
 
@@ -132,7 +155,11 @@ export function useImportCourseMutation() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (file: File) => api.upload<Course>("/courses/import", file),
-    onSuccess: () => qc.invalidateQueries({ queryKey: COURSES_KEY }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: COURSES_KEY });
+      toast.success("Course imported!");
+    },
+    onError: () => toast.error("Failed to import course"),
   });
 }
 
