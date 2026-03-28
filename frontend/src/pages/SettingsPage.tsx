@@ -1,9 +1,7 @@
 /**
- * Settings page — user profile and preferences management.
+ * Settings page — preferences, appearance, shortcuts, data, and about.
  *
- * Delegates each section (profile, preferences, shortcuts, data, about)
- * to focused sub-components. All changes are auto-saved via the
- * `useUpdateUserMutation` hook.
+ * Profile editing is on a separate dedicated page (/profile).
  */
 import { useCallback } from "react";
 import {
@@ -16,7 +14,6 @@ import {
   Moon,
   Monitor,
 } from "lucide-react";
-import { ProfileSection } from "@/components/settings/ProfileSection";
 import { PreferencesSection } from "@/components/settings/PreferencesSection";
 import { useUserQuery, useUpdateUserMutation } from "@/hooks/useUser";
 import { useThemeStore, type Theme } from "@/stores/themeStore";
@@ -49,15 +46,9 @@ export default function SettingsPage() {
       <div>
         <h1 className="text-2xl font-semibold text-text-primary">Settings</h1>
         <p className="mt-1 text-sm text-text-secondary">
-          Manage your profile and preferences.
+          Manage your preferences.
         </p>
       </div>
-
-      {/* Profile (avatar, display name) */}
-      <ProfileSection
-        user={user}
-        onSave={(data) => save(data)}
-      />
 
       {/* Preferences (timezone, playback speed, font size) */}
       <PreferencesSection

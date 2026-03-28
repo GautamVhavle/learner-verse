@@ -52,7 +52,7 @@ export function NavUser({ name, email, avatar }: NavUserProps) {
         <div className="flex w-full min-w-0 items-center gap-2 rounded-md p-2">
           {/* Clicking avatar / name → opens profile settings */}
           <button
-            onClick={() => navigate("/settings")}
+            onClick={() => navigate("/profile")}
             className="flex min-w-0 flex-1 items-center gap-2 rounded-md text-left transition-colors hover:opacity-80"
             data-testid="user-profile-trigger"
           >

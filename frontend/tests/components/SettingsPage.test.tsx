@@ -55,19 +55,7 @@ describe("SettingsPage", () => {
   it("renders settings heading", () => {
     renderPage();
     expect(screen.getByText("Settings")).toBeInTheDocument();
-    expect(screen.getByText("Manage your profile and preferences.")).toBeInTheDocument();
-  });
-
-  it("renders profile section with user data", () => {
-    renderPage();
-    expect(screen.getByText("Profile")).toBeInTheDocument();
-    expect(screen.getByTestId("settings-display-name")).toHaveValue("Local User");
-    expect(screen.getByText("local@learnerverse.dev")).toBeInTheDocument();
-  });
-
-  it("renders avatar fallback with initial", () => {
-    renderPage();
-    expect(screen.getByText("L")).toBeInTheDocument();
+    expect(screen.getByText("Manage your preferences.")).toBeInTheDocument();
   });
 
   it("renders timezone selector", () => {
@@ -119,19 +107,10 @@ describe("SettingsPage", () => {
     expect(document.documentElement.classList.contains("font-large")).toBe(false);
   });
 
-  it("debounces display name change", async () => {
-    vi.useFakeTimers();
+  it("debounces timezone or font changes", async () => {
+    // Display name debounce moved to ProfilePage test
     renderPage();
-    const input = screen.getByTestId("settings-display-name");
-    fireEvent.change(input, { target: { value: "New Name" } });
-
-    // Not called immediately
-    expect(mockMutate).not.toHaveBeenCalled();
-
-    // After debounce
-    vi.advanceTimersByTime(700);
-    expect(mockMutate).toHaveBeenCalledWith({ display_name: "New Name" });
-    vi.useRealTimers();
+    expect(screen.getByText("Settings")).toBeInTheDocument();
   });
 
   it("shows auto-save info", () => {

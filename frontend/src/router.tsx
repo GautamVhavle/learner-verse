@@ -20,6 +20,7 @@ import GoalsPage from "@/pages/GoalsPage";
 import StatsPage from "@/pages/StatsPage";
 import LoginPage from "@/pages/LoginPage";
 import SettingsPage from "@/pages/SettingsPage";
+import ProfilePage from "@/pages/ProfilePage";
 import InboxPage from "@/pages/InboxPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import ModeRedirectPage from "@/pages/ModeRedirectPage";
@@ -60,11 +61,11 @@ export default function AppRouter() {
             <Route path="analytics" element={<CreatorAnalyticsPage />} />
             <Route path="analytics/:courseId" element={<CourseAnalyticsDetailPage />} />
             <Route path="settings" element={<SettingsPage />} />
+            <Route path="profile" element={<ProfilePage />} />
             <Route path="inbox" element={<InboxPage />} />
           </Route>
 
           <Route
-            path="/learner/*"
             element={
               <ProtectedRoute>
                 <AppShell mode="student" />
@@ -86,6 +87,7 @@ export default function AppRouter() {
             <Route path="hub" element={<CourseHubPage />} />
             <Route path="hub/:courseId" element={<HubCourseDetailPage />} />
             <Route path="settings" element={<SettingsPage />} />
+            <Route path="profile" element={<ProfilePage />} />
             <Route path="inbox" element={<InboxPage />} />
           </Route>
 
