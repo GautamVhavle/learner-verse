@@ -2,6 +2,7 @@
  * React Query hooks for fetching and updating the current user profile.
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { api } from "@/lib/api";
 import type { UserProfile, UserSettings } from "@/types/user";
 
@@ -23,5 +24,18 @@ export function useUpdateUserMutation() {
     onSuccess: (updated) => {
       qc.setQueryData(USER_KEY, updated);
     },
+    onError: () => toast.error("Failed to save profile"),
+  });
+}
+
+export function useUploadAvatarMutation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (file: File) => api.upload<{ url: string }>("/uploads/avatar", file),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: USER_KEY });
+      toast.success("Profile picture updated!");
+    },
+    onError: () => toast.error("Failed to upload profile picture"),
   });
 }

@@ -1,29 +1,33 @@
 /**
  * Profile section of the settings page.
  *
- * Displays the user avatar, display name input with auto-save,
- * and email address. The display name is debounced (600ms) to
- * avoid excessive API calls while typing.
+ * Displays the user avatar with upload support, display name input
+ * with auto-save, and email address. The display name is debounced
+ * (600ms) to avoid excessive API calls while typing.
  */
 import { useCallback, useRef, useState, useEffect } from "react";
-import { User, Camera } from "lucide-react";
+import { User, Camera, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { SettingsSaveIndicator } from "./SettingsSaveIndicator";
+import { useUploadAvatarMutation } from "@/hooks/useUser";
 import type { UserProfile } from "@/types/user";
 
 /** Auto-save debounce delay in milliseconds. */
 const NAME_DEBOUNCE_MS = 600;
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
 interface ProfileSectionProps {
   user: UserProfile;
-  onSave: (data: { display_name: string }, field: string) => void;
+  onSave: (data: { display_name: string }, field: string) => Promise<void> | void;
 }
 
 export function ProfileSection({ user, onSave }: ProfileSectionProps) {
   const [displayName, setDisplayName] = useState(user.display_name);
   const [saved, setSaved] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadAvatar = useUploadAvatarMutation();
 
   // Sync when server data changes
   useEffect(() => {
@@ -45,6 +49,18 @@ export function ProfileSection({ user, onSave }: ProfileSectionProps) {
     [onSave],
   );
 
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) return;
+    uploadAvatar.mutate(file);
+    e.target.value = "";
+  };
+
   return (
     <section className="space-y-5 rounded-xl border border-border-default bg-bg-secondary p-5">
       <div className="flex items-center gap-2">
@@ -63,11 +79,24 @@ export function ProfileSection({ user, onSave }: ProfileSectionProps) {
               {user.display_name.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            className="hidden"
+            onChange={handleFileChange}
+          />
           <button
-            className="absolute -bottom-1 -right-1 flex size-6 items-center justify-center rounded-full border border-border-default bg-bg-tertiary text-text-secondary transition-colors hover:bg-bg-quaternary hover:text-text-primary"
-            title="Change avatar (coming soon)"
+            onClick={handleAvatarClick}
+            disabled={uploadAvatar.isPending}
+            className="absolute -bottom-1 -right-1 flex size-6 items-center justify-center rounded-full border border-border-default bg-bg-tertiary text-text-secondary transition-colors hover:bg-bg-quaternary hover:text-text-primary disabled:opacity-50"
+            title="Change profile picture"
           >
-            <Camera className="size-3" />
+            {uploadAvatar.isPending ? (
+              <Loader2 className="size-3 animate-spin" />
+            ) : (
+              <Camera className="size-3" />
+            )}
           </button>
         </div>
         <div>
