@@ -5,7 +5,6 @@ import { useState, useCallback } from "react";
 import {
   CheckCircle2,
   XCircle,
-  Circle,
   Trophy,
   RotateCcw,
   ChevronRight,

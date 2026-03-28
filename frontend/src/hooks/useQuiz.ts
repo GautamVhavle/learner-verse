@@ -12,7 +12,6 @@ import type {
   QuizQuestionUpdate,
   QuizSubmitRequest,
 } from "@/types/quiz";
-import type { Section } from "@/types/section";
 
 const quizKeys = {
   questions: (lessonId: string) => ["quiz-questions", lessonId] as const,

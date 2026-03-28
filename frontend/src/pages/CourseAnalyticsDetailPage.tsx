@@ -19,9 +19,7 @@ import {
   ArrowLeft,
   BookOpen,
   CheckCircle2,
-  ChevronRight,
   Copy,
-  ExternalLink,
   GraduationCap,
   Link2,
   Star,
@@ -48,7 +46,7 @@ import {
   useCourseRatingsDetailQuery,
   useCourselearnersQuery,
 } from "@/hooks/useAnalytics";
-import type { CourseAnalytics, LearnerInfo, RatingDetail } from "@/types/analytics";
+import type { LearnerInfo, RatingDetail } from "@/types/analytics";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
 const SHARE_BASE = API_BASE.replace("/api/v1", "/api/v1/share");

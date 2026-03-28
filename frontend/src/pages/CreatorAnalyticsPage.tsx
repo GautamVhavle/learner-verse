@@ -6,8 +6,6 @@ import { useState } from "react";
 import {
   Area,
   AreaChart,
-  Bar,
-  BarChart,
   CartesianGrid,
   Cell,
   Pie,
@@ -22,7 +20,6 @@ import {
   GraduationCap,
   LineChart as LineChartIcon,
   Star,
-  TrendingUp,
   Users,
 } from "lucide-react";
 import {
@@ -45,7 +42,7 @@ import {
   useCourseAnalyticsQuery,
   useTopCoursesQuery,
 } from "@/hooks/useAnalytics";
-import type { AnalyticsOverview, CourseAnalytics } from "@/types/analytics";
+import type { CourseAnalytics } from "@/types/analytics";
 
 // ── Chart configs ───────────────────────────────────────────
 
@@ -115,21 +112,6 @@ function StatCard({ label, value, sub, icon: Icon, accent, iconBg }: StatCardPro
         </div>
       </CardContent>
     </Card>
-  );
-}
-
-// ── Star Rating Display ─────────────────────────────────────
-
-function StarDisplay({ rating, className }: { rating: number; className?: string }) {
-  return (
-    <div className={`flex items-center gap-0.5 ${className ?? ""}`}>
-      {[1, 2, 3, 4, 5].map((s) => (
-        <Star
-          key={s}
-          className={`size-3.5 ${s <= Math.round(rating) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`}
-        />
-      ))}
-    </div>
   );
 }
 

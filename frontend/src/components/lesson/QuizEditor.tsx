@@ -5,13 +5,9 @@ import { useState } from "react";
 import {
   Plus,
   Trash2,
-  GripVertical,
   CheckCircle2,
   Circle,
-  ChevronDown,
-  ChevronUp,
   Pencil,
-  X,
   Save,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
