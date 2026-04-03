@@ -8,10 +8,37 @@
  */
 import { useEffect, useRef } from "react";
 
+interface YTPlayerOptions {
+  videoId: string;
+  events?: {
+    onReady?: (event: { target: YTPlayer }) => void;
+    onStateChange?: (event: { data: number }) => void;
+  };
+  playerVars?: {
+    autoplay?: number;
+    controls?: number;
+    modestbranding?: number;
+    rel?: number;
+  };
+}
+
+interface YTPlayer {
+  playVideo(): void;
+  pauseVideo(): void;
+  stopVideo(): void;
+  destroy(): void;
+  seekTo(seconds: number): void;
+  setVolume(volume: number): void;
+  mute(): void;
+  setPlaybackRate(rate: number): void;
+  getPlaybackRate(): number;
+  getAvailablePlaybackRates(): number[];
+}
+
 declare global {
   interface Window {
     YT: {
-      Player: new (element: HTMLElement, options: YT.PlayerOptions) => YT.Player;
+      Player: new (element: string | HTMLElement, options: YTPlayerOptions) => YTPlayer;
       PlayerState: {
         UNSTARTED: number;
         ENDED: number;
@@ -23,34 +50,6 @@ declare global {
       loaded: number;
     };
     onYouTubeIframeAPIReady: () => void;
-  }
-}
-
-namespace YT {
-  interface PlayerOptions {
-    videoId: string;
-    events?: {
-      onReady?: (event: Event) => void;
-      onStateChange?: (event: Event) => void;
-    };
-    playerVars?: {
-      autoplay?: number;
-      controls?: number;
-      modestbranding?: number;
-      rel?: number;
-    };
-  }
-
-  interface Player {
-    playVideo(): void;
-    pauseVideo(): void;
-    stopVideo(): void;
-    seekTo(seconds: number): void;
-    setVolume(volume: number): void;
-    mute(): void;
-    setPlaybackRate(rate: number): void;
-    getPlaybackRate(): number;
-    getAvailablePlaybackRates(): number[];
   }
 }
 
@@ -85,7 +84,7 @@ function loadYouTubeAPI() {
 
 export function YouTubeEmbed({ videoId, title, playbackSpeed = 1 }: YouTubeEmbedProps) {
   const containerId = `youtube-player-${videoId}`;
-  const playerRef = useRef<YT.Player | null>(null);
+  const playerRef = useRef<YTPlayer | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Load YouTube API on mount
@@ -106,7 +105,7 @@ export function YouTubeEmbed({ videoId, title, playbackSpeed = 1 }: YouTubeEmbed
           events: {
             onReady: (event) => {
               // Set playback speed after player is ready
-              const player = event.target as YT.Player;
+              const player = event.target;
               const availableSpeeds = player.getAvailablePlaybackRates();
               const speedToSet = availableSpeeds.includes(playbackSpeed) ? playbackSpeed : 1;
               player.setPlaybackRate(speedToSet);

@@ -24,7 +24,7 @@ export function ModeToggle({ onToggle }: ModeToggleProps) {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
   const isCreator = mode === "creator";
-  const { isMobile, isMac, mod, shift } = usePlatform();
+  const { isMobile, isMac } = usePlatform();
 
   const handleClick = () => {
     onToggle?.();
