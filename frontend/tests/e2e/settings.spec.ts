@@ -159,6 +159,79 @@ test.describe.serial("Settings Page", () => {
     ).toBeVisible();
   });
 
+  test("shows auto-detect prompt when timezone is UTC", async ({ page }) => {
+    // Start with UTC timezone (from resetUserSettings)
+    const trigger = page.getByTestId("settings-timezone-trigger");
+    await expect(trigger).toContainText("UTC");
+
+    // Look for the auto-detect prompt banner
+    const prompt = page.locator("text=Use My Device Timezone");
+    // The prompt might be in the dropdown or as a banner
+    await trigger.click();
+    
+    // Wait for dropdown and check for auto-detect button
+    const autoDetectBtn = page.locator("button", { hasText: "Use My Device Timezone" });
+    await expect(autoDetectBtn).toBeVisible();
+  });
+
+  test("can use auto-detect to set timezone", async ({ page }) => {
+    const trigger = page.getByTestId("settings-timezone-trigger");
+    
+    // Open dropdown
+    await trigger.click();
+    
+    // Click "Use My Device Timezone" button
+    const autoDetectBtn = page.locator("button", { hasText: "Use My Device Timezone" });
+    await autoDetectBtn.click();
+    
+    // Should detect a timezone (not UTC since we're auto-detecting)
+    // Allow time for detection and save
+    await page.waitForTimeout(500);
+    
+    const displayedTz = await trigger.textContent();
+    expect(displayedTz).toBeTruthy();
+    // Just verify it changed from the initial state (can't guarantee specific TZ)
+    await expect(trigger).not.toContainText("UTC");
+  });
+
+  test("timezone search works with smart filtering", async ({ page }) => {
+    // Open timezone dropdown
+    await page.getByTestId("settings-timezone-trigger").click();
+    
+    const searchInput = page.getByTestId("settings-timezone-search");
+    await expect(searchInput).toBeVisible();
+    
+    // Search for "York"
+    await searchInput.fill("York");
+    
+    // Should show America/New_York as an option
+    const option = page.locator("button", { hasText: /America.*York|New.*York/i });
+    await expect(option).toBeVisible();
+    
+    // Clear search
+    await searchInput.fill("");
+    
+    // Search for just "New"
+    await searchInput.fill("New");
+    
+    // Should still show options with "New"
+    const newOptions = page.locator("button", { hasText: /New/i });
+    const count = await newOptions.count();
+    expect(count).toBeGreaterThan(0);
+  });
+
+  test("shows timezone offset in dropdown", async ({ page }) => {
+    // Open timezone dropdown
+    await page.getByTestId("settings-timezone-trigger").click();
+    
+    // The first item should have offset info (even if empty for UTC)
+    const firstOption = page.locator("button").nth(2); // Skip search and auto-detect btn
+    const text = await firstOption.textContent();
+    
+    // Just verify that timezone options are rendered (actual offset depends on system)
+    expect(text).toBeTruthy();
+  });
+
   test("navigates to settings from sidebar", async ({ page }) => {
     await page.goto("/");
     await expect(

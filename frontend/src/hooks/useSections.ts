@@ -29,6 +29,7 @@ export {
   useReorderLessonsMutation,
   useDuplicateLessonMutation,
   useMoveLessonMutation,
+  useImportPlaylistMutation,
 } from "./useLessons";
 
 export {

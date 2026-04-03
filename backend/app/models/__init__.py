@@ -8,6 +8,8 @@ Import any model from this package directly::
 from app.models.activity_log import ActivityLog
 from app.models.base import Base
 from app.models.certificate import Certificate
+from app.models.chat_message import ChatMessage
+from app.models.chat_thread import ChatThread
 from app.models.course import Course
 from app.models.enrollment import CourseEnrollment
 from app.models.course_study_state import CourseStudyState
@@ -27,6 +29,8 @@ __all__ = [
     "ActivityLog",
     "Base",
     "Certificate",
+    "ChatMessage",
+    "ChatThread",
     "Course",
     "CourseEnrollment",
     "CourseRating",

@@ -16,9 +16,10 @@ import type { Lesson } from "@/types/section";
 interface LessonContentProps {
   lesson: Lesson;
   onQuizCompleted?: () => void;
+  playbackSpeed?: number;
 }
 
-export function LessonContent({ lesson, onQuizCompleted }: LessonContentProps) {
+export function LessonContent({ lesson, onQuizCompleted, playbackSpeed = 1 }: LessonContentProps) {
   const isVideo = (lesson.lesson_type ?? "video") === "video";
   const isQuiz = (lesson.lesson_type ?? "video") === "quiz";
   const videoId =
@@ -44,6 +45,7 @@ export function LessonContent({ lesson, onQuizCompleted }: LessonContentProps) {
           <YouTubeEmbed
             videoId={videoId}
             title={lesson.youtube_title ?? undefined}
+            playbackSpeed={playbackSpeed}
           />
         </section>
       )}

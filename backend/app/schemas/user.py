@@ -18,6 +18,8 @@ class UserResponse(BaseModel):
     onboarding_complete: bool = False
     bio: str | None = None
     profile_tags: list[str] = []
+    social_links: list[dict] = []
+    cover_image_url: str | None = None
     is_profile_public: bool = False
     created_at: datetime
     updated_at: datetime
@@ -34,6 +36,8 @@ class UserUpdate(BaseModel):
     onboarding_complete: bool | None = None
     bio: str | None = Field(None, max_length=500)
     profile_tags: list[str] | None = Field(None, max_length=10)
+    social_links: list[dict] | None = Field(None, max_length=10)
+    cover_image_url: str | None = None
     is_profile_public: bool | None = None
 
 
@@ -44,6 +48,8 @@ class PublicProfileResponse(BaseModel):
     avatar_url: str | None = None
     bio: str | None = None
     profile_tags: list[str] = []
+    social_links: list[dict] = []
+    cover_image_url: str | None = None
     member_since: datetime
 
     # Stats

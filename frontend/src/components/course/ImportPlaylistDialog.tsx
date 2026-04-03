@@ -1,0 +1,152 @@
+/**
+ * Dialog for importing a YouTube playlist as video lessons.
+ *
+ * Accepts a playlist URL, validates it, calls the backend to extract
+ * all videos, and creates them as lessons in the target section.
+ */
+import { useState } from "react";
+import { ListVideo, Loader2, LinkIcon } from "lucide-react";
+import { toast } from "sonner";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useImportPlaylistMutation } from "@/hooks/useLessons";
+
+const PLAYLIST_URL_RE =
+  /^https?:\/\/(www\.)?youtube\.com\/playlist\?.*list=[A-Za-z0-9_-]+/;
+
+interface ImportPlaylistDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  sectionId: string;
+  courseId: string;
+}
+
+export function ImportPlaylistDialog({
+  open,
+  onOpenChange,
+  sectionId,
+  courseId,
+}: ImportPlaylistDialogProps) {
+  const [url, setUrl] = useState("");
+  const importMutation = useImportPlaylistMutation(courseId);
+
+  const isValidUrl = PLAYLIST_URL_RE.test(url.trim());
+
+  const handleImport = () => {
+    if (!isValidUrl) return;
+
+    importMutation.mutate(
+      { sectionId, playlistUrl: url.trim() },
+      {
+        onSuccess: (result) => {
+          toast.success(
+            `Imported ${result.imported_count} videos from "${result.playlist_title}"`,
+          );
+          setUrl("");
+          onOpenChange(false);
+        },
+        onError: (error) => {
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : "Failed to import playlist",
+          );
+        },
+      },
+    );
+  };
+
+  const handleOpenChange = (next: boolean) => {
+    if (!importMutation.isPending) {
+      setUrl("");
+      onOpenChange(next);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <div className="flex items-center gap-2">
+            <div className="flex size-9 items-center justify-center rounded-lg bg-accent-purple/10 text-accent-purple">
+              <ListVideo className="size-5" />
+            </div>
+            <div>
+              <DialogTitle>Import YouTube Playlist</DialogTitle>
+              <DialogDescription>
+                Paste a playlist link to import all videos as lessons.
+              </DialogDescription>
+            </div>
+          </div>
+        </DialogHeader>
+
+        <div className="flex flex-col gap-3 py-2">
+          <div className="relative">
+            <LinkIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-tertiary" />
+            <Input
+              placeholder="https://www.youtube.com/playlist?list=..."
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && isValidUrl) handleImport();
+              }}
+              disabled={importMutation.isPending}
+              className="pl-9"
+              autoFocus
+            />
+          </div>
+
+          {url.trim() && !isValidUrl && (
+            <p className="text-xs text-red-500">
+              Please enter a valid YouTube playlist URL
+            </p>
+          )}
+
+          {importMutation.isPending && (
+            <div className="flex items-center gap-2 rounded-lg border border-border-default bg-bg-secondary px-3 py-2.5">
+              <Loader2 className="size-4 animate-spin text-accent-purple" />
+              <span className="text-sm text-text-secondary">
+                Extracting videos from playlist...
+              </span>
+            </div>
+          )}
+        </div>
+
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={() => handleOpenChange(false)}
+            disabled={importMutation.isPending}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleImport}
+            disabled={!isValidUrl || importMutation.isPending}
+          >
+            {importMutation.isPending ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Importing...
+              </>
+            ) : (
+              <>
+                <ListVideo className="size-4" />
+                Import Playlist
+              </>
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}

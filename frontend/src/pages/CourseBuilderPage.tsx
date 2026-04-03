@@ -40,7 +40,7 @@ export default function CourseBuilderPage() {
 
   const handleShowIssues = async () => {
     const { data } = await validateQuery.refetch();
-    if (data) {
+    if (data && data.length > 0) {
       setValidationErrors(data);
       setShowValidation(true);
     }
@@ -242,6 +242,7 @@ export default function CourseBuilderPage() {
       <div className={isReady ? "pointer-events-none opacity-60" : ""}>
         <SectionList
           sections={sections ?? []}
+          courseId={courseId!}
           onAddSection={handleAddSection}
           onUpdateSection={handleUpdateSection}
           onDeleteSection={handleDeleteSection}

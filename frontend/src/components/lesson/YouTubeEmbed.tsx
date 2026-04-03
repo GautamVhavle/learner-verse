@@ -1,23 +1,166 @@
 /**
- * Responsive YouTube video embed iframe.
+ * Responsive YouTube video embed iframe with playback speed control.
+ *
+ * Uses YouTube IFrame Player API to enable:
+ * - Programmatic playback speed control
+ * - Applied from user settings
+ * - Persists across lesson navigation
  */
-import { getEmbedUrl } from "@/lib/youtube";
+import { useEffect, useRef } from "react";
+
+declare global {
+  interface Window {
+    YT: {
+      Player: new (element: HTMLElement, options: YT.PlayerOptions) => YT.Player;
+      PlayerState: {
+        UNSTARTED: number;
+        ENDED: number;
+        PLAYING: number;
+        PAUSED: number;
+        BUFFERING: number;
+        CUED: number;
+      };
+      loaded: number;
+    };
+    onYouTubeIframeAPIReady: () => void;
+  }
+}
+
+namespace YT {
+  interface PlayerOptions {
+    videoId: string;
+    events?: {
+      onReady?: (event: Event) => void;
+      onStateChange?: (event: Event) => void;
+    };
+    playerVars?: {
+      autoplay?: number;
+      controls?: number;
+      modestbranding?: number;
+      rel?: number;
+    };
+  }
+
+  interface Player {
+    playVideo(): void;
+    pauseVideo(): void;
+    stopVideo(): void;
+    seekTo(seconds: number): void;
+    setVolume(volume: number): void;
+    mute(): void;
+    setPlaybackRate(rate: number): void;
+    getPlaybackRate(): number;
+    getAvailablePlaybackRates(): number[];
+  }
+}
 
 interface YouTubeEmbedProps {
   videoId: string;
   title?: string;
+  playbackSpeed?: number;
 }
 
-export function YouTubeEmbed({ videoId, title }: YouTubeEmbedProps) {
+// Track if API is loaded globally
+let apiLoaded = false;
+const apiReadyPromise = new Promise<void>((resolve) => {
+  if (typeof window !== "undefined") {
+    window.onYouTubeIframeAPIReady = () => {
+      apiLoaded = true;
+      resolve();
+    };
+  }
+});
+
+// Load YouTube API script once
+function loadYouTubeAPI() {
+  if (apiLoaded || typeof window === "undefined") return;
+  if (document.querySelector('script[src*="youtube.*api"]')) return;
+
+  const script = document.createElement("script");
+  script.src = "https://www.youtube.com/iframe_api";
+  script.async = true;
+  script.defer = true;
+  document.head.appendChild(script);
+}
+
+export function YouTubeEmbed({ videoId, title, playbackSpeed = 1 }: YouTubeEmbedProps) {
+  const containerId = `youtube-player-${videoId}`;
+  const playerRef = useRef<YT.Player | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Load YouTube API on mount
+  useEffect(() => {
+    loadYouTubeAPI();
+  }, []);
+
+  // Initialize player
+  useEffect(() => {
+    async function initPlayer() {
+      await apiReadyPromise;
+
+      if (!window.YT || playerRef.current) return;
+
+      try {
+        playerRef.current = new window.YT.Player(containerId, {
+          videoId,
+          events: {
+            onReady: (event) => {
+              // Set playback speed after player is ready
+              const player = event.target as YT.Player;
+              const availableSpeeds = player.getAvailablePlaybackRates();
+              const speedToSet = availableSpeeds.includes(playbackSpeed) ? playbackSpeed : 1;
+              player.setPlaybackRate(speedToSet);
+            },
+          },
+          playerVars: {
+            controls: 1,
+            modestbranding: 1,
+            rel: 0,
+          },
+        });
+      } catch (error) {
+        console.warn("Failed to initialize YouTube player:", error);
+      }
+    }
+
+    initPlayer();
+
+    return () => {
+      // Clean up player on unmount (but keep API loaded for next video)
+      if (playerRef.current) {
+        try {
+          playerRef.current.destroy();
+        } catch (error) {
+          console.warn("Failed to destroy YouTube player:", error);
+        }
+        playerRef.current = null;
+      }
+    };
+  }, [videoId, containerId]);
+
+  // Update playback speed when it changes
+  useEffect(() => {
+    if (!playerRef.current) return;
+
+    try {
+      const availableSpeeds = playerRef.current.getAvailablePlaybackRates();
+      const speedToSet = availableSpeeds.includes(playbackSpeed) ? playbackSpeed : 1;
+      playerRef.current.setPlaybackRate(speedToSet);
+    } catch (error) {
+      console.warn("Failed to set playback speed:", error);
+    }
+  }, [playbackSpeed]);
+
   return (
-    <div className="relative w-full overflow-hidden rounded-lg bg-bg-tertiary" style={{ paddingBottom: "56.25%" }}>
-      <iframe
+    <div
+      ref={containerRef}
+      className="relative w-full overflow-hidden rounded-lg bg-bg-tertiary"
+      style={{ paddingBottom: "56.25%" }}
+    >
+      <div
+        id={containerId}
         className="absolute inset-0 h-full w-full"
-        src={getEmbedUrl(videoId)}
         title={title ?? "YouTube video"}
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowFullScreen
-        loading="lazy"
       />
     </div>
   );

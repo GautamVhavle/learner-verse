@@ -2,7 +2,7 @@
  * Top header bar with breadcrumb navigation and search trigger.
  */
 import { useLocation } from "react-router";
-import { Search } from "lucide-react";
+import { Search, Sparkles } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -12,6 +12,7 @@ import {
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
 import { useMode } from "@/hooks/useMode";
+import { useChatStore } from "@/stores/chatStore";
 
 const PAGE_TITLES: Record<string, string> = {
   "/": "Dashboard",
@@ -45,6 +46,7 @@ interface HeaderProps {
 export function Header({ onSearchClick }: HeaderProps) {
   const location = useLocation();
   const { mode } = useMode();
+  const { toggleChat } = useChatStore();
 
   const pageTitle = getPageTitle(location.pathname);
   const modeLabel = mode === "creator" ? "Creator" : "Learner";
@@ -87,6 +89,16 @@ export function Header({ onSearchClick }: HeaderProps) {
         <kbd className="hidden rounded border border-border-default bg-bg-tertiary px-1 py-px text-[10px] font-medium sm:inline-block">
           ⌘K
         </kbd>
+      </button>
+
+      {/* Ask LiVi */}
+      <button
+        onClick={toggleChat}
+        className="flex h-8 items-center gap-2 rounded-lg border border-border-default bg-bg-secondary px-3 text-sm text-text-tertiary transition-colors hover:border-accent-purple/40 hover:text-accent-purple"
+        aria-label="Ask LiVi"
+      >
+        <Sparkles className="size-3.5 text-accent-purple" />
+        <span className="hidden sm:inline">Ask LiVi</span>
       </button>
     </header>
   );

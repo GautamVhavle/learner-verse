@@ -39,6 +39,15 @@ class CourseRepository:
         )
         return result.unique().scalar_one_or_none()
 
+    async def get_by_id_no_owner(self, course_id: uuid.UUID) -> Course | None:
+        """Fetch a non-deleted course by ID without ownership check (for enrolled users)."""
+        result = await self.db.execute(
+            select(Course)
+            .options(joinedload(Course.tags))
+            .where(Course.id == course_id, Course.is_deleted.is_(False))
+        )
+        return result.unique().scalar_one_or_none()
+
     async def list_courses(
         self,
         user_id: uuid.UUID,

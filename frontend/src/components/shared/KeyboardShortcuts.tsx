@@ -1,5 +1,6 @@
 /**
  * Dialog displaying the available keyboard shortcuts.
+ * Platform-aware: shows ⌘ on Mac, Ctrl on Windows, hidden on mobile.
  */
 import {
   Dialog,
@@ -8,8 +9,10 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { usePlatform } from "@/hooks/usePlatform";
 
 interface ShortcutEntry {
+  /** Each element is a key name; "Ctrl" and "Shift" are resolved at render time. */
   keys: string[];
   description: string;
 }
@@ -63,47 +66,63 @@ interface KeyboardShortcutsProps {
 }
 
 export function KeyboardShortcuts({ open, onOpenChange }: KeyboardShortcutsProps) {
+  const { isMobile, mod, shift } = usePlatform();
+
+  function resolveKey(k: string): string {
+    if (k === "Ctrl") return mod;
+    if (k === "Shift") return shift;
+    return k;
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Keyboard Shortcuts</DialogTitle>
           <DialogDescription>
-            Navigate faster with these shortcuts.
+            {isMobile
+              ? "Keyboard shortcuts are not available on mobile."
+              : "Navigate faster with these shortcuts."}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-5 py-2">
-          {SHORTCUT_GROUPS.map((group) => (
-            <div key={group.title}>
-              <h4 className="mb-2.5 text-[11px] font-semibold uppercase tracking-wider text-text-tertiary">
-                {group.title}
-              </h4>
-              <div className="space-y-1.5">
-                {group.shortcuts.map((shortcut, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between rounded-lg px-2 py-1.5 transition-colors hover:bg-bg-tertiary"
-                  >
-                    <span className="text-sm text-text-primary">
-                      {shortcut.description}
-                    </span>
-                    <div className="flex items-center gap-1">
-                      {shortcut.keys.map((k, i) => (
-                        <span key={i} className="flex items-center gap-1">
-                          {i > 0 && (
-                            <span className="text-[10px] text-text-tertiary">+</span>
-                          )}
-                          <Kbd>{k === "Ctrl" ? "⌘" : k}</Kbd>
-                        </span>
-                      ))}
+        {isMobile ? (
+          <p className="py-4 text-center text-sm text-text-tertiary">
+            Use a desktop or laptop to access keyboard shortcuts.
+          </p>
+        ) : (
+          <div className="space-y-5 py-2">
+            {SHORTCUT_GROUPS.map((group) => (
+              <div key={group.title}>
+                <h4 className="mb-2.5 text-[11px] font-semibold uppercase tracking-wider text-text-tertiary">
+                  {group.title}
+                </h4>
+                <div className="space-y-1.5">
+                  {group.shortcuts.map((shortcut, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between rounded-lg px-2 py-1.5 transition-colors hover:bg-bg-tertiary"
+                    >
+                      <span className="text-sm text-text-primary">
+                        {shortcut.description}
+                      </span>
+                      <div className="flex items-center gap-1">
+                        {shortcut.keys.map((k, i) => (
+                          <span key={i} className="flex items-center gap-1">
+                            {i > 0 && (
+                              <span className="text-[10px] text-text-tertiary">+</span>
+                            )}
+                            <Kbd>{resolveKey(k)}</Kbd>
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

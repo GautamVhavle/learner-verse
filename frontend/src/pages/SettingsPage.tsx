@@ -17,12 +17,14 @@ import {
 import { PreferencesSection } from "@/components/settings/PreferencesSection";
 import { useUserQuery, useUpdateUserMutation } from "@/hooks/useUser";
 import { useThemeStore, type Theme } from "@/stores/themeStore";
+import { usePlatform } from "@/hooks/usePlatform";
 import type { UserSettings } from "@/types/user";
 
 export default function SettingsPage() {
   const { data: user, isLoading } = useUserQuery();
   const update = useUpdateUserMutation();
   const { theme, setTheme } = useThemeStore();
+  const { isMobile, mod, shift } = usePlatform();
 
   const save = useCallback(
     (data: Partial<UserSettings>) => {
@@ -99,7 +101,8 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      {/* Keyboard Shortcuts reference */}
+      {/* Keyboard Shortcuts reference — hidden on mobile */}
+      {!isMobile && (
       <section className="space-y-4 rounded-xl border border-border-default bg-bg-secondary p-5">
         <div className="flex items-center gap-2">
           <Keyboard className="size-4 text-accent-green" />
@@ -107,8 +110,8 @@ export default function SettingsPage() {
         </div>
         <div className="grid gap-2 text-xs sm:grid-cols-2">
           {[
-            ["⌘ K", "Search"],
-            ["⌘ ⇧ C", "Toggle Creator / Learner"],
+            [`${mod} K`, "Search"],
+            [`${mod} ${shift} C`, "Toggle Creator / Learner"],
             ["F", "Focus mode (study view)"],
             ["N / →", "Next lesson"],
             ["P / ←", "Previous lesson"],
@@ -125,6 +128,7 @@ export default function SettingsPage() {
           ))}
         </div>
       </section>
+      )}
 
       {/* Data section */}
       <section className="space-y-4 rounded-xl border border-border-default bg-bg-secondary p-5">

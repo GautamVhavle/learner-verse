@@ -3,6 +3,7 @@
  */
 import { Pen, GraduationCap } from "lucide-react";
 import { useMode } from "@/hooks/useMode";
+import { usePlatform } from "@/hooks/usePlatform";
 import {
   SidebarMenu,
   SidebarMenuItem,
@@ -23,6 +24,7 @@ export function ModeToggle({ onToggle }: ModeToggleProps) {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
   const isCreator = mode === "creator";
+  const { isMobile, isMac, mod, shift } = usePlatform();
 
   const handleClick = () => {
     onToggle?.();
@@ -74,9 +76,11 @@ export function ModeToggle({ onToggle }: ModeToggleProps) {
               <span className="text-xs font-medium leading-none text-sidebar-foreground">
                 {isCreator ? "Creator" : "Learner"}
               </span>
-              <span className="mt-0.5 text-[10px] leading-none text-muted-foreground">
-                ⌘⇧C to switch
-              </span>
+              {!isMobile && (
+                <span className="mt-0.5 text-[10px] leading-none text-muted-foreground">
+                  {isMobile ? null : isMac ? "⌘⇧C to switch" : "Ctrl+Shift+C to switch"}
+                </span>
+              )}
             </div>
           </button>
         )}

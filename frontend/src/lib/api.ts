@@ -7,6 +7,9 @@
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
+/** Exported for streaming transport and other direct fetch use cases. */
+export { API_BASE_URL };
+
 class ApiError extends Error {
   status: number;
   detail: string;
@@ -35,6 +38,9 @@ async function getAuthHeaders(): Promise<Record<string, string>> {
     return {};
   }
 }
+
+/** Exported for use by streaming transport (chat). */
+export { getAuthHeaders };
 
 async function request<T>(
   path: string,

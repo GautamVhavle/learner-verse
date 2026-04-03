@@ -25,8 +25,9 @@ from app.schemas.lesson import (
     ReferenceLinkResponse,
 )
 from app.schemas.section import ReorderRequest
+from app.services.playlist_service import PlaylistResult
 
-MAX_LESSONS_PER_SECTION = 50
+MAX_LESSONS_PER_SECTION = 150
 MAX_REFERENCE_LINKS_PER_LESSON = 20
 
 
@@ -202,3 +203,58 @@ class LessonService:
         await self._verify_section_owner(lesson.section_id, user_id)
         await self.ref_link_repo.delete(link_id)
         await self.db.commit()
+
+    # ── Playlist Import ──────────────────────────────────────
+
+    async def import_playlist_videos(
+        self,
+        section_id: uuid.UUID,
+        user_id: uuid.UUID,
+        playlist: PlaylistResult,
+    ) -> list[LessonResponse]:
+        """Bulk-create video lessons from a parsed YouTube playlist."""
+        await self._verify_section_owner(section_id, user_id)
+        current_count = await self.lesson_repo.count_by_section(section_id)
+        incoming = len(playlist.videos)
+
+        if current_count + incoming > MAX_LESSONS_PER_SECTION:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    f"Importing {incoming} videos would exceed the "
+                    f"{MAX_LESSONS_PER_SECTION}-lesson limit "
+                    f"(section already has {current_count})."
+                ),
+            )
+
+        created: list[LessonResponse] = []
+        for video in playlist.videos:
+            lesson = await self.lesson_repo.create(
+                section_id=section_id,
+                title=video.title,
+                lesson_type="video",
+                youtube_url=video.youtube_url,
+                youtube_title=video.title,
+                youtube_thumbnail=video.thumbnail_url,
+                youtube_channel=video.channel_name,
+            )
+            created.append(
+                LessonResponse(
+                    id=lesson.id,
+                    section_id=lesson.section_id,
+                    title=lesson.title,
+                    lesson_type="video",
+                    youtube_url=lesson.youtube_url,
+                    youtube_title=lesson.youtube_title,
+                    youtube_thumbnail=lesson.youtube_thumbnail,
+                    youtube_channel=lesson.youtube_channel,
+                    reference_links=[],
+                    quiz_questions=[],
+                    position=lesson.position,
+                    created_at=lesson.created_at,
+                    updated_at=lesson.updated_at,
+                )
+            )
+
+        await self.db.commit()
+        return created

@@ -106,3 +106,30 @@ export function useMoveLessonMutation(courseId: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: sectionKeys.all(courseId) }),
   });
 }
+
+interface PlaylistImportResponse {
+  playlist_title: string;
+  imported_count: number;
+  lessons: Lesson[];
+}
+
+export function useImportPlaylistMutation(courseId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ sectionId, playlistUrl }: { sectionId: string; playlistUrl: string }) =>
+      api.post<PlaylistImportResponse>(
+        `/sections/${sectionId}/lessons/import-playlist`,
+        { playlist_url: playlistUrl }
+      ),
+    onSuccess: (result, { sectionId }) => {
+      qc.setQueryData<Section[]>(sectionKeys.all(courseId), (old) =>
+        old?.map((s) =>
+          s.id === sectionId
+            ? { ...s, lessons: [...s.lessons, ...result.lessons] }
+            : s
+        )
+      );
+      qc.invalidateQueries({ queryKey: sectionKeys.all(courseId) });
+    },
+  });
+}

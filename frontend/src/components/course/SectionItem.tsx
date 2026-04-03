@@ -29,6 +29,7 @@ import {
   Video,
   StickyNote,
   ClipboardCheck,
+  ListVideo,
 } from "lucide-react";
 import {
   Collapsible,
@@ -44,10 +45,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { LessonItem } from "@/components/course/LessonItem";
+import { ImportPlaylistDialog } from "@/components/course/ImportPlaylistDialog";
 import type { Section, ReorderItem, LessonType } from "@/types/section";
 
 interface SectionItemProps {
   section: Section;
+  courseId: string;
   onUpdateSection: (title: string) => void;
   onDeleteSection: () => void;
   onDuplicateSection: () => void;
@@ -61,6 +64,7 @@ interface SectionItemProps {
 
 export function SectionItem({
   section,
+  courseId,
   onUpdateSection,
   onDeleteSection,
   onDuplicateSection,
@@ -73,6 +77,7 @@ export function SectionItem({
 }: SectionItemProps) {
   const [isOpen, setIsOpen] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+  const [playlistDialogOpen, setPlaylistDialogOpen] = useState(false);
   const [editTitle, setEditTitle] = useState(section.title);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -217,6 +222,10 @@ export function SectionItem({
                 <ClipboardCheck className="size-4" />
                 Add Quiz
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setPlaylistDialogOpen(true)}>
+                <ListVideo className="size-4" />
+                Import Playlist
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={onDuplicateSection}>
                 <Copy className="size-4" />
                 Duplicate
@@ -287,8 +296,19 @@ export function SectionItem({
                   <ClipboardCheck className="size-4" />
                   Quiz
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setPlaylistDialogOpen(true)}>
+                  <ListVideo className="size-4" />
+                  Import Playlist
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+
+            <ImportPlaylistDialog
+              open={playlistDialogOpen}
+              onOpenChange={setPlaylistDialogOpen}
+              sectionId={section.id}
+              courseId={courseId}
+            />
           </div>
         </CollapsibleContent>
       </Collapsible>

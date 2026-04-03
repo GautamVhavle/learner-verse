@@ -2,7 +2,8 @@
 
 import uuid
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_current_user
@@ -18,6 +19,7 @@ from app.schemas.lesson import (
 )
 from app.schemas.section import ReorderRequest
 from app.services.lesson_service import LessonService
+from app.services.playlist_service import PlaylistResult, extract_playlist
 
 router = APIRouter(prefix="/sections/{section_id}/lessons", tags=["lessons"])
 
@@ -128,3 +130,50 @@ async def delete_reference_link(
     db: AsyncSession = Depends(get_db),
 ):
     await _service(db).delete_reference_link(lesson_id, link_id, user.id)
+
+
+# ── Playlist Import ─────────────────────────────────────────
+
+
+class PlaylistImportRequest(BaseModel):
+    playlist_url: str
+
+
+class PlaylistImportResponse(BaseModel):
+    playlist_title: str
+    imported_count: int
+    lessons: list[LessonResponse]
+
+
+@router.post(
+    "/import-playlist",
+    response_model=PlaylistImportResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def import_playlist(
+    section_id: uuid.UUID,
+    data: PlaylistImportRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Import all videos from a YouTube playlist as video lessons."""
+    try:
+        playlist = await extract_playlist(data.playlist_url)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
+        )
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Failed to fetch playlist from YouTube. It may be private or unavailable.",
+        )
+
+    lessons = await _service(db).import_playlist_videos(
+        section_id, user.id, playlist
+    )
+    return PlaylistImportResponse(
+        playlist_title=playlist.playlist_title,
+        imported_count=len(lessons),
+        lessons=lessons,
+    )

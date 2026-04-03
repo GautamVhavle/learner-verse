@@ -10,11 +10,13 @@ import { Header } from "@/components/layout/Header";
 import { CommandPalette } from "@/components/search/CommandPalette";
 import { KeyboardShortcuts } from "@/components/shared/KeyboardShortcuts";
 import { FontSizeSync } from "@/components/shared/FontSizeSync";
+import { LiviChatPanel } from "@/components/chat/LiviChatPanel";
 import OnboardingPage from "@/pages/OnboardingPage";
 import { useMode } from "@/hooks/useMode";
 import { useFocusMode } from "@/hooks/useFocusMode";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useUserQuery } from "@/hooks/useUser";
+import { useChatStore } from "@/stores/chatStore";
 import type { AppMode } from "@/stores/modeStore";
 
 interface AppShellProps {
@@ -29,6 +31,7 @@ export function AppShell({ mode }: AppShellProps) {
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const { data: user, isLoading: userLoading } = useUserQuery();
   const [onboardingDismissed, setOnboardingDismissed] = useState(false);
+  const { toggleChat } = useChatStore();
 
   const handleToggleMode = useCallback(() => {
     const newMode = mode === "creator" ? "student" : "creator";
@@ -59,6 +62,12 @@ export function AppShell({ mode }: AppShellProps) {
         description: "Keyboard shortcuts",
       },
       {
+        key: "l",
+        ctrlKey: true,
+        action: toggleChat,
+        description: "Toggle LiVi chat",
+      },
+      {
         key: "Escape",
         action: () => {
           if (focusMode) setFocusMode(false);
@@ -66,7 +75,7 @@ export function AppShell({ mode }: AppShellProps) {
         description: "Exit focus mode / close modal",
       },
     ],
-    [handleToggleMode, focusMode, setFocusMode],
+    [handleToggleMode, focusMode, setFocusMode, toggleChat],
   );
 
   useKeyboardShortcuts(shortcuts());
@@ -99,6 +108,7 @@ export function AppShell({ mode }: AppShellProps) {
       </SidebarProvider>
       <CommandPalette open={searchOpen} onOpenChange={setSearchOpen} />
       <KeyboardShortcuts open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
+      <LiviChatPanel />
       <FontSizeSync />
     </TooltipProvider>
   );

@@ -23,14 +23,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { StarRating } from "@/components/hub/StarRating";
 import { toast } from "sonner";
-import { useHubCourseQuery, useRatingsQuery, useCreateRatingMutation, useDeleteRatingMutation } from "@/hooks/useHub";
+import { useHubCourseQuery, useHubSectionsQuery, useRatingsQuery, useCreateRatingMutation, useDeleteRatingMutation } from "@/hooks/useHub";
 import { useEnrollMutation, useUnenrollMutation, useEnrolledCoursesQuery } from "@/hooks/useEnrollments";
 import { useCourseProgressQuery } from "@/hooks/useProgress";
 import { useAuth } from "@/hooks/useAuth";
 import { useMode } from "@/hooks/useMode";
-import { api } from "@/lib/api";
-import { useQuery } from "@tanstack/react-query";
-import type { Section } from "@/types/section";
 
 export default function HubCourseDetailPage() {
   const { courseId } = useParams<{ courseId: string }>();
@@ -51,11 +48,7 @@ export default function HubCourseDetailPage() {
   const [newReview, setNewReview] = useState("");
 
   // Fetch sections for course outline
-  const { data: sections } = useQuery<Section[]>({
-    queryKey: ["hub-sections", courseId],
-    queryFn: () => api.get(`/sections/${courseId}`),
-    enabled: !!courseId,
-  });
+  const { data: sections } = useHubSectionsQuery(courseId);
 
   const isEnrolled = enrolledData?.items.some((c) => c.id === courseId) ?? false;
   const { data: progress } = useCourseProgressQuery(isEnrolled ? courseId : undefined);
@@ -176,12 +169,18 @@ export default function HubCourseDetailPage() {
             {isEnrolled ? (
               <>
                 {isCompleted ? (
-                  <div className="flex items-center gap-2 rounded-lg bg-accent-green/10 px-4 py-2">
-                    <CheckCircle2 className="size-5 text-accent-green" />
-                    <span className="text-sm font-semibold text-accent-green">
-                      Completed
-                    </span>
-                  </div>
+                  <>
+                    <div className="flex items-center gap-2 rounded-lg bg-accent-green/10 px-4 py-2">
+                      <CheckCircle2 className="size-5 text-accent-green" />
+                      <span className="text-sm font-semibold text-accent-green">
+                        Completed
+                      </span>
+                    </div>
+                    <Button variant="outline" onClick={() => navigate(`${modePrefix}/study/${course.id}`)}>
+                      <BookOpen className="mr-1.5 size-4" />
+                      Revisit
+                    </Button>
+                  </>
                 ) : (
                   <Button onClick={() => navigate(`${modePrefix}/study/${course.id}`)}>
                     <Play className="mr-1.5 size-4" />

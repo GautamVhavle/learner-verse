@@ -123,11 +123,13 @@ export function useUpdateCourseStatusMutation() {
   return useMutation({
     mutationFn: ({ id, status }: { id: string; status: "draft" | "ready" }) =>
       api.put<StatusUpdateResponse>(`/courses/${id}/status`, { status }),
-    onSuccess: (_data, variables) => {
+    onSuccess: (data, variables) => {
       qc.invalidateQueries({ queryKey: COURSES_KEY });
-      toast.success(
-        variables.status === "ready" ? "Course published!" : "Course unpublished",
-      );
+      if (data.valid !== false) {
+        toast.success(
+          variables.status === "ready" ? "Course published!" : "Course unpublished",
+        );
+      }
     },
     onError: () => toast.error("Failed to update course status"),
   });

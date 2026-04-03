@@ -34,6 +34,8 @@ class User(Base):
     onboarding_complete: Mapped[bool] = mapped_column(Boolean, default=False)
     bio: Mapped[str | None] = mapped_column(Text, nullable=True)
     profile_tags: Mapped[list] = mapped_column(JSONB, nullable=False, server_default="[]")
+    social_links: Mapped[list] = mapped_column(JSONB, nullable=False, server_default="[]")
+    cover_image_url: Mapped[str | None] = mapped_column(String, nullable=True)
     is_profile_public: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False

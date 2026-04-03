@@ -20,8 +20,7 @@ import { ProgressBar } from "@/components/study/ProgressBar";
 import { FocusOverlay } from "@/components/study/FocusOverlay";
 import { CelebrationModal } from "@/components/certificate/CelebrationModal";
 import { KeyboardShortcuts } from "@/components/shared/KeyboardShortcuts";
-import { useCourseQuery } from "@/hooks/useCourses";
-import { useSectionsQuery } from "@/hooks/useSections";
+import { useHubCourseQuery, useHubSectionsQuery } from "@/hooks/useHub";
 import { useLessonNavigation } from "@/hooks/useLessonNavigation";
 import { useUpdateStudyStateMutation } from "@/hooks/useStudy";
 import { useCourseProgressQuery } from "@/hooks/useProgress";
@@ -29,6 +28,7 @@ import { useGenerateCertificateMutation } from "@/hooks/useCertificates";
 import { useFocusMode } from "@/hooks/useFocusMode";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useModeAwareNavigate } from "@/hooks/useModeAwareNavigate";
+import { useUserQuery } from "@/hooks/useUser";
 
 export default function LessonPage() {
   const { courseId, lessonId } = useParams<{
@@ -37,9 +37,10 @@ export default function LessonPage() {
   }>();
   const navigate = useModeAwareNavigate();
 
-  const { data: course, isLoading: courseLoading } = useCourseQuery(courseId);
+  const { data: course, isLoading: courseLoading } = useHubCourseQuery(courseId ?? "");
   const { data: sections, isLoading: sectionsLoading } =
-    useSectionsQuery(courseId);
+    useHubSectionsQuery(courseId);
+  const { data: user } = useUserQuery();
   const updateState = useUpdateStudyStateMutation();
   const { data: progress } = useCourseProgressQuery(courseId);
   const generateCert = useGenerateCertificateMutation();
@@ -224,7 +225,11 @@ export default function LessonPage() {
             </div>
 
             {/* Lesson body (video, markdown, links, quiz) */}
-            <LessonContent lesson={currentLesson} onQuizCompleted={handleQuizCompleted} />
+            <LessonContent
+              lesson={currentLesson}
+              onQuizCompleted={handleQuizCompleted}
+              playbackSpeed={user?.playback_speed ?? 1}
+            />
 
             {/* Study Notes */}
             <StudyNotes lessonId={currentLesson.id} />

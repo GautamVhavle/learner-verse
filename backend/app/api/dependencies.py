@@ -7,7 +7,8 @@ multi-user modes.
 
 import uuid
 
-from fastapi import Depends, Request
+from fastapi import Depends, Request, Security
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,10 +20,14 @@ from app.models.user import User
 # Fixed UUID for the single-user local development mode.
 SINGLE_USER_ID = uuid.UUID("00000000-0000-0000-0000-000000000001")
 
+# Declares the Bearer token scheme for Swagger UI's Authorize button.
+_http_bearer = HTTPBearer(auto_error=False)
+
 
 async def get_current_user(
     request: Request,
     db: AsyncSession = Depends(get_db),
+    _credentials: HTTPAuthorizationCredentials | None = Security(_http_bearer),
 ) -> User:
     """Resolve the current authenticated user.
 

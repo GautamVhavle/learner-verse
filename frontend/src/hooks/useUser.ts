@@ -39,3 +39,15 @@ export function useUploadAvatarMutation() {
     onError: () => toast.error("Failed to upload profile picture"),
   });
 }
+
+export function useUploadCoverMutation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (file: File) => api.upload<{ url: string }>("/uploads/cover", file),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: USER_KEY });
+      toast.success("Cover image updated!");
+    },
+    onError: () => toast.error("Failed to upload cover image"),
+  });
+}

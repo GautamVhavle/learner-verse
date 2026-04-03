@@ -9,8 +9,8 @@ import { useLocation, useNavigate } from "react-router";
 import {
   BookOpen,
   ChevronRight,
-  GraduationCap,
   Pen,
+  Sparkles,
 } from "lucide-react";
 import {
   Collapsible,
@@ -41,6 +41,7 @@ import { useMode } from "@/hooks/useMode";
 import { useCoursesQuery } from "@/hooks/useCourses";
 import { useEnrolledCoursesQuery } from "@/hooks/useEnrollments";
 import { NotificationBadge } from "@/components/notification/NotificationBadge";
+import { useChatStore } from "@/stores/chatStore";
 import {
   CREATOR_LINKS,
   CREATOR_EXTRA,
@@ -63,6 +64,7 @@ export function AppSidebar({
   const { user: authUser } = useAuth();
   const { data: profile } = useUserQuery();
   const { isCreator } = useMode();
+  const { toggleChat } = useChatStore();
 
   // Fetch courses for the sidebar list
   const { data: allCourses } = useCoursesQuery();
@@ -116,8 +118,8 @@ export function AppSidebar({
               size="lg"
               className="pointer-events-none"
             >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <GraduationCap className="size-4" />
+              <div className="flex items-center justify-center rounded-lg">
+                <img src="/logo.svg" alt="Learner Verse Logo" className=" h-8 p-1" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">Learner Verse</span>
@@ -140,7 +142,7 @@ export function AppSidebar({
             {primaryLinks.map(renderNavItem)}
 
             {/* Collapsible Courses group */}
-            <Collapsible defaultOpen className="group/collapsible">
+            <Collapsible className="group/collapsible">
               <SidebarMenuItem>
                 <CollapsibleTrigger
                   render={
@@ -222,6 +224,26 @@ export function AppSidebar({
         </SidebarGroup>
 
         <SidebarSeparator />
+
+        {/* LiVi AI Assistant */}
+        <SidebarGroup>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                tooltip="Ask LiVi"
+                onClick={toggleChat}
+                className="cursor-pointer"
+                size="sm"
+              >
+                <Sparkles className="text-accent-purple" />
+                <span>LiVi</span>
+                <span className="ml-auto rounded-sm bg-accent-purple/10 px-1.5 py-0.5 text-[9px] font-medium text-accent-purple">
+                  AI
+                </span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
 
         {/* Secondary navigation (settings, etc.) */}
         <SidebarGroup>

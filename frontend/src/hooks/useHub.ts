@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import type { CourseListResponse, Course } from "@/types/course";
+import type { Section } from "@/types/section";
 import type { RatingCreate, RatingListResponse, Rating, RatingUpdate } from "@/types/rating";
 
 // ── Hub Course Queries ────────────────────────────────────────
@@ -51,6 +52,14 @@ export function useHubCourseQuery(courseId: string) {
   return useQuery<Course>({
     queryKey: ["hub-course", courseId],
     queryFn: () => api.get(`/hub/courses/${courseId}`),
+    enabled: !!courseId,
+  });
+}
+
+export function useHubSectionsQuery(courseId: string | undefined) {
+  return useQuery<Section[]>({
+    queryKey: ["hub-sections", courseId],
+    queryFn: () => api.get(`/hub/courses/${courseId}/sections`),
     enabled: !!courseId,
   });
 }

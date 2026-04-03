@@ -4,12 +4,14 @@
 export interface UserSettings {
   display_name: string;
   avatar_url: string | null;
+  cover_image_url: string | null;
   timezone: string;
   playback_speed: number;
   font_size: "normal" | "large" | "xl";
   onboarding_complete: boolean;
   bio: string | null;
   profile_tags: string[];
+  social_links: SocialLink[];
   is_profile_public: boolean;
 }
 
@@ -19,23 +21,32 @@ export interface UserProfile {
   email: string;
   display_name: string;
   avatar_url: string | null;
+  cover_image_url: string | null;
   timezone: string;
   playback_speed: number;
   font_size: "normal" | "large" | "xl";
   onboarding_complete: boolean;
   bio: string | null;
   profile_tags: string[];
+  social_links: SocialLink[];
   is_profile_public: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface SocialLink {
+  label: string;
+  url: string;
 }
 
 export interface PublicProfile {
   id: string;
   display_name: string;
   avatar_url: string | null;
+  cover_image_url: string | null;
   bio: string | null;
   profile_tags: string[];
+  social_links: SocialLink[];
   member_since: string;
   total_courses_completed: number;
   total_lessons_completed: number;

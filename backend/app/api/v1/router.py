@@ -6,6 +6,7 @@ from app.api.v1.endpoints import (
     analytics,
     auth,
     certificates,
+    chat,
     courses,
     enrollments,
     goals,
@@ -39,6 +40,7 @@ api_v1_router.include_router(quiz.router)
 api_v1_router.include_router(study.router)
 api_v1_router.include_router(progress.router)
 api_v1_router.include_router(certificates.router)
+api_v1_router.include_router(chat.router)
 api_v1_router.include_router(goals.router)
 api_v1_router.include_router(notifications.router)
 api_v1_router.include_router(stats.router)

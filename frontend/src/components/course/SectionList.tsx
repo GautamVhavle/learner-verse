@@ -22,6 +22,7 @@ import type { Section, ReorderItem, LessonType } from "@/types/section";
 
 interface SectionListProps {
   sections: Section[];
+  courseId: string;
   onAddSection: () => void;
   onUpdateSection: (sectionId: string, title: string) => void;
   onDeleteSection: (sectionId: string) => void;
@@ -37,6 +38,7 @@ interface SectionListProps {
 
 export function SectionList({
   sections,
+  courseId,
   onAddSection,
   onUpdateSection,
   onDeleteSection,
@@ -109,6 +111,7 @@ export function SectionList({
             <SectionItem
               key={section.id}
               section={section}
+              courseId={courseId}
               onUpdateSection={(title) => onUpdateSection(section.id, title)}
               onDeleteSection={() => onDeleteSection(section.id)}
               onDuplicateSection={() => onDuplicateSection(section.id)}

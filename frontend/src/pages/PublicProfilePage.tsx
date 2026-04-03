@@ -1,11 +1,11 @@
 /**
- * Public learner profile page.
+ * Public learner profile page — LinkedIn-inspired layout.
  *
- * Beautiful, data-driven profile with hero section, stats cards,
- * activity heatmap, and certificates timeline.
+ * Wide responsive cover banner, avatar overlay, bio, tags, social links,
+ * stats cards, responsive activity heatmap, and certificates.
  * Accessible without authentication at /profile/:userId.
  */
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, Link } from "react-router";
 import {
   Award,
@@ -19,13 +19,14 @@ import {
   ArrowLeft,
   Share2,
   ExternalLink,
+  Link2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { usePublicProfileQuery } from "@/hooks/useProfile";
-import type { PublicProfile } from "@/types/user";
+import type { PublicProfile, SocialLink } from "@/types/user";
 
-/* ─── Helpers ────────────────────────────────────────────── */
+/* ─── Helpers ──────────────────────────────────────── */
 
 function formatDate(iso: string, style: "short" | "long" = "long") {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -46,13 +47,13 @@ function relativeTime(iso: string): string {
   return `${Math.floor(months / 12)}y ago`;
 }
 
-/* ─── Activity Heatmap (self-contained for public page) ──── */
+/* ─── Responsive Activity Heatmap ──────────────────── */
 
 const CELL_SIZE = 11;
 const CELL_GAP = 3;
 const CELL_STEP = CELL_SIZE + CELL_GAP;
 const LABEL_W = 24;
-const WEEKS = 52;
+const MAX_WEEKS = 52;
 const DAY_LABELS = ["", "Mon", "", "Wed", "", "Fri", ""];
 const MONTH_NAMES = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -68,21 +69,39 @@ function getColor(count: number, max: number): string {
   return "var(--color-heatmap-4)";
 }
 
+function computeWeeksForWidth(containerWidth: number): number {
+  const available = containerWidth - LABEL_W - 8;
+  return Math.min(MAX_WEEKS, Math.max(10, Math.floor(available / CELL_STEP)));
+}
+
 function ProfileHeatmap({ days }: { days: { date: string; count: number }[] }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [weeks, setWeeks] = useState(MAX_WEEKS);
+  const [tooltip, setTooltip] = useState<{ text: string; x: number; y: number } | null>(null);
+
+  const measure = useCallback(() => {
+    if (!containerRef.current) return;
+    setWeeks(computeWeeksForWidth(containerRef.current.clientWidth));
+  }, []);
+
+  useEffect(() => {
+    measure();
+    const el = containerRef.current;
+    if (!el) return;
+    const obs = new ResizeObserver(() => measure());
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [measure]);
+
   const { grid, maxCount, startDate } = useMemo(() => {
     const today = new Date();
     const start = new Date(today);
-    start.setDate(start.getDate() - (WEEKS - 1) * 7 - start.getDay());
-
+    start.setDate(start.getDate() - (weeks - 1) * 7 - start.getDay());
     const map = new Map<string, number>();
     let max = 0;
-    for (const d of days) {
-      map.set(d.date, d.count);
-      if (d.count > max) max = d.count;
-    }
-
+    for (const d of days) { map.set(d.date, d.count); if (d.count > max) max = d.count; }
     const cells: { date: string; count: number; w: number; d: number }[] = [];
-    for (let w = 0; w < WEEKS; w++) {
+    for (let w = 0; w < weeks; w++) {
       for (let d = 0; d < 7; d++) {
         const dt = new Date(start);
         dt.setDate(dt.getDate() + w * 7 + d);
@@ -92,12 +111,12 @@ function ProfileHeatmap({ days }: { days: { date: string; count: number }[] }) {
       }
     }
     return { grid: cells, maxCount: max, startDate: start };
-  }, [days]);
+  }, [days, weeks]);
 
   const monthLabels = useMemo(() => {
     const labels: { label: string; x: number }[] = [];
     let last = -1;
-    for (let w = 0; w < WEEKS; w++) {
+    for (let w = 0; w < weeks; w++) {
       const dt = new Date(startDate);
       dt.setDate(dt.getDate() + w * 7);
       if (dt.getMonth() !== last) {
@@ -106,53 +125,36 @@ function ProfileHeatmap({ days }: { days: { date: string; count: number }[] }) {
       }
     }
     return labels;
-  }, [startDate]);
+  }, [startDate, weeks]);
 
   const totalLessons = days.reduce((s, d) => s + d.count, 0);
+  const svgW = LABEL_W + weeks * CELL_STEP;
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" ref={containerRef}>
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-text-primary">Activity</h3>
+        <div>
+          <h3 className="text-sm font-semibold text-text-primary">Activity</h3>
+          <p className="text-xs text-text-tertiary">
+            {totalLessons} {totalLessons === 1 ? "lesson" : "lessons"} in the last{" "}
+            {weeks === MAX_WEEKS ? "year" : `${weeks} weeks`}
+          </p>
+        </div>
         <div className="flex items-center gap-1.5 text-[10px] text-text-tertiary">
           <span>Less</span>
           {[0, 1, 2, 3, 4].map((l) => (
-            <div
-              key={l}
-              className="size-2.5 rounded-[2px]"
-              style={{ backgroundColor: `var(--color-heatmap-${l})` }}
-            />
+            <div key={l} className="size-2.5 rounded-[2px]" style={{ backgroundColor: `var(--color-heatmap-${l})` }} />
           ))}
           <span>More</span>
         </div>
       </div>
       <div className="overflow-x-auto">
-        <svg
-          width={LABEL_W + WEEKS * CELL_STEP}
-          height={7 * CELL_STEP + 22}
-          className="block select-none"
-        >
+        <svg width={svgW} height={7 * CELL_STEP + 22} className="block select-none">
           {monthLabels.map((m) => (
-            <text
-              key={`${m.label}-${m.x}`}
-              x={m.x}
-              y={9}
-              className="fill-text-tertiary text-[9px]"
-            >
-              {m.label}
-            </text>
+            <text key={`${m.label}-${m.x}`} x={m.x} y={9} className="fill-text-tertiary text-[9px]">{m.label}</text>
           ))}
           {DAY_LABELS.map((label, i) =>
-            label ? (
-              <text
-                key={`d-${i}`}
-                x={0}
-                y={18 + i * CELL_STEP + CELL_SIZE / 2 + 3}
-                className="fill-text-tertiary text-[9px]"
-              >
-                {label}
-              </text>
-            ) : null,
+            label ? <text key={`d-${i}`} x={0} y={18 + i * CELL_STEP + CELL_SIZE / 2 + 3} className="fill-text-tertiary text-[9px]">{label}</text> : null,
           )}
           {grid.map((c) => (
             <rect
@@ -163,45 +165,69 @@ function ProfileHeatmap({ days }: { days: { date: string; count: number }[] }) {
               height={CELL_SIZE}
               rx={2}
               fill={getColor(c.count, maxCount)}
+              className="cursor-pointer transition-opacity hover:opacity-75"
+              onMouseEnter={(e) => {
+                const formatted = new Date(c.date + "T00:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+                setTooltip({
+                  text: c.count === 0 ? `No lessons on ${formatted}` : `${c.count} ${c.count === 1 ? "lesson" : "lessons"} on ${formatted}`,
+                  x: e.clientX, y: e.clientY,
+                });
+              }}
+              onMouseLeave={() => setTooltip(null)}
             />
           ))}
         </svg>
       </div>
-      <p className="text-xs text-text-tertiary">
-        {totalLessons} {totalLessons === 1 ? "lesson" : "lessons"} in the last year
-      </p>
+      {tooltip && (
+        <div className="pointer-events-none fixed z-50 rounded-md bg-popover px-2.5 py-1.5 text-xs font-medium text-popover-foreground shadow-lg ring-1 ring-border" style={{ left: tooltip.x + 12, top: tooltip.y - 36 }}>
+          {tooltip.text}
+        </div>
+      )}
     </div>
   );
 }
 
-/* ─── Stat Card ──────────────────────────────────────────── */
+/* ─── Stat Card ────────────────────────────────────── */
 
-function StatCard({
-  icon: Icon,
-  label,
-  value,
-  color,
-}: {
-  icon: typeof Flame;
-  label: string;
-  value: number;
-  color: string;
-}) {
+function StatCard({ icon: Icon, label, value, color }: { icon: typeof Flame; label: string; value: number; color: string }) {
   return (
-    <div className="flex flex-col items-center gap-1 rounded-xl border border-border-default bg-bg-secondary p-4 text-center">
-      <div
-        className="mb-1 flex size-9 items-center justify-center rounded-lg"
-        style={{ backgroundColor: `${color}15` }}
-      >
+    <div className="flex flex-col items-center gap-1.5 rounded-xl border border-border-default bg-bg-secondary p-3 text-center sm:p-4">
+      <div className="flex size-9 items-center justify-center rounded-lg" style={{ backgroundColor: `${color}15` }}>
         <Icon className="size-4" style={{ color }} />
       </div>
-      <span className="text-2xl font-bold text-text-primary">{value}</span>
-      <span className="text-[11px] text-text-tertiary">{label}</span>
+      <span className="text-xl font-bold text-text-primary sm:text-2xl">{value}</span>
+      <span className="text-[10px] leading-tight text-text-tertiary sm:text-[11px]">{label}</span>
     </div>
   );
 }
 
-/* ─── Main Page ──────────────────────────────────────────── */
+/* ─── Social Link Icon Helper ──────────────────────── */
+
+function getLinkDomain(url: string): string {
+  try { return new URL(url).hostname.replace("www.", ""); } catch { return ""; }
+}
+
+function SocialLinks({ links }: { links: SocialLink[] }) {
+  if (links.length === 0) return null;
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      {links.map((link, i) => (
+        <a
+          key={i}
+          href={link.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 rounded-full border border-border-default bg-bg-secondary px-3 py-1 text-xs font-medium text-text-secondary transition-colors hover:border-accent-blue hover:text-accent-blue"
+        >
+          <Link2 className="size-3" />
+          {link.label || getLinkDomain(link.url)}
+        </a>
+      ))}
+    </div>
+  );
+}
+
+/* ─── Main Page ────────────────────────────────────── */
 
 export default function PublicProfilePage() {
   const { userId } = useParams<{ userId: string }>();
@@ -225,10 +251,7 @@ export default function PublicProfilePage() {
         <p className="max-w-sm text-center text-sm text-text-secondary">
           This profile doesn't exist or is set to private.
         </p>
-        <Link
-          to="/"
-          className="mt-2 flex items-center gap-1.5 text-sm text-accent-blue hover:underline"
-        >
+        <Link to="/" className="mt-2 flex items-center gap-1.5 text-sm text-accent-blue hover:underline">
           <ArrowLeft className="size-3.5" /> Go Home
         </Link>
       </div>
@@ -240,162 +263,154 @@ export default function PublicProfilePage() {
 
 function ProfileContent({ profile }: { profile: PublicProfile }) {
   const handleShare = async () => {
-    const url = window.location.href;
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(window.location.href);
       toast.success("Profile link copied!");
-    } catch {
-      toast.error("Failed to copy link");
-    }
+    } catch { toast.error("Failed to copy link"); }
   };
 
   return (
     <div className="min-h-screen bg-bg-primary">
-      {/* Gradient hero */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-accent-blue/10 via-accent-purple/5 to-accent-green/10">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-accent-blue/5 to-transparent" />
-        <div className="relative mx-auto max-w-3xl px-4 pb-16 pt-10 sm:px-6">
-          {/* Top bar */}
-          <div className="mb-8 flex items-center justify-between">
-            <Link
-              to="/"
-              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:bg-bg-secondary/80 hover:text-text-primary"
-            >
-              <GraduationCap className="size-3.5" /> Learner Verse
-            </Link>
-            <button
-              onClick={handleShare}
-              className="flex items-center gap-1.5 rounded-lg border border-border-default bg-bg-secondary/80 px-3 py-1.5 text-xs font-medium text-text-secondary backdrop-blur-sm transition-colors hover:text-text-primary"
-            >
-              <Share2 className="size-3" /> Share
-            </button>
-          </div>
-
-          {/* Profile header */}
-          <div className="flex flex-col items-center text-center sm:flex-row sm:items-start sm:text-left sm:gap-6">
-            <Avatar size="lg" className="size-24 ring-4 ring-bg-primary shadow-xl sm:size-28">
-              {profile.avatar_url ? (
-                <AvatarImage src={profile.avatar_url} alt={profile.display_name} />
-              ) : null}
-              <AvatarFallback className="text-3xl font-semibold">
-                {profile.display_name.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="mt-4 sm:mt-1">
-              <h1 className="text-2xl font-bold text-text-primary sm:text-3xl">
-                {profile.display_name}
-              </h1>
-              {profile.bio && (
-                <p className="mt-2 max-w-lg text-sm leading-relaxed text-text-secondary">
-                  {profile.bio}
-                </p>
-              )}
-              <div className="mt-3 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                {profile.profile_tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-full bg-accent-blue/10 px-2.5 py-0.5 text-xs font-medium text-accent-blue"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-              <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-text-tertiary sm:justify-start">
-                <Calendar className="size-3" />
-                Member since {formatDate(profile.member_since, "long")}
-              </p>
-            </div>
-          </div>
-        </div>
+      {/* ── Top Nav ── */}
+      <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3 sm:px-6">
+        <Link
+          to="/"
+          className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary"
+        >
+          <GraduationCap className="size-4" /> Learner Verse
+        </Link>
+        <button
+          onClick={handleShare}
+          className="flex items-center gap-1.5 rounded-lg border border-border-default bg-bg-secondary px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:text-text-primary"
+        >
+          <Share2 className="size-3" /> Share
+        </button>
       </div>
 
-      {/* Content */}
-      <div className="mx-auto max-w-3xl space-y-6 px-4 -mt-6 pb-16 sm:px-6">
-        {/* Stats grid */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-          <StatCard
-            icon={BookOpen}
-            label="Courses Completed"
-            value={profile.total_courses_completed}
-            color="var(--color-accent-blue)"
-          />
-          <StatCard
-            icon={Zap}
-            label="Lessons Done"
-            value={profile.total_lessons_completed}
-            color="var(--color-accent-purple)"
-          />
-          <StatCard
-            icon={Flame}
-            label="Current Streak"
-            value={profile.current_streak}
-            color="var(--color-accent-amber)"
-          />
-          <StatCard
-            icon={Trophy}
-            label="Best Streak"
-            value={profile.longest_streak}
-            color="var(--color-accent-green)"
-          />
-          <StatCard
-            icon={Calendar}
-            label="Active Days"
-            value={profile.total_active_days}
-            color="#6366f1"
-          />
-        </div>
-
-        {/* Activity heatmap */}
-        {profile.activity_heatmap.length > 0 && (
-          <div className="rounded-xl border border-border-default bg-bg-secondary p-5">
-            <ProfileHeatmap days={profile.activity_heatmap} />
+      {/* ── Profile Card ── */}
+      <div className="mx-auto max-w-4xl px-4 sm:px-6">
+        <div className="overflow-hidden rounded-2xl border border-border-default bg-bg-secondary">
+          {/* Cover banner — 4:1 aspect ratio like LinkedIn */}
+          <div className="relative aspect-[4/1] w-full overflow-hidden">
+            {profile.cover_image_url ? (
+              <img
+                src={profile.cover_image_url}
+                alt=""
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="h-full w-full bg-gradient-to-br from-accent-blue/20 via-accent-purple/15 to-accent-green/10" />
+            )}
           </div>
-        )}
 
-        {/* Certificates */}
-        {profile.certificates.length > 0 && (
-          <div className="rounded-xl border border-border-default bg-bg-secondary p-5">
-            <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-text-primary">
-              <Award className="size-4 text-accent-amber" />
-              Certificates ({profile.certificates.length})
-            </h3>
-            <div className="space-y-3">
-              {profile.certificates.map((cert) => (
-                <div
-                  key={cert.certificate_uid}
-                  className="group flex items-center justify-between rounded-lg border border-border-default bg-bg-tertiary px-4 py-3 transition-colors hover:border-accent-amber/30"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex size-8 items-center justify-center rounded-lg bg-accent-amber/10">
-                      <Award className="size-4 text-accent-amber" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-text-primary">
-                        {cert.course_title}
-                      </p>
-                      <p className="text-[11px] text-text-tertiary">
-                        Earned {relativeTime(cert.completed_at)} &middot;{" "}
-                        {formatDate(cert.completed_at, "short")}
-                      </p>
-                    </div>
-                  </div>
-                  <a
-                    href={`/certificates/share/${cert.certificate_uid}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-text-tertiary opacity-0 transition-all hover:text-accent-blue group-hover:opacity-100"
-                  >
-                    View <ExternalLink className="size-3" />
-                  </a>
+          {/* Profile info area */}
+          <div className="relative px-5 pb-5 sm:px-7 sm:pb-6">
+            {/* Avatar — overlapping the cover */}
+            <div className="-mt-14 sm:-mt-16 md:-mt-20">
+              <Avatar className="!size-28 border-4 border-bg-secondary shadow-lg sm:!size-32 md:!size-36">
+                {profile.avatar_url ? (
+                  <AvatarImage src={profile.avatar_url} alt={profile.display_name} />
+                ) : null}
+                <AvatarFallback className="text-4xl font-bold sm:text-5xl">
+                  {profile.display_name.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+
+            {/* Identity */}
+            <div className="mt-3 space-y-2.5">
+              <div>
+                <h1 className="text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">
+                  {profile.display_name}
+                </h1>
+                {profile.bio && (
+                  <p className="mt-1 max-w-2xl text-sm leading-relaxed text-text-secondary sm:text-[15px]">
+                    {profile.bio}
+                  </p>
+                )}
+              </div>
+
+              {/* Tags */}
+              {profile.profile_tags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {profile.profile_tags.map((tag) => (
+                    <span key={tag} className="rounded-full bg-accent-blue/10 px-2.5 py-0.5 text-xs font-medium text-accent-blue">
+                      {tag}
+                    </span>
+                  ))}
                 </div>
-              ))}
+              )}
+
+              {/* Social links + member since */}
+              <div className="flex flex-col gap-2 pt-0.5 sm:flex-row sm:items-center sm:gap-4">
+                <SocialLinks links={profile.social_links} />
+                <p className="flex items-center gap-1.5 text-xs text-text-tertiary">
+                  <Calendar className="size-3" />
+                  Member since {formatDate(profile.member_since, "long")}
+                </p>
+              </div>
             </div>
           </div>
-        )}
+        </div>
 
-        {/* Empty state for brand new profiles */}
-        {profile.total_lessons_completed === 0 &&
-          profile.certificates.length === 0 && (
+        {/* ── Content ── */}
+        <div className="mt-6 space-y-6 pb-16">
+          {/* Stats */}
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-5">
+            <StatCard icon={BookOpen} label="Courses Completed" value={profile.total_courses_completed} color="var(--color-accent-blue)" />
+            <StatCard icon={Zap} label="Lessons Done" value={profile.total_lessons_completed} color="var(--color-accent-purple)" />
+            <StatCard icon={Flame} label="Current Streak" value={profile.current_streak} color="var(--color-accent-amber)" />
+            <StatCard icon={Trophy} label="Best Streak" value={profile.longest_streak} color="var(--color-accent-green)" />
+            <StatCard icon={Calendar} label="Active Days" value={profile.total_active_days} color="#6366f1" />
+          </div>
+
+          {/* Activity Heatmap */}
+          {profile.activity_heatmap.length > 0 && (
+            <div className="rounded-xl border border-border-default bg-bg-secondary p-4 sm:p-5">
+              <ProfileHeatmap days={profile.activity_heatmap} />
+            </div>
+          )}
+
+          {/* Certificates */}
+          {profile.certificates.length > 0 && (
+            <div className="rounded-xl border border-border-default bg-bg-secondary p-4 sm:p-5">
+              <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-text-primary">
+                <Award className="size-4 text-accent-amber" />
+                Certificates ({profile.certificates.length})
+              </h3>
+              <div className="space-y-2">
+                {profile.certificates.map((cert) => (
+                  <div
+                    key={cert.certificate_uid}
+                    className="group flex items-center justify-between rounded-lg border border-border-default bg-bg-tertiary px-3 py-2.5 transition-colors hover:border-accent-amber/30 sm:px-4 sm:py-3"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-accent-amber/10">
+                        <Award className="size-4 text-accent-amber" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium text-text-primary">{cert.course_title}</p>
+                        <p className="text-[11px] text-text-tertiary">
+                          {relativeTime(cert.completed_at)} &middot; {formatDate(cert.completed_at, "short")}
+                        </p>
+                      </div>
+                    </div>
+                    <a
+                      href={`/certificates/share/${cert.certificate_uid}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-xs text-text-tertiary opacity-0 transition-all hover:text-accent-blue group-hover:opacity-100"
+                    >
+                      View <ExternalLink className="size-3" />
+                    </a>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Empty state */}
+          {profile.total_lessons_completed === 0 && profile.certificates.length === 0 && (
             <div className="rounded-xl border border-border-default bg-bg-secondary p-8 text-center">
               <GraduationCap className="mx-auto mb-3 size-8 text-text-tertiary" />
               <p className="text-sm text-text-secondary">
@@ -404,13 +419,12 @@ function ProfileContent({ profile }: { profile: PublicProfile }) {
             </div>
           )}
 
-        {/* Footer */}
-        <p className="text-center text-[11px] text-text-tertiary">
-          Powered by{" "}
-          <Link to="/" className="text-accent-blue hover:underline">
-            Learner Verse
-          </Link>
-        </p>
+          {/* Footer */}
+          <p className="text-center text-[11px] text-text-tertiary">
+            Powered by{" "}
+            <Link to="/" className="text-accent-blue hover:underline">Learner Verse</Link>
+          </p>
+        </div>
       </div>
     </div>
   );

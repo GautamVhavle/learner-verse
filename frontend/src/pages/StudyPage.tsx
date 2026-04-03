@@ -13,8 +13,7 @@ import { StudyHero } from "@/components/study/StudyHero";
 import { StudySectionList } from "@/components/study/StudySectionList";
 import { StudySidebar } from "@/components/study/StudySidebar";
 import { GoalDatePicker } from "@/components/goals/GoalDatePicker";
-import { useCourseQuery } from "@/hooks/useCourses";
-import { useSectionsQuery } from "@/hooks/useSections";
+import { useHubCourseQuery, useHubSectionsQuery } from "@/hooks/useHub";
 import { useStudyStateQuery } from "@/hooks/useStudy";
 import { useCourseProgressQuery } from "@/hooks/useProgress";
 
@@ -22,9 +21,9 @@ export default function StudyPage() {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useModeAwareNavigate();
 
-  const { data: course, isLoading: courseLoading } = useCourseQuery(courseId);
+  const { data: course, isLoading: courseLoading } = useHubCourseQuery(courseId ?? "");
   const { data: sections, isLoading: sectionsLoading } =
-    useSectionsQuery(courseId);
+    useHubSectionsQuery(courseId);
   const { data: studyState } = useStudyStateQuery(courseId);
   const { data: progress } = useCourseProgressQuery(courseId);
   const [goalPickerOpen, setGoalPickerOpen] = useState(false);

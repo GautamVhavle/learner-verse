@@ -66,6 +66,7 @@ export default function AppRouter() {
           </Route>
 
           <Route
+            path="/learner/*"
             element={
               <ProtectedRoute>
                 <AppShell mode="student" />

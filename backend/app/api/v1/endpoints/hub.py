@@ -172,12 +172,19 @@ async def get_hub_course(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Get a single public course with full stats."""
+    """Get a course the user can access: public+ready, enrolled, or owned."""
     repo = CourseRepository(db)
     rating_repo = RatingRepository(db)
     section_repo = SectionRepository(db)
 
+    # Try public first, then owner/enrolled fallback
     course = await repo.get_public_by_id(course_id)
+    if not course:
+        course = await repo.get_by_id(course_id, user.id)
+    if not course:
+        enrolled = await enrollment_repo.is_enrolled(db, user_id=user.id, course_id=course_id)
+        if enrolled:
+            course = await repo.get_by_id_no_owner(course_id)
     if not course:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found.")
 
@@ -217,6 +224,34 @@ async def get_hub_course(
         created_at=course.created_at,
         updated_at=course.updated_at,
     )
+
+
+# ── Accessible Sections ───────────────────────────────────────
+
+@router.get("/courses/{course_id}/sections")
+async def list_hub_sections(
+    course_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Return sections for a course the user can access (owned, enrolled, or public+ready)."""
+    repo = CourseRepository(db)
+    section_repo = SectionRepository(db)
+
+    # Check access: public, owned, or enrolled
+    course = await repo.get_public_by_id(course_id)
+    if not course:
+        course = await repo.get_by_id(course_id, user.id)
+    if not course:
+        enrolled = await enrollment_repo.is_enrolled(db, user_id=user.id, course_id=course_id)
+        if enrolled:
+            course = await repo.get_by_id_no_owner(course_id)
+    if not course:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found.")
+
+    sections = await section_repo.list_by_course(course_id)
+    from app.schemas.section import SectionResponse
+    return [SectionResponse.model_validate(s) for s in sections]
 
 
 # ── Ratings ────────────────────────────────────────────────────

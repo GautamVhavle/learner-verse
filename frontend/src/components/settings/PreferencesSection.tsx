@@ -1,18 +1,24 @@
 /**
  * Preferences section of the settings page.
  *
- * Contains timezone selector, playback speed picker, and font
- * size options. Each control auto-saves on selection/change.
+ * Contains timezone selector with auto-detection, playback speed picker,
+ * and font size options. Each control auto-saves on selection/change.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Globe, Gauge, Type, Check } from "lucide-react";
+import { Globe, Gauge, Type, Check, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SettingsSaveIndicator } from "./SettingsSaveIndicator";
+import {
+  detectTimezone,
+  getSortedTimezones,
+  filterTimezones,
+  formatTimezoneDisplay,
+  getTimezoneInfo,
+} from "@/lib/timezone";
 import type { UserSettings } from "@/types/user";
 
-const TIMEZONES = Intl.supportedValuesOf("timeZone");
-
+const SORTED_TIMEZONES = getSortedTimezones();
 const PLAYBACK_SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
 
 const FONT_SIZE_OPTIONS: { value: UserSettings["font_size"]; label: string; description: string }[] = [
@@ -28,9 +34,6 @@ function applyFontSize(size: string) {
   if (size === "large") html.classList.add("font-large");
   else if (size === "xl") html.classList.add("font-xl");
 }
-
-/** Max items shown in timezone dropdown before scrolling. */
-const TIMEZONE_DISPLAY_LIMIT = 50;
 
 interface PreferencesSectionProps {
   timezone: string;
@@ -51,6 +54,8 @@ export function PreferencesSection({
   const [tzSearch, setTzSearch] = useState("");
   const [tzOpen, setTzOpen] = useState(false);
   const [savedField, setSavedField] = useState<string | null>(null);
+  const [isAutoDetected, setIsAutoDetected] = useState(false);
+  const [showAutoDetectPrompt, setShowAutoDetectPrompt] = useState(false);
   const tzDropdownRef = useRef<HTMLDivElement>(null);
 
   // Sync with server data
@@ -60,6 +65,16 @@ export function PreferencesSection({
     setFontSize(initialFontSize);
     applyFontSize(initialFontSize);
   }, [initialTimezone, initialSpeed, initialFontSize]);
+
+  // Auto-detect timezone on mount (only if initialTimezone is UTC, likely default)
+  useEffect(() => {
+    if (initialTimezone === "UTC") {
+      const detected = detectTimezone();
+      if (detected && detected !== "UTC") {
+        setShowAutoDetectPrompt(true);
+      }
+    }
+  }, [initialTimezone]);
 
   // Close timezone dropdown on outside click
   useEffect(() => {
@@ -90,10 +105,23 @@ export function PreferencesSection({
       setTimezone(tz);
       setTzOpen(false);
       setTzSearch("");
+      setIsAutoDetected(false);
+      setShowAutoDetectPrompt(false);
       save({ timezone: tz }, "timezone");
     },
     [save],
   );
+
+  const handleAutoDetect = useCallback(() => {
+    const detected = detectTimezone();
+    if (detected) {
+      setTimezone(detected);
+      setIsAutoDetected(true);
+      setShowAutoDetectPrompt(false);
+      setTzSearch("");
+      save({ timezone: detected }, "timezone");
+    }
+  }, [save]);
 
   const handleSpeedChange = useCallback(
     (speed: number) => {
@@ -112,9 +140,8 @@ export function PreferencesSection({
     [save],
   );
 
-  const filteredTimezones = tzSearch
-    ? TIMEZONES.filter((tz) => tz.toLowerCase().includes(tzSearch.toLowerCase()))
-    : TIMEZONES;
+  const filteredTimezones = filterTimezones(tzSearch, SORTED_TIMEZONES);
+  const displayedTimezones = tzSearch ? filteredTimezones : SORTED_TIMEZONES;
 
   return (
     <section className="space-y-5 rounded-xl border border-border-default bg-bg-secondary p-5">
@@ -124,54 +151,125 @@ export function PreferencesSection({
       </div>
 
       {/* Timezone */}
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         <div className="flex items-center justify-between">
           <label className="flex items-center gap-1.5 text-xs font-medium text-text-secondary">
             <Globe className="size-3" />
             Timezone
           </label>
-          <SettingsSaveIndicator visible={savedField === "timezone"} />
+          <div className="flex items-center gap-2">
+            {isAutoDetected && (
+              <div className="flex items-center gap-1 rounded-full bg-accent-green/10 px-2 py-0.5">
+                <Zap className="size-2.5 text-accent-green" />
+                <span className="text-[11px] font-medium text-accent-green">Auto-detected</span>
+              </div>
+            )}
+            <SettingsSaveIndicator visible={savedField === "timezone"} />
+          </div>
         </div>
+
+        {/* Auto-detect prompt */}
+        {showAutoDetectPrompt && (
+          <div className="flex items-center gap-2 rounded-lg bg-accent-blue/5 border border-accent-blue/20 px-3 py-2">
+            <Zap className="size-3.5 text-accent-blue flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-xs text-text-primary font-medium">
+                Detected: {formatTimezoneDisplay(detectTimezone())}
+              </p>
+              <p className="text-xs text-text-tertiary">Use your device timezone?</p>
+            </div>
+            <div className="flex gap-1.5 flex-shrink-0">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowAutoDetectPrompt(false)}
+                className="h-6 text-xs"
+              >
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleAutoDetect}
+                className="h-6 text-xs bg-accent-blue hover:bg-accent-blue/90"
+              >
+                Use
+              </Button>
+            </div>
+          </div>
+        )}
+
         <div className="relative max-w-sm" ref={tzDropdownRef}>
           <button
             type="button"
             onClick={() => setTzOpen(!tzOpen)}
-            className="flex h-8 w-full items-center justify-between rounded-lg border border-input bg-transparent px-2.5 text-sm text-text-primary transition-colors hover:border-border-hover focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+            className="flex h-9 w-full items-center justify-between rounded-lg border border-input bg-transparent px-3 text-sm text-text-primary transition-colors hover:border-border-hover focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
             data-testid="settings-timezone-trigger"
           >
-            <span className="truncate">{timezone.replace(/_/g, " ")}</span>
-            <svg className="size-3.5 text-text-tertiary" viewBox="0 0 16 16" fill="none">
+            <span className="truncate flex-1 text-left">{formatTimezoneDisplay(timezone)}</span>
+            <svg className="size-4 text-text-tertiary flex-shrink-0 ml-2" viewBox="0 0 16 16" fill="none">
               <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
           {tzOpen && (
             <div className="absolute top-full z-50 mt-1 w-full rounded-lg border border-border-default bg-bg-primary shadow-lg">
-              <div className="p-1.5">
-                <Input
-                  value={tzSearch}
-                  onChange={(e) => setTzSearch(e.target.value)}
-                  placeholder="Search timezone…"
-                  autoFocus
-                  className="h-7 text-xs"
-                  data-testid="settings-timezone-search"
-                />
-              </div>
-              <div className="max-h-48 overflow-y-auto p-1">
-                {filteredTimezones.slice(0, TIMEZONE_DISPLAY_LIMIT).map((tz) => (
+              <div className="sticky top-0 bg-bg-primary border-b border-border-default p-2 z-10">
+                <div className="relative">
+                  <Input
+                    value={tzSearch}
+                    onChange={(e) => setTzSearch(e.target.value)}
+                    placeholder="Search or type timezone..."
+                    autoFocus
+                    className="h-8 text-xs pl-3 pr-3"
+                    data-testid="settings-timezone-search"
+                  />
+                  {tzSearch && (
+                    <button
+                      type="button"
+                      onClick={() => setTzSearch("")}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text-secondary"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+                {showAutoDetectPrompt === false && !tzSearch && (
                   <button
-                    key={tz}
-                    onClick={() => handleTimezoneSelect(tz)}
-                    className={`flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-xs transition-colors hover:bg-bg-tertiary ${
-                      tz === timezone ? "text-accent-blue" : "text-text-secondary"
-                    }`}
+                    type="button"
+                    onClick={handleAutoDetect}
+                    className="mt-2 w-full flex items-center gap-2 rounded-md bg-accent-blue/10 hover:bg-accent-blue/20 px-2.5 py-2 text-left text-xs font-medium text-accent-blue transition-colors"
                   >
-                    <span>{tz.replace(/_/g, " ")}</span>
-                    {tz === timezone && <Check className="size-3" />}
+                    <Zap className="size-3" />
+                    Use My Device Timezone
                   </button>
-                ))}
-                {filteredTimezones.length === 0 && (
-                  <p className="px-2 py-3 text-center text-xs text-text-tertiary">
-                    No timezones found
+                )}
+              </div>
+              <div className="max-h-64 overflow-y-auto">
+                {displayedTimezones.length > 0 ? (
+                  displayedTimezones.map((tz) => {
+                    const info = getTimezoneInfo(tz);
+                    return (
+                      <button
+                        key={tz}
+                        onClick={() => handleTimezoneSelect(tz)}
+                        className={`w-full flex items-center justify-between px-3 py-2 text-left text-xs transition-colors ${
+                          tz === timezone
+                            ? "bg-accent-blue/10 text-accent-blue"
+                            : "text-text-secondary hover:bg-bg-tertiary"
+                        }`}
+                      >
+                        <div className="flex-1 space-y-0.5">
+                          <div className="font-medium">{info.name}</div>
+                          {info.offset && (
+                            <div className="text-[10px] text-text-tertiary">{info.offset}</div>
+                          )}
+                        </div>
+                        {tz === timezone && <Check className="size-4 flex-shrink-0 ml-2" />}
+                      </button>
+                    );
+                  })
+                ) : (
+                  <p className="px-3 py-4 text-center text-xs text-text-tertiary">
+                    No timezones found for "{tzSearch}"
                   </p>
                 )}
               </div>

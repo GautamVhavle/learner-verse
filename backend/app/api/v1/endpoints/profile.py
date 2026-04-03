@@ -59,6 +59,8 @@ async def get_public_profile(
         avatar_url=user.avatar_url,
         bio=user.bio,
         profile_tags=user.profile_tags or [],
+        social_links=user.social_links or [],
+        cover_image_url=user.cover_image_url,
         member_since=user.created_at,
         total_courses_completed=overview.total_courses_completed,
         total_lessons_completed=overview.total_lessons_completed,

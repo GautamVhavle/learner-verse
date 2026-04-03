@@ -48,6 +48,11 @@ class Settings(BaseSettings):
     SUPABASE_SERVICE_KEY: str = ""
     SUPABASE_BUCKET: str = "thumbnails"
 
+    # AI / LiVi Chat
+    OPENROUTER_API_KEY: str = ""
+    OPENROUTER_MODEL: str = "nvidia/nemotron-3-super-120b-a12b:free"
+    OPENROUTER_BASE_URL: str = "https://openrouter.ai/api/v1"
+
     @property
     def cors_origins_list(self) -> list[str]:
         """Parse the comma-separated CORS_ORIGINS string into a list."""
