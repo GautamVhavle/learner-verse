@@ -47,6 +47,9 @@ ignore = ["E501"]
 quote-style = "double"
 indent-style = "space"
 
+[tool.fastapi]
+entrypoint = "app.main:app"
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
