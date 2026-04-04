@@ -2,7 +2,7 @@ import { memo } from "react"
 import {
   AnimatePresence,
   motion,
-  Variants,
+  type Variants,
   type DOMMotionComponents,
   type MotionProps,
 } from "motion/react"
