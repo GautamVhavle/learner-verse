@@ -83,31 +83,31 @@ export default function CourseHubPage() {
       <div className="flex items-center gap-1 rounded-lg border border-border-default bg-bg-secondary p-1">
           <button
             onClick={() => handleTabChange("public")}
-            className={`flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors sm:flex-initial sm:px-4 ${
               tab === "public"
                 ? "bg-bg-primary text-text-primary shadow-sm"
                 : "text-text-tertiary hover:text-text-secondary"
             }`}
           >
             <Globe className="size-3.5" />
-            Public Courses
+            <span className="hidden sm:inline">Public </span>Courses
           </button>
           <button
             onClick={() => handleTabChange("mine")}
-            className={`flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors sm:flex-initial sm:px-4 ${
               tab === "mine"
                 ? "bg-bg-primary text-text-primary shadow-sm"
                 : "text-text-tertiary hover:text-text-secondary"
             }`}
           >
             <Lock className="size-3.5" />
-            My Courses
+            <span className="hidden sm:inline">My </span>Courses
           </button>
         </div>
 
       {/* Search + Filters */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative max-w-md flex-1">
+      <div className="flex flex-col gap-3">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-tertiary" />
           <Input
             value={search}
@@ -120,8 +120,8 @@ export default function CourseHubPage() {
             data-testid="hub-search"
           />
         </div>
-        <div className="flex items-center gap-2">
-          <SlidersHorizontal className="size-4 text-text-tertiary" />
+        <div className="flex items-center gap-2 overflow-x-auto">
+          <SlidersHorizontal className="size-4 shrink-0 text-text-tertiary" />
           {SORT_OPTIONS.map((opt) => (
             <Button
               key={opt.value}

@@ -110,6 +110,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
   }
 
+  const handleRedirectCallback = (appState: any) => {
+    // Redirect to dashboard after login
+    const returnTo = appState?.returnTo || "/";
+    window.location.href = returnTo;
+  };
+
   return (
     <Auth0Provider
       domain={AUTH0_DOMAIN}
@@ -118,6 +124,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         redirect_uri: window.location.origin,
         ...(AUTH0_AUDIENCE ? { audience: AUTH0_AUDIENCE } : {}),
       }}
+      onRedirectCallback={handleRedirectCallback}
       useRefreshTokens
       cacheLocation="localstorage"
     >

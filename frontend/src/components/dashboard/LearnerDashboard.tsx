@@ -58,7 +58,7 @@ export function LearnerDashboard() {
 
       {/* Certificates earned banner */}
       {certs.length > 0 && (
-        <div className="flex items-center justify-between rounded-xl border border-accent-purple/20 bg-accent-purple/5 px-5 py-3">
+        <div className="flex flex-col gap-3 rounded-xl border border-accent-purple/20 bg-accent-purple/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
           <div className="flex items-center gap-3">
             <div className="flex size-9 items-center justify-center rounded-lg bg-accent-purple/15">
               <Award className="size-5 text-accent-purple" />
@@ -83,7 +83,7 @@ export function LearnerDashboard() {
 
       {/* Active goals banner */}
       {activeGoals.length > 0 && (
-        <div className="flex items-center justify-between rounded-xl border border-accent-blue/20 bg-accent-blue/5 px-5 py-3">
+        <div className="flex flex-col gap-3 rounded-xl border border-accent-blue/20 bg-accent-blue/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
           <div className="flex items-center gap-3">
             <div className="flex size-9 items-center justify-center rounded-lg bg-accent-blue/15">
               <Target className="size-5 text-accent-blue" />
@@ -114,7 +114,7 @@ export function LearnerDashboard() {
 
       {/* Streak banner */}
       {streak && streak.current_streak > 0 && (
-        <div className="flex items-center justify-between rounded-xl border border-orange-400/20 bg-orange-400/5 px-5 py-3">
+        <div className="flex flex-col gap-3 rounded-xl border border-orange-400/20 bg-orange-400/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
           <div className="flex items-center gap-3">
             <div className="flex size-9 items-center justify-center rounded-lg bg-orange-400/15">
               <Flame className="size-5 text-orange-400" />

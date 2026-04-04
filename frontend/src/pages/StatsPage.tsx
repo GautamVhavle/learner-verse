@@ -81,7 +81,7 @@ export default function StatsPage() {
           </p>
         </div>
         {/* Skeleton cards */}
-        <div className="grid grid-cols-1 gap-3 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           {Array.from({ length: 5 }).map((_, i) => (
             <div
               key={i}

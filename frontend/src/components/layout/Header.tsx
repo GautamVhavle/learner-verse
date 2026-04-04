@@ -78,15 +78,15 @@ export function Header({ onSearchClick }: HeaderProps) {
         </BreadcrumbList>
       </Breadcrumb>
 
-      {/* Focus timer */}
-      <div className="ml-auto">
+      {/* Focus timer — hidden on very small screens */}
+      <div className="ml-auto hidden sm:block">
         <PomodoroTimer />
       </div>
 
       {/* Search trigger */}
       <button
         onClick={onSearchClick}
-        className="flex h-8 items-center gap-2 rounded-lg border border-border-default bg-bg-secondary px-3 text-sm text-text-tertiary transition-colors hover:border-border-hover hover:text-text-secondary sm:w-56"
+        className="ml-auto flex h-8 items-center gap-2 rounded-lg border border-border-default bg-bg-secondary px-3 text-sm text-text-tertiary transition-colors hover:border-border-hover hover:text-text-secondary sm:ml-0 sm:w-56"
         aria-label="Search"
         data-testid="search-trigger"
       >
