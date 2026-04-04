@@ -37,6 +37,7 @@ class User(Base):
     social_links: Mapped[list] = mapped_column(JSONB, nullable=False, server_default="[]")
     cover_image_url: Mapped[str | None] = mapped_column(String, nullable=True)
     is_profile_public: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    auto_play_next: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

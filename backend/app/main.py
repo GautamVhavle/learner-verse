@@ -77,6 +77,9 @@ logger = logging.getLogger(__name__)
 
 @app.middleware("http")
 async def timing_middleware(request: Request, call_next):
+    # Skip for streaming endpoints to avoid BaseHTTPMiddleware buffering
+    if "/stream" in request.url.path:
+        return await call_next(request)
     start = time.perf_counter()
     response = await call_next(request)
     elapsed = (time.perf_counter() - start) * 1000

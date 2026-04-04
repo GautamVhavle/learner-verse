@@ -14,6 +14,7 @@ from app.models.user import User
 from app.repositories.chat_repo import ChatRepository
 from app.schemas.chat import (
     ChatRequest,
+    InlineChatRequest,
     MessageResponse,
     ThreadCreate,
     ThreadDetailResponse,
@@ -21,7 +22,7 @@ from app.schemas.chat import (
     ThreadRename,
     ThreadResponse,
 )
-from app.services.chat_service import ChatService
+from app.services.chat_service import ChatService, InlineChatService
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -169,6 +170,51 @@ async def stream_chat(
         except Exception as exc:
             import logging
             logging.getLogger(__name__).error("Chat stream error: %s", exc, exc_info=True)
+            yield "\n\nSorry, something went wrong. Please try again."
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/plain; charset=utf-8",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Content-Type-Options": "nosniff",
+        },
+    )
+
+
+# ── Inline Contextual Chat ────────────────────────────────────
+
+
+@router.post("/inline/stream")
+async def stream_inline_chat(
+    data: InlineChatRequest,
+    user: User = Depends(get_current_user),
+):
+    """Stream a stateless context-aware AI response for inline lesson help."""
+    chat_stream_limiter.check(str(user.id))
+
+    message = _sanitize(data.message)
+    if not message:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Message cannot be empty.",
+        )
+
+    service = InlineChatService()
+
+    history = [{"role": m.role, "content": m.content} for m in data.history]
+
+    async def generate():
+        try:
+            async for chunk in service.stream_response(
+                message, history, data.context_type, data.context_data
+            ):
+                yield chunk
+        except Exception as exc:
+            import logging
+            logging.getLogger(__name__).error(
+                "Inline chat stream error: %s", exc, exc_info=True
+            )
             yield "\n\nSorry, something went wrong. Please try again."
 
     return StreamingResponse(

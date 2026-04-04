@@ -29,9 +29,6 @@ export function ChatInput({ onSend, onStop, status, disabled }: ChatInputProps) 
     onSend(trimmed, files.length > 0 ? files : undefined);
     setInput("");
     setFiles([]);
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-    }
   }, [input, status, disabled, onSend, files]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

@@ -1,25 +1,25 @@
 /**
- * LiviChatPanel — right-side Sheet chat interface.
+ * LiviChatPanel — right-side resizable chat panel.
  */
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import {
   PanelLeftOpen,
   PanelLeftClose,
   Sparkles,
   RotateCcw,
   Plus,
+  X,
 } from "lucide-react";
-import {
-  Sheet,
-  SheetContent,
-  SheetTitle,
-} from "@/components/ui/sheet";
 import { ChatMessageList } from "./ChatMessageList";
 import { ChatInput } from "./ChatInput";
 import { ChatEmptyState } from "./ChatEmptyState";
 import { ChatThreadList } from "./ChatThreadList";
 import { useLiviChat } from "@/hooks/useLiviChat";
 import { useChatStore } from "@/stores/chatStore";
+
+const MIN_WIDTH = 360;
+const MAX_WIDTH = 700;
+const DEFAULT_WIDTH = 440;
 
 export function LiviChatPanel() {
   const {
@@ -42,6 +42,10 @@ export function LiviChatPanel() {
     clearMessages,
   } = useLiviChat();
 
+  const [width, setWidth] = useState(DEFAULT_WIDTH);
+  const isDragging = useRef(false);
+  const panelRef = useRef<HTMLDivElement>(null);
+
   // Clear messages when starting a new chat
   const prevThreadRef = useRef<string | null>(null);
   useEffect(() => {
@@ -51,15 +55,69 @@ export function LiviChatPanel() {
     prevThreadRef.current = activeThreadId;
   }, [activeThreadId, clearMessages]);
 
+  // Close on Escape
+  useEffect(() => {
+    if (!isOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeChat();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [isOpen, closeChat]);
+
+  // Drag-to-resize handlers
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    isDragging.current = true;
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+
+    const startX = e.clientX;
+    const startWidth = width;
+
+    const handleMouseMove = (ev: MouseEvent) => {
+      if (!isDragging.current) return;
+      const delta = startX - ev.clientX;
+      const newWidth = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, startWidth + delta));
+      setWidth(newWidth);
+    };
+
+    const handleMouseUp = () => {
+      isDragging.current = false;
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+  }, [width]);
+
   const hasMessages = messages.length > 0;
 
+  if (!isOpen) return null;
+
   return (
-    <Sheet open={isOpen} onOpenChange={(open) => !open && closeChat()}>
-      <SheetContent
-        side="right"
-        showCloseButton={false}
-        className="flex w-full flex-col gap-0 overflow-hidden border-l border-border-primary bg-bg-primary p-0 shadow-2xl sm:max-w-[400px]"
+    <>
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 z-50 bg-black/40 transition-opacity"
+        onClick={closeChat}
+      />
+
+      {/* Panel */}
+      <div
+        ref={panelRef}
+        style={{ width }}
+        className="fixed inset-y-0 right-0 z-50 flex flex-col border-l border-border-primary bg-bg-primary shadow-2xl transition-transform duration-200 ease-out"
       >
+        {/* Drag handle — left edge */}
+        <div
+          onMouseDown={handleMouseDown}
+          className="absolute inset-y-0 left-0 z-10 w-1 cursor-col-resize transition-colors hover:bg-accent-blue/40 active:bg-accent-blue/60"
+        />
+
         {/* ── Header ─────────────────────────────────── */}
         <div className="flex h-12 shrink-0 items-center gap-2 border-b border-border-primary px-3">
           {/* Thread list toggle */}
@@ -78,9 +136,9 @@ export function LiviChatPanel() {
           {/* Title */}
           <div className="flex flex-1 items-center gap-1.5">
             <Sparkles className="size-3.5 text-accent-purple" />
-            <SheetTitle className="text-[13px] font-semibold">
+            <span className="text-[13px] font-semibold text-text-primary">
               LiVi
-            </SheetTitle>
+            </span>
             <span className="rounded bg-accent-purple/10 px-1 py-px text-[9px] font-medium text-accent-purple">
               AI
             </span>
@@ -94,23 +152,39 @@ export function LiviChatPanel() {
           >
             <Plus className="size-4" />
           </button>
+
+          {/* Close */}
+          <button
+            onClick={closeChat}
+            className="flex size-7 items-center justify-center rounded-md text-text-tertiary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+            title="Close"
+          >
+            <X className="size-4" />
+          </button>
         </div>
 
         {/* ── Body ───────────────────────────────────── */}
-        <div className="flex min-h-0 flex-1">
-          {/* Thread list drawer */}
+        <div className="relative flex min-h-0 flex-1 overflow-hidden">
+          {/* Thread list drawer — slides in from left, partial width with shadow */}
           <div
-            className={`shrink-0 overflow-hidden transition-all duration-200 ease-in-out ${
-              isThreadListOpen ? "w-52" : "w-0"
+            className={`absolute inset-y-0 left-0 z-20 w-56 transition-transform duration-200 ease-in-out ${
+              isThreadListOpen ? "translate-x-0" : "-translate-x-full"
             }`}
           >
-            <div className="w-52">
-              <ChatThreadList onSelectThread={loadThread} />
+            <div className="h-full shadow-[4px_0_16px_-4px_rgba(0,0,0,0.2)]">
+              <ChatThreadList onSelectThread={(id) => { loadThread(id); toggleThreadList(); }} />
             </div>
           </div>
+          {/* Scrim behind drawer */}
+          {isThreadListOpen && (
+            <div
+              className="absolute inset-0 z-10 bg-black/15 transition-opacity"
+              onClick={toggleThreadList}
+            />
+          )}
 
           {/* Chat area */}
-          <div className="flex min-w-0 flex-1 flex-col">
+          <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
             {hasMessages ? (
               <ChatMessageList
                 messages={messages}
@@ -145,7 +219,7 @@ export function LiviChatPanel() {
             />
           </div>
         </div>
-      </SheetContent>
-    </Sheet>
+      </div>
+    </>
   );
 }

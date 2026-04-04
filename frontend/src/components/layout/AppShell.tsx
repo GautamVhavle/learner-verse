@@ -97,13 +97,13 @@ export function AppShell({ mode }: AppShellProps) {
         </a>
         {/* Hide sidebar in focus mode — keep tree stable to avoid unmounting Outlet */}
         {!focusMode && <AppSidebar mode={mode} onToggleMode={handleToggleMode} />}
-        <SidebarInset>
+        <SidebarInset className="h-svh overflow-y-auto">
           {!focusMode && <Header onSearchClick={() => setSearchOpen(true)} />}
-          <main id="main-content" className="flex-1 overflow-y-auto">
+          <div id="main-content" className="flex-1">
             <div className="mx-auto max-w-[1280px] px-4 py-4 sm:p-6">
               <Outlet />
             </div>
-          </main>
+          </div>
         </SidebarInset>
       </SidebarProvider>
       <CommandPalette open={searchOpen} onOpenChange={setSearchOpen} />

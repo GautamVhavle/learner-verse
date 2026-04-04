@@ -19,14 +19,27 @@ import {
   Globe,
   Lock,
   RefreshCw,
+  Sparkles,
 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { SectionList } from "@/components/course/SectionList";
 import { LessonDetailPanel } from "@/components/lesson/LessonDetailPanel";
 import { CourseStatusBadge } from "@/components/course/CourseStatusBadge";
 import { ValidationErrorsDialog } from "@/components/course/ValidationErrorsDialog";
 import { useCourseBuilder } from "@/hooks/useCourseBuilder";
 import { useUpdateCourseMutation, useValidateCourseQuery } from "@/hooks/useCourses";
+import { useOrganizeSectionsMutation } from "@/hooks/useSections";
 import type { ValidationError } from "@/types/course";
 
 export default function CourseBuilderPage() {
@@ -35,8 +48,10 @@ export default function CourseBuilderPage() {
   const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
   const [showValidation, setShowValidation] = useState(false);
+  const [showPrivateWarning, setShowPrivateWarning] = useState(false);
   const updateCourse = useUpdateCourseMutation();
   const validateQuery = useValidateCourseQuery(courseId);
+  const organizeMutation = useOrganizeSectionsMutation(courseId!);
 
   const handleShowIssues = async () => {
     const { data } = await validateQuery.refetch();
@@ -192,6 +207,28 @@ export default function CourseBuilderPage() {
             Preview
           </Button>
 
+          {!isReady && totalLessons >= 2 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                organizeMutation.mutate(undefined, {
+                  onSuccess: () => toast.success("Course organized by LiVi!"),
+                  onError: () => toast.error("Failed to organize. Please try again."),
+                })
+              }
+              disabled={organizeMutation.isPending}
+              className="gap-1.5 border-accent-purple/30 text-accent-purple hover:bg-accent-purple/10"
+            >
+              {organizeMutation.isPending ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <Sparkles className="size-3.5" />
+              )}
+              Organize with LiVi
+            </Button>
+          )}
+
           {!isReady && (
             <Button
               size="sm"
@@ -214,12 +251,16 @@ export default function CourseBuilderPage() {
             <Button
               variant={course.is_public ? "default" : "outline"}
               size="sm"
-              onClick={() =>
-                updateCourse.mutate({
-                  id: courseId!,
-                  data: { is_public: !course.is_public },
-                })
-              }
+              onClick={() => {
+                if (course.is_public) {
+                  setShowPrivateWarning(true);
+                } else {
+                  updateCourse.mutate({
+                    id: courseId!,
+                    data: { is_public: true },
+                  });
+                }
+              }}
               disabled={updateCourse.isPending}
               className={`gap-1.5 ${
                 course.is_public
@@ -239,7 +280,22 @@ export default function CourseBuilderPage() {
       </div>
 
       {/* Section List */}
-      <div className={isReady ? "pointer-events-none opacity-60" : ""}>
+      <div className={`relative ${isReady ? "pointer-events-none opacity-60" : ""}`}>
+        {organizeMutation.isPending && (
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-xl bg-bg-primary/80 backdrop-blur-sm">
+            <div className="flex flex-col items-center gap-3">
+              <div className="flex size-12 items-center justify-center rounded-full bg-accent-purple/10">
+                <Sparkles className="size-6 animate-pulse text-accent-purple" />
+              </div>
+              <p className="text-sm font-medium text-text-primary">
+                LiVi is organizing your course…
+              </p>
+              <p className="text-xs text-text-tertiary">
+                Analyzing lessons and creating sections
+              </p>
+            </div>
+          </div>
+        )}
         <SectionList
           sections={sections ?? []}
           courseId={courseId!}
@@ -263,6 +319,35 @@ export default function CourseBuilderPage() {
         onOpenChange={setShowValidation}
         errors={validationErrors}
       />
+
+      {/* Public → Private warning dialog */}
+      <AlertDialog open={showPrivateWarning} onOpenChange={setShowPrivateWarning}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Make this course private?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This course is currently public. Making it private will remove it
+              from the Course Hub and new learners won't be able to discover or
+              enroll in it. Existing enrollments, ratings, and reviews will be
+              hidden while the course remains private.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() =>
+                updateCourse.mutate({
+                  id: courseId!,
+                  data: { is_public: false },
+                })
+              }
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Make Private
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

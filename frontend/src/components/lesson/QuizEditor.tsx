@@ -1,5 +1,6 @@
 /**
  * Quiz editor for course creators — add, edit, delete multiple-choice questions.
+ * Includes AI-powered quiz generation via LiVi.
  */
 import { useState } from "react";
 import {
@@ -9,14 +10,21 @@ import {
   Circle,
   Pencil,
   Save,
+  Sparkles,
+  Loader2,
+  Zap,
+  Brain,
+  Target,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 import {
   useQuizQuestionsQuery,
   useCreateQuizQuestionMutation,
   useUpdateQuizQuestionMutation,
   useDeleteQuizQuestionMutation,
+  useGenerateQuizMutation,
 } from "@/hooks/useQuiz";
 import type { QuizQuestion, QuizQuestionCreate } from "@/types/quiz";
 
@@ -36,11 +44,18 @@ export function QuizEditor({ lessonId, courseId }: QuizEditorProps) {
   const createMutation = useCreateQuizQuestionMutation(lessonId, courseId);
   const updateMutation = useUpdateQuizQuestionMutation(lessonId, courseId);
   const deleteMutation = useDeleteQuizQuestionMutation(lessonId, courseId);
+  const generateMutation = useGenerateQuizMutation(lessonId, courseId);
 
   const [newQuestion, setNewQuestion] = useState<QuizQuestionCreate>({ ...EMPTY_QUESTION });
   const [showNewForm, setShowNewForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editData, setEditData] = useState<QuizQuestionCreate>({ ...EMPTY_QUESTION });
+
+  // AI generator state
+  const [showAiPanel, setShowAiPanel] = useState(false);
+  const [aiTopic, setAiTopic] = useState("");
+  const [aiDifficulty, setAiDifficulty] = useState<"easy" | "medium" | "hard">("medium");
+  const [aiCount, setAiCount] = useState(5);
 
   const handleCreate = () => {
     if (!newQuestion.question.trim()) return;
@@ -76,6 +91,23 @@ export function QuizEditor({ lessonId, courseId }: QuizEditorProps) {
     if (editingId === questionId) setEditingId(null);
   };
 
+  const handleAiGenerate = () => {
+    if (!aiTopic.trim()) return;
+    generateMutation.mutate(
+      { topic: aiTopic.trim(), difficulty: aiDifficulty, num_questions: aiCount },
+      {
+        onSuccess: (generated) => {
+          toast.success(`Generated ${generated.length} questions with LiVi`);
+          setShowAiPanel(false);
+          setAiTopic("");
+        },
+        onError: (err) => {
+          toast.error(err.message || "Failed to generate questions. Please try again.");
+        },
+      },
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8 text-sm text-text-tertiary">
@@ -90,10 +122,163 @@ export function QuizEditor({ lessonId, courseId }: QuizEditorProps) {
         <h3 className="text-sm font-medium text-text-primary">
           Quiz Questions ({questions.length})
         </h3>
+        {!showAiPanel && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowAiPanel(true)}
+            className="gap-1.5 text-accent-purple hover:text-accent-purple"
+          >
+            <Sparkles className="size-3.5" />
+            Generate with LiVi
+          </Button>
+        )}
       </div>
 
+      {/* ── AI Generation Panel ── */}
+      {showAiPanel && (
+        <div className="relative overflow-hidden rounded-xl border border-accent-purple/20 bg-gradient-to-br from-accent-purple/[0.04] to-accent-purple/[0.02]">
+          {/* Header */}
+          <div className="flex items-center gap-2.5 border-b border-accent-purple/10 px-4 py-3">
+            <div className="flex size-7 items-center justify-center rounded-lg bg-accent-purple/10">
+              <Sparkles className="size-3.5 text-accent-purple" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-text-primary">Generate with LiVi</p>
+              <p className="text-[11px] text-text-tertiary">AI-powered quiz generation</p>
+            </div>
+          </div>
+
+          <div className="space-y-3 p-4">
+            {/* Topic */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-text-secondary">Topic</label>
+              <Input
+                value={aiTopic}
+                onChange={(e) => setAiTopic(e.target.value)}
+                placeholder="e.g., JavaScript closures, React hooks, Python data structures…"
+                className="text-sm"
+                disabled={generateMutation.isPending}
+              />
+            </div>
+
+            {/* Difficulty + Count row */}
+            <div className="flex gap-3">
+              {/* Difficulty */}
+              <div className="flex-1 space-y-1.5">
+                <label className="text-xs font-medium text-text-secondary">Difficulty</label>
+                <div className="flex gap-1.5">
+                  {(["easy", "medium", "hard"] as const).map((d) => {
+                    const active = aiDifficulty === d;
+                    const icons = { easy: Zap, medium: Brain, hard: Target };
+                    const Icon = icons[d];
+                    return (
+                      <button
+                        key={d}
+                        onClick={() => setAiDifficulty(d)}
+                        disabled={generateMutation.isPending}
+                        className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg border py-2 text-xs font-medium capitalize transition-all ${
+                          active
+                            ? "border-accent-purple/40 bg-accent-purple/10 text-accent-purple"
+                            : "border-border-default bg-bg-secondary text-text-secondary hover:border-accent-purple/20 hover:text-text-primary"
+                        } disabled:opacity-50`}
+                      >
+                        <Icon className="size-3" />
+                        {d}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Number of questions */}
+              <div className="w-28 space-y-1.5">
+                <label className="text-xs font-medium text-text-secondary">Questions</label>
+                <div className="flex items-center gap-1.5">
+                  <Input
+                    type="number"
+                    min={1}
+                    max={25}
+                    value={aiCount}
+                    onChange={(e) => setAiCount(Math.min(25, Math.max(1, +e.target.value || 1)))}
+                    className="text-center text-sm"
+                    disabled={generateMutation.isPending}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-between pt-1">
+              <p className="text-[11px] text-text-tertiary">Max 25 questions per generation</p>
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowAiPanel(false)}
+                  disabled={generateMutation.isPending}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleAiGenerate}
+                  disabled={!aiTopic.trim() || generateMutation.isPending}
+                  className="gap-1.5 bg-accent-purple text-white hover:bg-accent-purple/90"
+                >
+                  {generateMutation.isPending ? (
+                    <>
+                      <Loader2 className="size-3.5 animate-spin" />
+                      Generating…
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="size-3.5" />
+                      Generate
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── AI Generation Skeleton ── */}
+      {generateMutation.isPending && (
+        <div className="space-y-3">
+          {Array.from({ length: Math.min(aiCount, 5) }).map((_, i) => (
+            <div
+              key={i}
+              className="animate-pulse rounded-lg border border-accent-purple/10 bg-accent-purple/[0.02] p-4"
+              style={{ animationDelay: `${i * 150}ms` }}
+            >
+              <div className="mb-3 flex items-center gap-2">
+                <div className="flex size-5 items-center justify-center rounded bg-accent-purple/10">
+                  <Sparkles className="size-3 animate-pulse text-accent-purple/40" />
+                </div>
+                <div className="h-3.5 flex-1 rounded-full bg-accent-purple/10" />
+                <div className="h-3.5 w-16 rounded-full bg-accent-purple/10" />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {Array.from({ length: 4 }).map((_, j) => (
+                  <div
+                    key={j}
+                    className="h-9 rounded-md bg-accent-purple/[0.06]"
+                    style={{ animationDelay: `${(i * 4 + j) * 80}ms` }}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
+          <p className="text-center text-xs text-accent-purple/60">
+            LiVi is generating your quiz questions…
+          </p>
+        </div>
+      )}
+
       {/* Existing questions */}
-      {questions.length === 0 && !showNewForm && (
+      {questions.length === 0 && !showNewForm && !generateMutation.isPending && (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border-default py-8 text-center">
           <p className="text-sm text-text-tertiary">No questions yet</p>
           <p className="mt-1 text-xs text-text-tertiary">Add your first question to get started</p>

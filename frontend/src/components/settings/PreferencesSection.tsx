@@ -5,9 +5,14 @@
  * and font size options. Each control auto-saves on selection/change.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Globe, Gauge, Type, Check, Zap } from "lucide-react";
+import { Globe, Gauge, Type, Check, Zap, Play, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { SettingsSaveIndicator } from "./SettingsSaveIndicator";
 import {
   detectTimezone,
@@ -39,6 +44,7 @@ interface PreferencesSectionProps {
   timezone: string;
   playbackSpeed: number;
   fontSize: UserSettings["font_size"];
+  autoPlayNext: boolean;
   onSave: (data: Partial<UserSettings>, field: string) => void;
 }
 
@@ -46,11 +52,13 @@ export function PreferencesSection({
   timezone: initialTimezone,
   playbackSpeed: initialSpeed,
   fontSize: initialFontSize,
+  autoPlayNext: initialAutoPlay,
   onSave,
 }: PreferencesSectionProps) {
   const [timezone, setTimezone] = useState(initialTimezone);
   const [playbackSpeed, setPlaybackSpeed] = useState(initialSpeed);
   const [fontSize, setFontSize] = useState(initialFontSize);
+  const [autoPlayNext, setAutoPlayNext] = useState(initialAutoPlay);
   const [tzSearch, setTzSearch] = useState("");
   const [tzOpen, setTzOpen] = useState(false);
   const [savedField, setSavedField] = useState<string | null>(null);
@@ -64,7 +72,8 @@ export function PreferencesSection({
     setPlaybackSpeed(initialSpeed);
     setFontSize(initialFontSize);
     applyFontSize(initialFontSize);
-  }, [initialTimezone, initialSpeed, initialFontSize]);
+    setAutoPlayNext(initialAutoPlay);
+  }, [initialTimezone, initialSpeed, initialFontSize, initialAutoPlay]);
 
   // Auto-detect timezone on mount (only if initialTimezone is UTC, likely default)
   useEffect(() => {
@@ -140,14 +149,25 @@ export function PreferencesSection({
     [save],
   );
 
+  const handleAutoPlayToggle = useCallback(() => {
+    const next = !autoPlayNext;
+    setAutoPlayNext(next);
+    save({ auto_play_next: next }, "autoPlay");
+  }, [autoPlayNext, save]);
+
   const filteredTimezones = filterTimezones(tzSearch, SORTED_TIMEZONES);
   const displayedTimezones = tzSearch ? filteredTimezones : SORTED_TIMEZONES;
 
   return (
     <section className="space-y-5 rounded-xl border border-border-default bg-bg-secondary p-5">
-      <div className="flex items-center gap-2">
-        <Gauge className="size-4 text-accent-purple" />
-        <h2 className="text-sm font-semibold text-text-primary">Preferences</h2>
+      <div>
+        <div className="flex items-center gap-2">
+          <Gauge className="size-4 text-accent-purple" />
+          <h2 className="text-sm font-semibold text-text-primary">Learning Preferences</h2>
+        </div>
+        <p className="mt-1 text-[11px] leading-relaxed text-text-tertiary">
+          Customize how you learn — set your timezone, video speed, text size, and auto-advance behavior.
+        </p>
       </div>
 
       {/* Timezone */}
@@ -156,6 +176,10 @@ export function PreferencesSection({
           <label className="flex items-center gap-1.5 text-xs font-medium text-text-secondary">
             <Globe className="size-3" />
             Timezone
+            <Tooltip>
+              <TooltipTrigger render={<button type="button" className="inline-flex text-text-tertiary hover:text-text-secondary transition-colors"><HelpCircle className="size-3" /></button>} />
+              <TooltipContent side="top">Used for streak calculations and activity timestamps.</TooltipContent>
+            </Tooltip>
           </label>
           <div className="flex items-center gap-2">
             {isAutoDetected && (
@@ -284,6 +308,10 @@ export function PreferencesSection({
           <label className="flex items-center gap-1.5 text-xs font-medium text-text-secondary">
             <Gauge className="size-3" />
             Default Playback Speed
+            <Tooltip>
+              <TooltipTrigger render={<button type="button" className="inline-flex text-text-tertiary hover:text-text-secondary transition-colors"><HelpCircle className="size-3" /></button>} />
+              <TooltipContent side="top">This speed will be applied to all video lessons by default.</TooltipContent>
+            </Tooltip>
           </label>
           <SettingsSaveIndicator visible={savedField === "speed"} />
         </div>
@@ -313,6 +341,10 @@ export function PreferencesSection({
           <label className="flex items-center gap-1.5 text-xs font-medium text-text-secondary">
             <Type className="size-3" />
             Font Size
+            <Tooltip>
+              <TooltipTrigger render={<button type="button" className="inline-flex text-text-tertiary hover:text-text-secondary transition-colors"><HelpCircle className="size-3" /></button>} />
+              <TooltipContent side="top">Adjusts text size across the entire app for readability.</TooltipContent>
+            </Tooltip>
           </label>
           <SettingsSaveIndicator visible={savedField === "fontSize"} />
         </div>
@@ -346,6 +378,53 @@ export function PreferencesSection({
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Auto-Play Next */}
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between">
+          <label className="flex items-center gap-1.5 text-xs font-medium text-text-secondary">
+            <Play className="size-3" />
+            Auto-Play Next Lesson
+            <Tooltip>
+              <TooltipTrigger render={<button type="button" className="inline-flex text-text-tertiary hover:text-text-secondary transition-colors"><HelpCircle className="size-3" /></button>} />
+              <TooltipContent side="top">When a video ends, automatically mark it complete and move to the next lesson.</TooltipContent>
+            </Tooltip>
+          </label>
+          <SettingsSaveIndicator visible={savedField === "autoPlay"} />
+        </div>
+        <button
+          onClick={handleAutoPlayToggle}
+          className={`flex w-full max-w-sm items-center justify-between rounded-lg border p-3 text-left transition-all ${
+            autoPlayNext
+              ? "border-accent-blue bg-accent-blue/5 ring-1 ring-accent-blue/30"
+              : "border-border-default bg-bg-tertiary hover:border-border-hover"
+          }`}
+        >
+          <div>
+            <span
+              className={`text-sm font-medium ${
+                autoPlayNext ? "text-accent-blue" : "text-text-primary"
+              }`}
+            >
+              {autoPlayNext ? "Enabled" : "Disabled"}
+            </span>
+            <p className="mt-0.5 text-[11px] text-text-tertiary">
+              Auto-mark video lessons as complete and advance to the next lesson when the video ends
+            </p>
+          </div>
+          <div
+            className={`relative ml-3 h-5 w-9 shrink-0 rounded-full transition-colors ${
+              autoPlayNext ? "bg-accent-blue" : "bg-bg-quaternary"
+            }`}
+          >
+            <div
+              className={`absolute top-0.5 size-4 rounded-full bg-white shadow transition-transform ${
+                autoPlayNext ? "translate-x-4" : "translate-x-0.5"
+              }`}
+            />
+          </div>
+        </button>
       </div>
     </section>
   );

@@ -8,26 +8,56 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.dependencies import get_current_user
 from app.core.database import get_db
 from app.models.user import User
-from app.schemas.certificate import CertificateResponse
+from app.schemas.certificate import (
+    CertificateDetailResponse,
+    CertificateResponse,
+    LessonBrief,
+    SectionBrief,
+)
 from app.services.certificate_service import CertificateService
 from app.services.notification_service import NotificationService
+from app.repositories.section_repo import SectionRepository
 
 router = APIRouter(prefix="/certificates", tags=["certificates"])
 
 
-@router.get("/share/{certificate_uid}", response_model=CertificateResponse)
+@router.get("/share/{certificate_uid}", response_model=CertificateDetailResponse)
 async def get_shared_certificate(
     certificate_uid: str,
     db: AsyncSession = Depends(get_db),
 ):
-    """Public endpoint: get certificate by its shareable UID (no auth required)."""
+    """Public endpoint: get certificate with full course structure (no auth required)."""
     svc = CertificateService(db)
     cert = await svc.get_by_uid(certificate_uid)
     if cert is None:
         raise HTTPException(
             status_code=404, detail="Certificate not found."
         )
-    return CertificateResponse.model_validate(cert)
+
+    # Build course structure metadata
+    section_repo = SectionRepository(db)
+    sections = await section_repo.list_by_course(cert.course_id)
+    course_description: str | None = None
+    if cert.course:
+        course_description = cert.course.description
+
+    section_briefs = [
+        SectionBrief(
+            title=s.title,
+            lessons=[
+                LessonBrief(title=l.title, lesson_type=l.lesson_type or "video")
+                for l in sorted(s.lessons, key=lambda le: le.position)
+            ],
+        )
+        for s in sections
+    ]
+
+    data = CertificateResponse.model_validate(cert).model_dump()
+    return CertificateDetailResponse(
+        **data,
+        course_description=course_description,
+        sections=section_briefs,
+    )
 
 
 @router.get("", response_model=list[CertificateResponse])

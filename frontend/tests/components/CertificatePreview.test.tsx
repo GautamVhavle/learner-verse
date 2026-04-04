@@ -1,6 +1,17 @@
 import { render, screen } from "@testing-library/react";
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { CertificatePreview } from "@/components/certificate/CertificatePreview";
+
+// BlobProvider can't run in jsdom — mock it to render an iframe with a fake url
+vi.mock("@react-pdf/renderer", () => ({
+  BlobProvider: ({ children }: { children: (props: { url: string | null; loading: boolean }) => React.ReactNode }) =>
+    children({ url: "blob:fake", loading: false }),
+}));
+
+// CertificatePDF uses react-pdf internals (Document, Page, etc.) which also fail in jsdom
+vi.mock("@/components/certificate/CertificateDownload", () => ({
+  CertificatePDF: () => null,
+}));
 
 const mockCert = {
   id: "cert-1",
@@ -15,23 +26,14 @@ const mockCert = {
 };
 
 describe("CertificatePreview", () => {
-  it("renders certificate details", () => {
+  it("renders the preview container and iframe", () => {
     render(<CertificatePreview certificate={mockCert} />);
-    expect(screen.getByText("Certificate of Completion")).toBeInTheDocument();
-    expect(screen.getByText("Test Learner")).toBeInTheDocument();
-    expect(screen.getByText("Advanced TypeScript")).toBeInTheDocument();
-    expect(screen.getByText("LV-2026-ABCD1234")).toBeInTheDocument();
-    expect(screen.getByText("4 sections")).toBeInTheDocument();
-    expect(screen.getByText("20 lessons")).toBeInTheDocument();
+    expect(screen.getByTestId("certificate-preview")).toBeInTheDocument();
+    expect(screen.getByTitle("Certificate Preview")).toBeInTheDocument();
   });
 
-  it("renders singular section/lesson text when count is 1", () => {
-    render(
-      <CertificatePreview
-        certificate={{ ...mockCert, sections_count: 1, lessons_count: 1 }}
-      />,
-    );
-    expect(screen.getByText("1 section")).toBeInTheDocument();
-    expect(screen.getByText("1 lesson")).toBeInTheDocument();
+  it("renders with compact prop", () => {
+    render(<CertificatePreview certificate={mockCert} compact />);
+    expect(screen.getByTestId("certificate-preview")).toBeInTheDocument();
   });
 });

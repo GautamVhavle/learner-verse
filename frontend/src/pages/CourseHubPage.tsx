@@ -81,29 +81,29 @@ export default function CourseHubPage() {
 
       {/* Tab Toggle */}
       <div className="flex items-center gap-1 rounded-lg border border-border-default bg-bg-secondary p-1">
-        <button
-          onClick={() => handleTabChange("public")}
-          className={`flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-            tab === "public"
-              ? "bg-bg-primary text-text-primary shadow-sm"
-              : "text-text-tertiary hover:text-text-secondary"
-          }`}
-        >
-          <Globe className="size-3.5" />
-          Public Courses
-        </button>
-        <button
-          onClick={() => handleTabChange("mine")}
-          className={`flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-            tab === "mine"
-              ? "bg-bg-primary text-text-primary shadow-sm"
-              : "text-text-tertiary hover:text-text-secondary"
-          }`}
-        >
-          <Lock className="size-3.5" />
-          My Courses
-        </button>
-      </div>
+          <button
+            onClick={() => handleTabChange("public")}
+            className={`flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+              tab === "public"
+                ? "bg-bg-primary text-text-primary shadow-sm"
+                : "text-text-tertiary hover:text-text-secondary"
+            }`}
+          >
+            <Globe className="size-3.5" />
+            Public Courses
+          </button>
+          <button
+            onClick={() => handleTabChange("mine")}
+            className={`flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+              tab === "mine"
+                ? "bg-bg-primary text-text-primary shadow-sm"
+                : "text-text-tertiary hover:text-text-secondary"
+            }`}
+          >
+            <Lock className="size-3.5" />
+            My Courses
+          </button>
+        </div>
 
       {/* Search + Filters */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

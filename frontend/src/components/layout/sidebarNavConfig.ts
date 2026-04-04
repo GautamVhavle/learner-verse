@@ -54,13 +54,7 @@ export const LEARNER_LINKS: NavLink[] = [
 ];
 
 /** Extra "coming soon" navigation links for Learner mode. */
-export const LEARNER_EXTRA: NavLink[] = [
-  { title: "Activity", icon: History, path: "/activity", comingSoon: true },
-  { title: "Bookmarks", icon: Bookmark, path: "/bookmarks", comingSoon: true },
-  { title: "Notes", icon: FileText, path: "/notes", comingSoon: true },
-  { title: "Calendar", icon: Calendar, path: "/calendar", comingSoon: true },
-  { title: "Discussions", icon: MessageSquare, path: "/discussions", comingSoon: true },
-];
+export const LEARNER_EXTRA: NavLink[] = [];
 
 /** Bottom secondary navigation (settings, help). */
 export const SECONDARY_LINKS: NavLink[] = [

@@ -52,6 +52,17 @@ export default function LessonPage() {
   const { currentLesson, currentSection, prevLesson, nextLesson } =
     useLessonNavigation(sections, lessonId);
 
+  // Calculate lesson position (X of Y)
+  const currentLessonNumber = useMemo(() => {
+    if (!currentSection || !currentLesson) return undefined;
+    const index = currentSection.lessons.findIndex((l) => l.id === currentLesson.id);
+    return index !== -1 ? index + 1 : undefined;
+  }, [currentSection, currentLesson]);
+
+  const totalLessonsInSection = useMemo(() => {
+    return currentSection?.lessons.length ?? 0;
+  }, [currentSection]);
+
   // Track study state — save the current lesson as last viewed
   useEffect(() => {
     if (courseId && lessonId) {
@@ -128,6 +139,43 @@ export default function LessonPage() {
     toggleProgress.mutate(
       { lessonId: currentLesson.id, data: { completed: true } },
       { onSuccess: () => handleCompletionToggled(true) },
+    );
+  }, [currentLesson, progress, toggleProgress, handleCompletionToggled]);
+
+  /** When a YouTube video finishes: auto-mark complete, then auto-advance */
+  const handleVideoEnded = useCallback(() => {
+    if (!currentLesson) return;
+    const autoPlay = user?.auto_play_next ?? true;
+    const alreadyComplete = progress?.lesson_progress?.[currentLesson.id] ?? false;
+
+    const advanceToNext = () => {
+      if (autoPlay && nextLesson) {
+        goToLesson(nextLesson.id);
+      }
+    };
+
+    if (!alreadyComplete) {
+      toggleProgress.mutate(
+        { lessonId: currentLesson.id, data: { completed: true } },
+        {
+          onSuccess: () => {
+            handleCompletionToggled(true);
+            advanceToNext();
+          },
+        },
+      );
+    } else {
+      advanceToNext();
+    }
+  }, [currentLesson, user, progress, nextLesson, toggleProgress, handleCompletionToggled, goToLesson]);
+
+  /** Mark complete from bottom button */
+  const handleMarkCompleteFromBottom = useCallback(() => {
+    if (!currentLesson) return;
+    const newState = !(progress?.lesson_progress?.[currentLesson.id] ?? false);
+    toggleProgress.mutate(
+      { lessonId: currentLesson.id, data: { completed: newState } },
+      { onSuccess: () => handleCompletionToggled(newState) },
     );
   }, [currentLesson, progress, toggleProgress, handleCompletionToggled]);
 
@@ -228,6 +276,7 @@ export default function LessonPage() {
             <LessonContent
               lesson={currentLesson}
               onQuizCompleted={handleQuizCompleted}
+              onVideoEnded={handleVideoEnded}
               playbackSpeed={user?.playback_speed ?? 1}
             />
 
@@ -240,6 +289,11 @@ export default function LessonPage() {
                 prevLesson={prevLesson}
                 nextLesson={nextLesson}
                 onNavigate={goToLesson}
+                currentLessonNumber={currentLessonNumber}
+                totalLessons={totalLessonsInSection}
+                isCompleted={progress?.lesson_progress?.[currentLesson.id] ?? false}
+                onMarkComplete={handleMarkCompleteFromBottom}
+                isLoading={toggleProgress.isPending}
               />
             )}
           </div>

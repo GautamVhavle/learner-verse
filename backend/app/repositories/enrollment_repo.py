@@ -61,7 +61,7 @@ async def get_enrolled_courses(
     *,
     user_id: uuid.UUID,
 ) -> list[Course]:
-    """Return all non-deleted courses the user is enrolled in, newest enrollment first."""
+    """Return all published, non-deleted courses the user is enrolled in, newest first."""
     result = await session.execute(
         select(Course)
         .options(selectinload(Course.tags))
@@ -69,6 +69,7 @@ async def get_enrolled_courses(
         .where(
             CourseEnrollment.user_id == user_id,
             Course.is_deleted.is_(False),
+            Course.status == "ready",
         )
         .order_by(CourseEnrollment.enrolled_at.desc())
     )

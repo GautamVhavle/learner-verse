@@ -73,17 +73,21 @@ export function HubCourseCard({ course, onClick }: HubCourseCardProps) {
 
         {/* Stats row */}
         <div className="mt-auto flex items-center gap-3 pt-2 text-xs text-text-secondary">
-          <div className="flex items-center gap-1">
-            <StarRating value={course.average_rating} readOnly size="sm" />
-            <span className="font-medium">{course.average_rating > 0 ? course.average_rating.toFixed(1) : "—"}</span>
-            {course.rating_count > 0 && (
-              <span className="text-text-tertiary">({course.rating_count})</span>
-            )}
-          </div>
-          <div className="flex items-center gap-1">
-            <Users className="size-3" />
-            <span>{course.enrollment_count}</span>
-          </div>
+          {course.is_public && (
+            <div className="flex items-center gap-1">
+              <StarRating value={course.average_rating} readOnly size="sm" />
+              <span className="font-medium">{course.average_rating > 0 ? course.average_rating.toFixed(1) : "—"}</span>
+              {course.rating_count > 0 && (
+                <span className="text-text-tertiary">({course.rating_count})</span>
+              )}
+            </div>
+          )}
+          {course.is_public && (
+            <div className="flex items-center gap-1">
+              <Users className="size-3" />
+              <span>{course.enrollment_count}</span>
+            </div>
+          )}
           <div className="flex items-center gap-1">
             <Layers className="size-3" />
             <span>{course.lesson_count} lessons</span>

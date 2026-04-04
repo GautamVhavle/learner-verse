@@ -158,7 +158,7 @@ export function LearnerDashboard() {
           title="No courses enrolled yet"
           description="Browse the course catalog and enrol in a course to start tracking your progress here."
           actionLabel="Browse Courses"
-          onAction={() => navigate("/browse")}
+          onAction={() => navigate("/hub")}
         />
       )}
 
@@ -175,7 +175,7 @@ export function LearnerDashboard() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate("/browse")}
+              onClick={() => navigate("/hub")}
               className="gap-1 text-xs text-text-secondary hover:text-text-primary"
             >
               <Compass className="size-3.5" />

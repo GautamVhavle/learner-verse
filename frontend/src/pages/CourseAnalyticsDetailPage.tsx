@@ -22,9 +22,11 @@ import {
   Copy,
   GraduationCap,
   Link2,
+  MessageSquare,
   Star,
   Users,
 } from "lucide-react";
+import { DiscussionRoom } from "@/components/discussion/DiscussionRoom";
 import {
   Card,
   CardContent,
@@ -217,7 +219,7 @@ function ReviewCard({ review }: { review: RatingDetail }) {
 
 // ── Main Page ───────────────────────────────────────────────
 
-type Tab = "overview" | "learners" | "ratings";
+type Tab = "overview" | "learners" | "ratings" | "discussion";
 
 export default function CourseAnalyticsDetailPage() {
   const { courseId } = useParams<{ courseId: string }>();
@@ -343,17 +345,17 @@ export default function CourseAnalyticsDetailPage() {
 
       {/* Tab Toggle */}
       <div className="flex gap-1 rounded-lg bg-muted p-1">
-        {(["overview", "learners", "ratings"] as const).map((t) => (
+        {(["overview", "learners", "ratings", ...(course.is_public ? ["discussion"] as const : [])] as const).map((t) => (
           <button
             key={t}
-            onClick={() => setTab(t)}
+            onClick={() => setTab(t as Tab)}
             className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
               tab === t
                 ? "bg-bg-primary text-text-primary shadow-sm"
                 : "text-text-secondary hover:text-text-primary"
             }`}
           >
-            {t === "overview" ? "Overview" : t === "learners" ? `Learners (${learnersData?.total ?? 0})` : `Ratings (${course.rating_count})`}
+            {t === "overview" ? "Overview" : t === "learners" ? `Learners (${learnersData?.total ?? 0})` : t === "ratings" ? `Ratings (${course.rating_count})` : "Discussion"}
           </button>
         ))}
       </div>
@@ -502,6 +504,12 @@ export default function CourseAnalyticsDetailPage() {
               No learners enrolled in this course yet.
             </div>
           )}
+        </div>
+      )}
+
+      {tab === "discussion" && courseId && (
+        <div className="overflow-hidden rounded-xl border border-border-default bg-bg-primary" style={{ height: "calc(100vh - 320px)", minHeight: 400 }}>
+          <DiscussionRoom courseId={courseId} />
         </div>
       )}
 

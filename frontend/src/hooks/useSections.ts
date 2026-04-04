@@ -123,3 +123,15 @@ export function useDuplicateSectionMutation(courseId: string) {
     },
   });
 }
+
+export function useOrganizeSectionsMutation(courseId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () =>
+      api.post<Section[]>(`/courses/${courseId}/sections/organize`),
+    onSuccess: (sections) => {
+      qc.setQueryData<Section[]>(sectionKeys.all(courseId), sections);
+      qc.invalidateQueries({ queryKey: sectionKeys.all(courseId) });
+    },
+  });
+}

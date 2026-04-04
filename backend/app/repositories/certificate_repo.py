@@ -4,6 +4,7 @@ import uuid
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.models.certificate import Certificate
 
@@ -48,9 +49,11 @@ class CertificateRepository:
         return list(result.scalars().all())
 
     async def get_by_uid(self, certificate_uid: str) -> Certificate | None:
-        """Fetch a certificate by its public shareable UID."""
+        """Fetch a certificate by its public shareable UID (with course eager-loaded)."""
         result = await self.db.execute(
-            select(Certificate).where(Certificate.certificate_uid == certificate_uid)
+            select(Certificate)
+            .options(selectinload(Certificate.course))
+            .where(Certificate.certificate_uid == certificate_uid)
         )
         return result.scalar_one_or_none()
 

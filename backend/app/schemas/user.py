@@ -21,6 +21,7 @@ class UserResponse(BaseModel):
     social_links: list[dict] = []
     cover_image_url: str | None = None
     is_profile_public: bool = False
+    auto_play_next: bool = True
     created_at: datetime
     updated_at: datetime
 
@@ -39,6 +40,7 @@ class UserUpdate(BaseModel):
     social_links: list[dict] | None = Field(None, max_length=10)
     cover_image_url: str | None = None
     is_profile_public: bool | None = None
+    auto_play_next: bool | None = None
 
 
 class PublicProfileResponse(BaseModel):

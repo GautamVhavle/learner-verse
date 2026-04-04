@@ -8,7 +8,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 import { AppShell } from "@/components/layout/AppShell";
 import DashboardPage from "@/pages/DashboardPage";
-import BrowseCoursesPage from "@/pages/BrowseCoursesPage";
+
 import TrashPage from "@/pages/TrashPage";
 import CourseBuilderPage from "@/pages/CourseBuilderPage";
 import CoursePreviewPage from "@/pages/CoursePreviewPage";
@@ -49,7 +49,6 @@ export default function AppRouter() {
             <Route index element={<DashboardPage />} />
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="courses" element={<DashboardPage />} />
-            <Route path="browse" element={<BrowseCoursesPage />} />
             <Route path="courses/:id/edit" element={<CourseBuilderPage />} />
             <Route path="courses/:id/preview" element={<CoursePreviewPage />} />
             <Route path="certificates" element={<CertificatesPage />} />
@@ -76,7 +75,6 @@ export default function AppRouter() {
             <Route index element={<DashboardPage />} />
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="courses" element={<DashboardPage />} />
-            <Route path="browse" element={<BrowseCoursesPage />} />
             <Route path="study/:courseId" element={<StudyPage />} />
             <Route
               path="study/:courseId/lessons/:lessonId"
@@ -92,17 +90,11 @@ export default function AppRouter() {
             <Route path="inbox" element={<InboxPage />} />
           </Route>
 
-          {/* Public certificate share page */}
+          {/* Public certificate share page (standalone layout, no auth) */}
           <Route
             path="certificates/share/:uid"
-            element={
-              <ProtectedRoute>
-                <AppShell mode="student" />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<CertificateSharePage />} />
-          </Route>
+            element={<CertificateSharePage />}
+          />
 
           {/* Public profile page */}
           <Route path="/profile/:userId" element={<PublicProfilePage />} />

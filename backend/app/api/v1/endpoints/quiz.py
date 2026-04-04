@@ -1,12 +1,17 @@
 """API endpoints for quiz question management (creator) and quiz attempts (learner)."""
 
+import json
+import logging
+import random
 import uuid
 
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_current_user
+from app.core.config import settings
 from app.core.database import get_db
 from app.models.course import Course
 from app.models.enrollment import CourseEnrollment
@@ -15,6 +20,7 @@ from app.models.section import Section
 from app.models.user import User
 from app.repositories.quiz_repo import QuizRepository
 from app.schemas.quiz import (
+    AIQuizGenerateRequest,
     QuizAttemptResponse,
     QuizBestScore,
     QuizQuestionCreate,
@@ -23,6 +29,8 @@ from app.schemas.quiz import (
     QuizQuestionUpdate,
     QuizSubmitRequest,
 )
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/quiz", tags=["quiz"])
 
@@ -194,6 +202,161 @@ async def reorder_questions(
     questions = await repo.reorder_questions(lesson_id, data.items)
     await db.commit()
     return [QuizQuestionResponse.model_validate(q) for q in questions]
+
+
+# ── Creator: AI Quiz Generation ───────────────────────────────
+
+AI_QUIZ_SYSTEM_PROMPT = """You are a quiz question generator. Generate multiple-choice questions based on the given topic and difficulty.
+
+RULES:
+- Each question must have exactly 4 options labeled A, B, C, D
+- Exactly one option must be correct
+- Questions should be clear, unambiguous, and educational
+- Options should be plausible — no obviously wrong answers
+- Difficulty levels:
+  - easy: basic recall and understanding
+  - medium: application and analysis
+  - hard: evaluation, synthesis, and tricky edge cases
+- Return ONLY a valid JSON array, no markdown, no extra text
+
+OUTPUT FORMAT (strict JSON array):
+[
+  {
+    "question": "What is ...?",
+    "options": ["Option A", "Option B", "Option C", "Option D"],
+    "correct_index": 0
+  }
+]
+
+The correct_index is the 0-based index of the correct option in the options array."""
+
+
+def _shuffle_question(q: dict) -> dict:
+    """Shuffle options and update correct_index to match."""
+    options = list(q["options"])
+    correct_text = options[q["correct_index"]]
+    random.shuffle(options)
+    new_index = options.index(correct_text)
+    return {
+        "question": q["question"],
+        "options": options,
+        "correct_index": new_index,
+    }
+
+
+@router.post(
+    "/lessons/{lesson_id}/generate",
+    response_model=list[QuizQuestionResponse],
+    status_code=status.HTTP_201_CREATED,
+)
+async def generate_quiz_with_ai(
+    lesson_id: uuid.UUID,
+    data: AIQuizGenerateRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Generate quiz questions using AI and save them to the lesson."""
+    await _verify_lesson_owner(db, lesson_id, user.id)
+
+    if not settings.OPENROUTER_API_KEY:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="AI service is not configured.",
+        )
+
+    repo = QuizRepository(db)
+    existing_count = await repo.count_questions(lesson_id)
+    if existing_count + data.num_questions > MAX_QUESTIONS_PER_QUIZ:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Cannot exceed {MAX_QUESTIONS_PER_QUIZ} questions. Currently {existing_count}, requested {data.num_questions}.",
+        )
+
+    user_prompt = (
+        f"Generate exactly {data.num_questions} multiple-choice questions "
+        f"about: {data.topic}\n"
+        f"Difficulty: {data.difficulty}\n"
+        f"Return ONLY the JSON array."
+    )
+
+    try:
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            resp = await client.post(
+                f"{settings.OPENROUTER_BASE_URL}/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {settings.OPENROUTER_API_KEY}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": settings.OPENROUTER_MODEL,
+                    "messages": [
+                        {"role": "system", "content": AI_QUIZ_SYSTEM_PROMPT},
+                        {"role": "user", "content": user_prompt},
+                    ],
+                    "max_tokens": 4000,
+                    "temperature": 0.7,
+                },
+            )
+            resp.raise_for_status()
+            content = resp.json()["choices"][0]["message"]["content"]
+    except Exception:
+        logger.exception("AI quiz generation request failed")
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="AI service failed to generate questions. Please try again.",
+        )
+
+    # Parse the JSON response
+    try:
+        # Strip markdown code blocks if the model wraps in ```json
+        text = content.strip()
+        if text.startswith("```"):
+            text = text.split("\n", 1)[1] if "\n" in text else text[3:]
+            text = text.rsplit("```", 1)[0]
+        raw_questions = json.loads(text.strip())
+    except (json.JSONDecodeError, KeyError, IndexError):
+        logger.error("AI returned unparseable content: %s", content[:500])
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="AI returned invalid quiz data. Please try again.",
+        )
+
+    if not isinstance(raw_questions, list) or len(raw_questions) == 0:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="AI returned empty quiz data. Please try again.",
+        )
+
+    # Validate, shuffle, and save each question
+    saved: list[QuizQuestionResponse] = []
+    for i, raw_q in enumerate(raw_questions[:data.num_questions]):
+        if (
+            not isinstance(raw_q, dict)
+            or "question" not in raw_q
+            or "options" not in raw_q
+            or "correct_index" not in raw_q
+            or len(raw_q.get("options", [])) != 4
+            or raw_q["correct_index"] not in range(4)
+        ):
+            continue  # Skip malformed questions
+
+        shuffled = _shuffle_question(raw_q)
+        question = await repo.create_question(
+            lesson_id=lesson_id,
+            question=shuffled["question"],
+            options=shuffled["options"],
+            correct_option=shuffled["correct_index"],
+        )
+        saved.append(QuizQuestionResponse.model_validate(question))
+
+    if not saved:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="AI failed to produce valid questions. Please try again.",
+        )
+
+    await db.commit()
+    return saved
 
 
 # ── Learner: Quiz Taking ──────────────────────────────────────

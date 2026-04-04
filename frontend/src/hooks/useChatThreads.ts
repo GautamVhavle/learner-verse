@@ -83,7 +83,18 @@ export function useDeleteThreadMutation() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => api.delete(`/chat/threads/${id}`),
-    onSuccess: () => {
+    onMutate: async (id) => {
+      await qc.cancelQueries({ queryKey: THREADS_KEY });
+      const prev = qc.getQueryData<ThreadListResponse>(THREADS_KEY);
+      qc.setQueryData<ThreadListResponse>(THREADS_KEY, (old) =>
+        old ? { items: old.items.filter((t) => t.id !== id) } : old,
+      );
+      return { prev };
+    },
+    onError: (_err, _id, context) => {
+      if (context?.prev) qc.setQueryData(THREADS_KEY, context.prev);
+    },
+    onSettled: () => {
       qc.invalidateQueries({ queryKey: THREADS_KEY });
     },
   });

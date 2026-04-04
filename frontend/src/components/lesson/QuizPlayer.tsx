@@ -1,7 +1,7 @@
 /**
  * Quiz player for learners — take a quiz, submit answers, view results.
  */
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import {
   CheckCircle2,
   XCircle,
@@ -13,6 +13,7 @@ import {
   ClipboardCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { LiviInlineChat } from "@/components/chat/LiviInlineChat";
 import {
   useLearnerQuestionsQuery,
   useSubmitQuizMutation,
@@ -22,12 +23,13 @@ import type { QuizAttempt, QuizAttemptResult } from "@/types/quiz";
 
 interface QuizPlayerProps {
   lessonId: string;
+  lessonTitle?: string;
   onQuizCompleted?: () => void;
 }
 
 type QuizState = "intro" | "taking" | "results";
 
-export function QuizPlayer({ lessonId, onQuizCompleted }: QuizPlayerProps) {
+export function QuizPlayer({ lessonId, lessonTitle, onQuizCompleted }: QuizPlayerProps) {
   const { data: questions = [], isLoading } = useLearnerQuestionsQuery(lessonId);
   const { data: bestScore } = useQuizBestScoreQuery(lessonId);
   const submitMutation = useSubmitQuizMutation(lessonId);
@@ -185,6 +187,19 @@ export function QuizPlayer({ lessonId, onQuizCompleted }: QuizPlayerProps) {
           })}
         </div>
 
+        {/* Inline LiVi chat for current question */}
+        <div className="mt-4">
+          <LiviInlineChat
+            key={current.id}
+            contextType="quiz"
+            contextData={{
+              lesson_title: lessonTitle ?? "",
+              question: current.question,
+              options: current.options,
+            }}
+          />
+        </div>
+
         {/* Navigation */}
         <div className="mt-6 flex items-center justify-between">
           <Button
@@ -300,50 +315,65 @@ export function QuizPlayer({ lessonId, onQuizCompleted }: QuizPlayerProps) {
             {result.results.map((r: QuizAttemptResult, idx: number) => (
               <div
                 key={r.question_id}
-                className={`rounded-lg border p-4 ${
-                  r.is_correct
-                    ? "border-accent-green/30 bg-accent-green/5"
-                    : "border-red-300/30 bg-red-50 dark:border-red-800/30 dark:bg-red-900/10"
-                }`}
+                className="space-y-2"
               >
-                <div className="flex items-start gap-2">
-                  {r.is_correct ? (
-                    <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-accent-green" />
-                  ) : (
-                    <XCircle className="mt-0.5 size-4 shrink-0 text-red-500" />
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-text-primary">
-                      Q{idx + 1}. {r.question}
-                    </p>
-                    <div className="mt-2 grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-                      {r.options.map((opt, i) => {
-                        const isCorrect = i === r.correct_option;
-                        const isSelected = i === r.selected_option;
-                        return (
-                          <div
-                            key={i}
-                            className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-xs ${
-                              isCorrect
-                                ? "bg-accent-green/15 font-medium text-accent-green"
-                                : isSelected && !isCorrect
-                                  ? "bg-red-100 text-red-600 line-through dark:bg-red-900/20 dark:text-red-400"
-                                  : "text-text-tertiary"
-                            }`}
-                          >
-                            <span className="shrink-0 font-medium">
-                              {String.fromCharCode(65 + i)}.
-                            </span>
-                            {opt}
-                            {isCorrect && (
-                              <CheckCircle2 className="ml-auto size-3.5 shrink-0" />
-                            )}
-                          </div>
-                        );
-                      })}
+                <div
+                  className={`rounded-lg border p-4 ${
+                    r.is_correct
+                      ? "border-accent-green/30 bg-accent-green/5"
+                      : "border-red-300/30 bg-red-50 dark:border-red-800/30 dark:bg-red-900/10"
+                  }`}
+                >
+                  <div className="flex items-start gap-2">
+                    {r.is_correct ? (
+                      <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-accent-green" />
+                    ) : (
+                      <XCircle className="mt-0.5 size-4 shrink-0 text-red-500" />
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-text-primary">
+                        Q{idx + 1}. {r.question}
+                      </p>
+                      <div className="mt-2 grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+                        {r.options.map((opt, i) => {
+                          const isCorrect = i === r.correct_option;
+                          const isSelected = i === r.selected_option;
+                          return (
+                            <div
+                              key={i}
+                              className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-xs ${
+                                isCorrect
+                                  ? "bg-accent-green/15 font-medium text-accent-green"
+                                  : isSelected && !isCorrect
+                                    ? "bg-red-100 text-red-600 line-through dark:bg-red-900/20 dark:text-red-400"
+                                    : "text-text-tertiary"
+                              }`}
+                            >
+                              <span className="shrink-0 font-medium">
+                                {String.fromCharCode(65 + i)}.
+                              </span>
+                              {opt}
+                              {isCorrect && (
+                                <CheckCircle2 className="ml-auto size-3.5 shrink-0" />
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
                 </div>
+                {!r.is_correct && (
+                  <LiviInlineChat
+                    contextType="quiz"
+                    contextData={{
+                      lesson_title: lessonTitle ?? "",
+                      question: r.question,
+                      options: r.options,
+                    }}
+                    label="Ask LiVi to explain this question"
+                  />
+                )}
               </div>
             ))}
           </div>

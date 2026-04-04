@@ -8,6 +8,7 @@ from app.api.v1.endpoints import (
     certificates,
     chat,
     courses,
+    discussions,
     enrollments,
     goals,
     health,
@@ -41,6 +42,7 @@ api_v1_router.include_router(study.router)
 api_v1_router.include_router(progress.router)
 api_v1_router.include_router(certificates.router)
 api_v1_router.include_router(chat.router)
+api_v1_router.include_router(discussions.router)
 api_v1_router.include_router(goals.router)
 api_v1_router.include_router(notifications.router)
 api_v1_router.include_router(stats.router)

@@ -1,8 +1,9 @@
-"""API endpoints for section CRUD, reordering, and duplication."""
+"""API endpoints for section CRUD, reordering, duplication, and AI organization."""
 
+import logging
 import uuid
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_current_user
@@ -16,6 +17,7 @@ from app.schemas.section import (
     SectionUpdate,
 )
 from app.services.section_service import SectionService
+from app.services.organize_service import OrganizeService
 
 router = APIRouter(prefix="/courses/{course_id}/sections", tags=["sections"])
 
@@ -32,6 +34,26 @@ async def create_section(
     db: AsyncSession = Depends(get_db),
 ):
     return await _service(db).create_section(course_id, user.id, data)
+
+
+@router.post("/organize", response_model=list[SectionResponse])
+async def organize_sections(
+    course_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Use AI to reorganize lessons into logical sections."""
+    logger = logging.getLogger(__name__)
+    await _service(db)._verify_course(course_id, user.id)
+    service = OrganizeService(db)
+    try:
+        return await service.organize_course(course_id, user.id)
+    except ValueError as exc:
+        logger.error("Organize failed: %s", exc)
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        )
 
 
 @router.get("", response_model=list[SectionResponse])

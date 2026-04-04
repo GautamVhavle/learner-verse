@@ -4,6 +4,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import type {
+  AIQuizGenerateRequest,
   QuizAttempt,
   QuizBestScore,
   QuizQuestion,
@@ -78,6 +79,18 @@ export function useReorderQuizQuestionsMutation(lessonId: string) {
       api.put<QuizQuestion[]>(`/quiz/lessons/${lessonId}/questions/reorder`, { items }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: quizKeys.questions(lessonId) });
+    },
+  });
+}
+
+export function useGenerateQuizMutation(lessonId: string, courseId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: AIQuizGenerateRequest) =>
+      api.post<QuizQuestion[]>(`/quiz/lessons/${lessonId}/generate`, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: quizKeys.questions(lessonId) });
+      qc.invalidateQueries({ queryKey: sectionKeys.all(courseId) });
     },
   });
 }

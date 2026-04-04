@@ -26,6 +26,12 @@ export interface QuizQuestionCreate {
   correct_option: number;
 }
 
+export interface AIQuizGenerateRequest {
+  topic: string;
+  difficulty: "easy" | "medium" | "hard";
+  num_questions: number;
+}
+
 export interface QuizQuestionUpdate {
   question?: string;
   options?: [string, string, string, string];

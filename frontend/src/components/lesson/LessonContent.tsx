@@ -5,22 +5,26 @@
  * This is a pure presentational component — it receives all data
  * via props and contains no data-fetching logic.
  */
+import { useMemo } from "react";
 import { Link2 } from "lucide-react";
 import { YouTubeEmbed } from "@/components/lesson/YouTubeEmbed";
 import { MarkdownRenderer } from "@/components/lesson/MarkdownRenderer";
 import { LinkCard } from "@/components/lesson/LinkCard";
 import { QuizPlayer } from "@/components/lesson/QuizPlayer";
+import { LiviInlineChat } from "@/components/chat/LiviInlineChat";
 import { extractVideoId } from "@/lib/youtube";
 import type { Lesson } from "@/types/section";
 
 interface LessonContentProps {
   lesson: Lesson;
   onQuizCompleted?: () => void;
+  onVideoEnded?: () => void;
   playbackSpeed?: number;
 }
 
-export function LessonContent({ lesson, onQuizCompleted, playbackSpeed = 1 }: LessonContentProps) {
+export function LessonContent({ lesson, onQuizCompleted, onVideoEnded, playbackSpeed = 1 }: LessonContentProps) {
   const isVideo = (lesson.lesson_type ?? "video") === "video";
+  const isNote = (lesson.lesson_type ?? "video") === "note";
   const isQuiz = (lesson.lesson_type ?? "video") === "quiz";
   const videoId =
     isVideo && lesson.youtube_url
@@ -30,28 +34,66 @@ export function LessonContent({ lesson, onQuizCompleted, playbackSpeed = 1 }: Le
 
   const hasContent = videoId || lesson.notes_markdown || links.length > 0 || isQuiz;
 
+  // Stable context objects for inline chat (avoid re-renders)
+  const videoContext = useMemo(
+    () => ({
+      lesson_title: lesson.title,
+      youtube_title: lesson.youtube_title ?? "",
+      youtube_channel: lesson.youtube_channel ?? "",
+    }),
+    [lesson.title, lesson.youtube_title, lesson.youtube_channel],
+  );
+
+  const readingContext = useMemo(
+    () => ({
+      lesson_title: lesson.title,
+      notes_markdown: lesson.notes_markdown ?? "",
+    }),
+    [lesson.title, lesson.notes_markdown],
+  );
+
   return (
     <>
       {/* Quiz */}
       {isQuiz && (
         <section>
-          <QuizPlayer lessonId={lesson.id} onQuizCompleted={onQuizCompleted} />
+          <QuizPlayer lessonId={lesson.id} lessonTitle={lesson.title} onQuizCompleted={onQuizCompleted} />
         </section>
       )}
 
       {/* YouTube */}
       {videoId && (
-        <section>
+        <section className="space-y-3">
           <YouTubeEmbed
             videoId={videoId}
             title={lesson.youtube_title ?? undefined}
             playbackSpeed={playbackSpeed}
+            onEnded={onVideoEnded}
+          />
+          <LiviInlineChat
+            contextType="video"
+            contextData={videoContext}
           />
         </section>
       )}
 
       {/* Markdown notes */}
-      {lesson.notes_markdown && (
+      {lesson.notes_markdown && !isVideo && (
+        <section className="space-y-3">
+          <div className="rounded-xl border border-border-default bg-bg-secondary p-5">
+            <MarkdownRenderer content={lesson.notes_markdown} />
+          </div>
+          {isNote && (
+            <LiviInlineChat
+              contextType="reading"
+              contextData={readingContext}
+            />
+          )}
+        </section>
+      )}
+
+      {/* Video lesson notes (below inline chat) */}
+      {lesson.notes_markdown && isVideo && (
         <section className="rounded-xl border border-border-default bg-bg-secondary p-5">
           <MarkdownRenderer content={lesson.notes_markdown} />
         </section>

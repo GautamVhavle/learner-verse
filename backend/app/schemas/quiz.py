@@ -26,6 +26,16 @@ class QuizQuestionReorder(BaseModel):
     )
 
 
+class AIQuizGenerateRequest(BaseModel):
+    """Request payload for AI-powered quiz generation."""
+    topic: str = Field(..., min_length=1, max_length=500)
+    difficulty: str = Field(
+        ..., pattern="^(easy|medium|hard)$",
+        description="Difficulty level: easy, medium, or hard",
+    )
+    num_questions: int = Field(..., ge=1, le=25)
+
+
 class QuizQuestionResponse(BaseModel):
     id: uuid.UUID
     lesson_id: uuid.UUID

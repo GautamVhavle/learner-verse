@@ -1,5 +1,9 @@
 /**
- * Button that generates and downloads a PDF certificate using react-pdf.
+ * Generates and downloads a professional A4-landscape PDF certificate.
+ * Design mirrors CertificatePreview as closely as react-pdf allows.
+ *
+ * A4 landscape = 842 × 595 pt.  All spacing is tuned so every element
+ * sits on a single page with balanced whitespace.
  */
 import {
   Document,
@@ -8,177 +12,286 @@ import {
   View,
   StyleSheet,
   pdf,
+  Image,
 } from "@react-pdf/renderer";
 import { Download, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import type { CertificateResponse } from "@/types/certificate";
 
-const styles = StyleSheet.create({
+/* ── Palette ───────────────────────────────────────── */
+const C = {
+  white: "#ffffff",
+  bg: "#f9fafb",
+  border: "#e5e7eb",
+  borderFaint: "#f1f5f9",
+  text: "#111827",
+  textSec: "#6b7280",
+  textMuted: "#9ca3af",
+  indigo: "#6366f1",
+  indigoDark: "#4f46e5",
+  lavender: "#ede9fe",
+  lavBorder: "#c7d2fe",
+  pillBg: "#f5f3ff",
+  pillBorder: "#e0e7ff",
+};
+
+/* ── Styles ────────────────────────────────────────── */
+const s = StyleSheet.create({
   page: {
-    backgroundColor: "#0a0a0a",
-    padding: 50,
+    backgroundColor: C.white,
     fontFamily: "Helvetica",
+    paddingVertical: 0,
+    paddingHorizontal: 0,
     position: "relative",
   },
-  topBar: {
-    height: 4,
-    marginBottom: 40,
-    borderRadius: 2,
-    backgroundColor: "#a855f7",
-  },
-  container: {
+
+  /* Top accent stripe */
+  topBar: { height: 6, backgroundColor: C.indigo },
+
+  /* Content wrapper — fills remaining page, centered */
+  body: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    border: "1pt solid #222222",
-    borderRadius: 12,
-    padding: 50,
+    paddingHorizontal: 80,
+    paddingVertical: 30,
   },
-  awardCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: "#a855f715",
-    borderWidth: 1,
-    borderColor: "#a855f730",
+
+  /* ── Header ── */
+  logoRow: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 20,
+    gap: 8,
+    marginBottom: 22,
   },
-  awardText: {
-    fontSize: 28,
-    color: "#a855f7",
-  },
-  header: {
-    fontSize: 10,
-    fontWeight: "bold",
-    letterSpacing: 4,
-    color: "#a855f7",
-    textTransform: "uppercase",
-    marginBottom: 4,
-  },
+  logo: { width: 22, height: 22 },
   brand: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#fafafa",
-    marginBottom: 24,
-  },
-  divider: {
-    width: 60,
-    height: 1,
-    backgroundColor: "#333333",
-    marginBottom: 24,
-  },
-  certifiesLabel: {
     fontSize: 10,
-    color: "#666666",
+    fontWeight: "bold",
+    color: C.textSec,
+    letterSpacing: 1.5,
+    textTransform: "uppercase",
+    marginBottom: 22,
+  },
+
+  /* ── Emblem ── */
+  emblem: {
+    width: 64,
+    height: 64,
+    marginBottom: 18,
+  },
+
+  /* ── Title ── */
+  title: {
+    fontSize: 10,
+    fontWeight: "bold",
+    letterSpacing: 6,
+    color: C.indigo,
+    textTransform: "uppercase",
+    marginBottom: 16,
+  },
+
+  /* ── Divider ── */
+  dividerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 16,
+  },
+  dividerLine: { width: 60, height: 0.5, backgroundColor: C.border },
+  dividerDot: { fontSize: 7, color: C.textMuted },
+
+  /* ── Labels ── */
+  label: {
+    fontSize: 8,
+    color: C.textMuted,
+    textTransform: "uppercase",
+    letterSpacing: 3,
     marginBottom: 4,
   },
   userName: {
-    fontSize: 22,
+    fontSize: 26,
     fontWeight: "bold",
-    color: "#fafafa",
-    marginBottom: 20,
-  },
-  completedLabel: {
-    fontSize: 10,
-    color: "#666666",
-    marginBottom: 4,
+    color: C.text,
+    marginBottom: 18,
+    letterSpacing: -0.3,
   },
   courseName: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#3b82f6",
-    marginBottom: 24,
+    color: C.indigoDark,
+    marginBottom: 20,
     textAlign: "center",
+    maxWidth: 500,
   },
+
+  /* ── Stats ── */
   statsRow: {
     flexDirection: "row",
-    gap: 20,
-    marginBottom: 20,
+    alignItems: "center",
+    gap: 24,
+    marginBottom: 14,
   },
-  stat: {
-    fontSize: 10,
-    color: "#a1a1a1",
-  },
-  certId: {
-    fontSize: 9,
-    color: "#666666",
-    backgroundColor: "#1a1a1a",
-    paddingHorizontal: 10,
+  stat: { fontSize: 9, color: C.textSec },
+  statDot: { fontSize: 6, color: C.textMuted },
+
+  /* ── Date ── */
+  date: { fontSize: 9, color: C.textSec, marginBottom: 16 },
+
+  /* ── Cert ID pill ── */
+  pill: {
+    paddingHorizontal: 14,
     paddingVertical: 5,
-    borderRadius: 4,
-    fontFamily: "Courier",
-  },
-  dateText: {
-    fontSize: 10,
-    color: "#a1a1a1",
+    borderRadius: 20,
+    backgroundColor: C.pillBg,
+    borderWidth: 0.5,
+    borderColor: C.pillBorder,
     marginBottom: 12,
+  },
+  pillText: {
+    fontSize: 8,
+    fontFamily: "Courier",
+    fontWeight: "bold",
+    color: C.indigo,
+    letterSpacing: 1,
+  },
+
+  /* ── Share URL ── */
+  url: { fontSize: 6.5, color: C.textMuted },
+
+  /* Bottom accent stripe */
+  bottomBar: { height: 5, backgroundColor: C.indigoDark },
+
+  /* Decorative corner markers */
+  cornerTL: {
+    position: "absolute",
+    top: 22,
+    left: 22,
+    width: 30,
+    height: 30,
+    borderTopWidth: 1,
+    borderLeftWidth: 1,
+    borderColor: C.borderFaint,
+  },
+  cornerTR: {
+    position: "absolute",
+    top: 22,
+    right: 22,
+    width: 30,
+    height: 30,
+    borderTopWidth: 1,
+    borderRightWidth: 1,
+    borderColor: C.borderFaint,
+  },
+  cornerBL: {
+    position: "absolute",
+    bottom: 22,
+    left: 22,
+    width: 30,
+    height: 30,
+    borderBottomWidth: 1,
+    borderLeftWidth: 1,
+    borderColor: C.borderFaint,
+  },
+  cornerBR: {
+    position: "absolute",
+    bottom: 22,
+    right: 22,
+    width: 30,
+    height: 30,
+    borderBottomWidth: 1,
+    borderRightWidth: 1,
+    borderColor: C.borderFaint,
   },
 });
 
-function CertificatePDF({
-  certificate,
-}: {
-  certificate: CertificateResponse;
-}) {
+/* ── PDF Document ──────────────────────────────────── */
+
+export function CertificatePDF({ certificate }: { certificate: CertificateResponse }) {
   const completedDate = new Date(certificate.completed_at).toLocaleDateString(
     "en-US",
     { year: "numeric", month: "long", day: "numeric" },
   );
+  const shareUrl = `${window.location.origin}/certificates/share/${certificate.certificate_uid}`;
 
   return (
     <Document>
-      <Page size="A4" orientation="landscape" style={styles.page}>
-        <View style={styles.topBar} />
-        <View style={styles.container}>
-          <View style={styles.awardCircle}>
-            <Text style={styles.awardText}>★</Text>
+      <Page size="A4" orientation="landscape" style={s.page}>
+        {/* Top bar */}
+        <View style={s.topBar} />
+
+        {/* Corner decorations */}
+        <View style={s.cornerTL} />
+        <View style={s.cornerTR} />
+        <View style={s.cornerBL} />
+        <View style={s.cornerBR} />
+
+        {/* Centred content */}
+        <View style={s.body}>
+          {/* Brand name */}
+          <Text style={s.brand}>Learner Verse</Text>
+
+          {/* Emblem */}
+          <Image src="/badge.png" style={s.emblem} />
+
+          <Text style={s.title}>Certificate of Completion</Text>
+
+          {/* Divider */}
+          <View style={s.dividerRow}>
+            <View style={s.dividerLine} />
+            <Text style={s.dividerDot}>✦</Text>
+            <View style={s.dividerLine} />
           </View>
-          <Text style={styles.header}>Certificate of Completion</Text>
-          <Text style={styles.brand}>Learner Verse</Text>
-          <View style={styles.divider} />
-          <Text style={styles.certifiesLabel}>This certifies that</Text>
-          <Text style={styles.userName}>{certificate.user_name}</Text>
-          <Text style={styles.completedLabel}>
-            has successfully completed
-          </Text>
-          <Text style={styles.courseName}>{certificate.course_title}</Text>
-          <View style={styles.statsRow}>
-            <Text style={styles.stat}>
+
+          <Text style={s.label}>This is to certify that</Text>
+          <Text style={s.userName}>{certificate.user_name}</Text>
+
+          <Text style={s.label}>has successfully completed</Text>
+          <Text style={s.courseName}>{certificate.course_title}</Text>
+
+          {/* Stats */}
+          <View style={s.statsRow}>
+            <Text style={s.stat}>
               {certificate.sections_count}{" "}
               {certificate.sections_count === 1 ? "section" : "sections"}
             </Text>
-            <Text style={styles.stat}>·</Text>
-            <Text style={styles.stat}>
+            <Text style={s.statDot}>·</Text>
+            <Text style={s.stat}>
               {certificate.lessons_count}{" "}
               {certificate.lessons_count === 1 ? "lesson" : "lessons"}
             </Text>
           </View>
-          <Text style={styles.dateText}>{completedDate}</Text>
-          <Text style={styles.certId}>{certificate.certificate_uid}</Text>
+
+          <Text style={s.date}>{completedDate}</Text>
+
+          {/* Cert ID */}
+          <View style={s.pill}>
+            <Text style={s.pillText}>{certificate.certificate_uid}</Text>
+          </View>
+
+          <Text style={s.url}>{shareUrl}</Text>
         </View>
+
+        {/* Bottom bar */}
+        <View style={s.bottomBar} />
       </Page>
     </Document>
   );
 }
 
+/* ── Download Button ───────────────────────────────── */
+
 interface CertificateDownloadProps {
   certificate: CertificateResponse;
 }
 
-export function CertificateDownload({
-  certificate,
-}: CertificateDownloadProps) {
+export function CertificateDownload({ certificate }: CertificateDownloadProps) {
   const [generating, setGenerating] = useState(false);
 
   const handleDownload = async () => {
     setGenerating(true);
     try {
-      const blob = await pdf(
-        <CertificatePDF certificate={certificate} />,
-      ).toBlob();
+      const blob = await pdf(<CertificatePDF certificate={certificate} />).toBlob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -193,18 +306,18 @@ export function CertificateDownload({
   };
 
   return (
-    <Button
+    <button
       onClick={handleDownload}
-      variant="outline"
-      className="gap-2"
       disabled={generating}
+      className="flex w-full items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium text-white transition-all hover:opacity-90 disabled:opacity-60"
+      style={{ background: "#6366f1" }}
     >
       {generating ? (
         <Loader2 className="size-4 animate-spin" />
       ) : (
         <Download className="size-4" />
       )}
-      {generating ? "Generating..." : "Download PDF"}
-    </Button>
+      {generating ? "Generating…" : "Download PDF"}
+    </button>
   );
 }

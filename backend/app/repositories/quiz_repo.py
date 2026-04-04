@@ -46,14 +46,14 @@ class QuizRepository:
         )
         return list(result.scalars().all())
 
-    async def update_question(self, question: QuizQuestion, **kwargs) -> QuizQuestion:
+    async def update_question(self, quiz_question: QuizQuestion, **kwargs) -> QuizQuestion:
         for key, value in kwargs.items():
-            setattr(question, key, value)
+            setattr(quiz_question, key, value)
         await self.db.flush()
-        return question
+        return quiz_question
 
-    async def delete_question(self, question: QuizQuestion) -> None:
-        await self.db.delete(question)
+    async def delete_question(self, quiz_question: QuizQuestion) -> None:
+        await self.db.delete(quiz_question)
         await self.db.flush()
 
     async def reorder_questions(

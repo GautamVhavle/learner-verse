@@ -13,6 +13,7 @@ export interface UserSettings {
   profile_tags: string[];
   social_links: SocialLink[];
   is_profile_public: boolean;
+  auto_play_next: boolean;
 }
 
 export interface UserProfile {
@@ -30,6 +31,7 @@ export interface UserProfile {
   profile_tags: string[];
   social_links: SocialLink[];
   is_profile_public: boolean;
+  auto_play_next: boolean;
   created_at: string;
   updated_at: string;
 }

@@ -7,12 +7,13 @@
 import { useState } from "react";
 import { useParams } from "react-router";
 import { useModeAwareNavigate } from "@/hooks/useModeAwareNavigate";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, BookOpen, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StudyHero } from "@/components/study/StudyHero";
 import { StudySectionList } from "@/components/study/StudySectionList";
 import { StudySidebar } from "@/components/study/StudySidebar";
 import { GoalDatePicker } from "@/components/goals/GoalDatePicker";
+import { DiscussionRoom } from "@/components/discussion/DiscussionRoom";
 import { useHubCourseQuery, useHubSectionsQuery } from "@/hooks/useHub";
 import { useStudyStateQuery } from "@/hooks/useStudy";
 import { useCourseProgressQuery } from "@/hooks/useProgress";
@@ -27,6 +28,7 @@ export default function StudyPage() {
   const { data: studyState } = useStudyStateQuery(courseId);
   const { data: progress } = useCourseProgressQuery(courseId);
   const [goalPickerOpen, setGoalPickerOpen] = useState(false);
+  const [tab, setTab] = useState<"curriculum" | "discussion">("curriculum");
 
   const isLoading = courseLoading || sectionsLoading;
 
@@ -95,9 +97,43 @@ export default function StudyPage() {
             onEditGoal={() => setGoalPickerOpen(true)}
           />
 
-          {/* Section overview cards */}
-          {sections && (
-            <StudySectionList sections={sections} progress={progress} />
+          {/* Tab bar — Discussion only for public/published courses */}
+          {course.is_public && (
+            <div className="mb-4 mt-6 flex gap-1 border-b border-border-default">
+              <button
+                onClick={() => setTab("curriculum")}
+                className={`flex items-center gap-1.5 border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
+                  tab === "curriculum"
+                    ? "border-accent-purple text-accent-purple"
+                    : "border-transparent text-text-secondary hover:text-text-primary"
+                }`}
+              >
+                <BookOpen className="size-3.5" />
+                Curriculum
+              </button>
+              <button
+                onClick={() => setTab("discussion")}
+                className={`flex items-center gap-1.5 border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
+                  tab === "discussion"
+                    ? "border-accent-purple text-accent-purple"
+                    : "border-transparent text-text-secondary hover:text-text-primary"
+                }`}
+              >
+                <MessageSquare className="size-3.5" />
+                Discussion
+              </button>
+            </div>
+          )}
+
+          {/* Tab content */}
+          {tab === "curriculum" || !course.is_public ? (
+            sections && (
+              <StudySectionList sections={sections} progress={progress} />
+            )
+          ) : (
+            <div className="overflow-hidden rounded-xl border border-border-default bg-bg-primary" style={{ height: "calc(100vh - 320px)", minHeight: 400 }}>
+              <DiscussionRoom courseId={courseId!} />
+            </div>
           )}
         </div>
 

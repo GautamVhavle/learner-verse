@@ -12,3 +12,21 @@ export interface CertificateResponse {
   lessons_count: number;
   completed_at: string;
 }
+
+/** Minimal lesson info returned in the detailed share view. */
+export interface LessonBrief {
+  title: string;
+  lesson_type: string;
+}
+
+/** Section with nested lessons for the detailed share view. */
+export interface SectionBrief {
+  title: string;
+  lessons: LessonBrief[];
+}
+
+/** Extended certificate response with full course structure metadata. */
+export interface CertificateDetailResponse extends CertificateResponse {
+  course_description: string | null;
+  sections: SectionBrief[];
+}

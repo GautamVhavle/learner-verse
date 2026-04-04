@@ -57,6 +57,7 @@ interface YouTubeEmbedProps {
   videoId: string;
   title?: string;
   playbackSpeed?: number;
+  onEnded?: () => void;
 }
 
 // Track if API is loaded globally
@@ -82,10 +83,16 @@ function loadYouTubeAPI() {
   document.head.appendChild(script);
 }
 
-export function YouTubeEmbed({ videoId, title, playbackSpeed = 1 }: YouTubeEmbedProps) {
+export function YouTubeEmbed({ videoId, title, playbackSpeed = 1, onEnded }: YouTubeEmbedProps) {
   const containerId = `youtube-player-${videoId}`;
   const playerRef = useRef<YTPlayer | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const onEndedRef = useRef(onEnded);
+
+  // Keep ref in sync so the YT callback always sees the latest handler
+  useEffect(() => {
+    onEndedRef.current = onEnded;
+  }, [onEnded]);
 
   // Load YouTube API on mount
   useEffect(() => {
@@ -109,6 +116,11 @@ export function YouTubeEmbed({ videoId, title, playbackSpeed = 1 }: YouTubeEmbed
               const availableSpeeds = player.getAvailablePlaybackRates();
               const speedToSet = availableSpeeds.includes(playbackSpeed) ? playbackSpeed : 1;
               player.setPlaybackRate(speedToSet);
+            },
+            onStateChange: (event) => {
+              if (event.data === window.YT.PlayerState.ENDED) {
+                onEndedRef.current?.();
+              }
             },
           },
           playerVars: {

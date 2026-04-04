@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { useMode } from "@/hooks/useMode";
 import { useChatStore } from "@/stores/chatStore";
+import { PomodoroTimer } from "@/components/layout/PomodoroTimer";
 
 const PAGE_TITLES: Record<string, string> = {
   "/": "Dashboard",
@@ -53,7 +54,7 @@ export function Header({ onSearchClick }: HeaderProps) {
 
   return (
     <header
-      className="flex h-14 shrink-0 items-center gap-2 border-b border-sidebar-border bg-background px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12"
+      className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-2 border-b border-sidebar-border bg-background px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12"
       data-testid="app-header"
     >
       <SidebarTrigger className="-ml-1" />
@@ -77,10 +78,15 @@ export function Header({ onSearchClick }: HeaderProps) {
         </BreadcrumbList>
       </Breadcrumb>
 
+      {/* Focus timer */}
+      <div className="ml-auto">
+        <PomodoroTimer />
+      </div>
+
       {/* Search trigger */}
       <button
         onClick={onSearchClick}
-        className="ml-auto flex h-8 items-center gap-2 rounded-lg border border-border-default bg-bg-secondary px-3 text-sm text-text-tertiary transition-colors hover:border-border-hover hover:text-text-secondary sm:w-56"
+        className="flex h-8 items-center gap-2 rounded-lg border border-border-default bg-bg-secondary px-3 text-sm text-text-tertiary transition-colors hover:border-border-hover hover:text-text-secondary sm:w-56"
         aria-label="Search"
         data-testid="search-trigger"
       >
