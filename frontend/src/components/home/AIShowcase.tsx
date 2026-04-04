@@ -55,7 +55,7 @@ const LIVI_FEATURES = [
 /* ─── Lesson sidebar (left pane of the app preview) ─── */
 function LessonPane() {
   return (
-    <div className="hidden flex-col border-r border-white/[0.04] sm:flex sm:w-[45%]">
+    <div className="hidden flex-col border-r border-white/[0.04] md:flex md:w-[45%]">
       {/* Video thumbnail area */}
       <div className="relative aspect-video w-full bg-gradient-to-br from-[#0c0c18] to-[#10102a]">
         <div className="absolute inset-0 flex items-center justify-center">
@@ -170,7 +170,7 @@ export function AIShowcase() {
         </BlurFade>
 
         {/* Two-column layout */}
-        <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.4fr] lg:gap-14">
+        <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.3fr] lg:gap-14">
 
           {/* LEFT — Copy */}
           <BlurFade delay={0.1} inView>
@@ -243,7 +243,7 @@ export function AIShowcase() {
                 </div>
 
                 {/* Split view: lesson + LiVi sidebar */}
-                <div className="flex" style={{ height: 420 }}>
+                <div className="flex" style={{ minHeight: 320 }}>
                   {/* Lesson pane */}
                   <LessonPane />
 

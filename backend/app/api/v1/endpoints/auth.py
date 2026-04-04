@@ -1,5 +1,6 @@
 """API endpoints for authentication and user profile."""
 
+from pydantic import BaseModel, EmailStr
 from fastapi import APIRouter, Depends
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -49,6 +50,28 @@ async def update_me(
         setattr(user, field, value)
     await db.commit()
     await db.refresh(user)
+    return user
+
+
+class ProfileSyncRequest(BaseModel):
+    """One-time sync of OAuth provider email to the backend user record."""
+    email: EmailStr
+
+
+@router.post("/me/sync", response_model=UserResponse)
+async def sync_profile(
+    payload: ProfileSyncRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Sync OAuth provider email on first login.
+
+    Only updates email if the current value is the auto-generated placeholder.
+    """
+    if user.email.endswith("@auth0.user"):
+        user.email = payload.email
+        await db.commit()
+        await db.refresh(user)
     return user
 
 

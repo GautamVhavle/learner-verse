@@ -29,17 +29,17 @@ const STEPS = [
     description:
       "Paste any YouTube video or playlist URL. LearnerVerse automatically creates a structured course with sections and organized lessons.",
     visual: (
-      <div className="mt-5 rounded-xl border border-white/5 bg-white/[0.02] p-4">
-        <div className="flex items-center gap-3 rounded-lg border border-white/5 bg-white/[0.03] px-3 py-2.5">
-          <Youtube className="size-4 text-red-400" />
-          <span className="flex-1 text-[11px] text-white/30">
+      <div className="mt-5 overflow-hidden rounded-xl border border-white/5 bg-white/[0.02] p-3 sm:p-4">
+        <div className="flex items-center gap-2 rounded-lg border border-white/5 bg-white/[0.03] px-2.5 py-2 sm:gap-3 sm:px-3 sm:py-2.5">
+          <Youtube className="size-4 shrink-0 text-red-400" />
+          <span className="min-w-0 flex-1 truncate text-xs text-white/30">
             https://youtube.com/playlist?list=PL...
           </span>
-          <div className="rounded-md bg-blue-500/20 px-2 py-0.5 text-[10px] font-medium text-blue-400">
+          <div className="rounded-md bg-blue-500/20 px-2 py-0.5 text-[11px] font-medium text-blue-400">
             Import
           </div>
         </div>
-        <div className="mt-3 flex items-center gap-2 text-[10px] text-emerald-400">
+        <div className="mt-3 flex items-center gap-2 text-[11px] text-emerald-400">
           <Sparkles className="size-3" />
           <span>AI auto-organizes into sections</span>
         </div>
@@ -56,20 +56,20 @@ const STEPS = [
     description:
       "Study at your own pace with AI-generated quizzes, inline LiVi chat for instant help, progress tracking, and a Pomodoro timer for focus.",
     visual: (
-      <div className="mt-5 flex flex-col gap-2">
-        <div className="flex items-center gap-3 rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2">
-          <div className="size-2 rounded-full bg-emerald-400" />
-          <span className="flex-1 text-[11px] text-white/50">Watch: React Hooks Deep Dive</span>
-          <span className="text-[10px] text-emerald-400">✓</span>
+      <div className="mt-5 flex flex-col gap-2 overflow-hidden">
+        <div className="flex items-center gap-2 rounded-lg border border-white/5 bg-white/[0.02] px-2.5 py-2 sm:gap-3 sm:px-3">
+          <div className="size-2 shrink-0 rounded-full bg-emerald-400" />
+          <span className="min-w-0 flex-1 truncate text-xs text-white/50">Watch: React Hooks Deep Dive</span>
+          <span className="text-[11px] text-emerald-400">✓</span>
         </div>
-        <div className="flex items-center gap-3 rounded-lg border border-purple-500/10 bg-purple-500/5 px-3 py-2">
-          <div className="size-2 animate-pulse rounded-full bg-purple-400" />
-          <span className="flex-1 text-[11px] text-white/60">Quiz: Test Your Knowledge</span>
-          <span className="text-[10px] text-purple-400">In Progress</span>
+        <div className="flex items-center gap-2 rounded-lg border border-purple-500/10 bg-purple-500/5 px-2.5 py-2 sm:gap-3 sm:px-3">
+          <div className="size-2 shrink-0 animate-pulse rounded-full bg-purple-400" />
+          <span className="min-w-0 flex-1 truncate text-xs text-white/60">Quiz: Test Your Knowledge</span>
+          <span className="text-[11px] text-purple-400">In Progress</span>
         </div>
-        <div className="flex items-center gap-3 rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2">
-          <div className="size-2 rounded-full bg-white/15" />
-          <span className="flex-1 text-[11px] text-white/30">Watch: Context API Patterns</span>
+        <div className="flex items-center gap-2 rounded-lg border border-white/5 bg-white/[0.02] px-2.5 py-2 sm:gap-3 sm:px-3">
+          <div className="size-2 shrink-0 rounded-full bg-white/15" />
+          <span className="min-w-0 flex-1 truncate text-xs text-white/30">Watch: Context API Patterns</span>
         </div>
       </div>
     ),
@@ -84,17 +84,17 @@ const STEPS = [
     description:
       "Earn verifiable certificates, build learning streaks, share your public profile, and discover community courses in the Hub.",
     visual: (
-      <div className="mt-5 flex flex-col items-center gap-3 rounded-xl border border-white/5 bg-white/[0.02] p-4 text-center">
-        <Trophy className="size-8 text-amber-400" />
+      <div className="mt-5 flex flex-col items-center gap-3 overflow-hidden rounded-xl border border-white/5 bg-white/[0.02] p-3 text-center sm:p-4">
+        <Trophy className="size-7 text-amber-400 sm:size-8" />
         <div className="text-xs font-semibold text-white/70">
           Course Completed!
         </div>
-        <div className="flex items-center gap-3 text-[10px] text-white/40">
+        <div className="flex items-center gap-3 text-[11px] text-white/40">
           <span>🔥 12-day streak</span>
           <span>•</span>
           <span>📜 Certificate earned</span>
         </div>
-        <div className="rounded-full bg-amber-500/10 px-3 py-1 text-[10px] font-medium text-amber-400">
+        <div className="rounded-full bg-amber-500/10 px-3 py-1 text-[11px] font-medium text-amber-400">
           Share Profile →
         </div>
       </div>
@@ -153,11 +153,11 @@ export function HowItWorks() {
         </BlurFade>
 
         {/* Steps grid */}
-        <div className="grid gap-6 md:grid-cols-3 md:gap-8">
+        <div className="grid gap-5 md:grid-cols-3 md:gap-8">
           {STEPS.map((step, i) => (
             <div
               key={step.number}
-              className="step-card relative flex flex-col rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 opacity-0"
+              className="step-card relative flex flex-col rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 opacity-0 sm:p-6"
             >
               {/* Step number badge */}
               <div className="mb-4 flex items-center justify-between">

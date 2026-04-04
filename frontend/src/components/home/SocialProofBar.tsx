@@ -40,7 +40,7 @@ export function SocialProofBar() {
       ref={sectionRef}
       className="relative border-y border-white/5 bg-[#030712] py-12"
     >
-      <div className="mx-auto grid max-w-5xl grid-cols-2 gap-8 px-4 sm:px-6 md:grid-cols-4 lg:gap-12">
+      <div className="mx-auto grid max-w-5xl grid-cols-2 gap-4 px-4 sm:gap-8 sm:px-6 md:grid-cols-4 lg:gap-12">
         {STATS.map((stat, i) => (
           <BlurFade key={stat.label} delay={i * 0.1} inView>
             <div className="flex flex-col items-center gap-2 text-center">

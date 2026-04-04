@@ -2,8 +2,8 @@
  * Authentication provider and helpers supporting Auth0 and single-user mode.
  */
 import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
-import { useEffect, useState, type ReactNode } from "react";
-import { setAccessTokenGetter, setUnauthorizedHandler } from "@/lib/api";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { setAccessTokenGetter, setUnauthorizedHandler, api } from "@/lib/api";
 
 const SINGLE_USER_MODE = import.meta.env.VITE_SINGLE_USER_MODE === "true";
 const AUTH0_DOMAIN = import.meta.env.VITE_AUTH0_DOMAIN;
@@ -32,8 +32,9 @@ export { SINGLE_USER_MODE, SINGLE_USER };
  * queries from firing before the token is available.
  */
 function AuthTokenSync({ children }: { children: ReactNode }) {
-  const { getAccessTokenSilently, loginWithRedirect, isAuthenticated, isLoading } = useAuth0();
+  const { getAccessTokenSilently, loginWithRedirect, isAuthenticated, isLoading, user } = useAuth0();
   const [tokenReady, setTokenReady] = useState(false);
+  const profileSynced = useRef(false);
 
   useEffect(() => {
     if (isLoading) return;
@@ -54,6 +55,42 @@ function AuthTokenSync({ children }: { children: ReactNode }) {
       setUnauthorizedHandler(null);
     };
   }, [isAuthenticated, isLoading, getAccessTokenSilently, loginWithRedirect]);
+
+  // Sync Auth0 profile (name, email, avatar) to the backend on first login.
+  // This runs once after the token is ready and the Auth0 user object is available.
+  useEffect(() => {
+    if (!tokenReady || !isAuthenticated || !user || profileSynced.current) return;
+    profileSynced.current = true;
+
+    (async () => {
+      try {
+        const profile = await api.get<{ display_name: string; email: string; avatar_url: string | null }>("/auth/me");
+        const needsSync =
+          profile.display_name === "New User" ||
+          profile.email.endsWith("@auth0.user");
+
+        if (needsSync) {
+          const updates: Record<string, string> = {};
+          if (user.name && profile.display_name === "New User") {
+            updates.display_name = user.name;
+          }
+          if (user.picture && !profile.avatar_url) {
+            updates.avatar_url = user.picture;
+          }
+          if (Object.keys(updates).length > 0) {
+            await api.put("/auth/me", updates);
+          }
+          // Email requires a separate backend update since it's not in UserUpdate schema.
+          // We handle it via the new /auth/me/sync endpoint.
+          if (user.email && profile.email.endsWith("@auth0.user")) {
+            await api.post("/auth/me/sync", { email: user.email }).catch(() => {});
+          }
+        }
+      } catch {
+        // Non-critical — profile sync failure shouldn't block the app.
+      }
+    })();
+  }, [tokenReady, isAuthenticated, user]);
 
   if (!tokenReady) {
     return null;

@@ -114,7 +114,7 @@ const secondRow = TESTIMONIALS.slice(5);
 
 function TestimonialCard({ t }: { t: Testimonial }) {
   return (
-    <div className="mx-2 w-[320px] shrink-0 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5">
+    <div className="mx-2 w-[280px] shrink-0 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 sm:w-[320px] sm:p-5">
       <div className="flex items-center gap-3">
         <div
           className={`flex size-9 items-center justify-center rounded-full bg-gradient-to-br ${t.avatarColor} text-xs font-bold text-white`}

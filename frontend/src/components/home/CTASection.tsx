@@ -39,7 +39,7 @@ export function CTASection() {
 
       <div className="relative z-10 mx-auto max-w-3xl px-4 text-center sm:px-6">
         <BlurFade delay={0} inView>
-          <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl">
+          <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
             Ready to transform
             <br />
             how you learn?

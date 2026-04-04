@@ -56,3 +56,5 @@ pgdata/
 # === Misc ===
 *.log
 *.pid
+.vercel
+.env*.local

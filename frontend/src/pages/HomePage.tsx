@@ -16,7 +16,7 @@ import { Footer } from "@/components/home/Footer";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen scroll-smooth bg-[#030712] text-white antialiased">
+    <div className="min-h-screen w-full overflow-x-clip scroll-smooth bg-[#030712] text-white antialiased">
       <HomeNavbar />
       <main>
         <HeroSection />

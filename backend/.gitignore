@@ -53,3 +53,4 @@ alembic/versions/__pycache__/
 
 # === uv ===
 .python-version
+.vercel

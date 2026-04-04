@@ -49,7 +49,7 @@ export function StatsSection() {
           </p>
         </BlurFade>
 
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-12">
+        <div className="grid grid-cols-2 gap-6 px-2 md:grid-cols-4 md:gap-12">
           {STATS.map((stat, i) => (
             <BlurFade key={stat.label} delay={i * 0.1} inView>
               <div className="flex flex-col items-center text-center">
@@ -58,12 +58,12 @@ export function StatsSection() {
                     <NumberTicker
                       value={stat.value}
                       decimalPlaces={"decimals" in stat ? stat.decimals : 0}
-                      className="text-4xl font-bold tracking-tight text-white sm:text-5xl"
+                      className="text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl"
                     />
                   ) : (
-                    <span className="text-4xl font-bold tracking-tight text-white sm:text-5xl">0</span>
+                    <span className="text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl">0</span>
                   )}
-                  <span className="text-2xl font-bold text-blue-400 sm:text-3xl">
+                  <span className="text-xl font-bold text-blue-400 sm:text-2xl md:text-3xl">
                     {stat.suffix}
                   </span>
                 </div>

@@ -36,7 +36,7 @@ function DashboardPreview() {
         </div>
       </div>
       {/* App layout */}
-      <div className="flex h-80">
+      <div className="flex h-48 sm:h-64 md:h-80">
         {/* Sidebar */}
         <div className="hidden w-44 shrink-0 flex-col gap-0.5 border-r border-white/[0.06] p-3 sm:flex">
           <div className="mb-3 flex items-center gap-2 px-2">
@@ -59,28 +59,28 @@ function DashboardPreview() {
           )}
         </div>
         {/* Main content */}
-        <div className="flex-1 overflow-hidden p-5">
-          <div className="mb-1 text-[13px] font-semibold text-white/60">
+        <div className="flex-1 overflow-hidden p-3 sm:p-5">
+          <div className="mb-1 text-xs font-semibold text-white/60 sm:text-[13px]">
             Good morning, Jane 👋
           </div>
-          <div className="mb-4 text-[10px] text-white/25">Here's your learning overview</div>
+          <div className="mb-3 text-[9px] text-white/25 sm:mb-4 sm:text-[10px]">Here's your learning overview</div>
           {/* Stat cards */}
-          <div className="mb-5 grid grid-cols-3 gap-2.5">
+          <div className="mb-4 grid grid-cols-3 gap-1.5 sm:mb-5 sm:gap-2.5">
             {[
               { label: "Active Courses", value: "12", sub: "+2 this week", gradient: "from-blue-500/15 to-blue-600/5", accent: "text-blue-400" },
               { label: "Completion", value: "85%", sub: "↑ 12% vs last month", gradient: "from-emerald-500/15 to-emerald-600/5", accent: "text-emerald-400" },
               { label: "Study Streak", value: "🔥 7d", sub: "Personal best!", gradient: "from-amber-500/15 to-amber-600/5", accent: "text-amber-400" },
             ].map((s) => (
-              <div key={s.label} className={`rounded-xl bg-gradient-to-br ${s.gradient} border border-white/[0.04] p-3`}>
-                <div className={`text-sm font-bold ${s.accent}`}>{s.value}</div>
-                <div className="text-[10px] text-white/35">{s.label}</div>
-                <div className="mt-1 text-[8px] text-white/20">{s.sub}</div>
+              <div key={s.label} className={`rounded-lg bg-gradient-to-br ${s.gradient} border border-white/[0.04] p-2 sm:rounded-xl sm:p-3`}>
+                <div className={`text-xs font-bold sm:text-sm ${s.accent}`}>{s.value}</div>
+                <div className="text-[8px] text-white/35 sm:text-[10px]">{s.label}</div>
+                <div className="mt-0.5 hidden text-[8px] text-white/20 sm:block">{s.sub}</div>
               </div>
             ))}
           </div>
           {/* Course progress list */}
-          <div className="mb-2 text-[10px] font-medium text-white/30">Recent Courses</div>
-          <div className="flex flex-col gap-1.5">
+          <div className="mb-2 hidden text-[10px] font-medium text-white/30 sm:block">Recent Courses</div>
+          <div className="hidden flex-col gap-1.5 sm:flex">
             {[
               { name: "React & Next.js Mastery", pct: 85, color: "bg-blue-400" },
               { name: "Python for Machine Learning", pct: 62, color: "bg-purple-400" },
@@ -146,9 +146,12 @@ export function HeroSection() {
     return () => ctx.revert();
   }, []);
 
-  // Mouse-move parallax on mockup
+  // Mouse-move parallax on mockup (desktop only)
   useEffect(() => {
     if (!mockupRef.current) return;
+    // Skip mouse parallax on touch/small screens
+    const mql = window.matchMedia("(min-width: 768px)");
+    if (!mql.matches) return;
 
     const xTo = gsap.quickTo(mockupRef.current, "x", { duration: 0.6, ease: "power2.out" });
 
@@ -165,7 +168,7 @@ export function HeroSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 pt-16"
+      className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden px-3 pb-8 pt-20 sm:px-6 sm:pt-16"
     >
       {/* Background layers */}
       <div className="pointer-events-none absolute inset-0">
@@ -176,7 +179,7 @@ export function HeroSection() {
           numSquares={40}
           maxOpacity={0.08}
           duration={4}
-          className="absolute inset-0 [mask-image:radial-gradient(600px_circle_at_center,white,transparent)]"
+          className="absolute inset-0 [mask-image:radial-gradient(400px_circle_at_center,white,transparent)] sm:[mask-image:radial-gradient(600px_circle_at_center,white,transparent)]"
         />
       </div>
 
@@ -193,22 +196,24 @@ export function HeroSection() {
 
         {/* Headline */}
         <div className="hero-headline mb-6 opacity-0">
-          <h1 className="text-4xl font-bold leading-[1.1] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl">
+          <h1 className="text-3xl font-bold leading-[1.1] tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">
             Turn Any{" "}
             <WordRotate
               words={["YouTube Playlist", "Video Collection", "Knowledge Library"]}
               duration={3000}
               className="inline-block bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"
             />
-            <br />
+            <br className="hidden sm:block" />
+            <span className="sm:hidden"> </span>
             Into a Complete Learning
-            <br />
+            <br className="hidden sm:block" />
+            <span className="sm:hidden"> </span>
             Experience.
           </h1>
         </div>
 
         {/* Subtext */}
-        <p className="hero-subtext mb-10 max-w-2xl text-base leading-relaxed text-white/50 opacity-0 sm:text-lg md:text-xl">
+        <p className="hero-subtext mb-8 max-w-2xl px-2 text-sm leading-relaxed text-white/50 opacity-0 sm:mb-10 sm:px-0 sm:text-base md:text-lg lg:text-xl">
           Build structured courses, generate AI quizzes, track your progress,
           and learn with LiVi — your intelligent study companion. All from
           YouTube.
@@ -241,8 +246,8 @@ export function HeroSection() {
         </div>
 
         {/* Dashboard mockup */}
-        <div ref={mockupRef} className="hero-mockup relative mt-16 w-full max-w-4xl opacity-0 sm:mt-20">
-          <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] shadow-2xl shadow-blue-500/10">
+        <div ref={mockupRef} className="hero-mockup relative mt-10 w-full max-w-4xl opacity-0 sm:mt-16 lg:mt-20">
+          <div className="relative overflow-hidden rounded-xl border border-white/[0.08] shadow-2xl shadow-blue-500/10 sm:rounded-2xl">
             <DashboardPreview />
             <BorderBeam
               size={300}

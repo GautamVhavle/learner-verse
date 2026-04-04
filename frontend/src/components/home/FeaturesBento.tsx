@@ -26,30 +26,58 @@ gsap.registerPlugin(ScrollTrigger);
 
 function CourseTreeVisual() {
   return (
-    <div className="mt-4 flex flex-col gap-1.5 rounded-xl border border-white/5 bg-white/[0.02] p-4 font-mono text-[11px]">
-      <div className="flex items-center gap-2 text-blue-400">
-        <Layers className="size-3.5" /> Introduction to React
+    <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+      {/* Left: Section tree */}
+      <div className="flex flex-col gap-2 rounded-xl border border-white/5 bg-white/[0.02] p-4">
+        <div className="flex items-center gap-2 text-sm font-medium text-blue-400">
+          <Layers className="size-4" /> Introduction to React
+        </div>
+        <div className="ml-5 flex flex-col gap-1.5">
+          <div className="flex items-center gap-2 text-sm text-white/50">
+            <div className="size-2 rounded-full bg-emerald-400" /> What is React?
+          </div>
+          <div className="flex items-center gap-2 text-sm text-white/50">
+            <div className="size-2 rounded-full bg-emerald-400" /> JSX Fundamentals
+          </div>
+          <div className="flex items-center gap-2 text-sm text-white/50">
+            <div className="size-2 rounded-full bg-white/20" /> Component Lifecycle
+          </div>
+        </div>
+        <div className="mt-1 flex items-center gap-2 text-sm font-medium text-blue-400">
+          <Layers className="size-4" /> Advanced Patterns
+        </div>
+        <div className="ml-5 flex flex-col gap-1.5">
+          <div className="flex items-center gap-2 text-sm text-white/50">
+            <div className="size-2 rounded-full bg-white/20" /> Custom Hooks
+          </div>
+          <div className="flex items-center gap-2 text-sm text-white/50">
+            <div className="size-2 rounded-full bg-white/20" /> Context API
+          </div>
+        </div>
       </div>
-      <div className="ml-4 flex flex-col gap-1">
-        <div className="flex items-center gap-2 text-white/50">
-          <div className="size-1.5 rounded-full bg-emerald-400" /> What is React?
+
+      {/* Right: Lesson preview card */}
+      <div className="flex flex-col gap-3 rounded-xl border border-white/5 bg-white/[0.02] p-4">
+        <div className="aspect-video w-full overflow-hidden rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10">
+          <div className="flex size-full items-center justify-center">
+            <div className="flex size-10 items-center justify-center rounded-full bg-white/10 backdrop-blur">
+              <ChevronRight className="size-5 text-white/60" />
+            </div>
+          </div>
         </div>
-        <div className="flex items-center gap-2 text-white/50">
-          <div className="size-1.5 rounded-full bg-emerald-400" /> JSX Fundamentals
+        <div className="text-sm font-medium text-white/70">What is React?</div>
+        <div className="flex items-center gap-3 text-xs text-white/30">
+          <span>12:34</span>
+          <span className="size-1 rounded-full bg-white/20" />
+          <span>YouTube</span>
         </div>
-        <div className="flex items-center gap-2 text-white/50">
-          <div className="size-1.5 rounded-full bg-white/20" /> Component Lifecycle
-        </div>
-      </div>
-      <div className="flex items-center gap-2 text-blue-400">
-        <Layers className="size-3.5" /> Advanced Patterns
-      </div>
-      <div className="ml-4 flex flex-col gap-1">
-        <div className="flex items-center gap-2 text-white/50">
-          <div className="size-1.5 rounded-full bg-white/20" /> Custom Hooks
-        </div>
-        <div className="flex items-center gap-2 text-white/50">
-          <div className="size-1.5 rounded-full bg-white/20" /> Context API
+        <div className="flex gap-2">
+          <div className="rounded-md bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-400">
+            Completed
+          </div>
+          <div className="rounded-md bg-blue-500/10 px-2 py-0.5 text-[11px] font-medium text-blue-400">
+            Has Notes
+          </div>
         </div>
       </div>
     </div>
@@ -59,24 +87,24 @@ function CourseTreeVisual() {
 function QuizVisual() {
   return (
     <div className="mt-4 flex flex-col gap-3 rounded-xl border border-white/5 bg-white/[0.02] p-4">
-      <p className="text-xs font-medium text-white/70">What does useState return?</p>
-      <div className="flex flex-col gap-1.5">
+      <p className="text-sm font-medium text-white/70">What does useState return?</p>
+      <div className="flex flex-col gap-2">
         {["A promise", "State value & setter", "A ref object", "An event handler"].map((opt, i) => (
           <div
             key={opt}
-            className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-[11px] ${
+            className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs ${
               i === 1
                 ? "border border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
                 : "border border-white/5 bg-white/[0.02] text-white/40"
             }`}
           >
-            <Circle className={`size-2.5 ${i === 1 ? "fill-emerald-400" : ""}`} />
+            <Circle className={`size-3 ${i === 1 ? "fill-emerald-400" : ""}`} />
             {opt}
           </div>
         ))}
       </div>
-      <div className="flex items-center gap-1 text-[10px] text-emerald-400">
-        <Sparkles className="size-3" /> AI-generated from video content
+      <div className="flex items-center gap-1.5 text-xs text-emerald-400">
+        <Sparkles className="size-3.5" /> AI-generated from video content
       </div>
     </div>
   );
@@ -84,22 +112,22 @@ function QuizVisual() {
 
 function ChatVisual() {
   return (
-    <div className="mt-4 flex flex-col gap-2 rounded-xl border border-white/5 bg-white/[0.02] p-3">
-      <div className="self-end rounded-lg rounded-br-sm bg-blue-500/15 px-3 py-1.5 text-[11px] text-blue-300">
+    <div className="mt-4 flex flex-col gap-2.5 rounded-xl border border-white/5 bg-white/[0.02] p-4">
+      <div className="self-end rounded-lg rounded-br-sm bg-blue-500/15 px-3.5 py-2 text-xs text-blue-300">
         Explain useEffect cleanup
       </div>
-      <div className="flex items-start gap-2 self-start">
-        <div className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-purple-500/20">
-          <Sparkles className="size-2.5 text-purple-400" />
+      <div className="flex items-start gap-2.5 self-start">
+        <div className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-purple-500/20">
+          <Sparkles className="size-3 text-purple-400" />
         </div>
-        <div className="rounded-lg rounded-bl-sm bg-white/5 px-3 py-1.5 text-[11px] text-white/60">
+        <div className="rounded-lg rounded-bl-sm bg-white/5 px-3.5 py-2 text-xs leading-relaxed text-white/60">
           The cleanup function runs before the component unmounts or before the effect re-runs...
         </div>
       </div>
-      <div className="flex items-center gap-1.5 self-start pl-7">
-        <div className="size-1 animate-pulse rounded-full bg-purple-400" />
-        <div className="size-1 animate-pulse rounded-full bg-purple-400 [animation-delay:200ms]" />
-        <div className="size-1 animate-pulse rounded-full bg-purple-400 [animation-delay:400ms]" />
+      <div className="flex items-center gap-1.5 self-start pl-8">
+        <div className="size-1.5 animate-pulse rounded-full bg-purple-400" />
+        <div className="size-1.5 animate-pulse rounded-full bg-purple-400 [animation-delay:200ms]" />
+        <div className="size-1.5 animate-pulse rounded-full bg-purple-400 [animation-delay:400ms]" />
       </div>
     </div>
   );
@@ -107,19 +135,19 @@ function ChatVisual() {
 
 function ProgressVisual() {
   return (
-    <div className="mt-4 flex flex-col gap-3">
-      <div className="flex flex-col gap-2 rounded-xl border border-white/5 bg-white/[0.02] p-4">
+    <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+      <div className="flex flex-col gap-3 rounded-xl border border-white/5 bg-white/[0.02] p-4">
         {[
           { label: "React Basics", pct: 100, color: "bg-emerald-400" },
           { label: "State Management", pct: 72, color: "bg-blue-400" },
           { label: "Server Components", pct: 35, color: "bg-purple-400" },
         ].map((course) => (
-          <div key={course.label} className="flex flex-col gap-1">
-            <div className="flex items-center justify-between text-[11px]">
+          <div key={course.label} className="flex flex-col gap-1.5">
+            <div className="flex items-center justify-between text-xs">
               <span className="text-white/60">{course.label}</span>
               <span className="text-white/40">{course.pct}%</span>
             </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-white/5">
+            <div className="h-2 overflow-hidden rounded-full bg-white/5">
               <div
                 className={`h-full rounded-full ${course.color} transition-all duration-1000`}
                 style={{ width: `${course.pct}%` }}
@@ -128,51 +156,102 @@ function ProgressVisual() {
           </div>
         ))}
       </div>
-      <div className="flex items-center justify-between rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2">
-        <span className="text-[11px] text-white/50">Current streak</span>
-        <span className="text-sm font-bold text-orange-400">🔥 12 days</span>
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-1 items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3">
+          <span className="text-xs text-white/50">Current streak</span>
+          <span className="text-base font-bold text-orange-400">🔥 12 days</span>
+        </div>
+        <div className="flex flex-1 items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3">
+          <span className="text-xs text-white/50">This week</span>
+          <span className="text-base font-bold text-blue-400">4.2 hrs</span>
+        </div>
+        <div className="flex flex-1 items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3">
+          <span className="text-xs text-white/50">Lessons done</span>
+          <span className="text-base font-bold text-emerald-400">38</span>
+        </div>
       </div>
     </div>
   );
 }
 
 const MINI_COURSES = [
-  "Python Mastery",
-  "Web Dev Bootcamp",
-  "Machine Learning",
-  "UI/UX Design",
-  "System Design",
-  "Docker & K8s",
+  { name: "Python Mastery", lessons: 42, enrolled: "1.2k", color: "bg-blue-400" },
+  { name: "Web Dev Bootcamp", lessons: 67, enrolled: "890", color: "bg-emerald-400" },
+  { name: "Machine Learning", lessons: 35, enrolled: "2.1k", color: "bg-purple-400" },
+  { name: "UI/UX Design", lessons: 28, enrolled: "650", color: "bg-pink-400" },
+  { name: "System Design", lessons: 24, enrolled: "1.5k", color: "bg-orange-400" },
+  { name: "Docker & K8s", lessons: 31, enrolled: "780", color: "bg-cyan-400" },
 ];
 
 function HubVisual() {
   return (
-    <div className="mt-4 overflow-hidden rounded-xl border border-white/5">
-      <Marquee pauseOnHover className="py-2 [--duration:25s]">
-        {MINI_COURSES.map((name) => (
-          <div
-            key={name}
-            className="mx-1.5 flex items-center gap-2 rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2"
-          >
-            <Globe className="size-3 text-blue-400" />
-            <span className="whitespace-nowrap text-[11px] text-white/60">{name}</span>
-            <ChevronRight className="size-3 text-white/20" />
-          </div>
-        ))}
-      </Marquee>
+    <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+      {/* Left: Scrolling course marquee */}
+      <div className="overflow-hidden rounded-xl border border-white/5 bg-white/[0.02]">
+        <Marquee pauseOnHover className="py-2 [--duration:20s]">
+          {MINI_COURSES.map((c) => (
+            <div
+              key={c.name}
+              className="mx-2 flex items-center gap-2.5 rounded-lg border border-white/5 bg-white/[0.02] px-4 py-2.5"
+            >
+              <Globe className="size-4 text-blue-400" />
+              <span className="whitespace-nowrap text-xs text-white/60">{c.name}</span>
+              <ChevronRight className="size-3.5 text-white/20" />
+            </div>
+          ))}
+        </Marquee>
+        <Marquee pauseOnHover reverse className="py-2 [--duration:25s]">
+          {[...MINI_COURSES].reverse().map((c) => (
+            <div
+              key={c.name}
+              className="mx-2 flex items-center gap-2.5 rounded-lg border border-white/5 bg-white/[0.02] px-4 py-2.5"
+            >
+              <Globe className="size-4 text-cyan-400" />
+              <span className="whitespace-nowrap text-xs text-white/60">{c.name}</span>
+              <ChevronRight className="size-3.5 text-white/20" />
+            </div>
+          ))}
+        </Marquee>
+      </div>
+
+      {/* Right: Featured course card */}
+      <div className="flex flex-col gap-3 rounded-xl border border-white/5 bg-white/[0.02] p-4">
+        <div className="flex items-center gap-2 text-xs text-cyan-400">
+          <Globe className="size-3.5" />
+          <span className="font-medium">Featured Course</span>
+        </div>
+        <div className="text-sm font-semibold text-white/80">Python Mastery</div>
+        <div className="flex items-center gap-4 text-xs text-white/40">
+          <span>42 lessons</span>
+          <span>1.2k enrolled</span>
+        </div>
+        <div className="flex gap-2">
+          {["⭐ 4.8", "Beginner", "Free"].map((tag) => (
+            <div
+              key={tag}
+              className="rounded-md border border-white/5 bg-white/[0.03] px-2 py-0.5 text-[11px] text-white/40"
+            >
+              {tag}
+            </div>
+          ))}
+        </div>
+        <div className="mt-auto flex items-center gap-2 rounded-lg bg-cyan-500/10 px-3 py-2 text-xs font-medium text-cyan-400">
+          <ChevronRight className="size-3.5" /> Enroll Now
+        </div>
+      </div>
     </div>
   );
 }
 
 function CertVisual() {
   return (
-    <div className="relative mt-4 overflow-hidden rounded-xl border border-white/5 bg-white/[0.02] p-4 text-center">
-      <div className="mb-2 text-[10px] font-medium uppercase tracking-wider text-white/30">
+    <div className="relative mt-4 overflow-hidden rounded-xl border border-white/5 bg-white/[0.02] p-5 text-center">
+      <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-white/30">
         Certificate of Completion
       </div>
-      <Award className="mx-auto size-8 text-amber-400" />
-      <div className="mt-2 text-xs font-semibold text-white/70">React Mastery</div>
-      <div className="mt-0.5 text-[10px] text-white/30">Awarded to Jane Doe</div>
+      <Award className="mx-auto size-10 text-amber-400" />
+      <div className="mt-2 text-sm font-semibold text-white/70">React Mastery</div>
+      <div className="mt-1 text-xs text-white/30">Awarded to Jane Doe</div>
       <BorderBeam size={100} duration={8} colorFrom="#f59e0b" colorTo="#a855f7" />
     </div>
   );
