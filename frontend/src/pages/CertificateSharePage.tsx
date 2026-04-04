@@ -13,7 +13,6 @@ import {
   Copy,
   Check,
   ShieldCheck,
-  CalendarDays,
   Layers,
   FileText,
   BookOpen,
@@ -22,9 +21,7 @@ import {
   ChevronDown,
   Sun,
   Moon,
-  Download,
   CheckCircle2,
-  ExternalLink,
 } from "lucide-react";
 import { useState } from "react";
 import { CertificatePreview } from "@/components/certificate/CertificatePreview";
@@ -257,7 +254,6 @@ export default function CertificateSharePage() {
                       index={i}
                       expanded={expandedSections.has(i)}
                       onToggle={() => toggleSection(i)}
-                      dark={dark}
                       t={t}
                     />
                   ))}
@@ -422,14 +418,12 @@ function SyllabusSection({
   index,
   expanded,
   onToggle,
-  dark,
   t,
 }: {
   section: SectionBrief;
   index: number;
   expanded: boolean;
   onToggle: () => void;
-  dark: boolean;
   t: Tokens;
 }) {
   return (

@@ -1,7 +1,7 @@
 /**
  * Quiz player for learners — take a quiz, submit answers, view results.
  */
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback } from "react";
 import {
   CheckCircle2,
   XCircle,

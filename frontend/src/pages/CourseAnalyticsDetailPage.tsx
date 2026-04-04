@@ -22,7 +22,6 @@ import {
   Copy,
   GraduationCap,
   Link2,
-  MessageSquare,
   Star,
   Users,
 } from "lucide-react";

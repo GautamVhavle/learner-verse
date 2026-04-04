@@ -8,7 +8,7 @@
  * The AI is only activated when the user first sends a message.
  */
 import { useState, useRef, useCallback, useEffect } from "react";
-import { ChevronDown, Sparkles, ArrowUp, Square, X, Eraser } from "lucide-react";
+import { ChevronDown, Sparkles, ArrowUp, Square, Eraser } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
