@@ -39,3 +39,16 @@ class ReferenceLink(Base):
 
     # Relationships
     lesson: Mapped["Lesson"] = relationship(back_populates="reference_links")
+
+    def clone_for_lesson(self, target_lesson_id: uuid.UUID) -> "ReferenceLink":
+        """Create an in-memory copy of this link attached to a different lesson."""
+        return ReferenceLink(
+            lesson_id=target_lesson_id,
+            url=self.url,
+            title=self.title,
+            description=self.description,
+            image=self.image,
+            favicon=self.favicon,
+            domain=self.domain,
+            position=self.position,
+        )

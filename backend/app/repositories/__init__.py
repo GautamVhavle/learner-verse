@@ -8,9 +8,15 @@ aggregate root (e.g. Course, Section, Lesson). Import from here::
 
 from app.repositories.activity_repo import ActivityRepository
 from app.repositories.certificate_repo import CertificateRepository
+from app.repositories.chat_repo import ChatRepository
 from app.repositories.course_repo import CourseRepository
+from app.repositories.discussion_repo import DiscussionRepository
+from app.repositories.enrollment_repo import EnrollmentRepository
 from app.repositories.lesson_repo import LessonRepository
+from app.repositories.notification_repo import NotificationRepository
 from app.repositories.progress_repo import ProgressRepository
+from app.repositories.quiz_repo import QuizRepository
+from app.repositories.rating_repo import RatingRepository
 from app.repositories.reference_link_repo import ReferenceLinkRepository
 from app.repositories.section_repo import SectionRepository
 from app.repositories.study_note_repo import StudyNoteRepository
@@ -19,9 +25,15 @@ from app.repositories.study_state_repo import StudyStateRepository
 __all__ = [
     "ActivityRepository",
     "CertificateRepository",
+    "ChatRepository",
     "CourseRepository",
+    "DiscussionRepository",
+    "EnrollmentRepository",
     "LessonRepository",
+    "NotificationRepository",
     "ProgressRepository",
+    "QuizRepository",
+    "RatingRepository",
     "ReferenceLinkRepository",
     "SectionRepository",
     "StudyNoteRepository",

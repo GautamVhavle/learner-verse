@@ -6,14 +6,12 @@ logical sections with descriptive titles.
 
 import json
 import logging
-import re
 import uuid
 
-import httpx
 from sqlalchemy import delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
+from app.core.openrouter import call_chat_completion, extract_json_from_response
 from app.models.lesson import Lesson
 from app.models.section import Section
 from app.repositories.section_repo import SectionRepository
@@ -38,40 +36,6 @@ ORGANIZE_PROMPT = (
     '{"section_title": "Core Concepts", "lesson_indices": [3, 4, 5]}]\n\n'
     "lesson_indices are 0-based indices into the provided lesson list."
 )
-
-
-def _extract_json(text: str) -> list[dict] | None:
-    """Extract a JSON array from AI response, handling common wrappers."""
-    text = text.strip()
-
-    # Strip <think>...</think> blocks
-    text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
-
-    # Strip markdown code fences: ```json ... ``` or ``` ... ```
-    text = re.sub(r"^```(?:json)?\s*\n?", "", text)
-    text = re.sub(r"\n?```\s*$", "", text)
-    text = text.strip()
-
-    # Try to find a JSON array in the text
-    # First try the whole text
-    try:
-        parsed = json.loads(text)
-        if isinstance(parsed, list):
-            return parsed
-    except json.JSONDecodeError:
-        pass
-
-    # Try to find [...] in the text
-    match = re.search(r"\[.*\]", text, re.DOTALL)
-    if match:
-        try:
-            parsed = json.loads(match.group())
-            if isinstance(parsed, list):
-                return parsed
-        except json.JSONDecodeError:
-            pass
-
-    return None
 
 
 class OrganizeService:
@@ -194,65 +158,26 @@ class OrganizeService:
 
     async def _get_ai_plan(self, lesson_titles: list[str]) -> list[dict] | None:
         """Call OpenRouter to get a JSON organization plan."""
-        if not settings.OPENROUTER_API_KEY:
-            logger.error("OPENROUTER_API_KEY not set")
-            return None
-
         numbered = "\n".join(
             f"{i}. {title}" for i, title in enumerate(lesson_titles)
         )
         user_msg = f"Organize these {len(lesson_titles)} lessons into sections:\n\n{numbered}"
 
-        headers = {
-            "Authorization": f"Bearer {settings.OPENROUTER_API_KEY}",
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://learner-verse.vercel.app",
-            "X-Title": "Learner Verse",
-        }
-        payload = {
-            "model": settings.OPENROUTER_MODEL,
-            "messages": [
-                {"role": "system", "content": ORGANIZE_PROMPT},
-                {"role": "user", "content": user_msg},
-            ],
-            "stream": False,
-            "reasoning": {"effort": "low"},
-        }
+        messages = [
+            {"role": "system", "content": ORGANIZE_PROMPT},
+            {"role": "user", "content": user_msg},
+        ]
 
-        timeout = httpx.Timeout(connect=10.0, read=60.0, write=10.0, pool=10.0)
-
-        try:
-            async with httpx.AsyncClient(timeout=timeout) as client:
-                response = await client.post(
-                    f"{settings.OPENROUTER_BASE_URL}/chat/completions",
-                    headers=headers,
-                    json=payload,
-                )
-                if response.status_code != 200:
-                    logger.error(
-                        "OpenRouter returned %s: %s",
-                        response.status_code, response.text[:500],
-                    )
-                    return None
-
-                data = response.json()
-                content = data["choices"][0]["message"]["content"]
-                logger.info("AI raw response: %s", content[:1000])
-
-                parsed = _extract_json(content)
-                if parsed is None:
-                    logger.error(
-                        "Failed to parse JSON from AI response: %s",
-                        content[:500],
-                    )
-                return parsed
-
-        except httpx.TimeoutException:
-            logger.error("OpenRouter timeout during organize")
+        content = await call_chat_completion(
+            messages, extra_payload={"reasoning": {"effort": "low"}}
+        )
+        if content is None:
             return None
-        except (json.JSONDecodeError, KeyError, IndexError) as exc:
-            logger.error("AI organize parse error: %s", exc)
-            return None
-        except httpx.HTTPError as exc:
-            logger.error("OpenRouter HTTP error: %s", exc)
-            return None
+
+        logger.info("AI raw response: %s", content[:1000])
+        parsed = extract_json_from_response(content)
+        if parsed is None:
+            logger.error(
+                "Failed to parse JSON from AI response: %s", content[:500]
+            )
+        return parsed

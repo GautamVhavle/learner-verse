@@ -1,4 +1,4 @@
-"""API endpoint for file uploads (thumbnails, avatars) backed by Supabase Storage."""
+"""API endpoint for file uploads (thumbnails, avatars, covers) backed by Supabase Storage."""
 
 import uuid
 from pathlib import Path
@@ -15,29 +15,20 @@ from app.models.user import User
 router = APIRouter(prefix="/uploads", tags=["uploads"])
 
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
+ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
 THUMBNAILS_PREFIX = "thumbnails"
 AVATARS_PREFIX = "avatars"
 COVERS_PREFIX = "covers"
 
 
-@router.post("/thumbnail")
-async def upload_thumbnail(
-    file: UploadFile,
-    _user: User = Depends(get_current_user),
-) -> dict[str, str]:
-    """Upload a course thumbnail image to Supabase Storage.
-
-    Accepts JPEG, PNG, WebP, or GIF images up to MAX_UPLOAD_SIZE_MB.
-    Returns the public URL of the uploaded object.
-    """
-    # Validate content type
+async def _validate_and_upload(file: UploadFile, prefix: str) -> str:
+    """Validate image type/size and upload to Supabase Storage. Returns the public URL."""
     if file.content_type not in ALLOWED_IMAGE_TYPES:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Invalid file type '{file.content_type}'. Allowed: JPEG, PNG, WebP, GIF.",
         )
 
-    # Read file and validate size
     contents = await file.read()
     max_bytes = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
     if len(contents) > max_bytes:
@@ -46,20 +37,26 @@ async def upload_thumbnail(
             detail=f"File too large. Maximum size is {settings.MAX_UPLOAD_SIZE_MB} MB.",
         )
 
-    # Generate unique object key preserving extension
     ext = Path(file.filename).suffix.lower() if file.filename else ".jpg"
-    if ext not in {".jpg", ".jpeg", ".png", ".webp", ".gif"}:
+    if ext not in ALLOWED_EXTENSIONS:
         ext = ".jpg"
-    object_path = f"{THUMBNAILS_PREFIX}/{uuid.uuid4().hex}{ext}"
+    object_path = f"{prefix}/{uuid.uuid4().hex}{ext}"
 
-    # Upload to Supabase Storage
-    url = await upload_file(
+    return await upload_file(
         bucket=settings.SUPABASE_BUCKET,
         path=object_path,
         data=contents,
         content_type=file.content_type or "application/octet-stream",
     )
 
+
+@router.post("/thumbnail")
+async def upload_thumbnail(
+    file: UploadFile,
+    _user: User = Depends(get_current_user),
+) -> dict[str, str]:
+    """Upload a course thumbnail image to Supabase Storage."""
+    url = await _validate_and_upload(file, THUMBNAILS_PREFIX)
     return {"url": url}
 
 
@@ -69,43 +66,11 @@ async def upload_avatar(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, str]:
-    """Upload a profile avatar image and update the user profile.
-
-    Accepts JPEG, PNG, WebP, or GIF images up to MAX_UPLOAD_SIZE_MB.
-    Automatically sets the user's avatar_url after upload.
-    Returns the public URL of the uploaded avatar.
-    """
-    if file.content_type not in ALLOWED_IMAGE_TYPES:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid file type '{file.content_type}'. Allowed: JPEG, PNG, WebP, GIF.",
-        )
-
-    contents = await file.read()
-    max_bytes = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
-    if len(contents) > max_bytes:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"File too large. Maximum size is {settings.MAX_UPLOAD_SIZE_MB} MB.",
-        )
-
-    ext = Path(file.filename).suffix.lower() if file.filename else ".jpg"
-    if ext not in {".jpg", ".jpeg", ".png", ".webp", ".gif"}:
-        ext = ".jpg"
-    object_path = f"{AVATARS_PREFIX}/{uuid.uuid4().hex}{ext}"
-
-    url = await upload_file(
-        bucket=settings.SUPABASE_BUCKET,
-        path=object_path,
-        data=contents,
-        content_type=file.content_type or "application/octet-stream",
-    )
-
-    # Update user's avatar_url
+    """Upload a profile avatar image and update the user profile."""
+    url = await _validate_and_upload(file, AVATARS_PREFIX)
     user.avatar_url = url
     await db.commit()
     await db.refresh(user)
-
     return {"url": url}
 
 
@@ -116,34 +81,8 @@ async def upload_cover(
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, str]:
     """Upload a profile cover/banner image and update the user profile."""
-    if file.content_type not in ALLOWED_IMAGE_TYPES:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid file type '{file.content_type}'. Allowed: JPEG, PNG, WebP, GIF.",
-        )
-
-    contents = await file.read()
-    max_bytes = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
-    if len(contents) > max_bytes:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"File too large. Maximum size is {settings.MAX_UPLOAD_SIZE_MB} MB.",
-        )
-
-    ext = Path(file.filename).suffix.lower() if file.filename else ".jpg"
-    if ext not in {".jpg", ".jpeg", ".png", ".webp", ".gif"}:
-        ext = ".jpg"
-    object_path = f"{COVERS_PREFIX}/{uuid.uuid4().hex}{ext}"
-
-    url = await upload_file(
-        bucket=settings.SUPABASE_BUCKET,
-        path=object_path,
-        data=contents,
-        content_type=file.content_type or "application/octet-stream",
-    )
-
+    url = await _validate_and_upload(file, COVERS_PREFIX)
     user.cover_image_url = url
     await db.commit()
     await db.refresh(user)
-
     return {"url": url}

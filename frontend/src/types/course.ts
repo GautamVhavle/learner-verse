@@ -59,7 +59,7 @@ export interface ValidationError {
 }
 
 export interface StatusUpdateResponse {
-  status: string;
+  status: "draft" | "ready";
   valid: boolean;
   errors: ValidationError[];
 }

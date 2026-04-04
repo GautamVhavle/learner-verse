@@ -28,7 +28,7 @@ import { CertificatePreview } from "@/components/certificate/CertificatePreview"
 import { CertificateDownload } from "@/components/certificate/CertificateDownload";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { api } from "@/lib/api";
-import type { CertificateDetailResponse, SectionBrief } from "@/types/certificate";
+import type { CertificateDetailResponse, CertificateSectionBrief } from "@/types/certificate";
 
 /* ───────────────────────── Token System ────────────────────────── */
 
@@ -420,7 +420,7 @@ function SyllabusSection({
   onToggle,
   t,
 }: {
-  section: SectionBrief;
+  section: CertificateSectionBrief;
   index: number;
   expanded: boolean;
   onToggle: () => void;

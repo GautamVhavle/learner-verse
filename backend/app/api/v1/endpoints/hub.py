@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.dependencies import get_current_user
 from app.core.database import get_db
 from app.models.user import User
-from app.repositories import enrollment_repo
+from app.repositories.enrollment_repo import EnrollmentRepository
 from app.repositories.course_repo import CourseRepository
 from app.repositories.rating_repo import RatingRepository
 from app.repositories.section_repo import SectionRepository
@@ -35,6 +35,7 @@ async def list_hub_courses(
     repo = CourseRepository(db)
     rating_repo = RatingRepository(db)
     section_repo = SectionRepository(db)
+    enrollment_repo = EnrollmentRepository(db)
 
     tag_list = [t.strip() for t in tags.split(",") if t.strip()] if tags else None
     courses, total = await repo.list_public_courses(
@@ -50,7 +51,7 @@ async def list_hub_courses(
     # Batch load stats
     sections_map = await section_repo.list_by_courses(course_ids)
     rating_stats = await rating_repo.get_stats_batch(course_ids)
-    enrollment_counts = await enrollment_repo.get_enrollment_counts_batch(db, course_ids=course_ids)
+    enrollment_counts = await enrollment_repo.get_enrollment_counts_batch(course_ids)
 
     # Batch load creator names
     from sqlalchemy import select
@@ -109,6 +110,7 @@ async def list_my_courses(
     repo = CourseRepository(db)
     rating_repo = RatingRepository(db)
     section_repo = SectionRepository(db)
+    enrollment_repo = EnrollmentRepository(db)
 
     all_courses = await repo.list_courses(user.id, search=search)
 
@@ -130,7 +132,7 @@ async def list_my_courses(
     course_ids = [c.id for c in courses]
     sections_map = await section_repo.list_by_courses(course_ids)
     rating_stats = await rating_repo.get_stats_batch(course_ids)
-    enrollment_counts = await enrollment_repo.get_enrollment_counts_batch(db, course_ids=course_ids)
+    enrollment_counts = await enrollment_repo.get_enrollment_counts_batch(course_ids)
 
     items = []
     for c in courses:
@@ -176,13 +178,14 @@ async def get_hub_course(
     repo = CourseRepository(db)
     rating_repo = RatingRepository(db)
     section_repo = SectionRepository(db)
+    enrollment_repo = EnrollmentRepository(db)
 
     # Try public first, then owner/enrolled fallback
     course = await repo.get_public_by_id(course_id)
     if not course:
         course = await repo.get_by_id(course_id, user.id)
     if not course:
-        enrolled = await enrollment_repo.is_enrolled(db, user_id=user.id, course_id=course_id)
+        enrolled = await enrollment_repo.is_enrolled(user.id, course_id)
         if enrolled:
             course = await repo.get_by_id_no_owner(course_id)
     if not course:
@@ -192,7 +195,7 @@ async def get_hub_course(
     section_count = len(sections)
     lesson_count = sum(len(s.lessons) for s in sections)
     avg, r_count = await rating_repo.get_stats(course_id)
-    e_count = await enrollment_repo.get_enrollment_count(db, course_id=course_id)
+    e_count = await enrollment_repo.get_enrollment_count(course_id)
 
     # Creator name
     from sqlalchemy import select
@@ -237,13 +240,14 @@ async def list_hub_sections(
     """Return sections for a course the user can access (owned, enrolled, or public+ready)."""
     repo = CourseRepository(db)
     section_repo = SectionRepository(db)
+    enrollment_repo = EnrollmentRepository(db)
 
     # Check access: public, owned, or enrolled
     course = await repo.get_public_by_id(course_id)
     if not course:
         course = await repo.get_by_id(course_id, user.id)
     if not course:
-        enrolled = await enrollment_repo.is_enrolled(db, user_id=user.id, course_id=course_id)
+        enrolled = await enrollment_repo.is_enrolled(user.id, course_id)
         if enrolled:
             course = await repo.get_by_id_no_owner(course_id)
     if not course:

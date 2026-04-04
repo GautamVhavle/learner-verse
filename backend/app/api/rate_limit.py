@@ -9,9 +9,8 @@ deployments. For multi-instance, swap for Redis-backed limiter.
 
 import time
 from collections import defaultdict
-from collections.abc import Callable
 
-from fastapi import HTTPException, Request, status
+from fastapi import HTTPException, status
 
 
 class InMemoryRateLimiter:

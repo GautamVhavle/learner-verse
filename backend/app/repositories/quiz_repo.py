@@ -2,7 +2,7 @@
 
 import uuid
 
-from sqlalchemy import delete, func, select, update
+from sqlalchemy import case, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.quiz_attempt import QuizAttempt
@@ -59,12 +59,16 @@ class QuizRepository:
     async def reorder_questions(
         self, lesson_id: uuid.UUID, items: list[dict]
     ) -> list[QuizQuestion]:
-        for item in items:
-            await self.db.execute(
-                update(QuizQuestion)
-                .where(QuizQuestion.id == uuid.UUID(str(item["id"])), QuizQuestion.lesson_id == lesson_id)
-                .values(position=item["position"])
-            )
+        """Bulk-update question positions within a lesson (single UPDATE)."""
+        if not items:
+            return await self.list_questions(lesson_id)
+        ids = [uuid.UUID(str(item["id"])) for item in items]
+        position_map = {uuid.UUID(str(item["id"])): item["position"] for item in items}
+        await self.db.execute(
+            update(QuizQuestion)
+            .where(QuizQuestion.id.in_(ids), QuizQuestion.lesson_id == lesson_id)
+            .values(position=case(position_map, value=QuizQuestion.id))
+        )
         await self.db.flush()
         return await self.list_questions(lesson_id)
 

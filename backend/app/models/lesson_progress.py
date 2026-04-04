@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Index, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -39,5 +39,4 @@ class LessonProgress(Base):
 
     __table_args__ = (
         UniqueConstraint("user_id", "lesson_id", name="uq_lesson_progress_user_lesson"),
-        Index("ix_lesson_progress_user_lesson", "user_id", "lesson_id"),
     )

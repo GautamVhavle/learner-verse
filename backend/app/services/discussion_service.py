@@ -4,21 +4,19 @@ Handles message creation, enrollment checks, creator detection,
 and @MiVi AI responses via OpenRouter.
 """
 
-import json
 import logging
 import re
 import uuid
 
-import httpx
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
+from app.core.openrouter import call_chat_completion
 from app.models.course import Course
 from app.models.discussion_message import DiscussionMessage
 from app.models.user import User
 from app.repositories.discussion_repo import DiscussionRepository
-from app.repositories.enrollment_repo import is_enrolled
+from app.repositories.enrollment_repo import EnrollmentRepository
 from app.schemas.discussion import (
     DiscussionMessageCreate,
     DiscussionMessageResponse,
@@ -171,8 +169,8 @@ class DiscussionService:
                 status_code=403,
                 detail="Discussions are only available for published courses.",
             )
-        enrolled = await is_enrolled(
-            self.db, user_id=user.id, course_id=course_id
+        enrolled = await EnrollmentRepository(self.db).is_enrolled(
+            user.id, course_id
         )
         if not enrolled:
             raise HTTPException(
@@ -183,9 +181,6 @@ class DiscussionService:
         self, course_id: uuid.UUID, user_question: str
     ) -> str | None:
         """Call OpenRouter to generate a MiVi reply."""
-        if not settings.OPENROUTER_API_KEY:
-            return None
-
         # Get last few messages for context
         recent = await self.repo.list_messages(course_id, limit=10)
         context_messages = [
@@ -198,23 +193,9 @@ class DiscussionService:
                 {"role": r, "content": f"{prefix}{m.content}"}
             )
 
-        try:
-            async with httpx.AsyncClient(timeout=30.0) as client:
-                resp = await client.post(
-                    f"{settings.OPENROUTER_BASE_URL}/chat/completions",
-                    headers={
-                        "Authorization": f"Bearer {settings.OPENROUTER_API_KEY}",
-                        "Content-Type": "application/json",
-                    },
-                    json={
-                        "model": settings.OPENROUTER_MODEL,
-                        "messages": context_messages,
-                        "max_tokens": 800,
-                    },
-                )
-                resp.raise_for_status()
-                data = resp.json()
-                return data["choices"][0]["message"]["content"]
-        except Exception:
-            logger.exception("MiVi discussion response failed")
+        content = await call_chat_completion(
+            context_messages, extra_payload={"max_tokens": 800}
+        )
+        if content is None:
             return "Sorry, I'm having trouble responding right now. Please try again!"
+        return content

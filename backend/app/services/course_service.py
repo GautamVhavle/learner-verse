@@ -177,9 +177,9 @@ class CourseService:
 
     async def list_enrolled_courses(self, user_id: uuid.UUID) -> CourseListResponse:
         """Return all courses the user has enrolled in, with computed stats."""
-        from app.repositories.enrollment_repo import get_enrolled_courses
+        from app.repositories.enrollment_repo import EnrollmentRepository
 
-        courses = await get_enrolled_courses(self.db, user_id=user_id)
+        courses = await EnrollmentRepository(self.db).get_enrolled_courses(user_id)
         if not courses:
             return CourseListResponse(items=[], total=0)
 

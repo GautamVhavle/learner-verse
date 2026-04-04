@@ -1,9 +1,8 @@
 """Repository for chat thread and message operations."""
 
 import uuid
-from datetime import datetime, timezone
 
-from sqlalchemy import delete, func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -60,7 +59,6 @@ class ChatRepository:
 
     async def rename_thread(self, thread: ChatThread, title: str) -> ChatThread:
         thread.title = title
-        thread.updated_at = datetime.now(timezone.utc)
         await self.db.flush()
         return thread
 
@@ -69,8 +67,12 @@ class ChatRepository:
         await self.db.flush()
 
     async def touch_thread(self, thread: ChatThread) -> None:
-        """Update the thread's updated_at timestamp."""
-        thread.updated_at = datetime.now(timezone.utc)
+        """Update the thread's updated_at timestamp via SQL func.now()."""
+        await self.db.execute(
+            update(ChatThread)
+            .where(ChatThread.id == thread.id)
+            .values(updated_at=func.now())
+        )
         await self.db.flush()
 
     # ── Messages ───────────────────────────────────────────

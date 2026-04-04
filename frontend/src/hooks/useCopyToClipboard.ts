@@ -14,10 +14,15 @@ export function useCopyToClipboard(resetMs = DEFAULT_RESET_MS) {
 
   const copyToClipboard = useCallback(
     async (text: string) => {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => setCopied(false), resetMs);
+      try {
+        await navigator.clipboard.writeText(text);
+        setCopied(true);
+        clearTimeout(timerRef.current);
+        timerRef.current = setTimeout(() => setCopied(false), resetMs);
+      } catch {
+        /* Clipboard API may fail in insecure contexts or without permission. */
+        setCopied(false);
+      }
     },
     [resetMs],
   );

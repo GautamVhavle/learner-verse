@@ -5,14 +5,14 @@ import logging
 import random
 import uuid
 
-import httpx
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_current_user
-from app.core.config import settings
 from app.core.database import get_db
+from app.core.openrouter import call_chat_completion, extract_json_from_response
+from app.core.config import settings
 from app.models.course import Course
 from app.models.enrollment import CourseEnrollment
 from app.models.lesson import Lesson
@@ -279,52 +279,27 @@ async def generate_quiz_with_ai(
         f"Return ONLY the JSON array."
     )
 
-    try:
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            resp = await client.post(
-                f"{settings.OPENROUTER_BASE_URL}/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {settings.OPENROUTER_API_KEY}",
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "model": settings.OPENROUTER_MODEL,
-                    "messages": [
-                        {"role": "system", "content": AI_QUIZ_SYSTEM_PROMPT},
-                        {"role": "user", "content": user_prompt},
-                    ],
-                    "max_tokens": 4000,
-                    "temperature": 0.7,
-                },
-            )
-            resp.raise_for_status()
-            content = resp.json()["choices"][0]["message"]["content"]
-    except Exception:
-        logger.exception("AI quiz generation request failed")
+    messages = [
+        {"role": "system", "content": AI_QUIZ_SYSTEM_PROMPT},
+        {"role": "user", "content": user_prompt},
+    ]
+
+    content = await call_chat_completion(
+        messages, extra_payload={"max_tokens": 4000, "temperature": 0.7}
+    )
+    if content is None:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="AI service failed to generate questions. Please try again.",
         )
 
     # Parse the JSON response
-    try:
-        # Strip markdown code blocks if the model wraps in ```json
-        text = content.strip()
-        if text.startswith("```"):
-            text = text.split("\n", 1)[1] if "\n" in text else text[3:]
-            text = text.rsplit("```", 1)[0]
-        raw_questions = json.loads(text.strip())
-    except (json.JSONDecodeError, KeyError, IndexError):
+    raw_questions = extract_json_from_response(content)
+    if not raw_questions:
         logger.error("AI returned unparseable content: %s", content[:500])
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="AI returned invalid quiz data. Please try again.",
-        )
-
-    if not isinstance(raw_questions, list) or len(raw_questions) == 0:
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="AI returned empty quiz data. Please try again.",
         )
 
     # Validate, shuffle, and save each question

@@ -63,6 +63,9 @@ export function useCourselearnersQuery(courseId: string, page = 1) {
   });
 }
 
+/** @alias useCourselearnersQuery — camelCase alias for consistent naming. */
+export const useCourseLearnerQuery = useCourselearnersQuery;
+
 // ── Top Courses ─────────────────────────────────────────────
 
 export function useTopCoursesQuery(limit = 5) {

@@ -8,11 +8,10 @@ import uuid
 
 from sqlalchemy import case, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload, selectinload
+from sqlalchemy.orm import joinedload
 
 from app.models.lesson import Lesson
 from app.models.quiz_question import QuizQuestion
-from app.models.reference_link import ReferenceLink
 
 
 class LessonRepository:
@@ -114,26 +113,10 @@ class LessonRepository:
 
         # Copy all reference links to the new lesson
         for link in lesson.reference_links:
-            self._clone_reference_link(link, new_lesson.id)
+            self.db.add(link.clone_for_lesson(new_lesson.id))
         await self.db.flush()
 
         return new_lesson
-
-    # ── Reference Link Helpers (delegated to ReferenceLinkRepo for CRUD) ─
-
-    def _clone_reference_link(self, link: ReferenceLink, target_lesson_id: uuid.UUID) -> None:
-        """Create a copy of a reference link under a different lesson (used during duplication)."""
-        new_link = ReferenceLink(
-            lesson_id=target_lesson_id,
-            url=link.url,
-            title=link.title,
-            description=link.description,
-            image=link.image,
-            favicon=link.favicon,
-            domain=link.domain,
-            position=link.position,
-        )
-        self.db.add(new_link)
 
     # ── Private Helpers ──────────────────────────────────────
 

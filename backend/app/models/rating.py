@@ -1,8 +1,9 @@
 """CourseRating model — user ratings and reviews for published courses."""
 
 import uuid
+from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Index, Integer, SmallInteger, Text, UniqueConstraint, func
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, SmallInteger, Text, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -18,6 +19,7 @@ class CourseRating(Base):
     __tablename__ = "course_ratings"
     __table_args__ = (
         UniqueConstraint("user_id", "course_id", name="uq_user_course_rating"),
+        CheckConstraint("rating >= 1 AND rating <= 5", name="ck_rating_range"),
         Index("idx_ratings_course_id", "course_id"),
         Index("idx_ratings_user_id", "user_id"),
     )
@@ -37,8 +39,8 @@ class CourseRating(Base):
     )
     rating: Mapped[int] = mapped_column(SmallInteger, nullable=False)
     review: Mapped[str | None] = mapped_column(Text, nullable=True)
-    created_at = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    updated_at = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
     user = relationship("User", lazy="selectin")

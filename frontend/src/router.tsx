@@ -1,110 +1,114 @@
 /**
  * Client-side route definitions for the application.
- * Routes are organized by mode: /creator/* and /learner/*
+ *
+ * Routes are organized by mode: /creator/* and /learner/*.
+ * Shared routes (certificates, goals, stats, etc.) are deduplicated
+ * into a helper that both mode blocks consume.
+ *
+ * All page components are lazy-loaded to reduce initial bundle size.
  */
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router";
 import { SINGLE_USER_MODE } from "@/lib/auth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 import { AppShell } from "@/components/layout/AppShell";
-import DashboardPage from "@/pages/DashboardPage";
 
-import TrashPage from "@/pages/TrashPage";
-import CourseBuilderPage from "@/pages/CourseBuilderPage";
-import CoursePreviewPage from "@/pages/CoursePreviewPage";
-import StudyPage from "@/pages/StudyPage";
-import LessonPage from "@/pages/LessonPage";
-import CertificatesPage from "@/pages/CertificatesPage";
-import CertificateSharePage from "@/pages/CertificateSharePage";
-import GoalsPage from "@/pages/GoalsPage";
-import StatsPage from "@/pages/StatsPage";
-import LoginPage from "@/pages/LoginPage";
-import SettingsPage from "@/pages/SettingsPage";
-import ProfilePage from "@/pages/ProfilePage";
-import InboxPage from "@/pages/InboxPage";
-import NotFoundPage from "@/pages/NotFoundPage";
-import ModeRedirectPage from "@/pages/ModeRedirectPage";
-import CourseHubPage from "@/pages/CourseHubPage";
-import HubCourseDetailPage from "@/pages/HubCourseDetailPage";
-import CreatorAnalyticsPage from "@/pages/CreatorAnalyticsPage";
-import CourseAnalyticsDetailPage from "@/pages/CourseAnalyticsDetailPage";
-import PublicProfilePage from "@/pages/PublicProfilePage";
+/* ─── Lazy page imports ─── */
+
+const DashboardPage = lazy(() => import("@/pages/DashboardPage"));
+const TrashPage = lazy(() => import("@/pages/TrashPage"));
+const CourseBuilderPage = lazy(() => import("@/pages/CourseBuilderPage"));
+const CoursePreviewPage = lazy(() => import("@/pages/CoursePreviewPage"));
+const StudyPage = lazy(() => import("@/pages/StudyPage"));
+const LessonPage = lazy(() => import("@/pages/LessonPage"));
+const CertificatesPage = lazy(() => import("@/pages/CertificatesPage"));
+const CertificateSharePage = lazy(() => import("@/pages/CertificateSharePage"));
+const GoalsPage = lazy(() => import("@/pages/GoalsPage"));
+const StatsPage = lazy(() => import("@/pages/StatsPage"));
+const LoginPage = lazy(() => import("@/pages/LoginPage"));
+const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
+const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
+const InboxPage = lazy(() => import("@/pages/InboxPage"));
+const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
+const HomePage = lazy(() => import("@/pages/HomePage"));
+const CourseHubPage = lazy(() => import("@/pages/CourseHubPage"));
+const HubCourseDetailPage = lazy(() => import("@/pages/HubCourseDetailPage"));
+const CreatorAnalyticsPage = lazy(() => import("@/pages/CreatorAnalyticsPage"));
+const CourseAnalyticsDetailPage = lazy(() => import("@/pages/CourseAnalyticsDetailPage"));
+const PublicProfilePage = lazy(() => import("@/pages/PublicProfilePage"));
+
+/**
+ * Routes shared by both /creator and /learner mode blocks.
+ * Avoids duplicating identical route definitions.
+ */
+function SharedRoutes() {
+  return (
+    <>
+      <Route index element={<DashboardPage />} />
+      <Route path="dashboard" element={<DashboardPage />} />
+      <Route path="courses" element={<DashboardPage />} />
+      <Route path="certificates" element={<CertificatesPage />} />
+      <Route path="goals" element={<GoalsPage />} />
+      <Route path="stats" element={<StatsPage />} />
+      <Route path="hub" element={<CourseHubPage />} />
+      <Route path="hub/:courseId" element={<HubCourseDetailPage />} />
+      <Route path="settings" element={<SettingsPage />} />
+      <Route path="profile" element={<ProfilePage />} />
+      <Route path="inbox" element={<InboxPage />} />
+    </>
+  );
+}
 
 export default function AppRouter() {
   return (
     <BrowserRouter>
       <ErrorBoundary>
-        <Routes>
-          {!SINGLE_USER_MODE && <Route path="/login" element={<LoginPage />} />}
-          
-          {/* Mode-based routing */}
-          <Route
-            path="/creator/*"
-            element={
-              <ProtectedRoute>
-                <AppShell mode="creator" />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<DashboardPage />} />
-            <Route path="dashboard" element={<DashboardPage />} />
-            <Route path="courses" element={<DashboardPage />} />
-            <Route path="courses/:id/edit" element={<CourseBuilderPage />} />
-            <Route path="courses/:id/preview" element={<CoursePreviewPage />} />
-            <Route path="certificates" element={<CertificatesPage />} />
-            <Route path="goals" element={<GoalsPage />} />
-            <Route path="stats" element={<StatsPage />} />
-            <Route path="trash" element={<TrashPage />} />
-            <Route path="hub" element={<CourseHubPage />} />
-            <Route path="hub/:courseId" element={<HubCourseDetailPage />} />
-            <Route path="analytics" element={<CreatorAnalyticsPage />} />
-            <Route path="analytics/:courseId" element={<CourseAnalyticsDetailPage />} />
-            <Route path="settings" element={<SettingsPage />} />
-            <Route path="profile" element={<ProfilePage />} />
-            <Route path="inbox" element={<InboxPage />} />
-          </Route>
+        <Suspense>
+          <Routes>
+            {!SINGLE_USER_MODE && <Route path="/login" element={<LoginPage />} />}
 
-          <Route
-            path="/learner/*"
-            element={
-              <ProtectedRoute>
-                <AppShell mode="student" />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<DashboardPage />} />
-            <Route path="dashboard" element={<DashboardPage />} />
-            <Route path="courses" element={<DashboardPage />} />
-            <Route path="study/:courseId" element={<StudyPage />} />
+            {/* ── Creator mode ── */}
             <Route
-              path="study/:courseId/lessons/:lessonId"
-              element={<LessonPage />}
-            />
-            <Route path="certificates" element={<CertificatesPage />} />
-            <Route path="goals" element={<GoalsPage />} />
-            <Route path="stats" element={<StatsPage />} />
-            <Route path="hub" element={<CourseHubPage />} />
-            <Route path="hub/:courseId" element={<HubCourseDetailPage />} />
-            <Route path="settings" element={<SettingsPage />} />
-            <Route path="profile" element={<ProfilePage />} />
-            <Route path="inbox" element={<InboxPage />} />
-          </Route>
+              path="/creator/*"
+              element={
+                <ProtectedRoute>
+                  <AppShell mode="creator" />
+                </ProtectedRoute>
+              }
+            >
+              {SharedRoutes()}
+              <Route path="courses/:id/edit" element={<CourseBuilderPage />} />
+              <Route path="courses/:id/preview" element={<CoursePreviewPage />} />
+              <Route path="trash" element={<TrashPage />} />
+              <Route path="analytics" element={<CreatorAnalyticsPage />} />
+              <Route path="analytics/:courseId" element={<CourseAnalyticsDetailPage />} />
+            </Route>
 
-          {/* Public certificate share page (standalone layout, no auth) */}
-          <Route
-            path="certificates/share/:uid"
-            element={<CertificateSharePage />}
-          />
+            {/* ── Learner mode ── */}
+            <Route
+              path="/learner/*"
+              element={
+                <ProtectedRoute>
+                  <AppShell mode="student" />
+                </ProtectedRoute>
+              }
+            >
+              {SharedRoutes()}
+              <Route path="study/:courseId" element={<StudyPage />} />
+              <Route path="study/:courseId/lessons/:lessonId" element={<LessonPage />} />
+            </Route>
 
-          {/* Public profile page */}
-          <Route path="/profile/:userId" element={<PublicProfilePage />} />
+            {/* ── Public routes (no auth) ── */}
+            <Route path="certificates/share/:uid" element={<CertificateSharePage />} />
+            <Route path="/profile/:userId" element={<PublicProfilePage />} />
+            <Route path="/" element={<HomePage />} />
+            <Route path="/home" element={<HomePage />} />
 
-          {/* Redirect root to mode redirect page */}
-          <Route path="/" element={<ModeRedirectPage />} />
-          
-          {/* Catch-all */}
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
+            {/* ── Catch-all ── */}
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Suspense>
       </ErrorBoundary>
     </BrowserRouter>
   );

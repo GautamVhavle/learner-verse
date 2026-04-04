@@ -36,7 +36,7 @@ export interface CourseAnalytics {
   course_id: string;
   title: string;
   thumbnail_url: string | null;
-  status: string;
+  status: "draft" | "ready";
   is_public: boolean;
   section_count: number;
   lesson_count: number;

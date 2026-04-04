@@ -9,12 +9,10 @@ import uuid
 
 from sqlalchemy import case, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload, selectinload
+from sqlalchemy.orm import joinedload
 
-from app.models.course import Course
 from app.models.lesson import Lesson
 from app.models.quiz_question import QuizQuestion
-from app.models.reference_link import ReferenceLink
 from app.models.section import Section
 
 
@@ -186,7 +184,7 @@ class SectionRepository:
             await self.db.flush()
 
             for link in lesson.reference_links:
-                self.db.add(self._clone_reference_link(link, new_lesson.id))
+                self.db.add(link.clone_for_lesson(new_lesson.id))
 
             for question in lesson.quiz_questions:
                 self.db.add(self._clone_quiz_question(question, new_lesson.id))
@@ -208,20 +206,6 @@ class SectionRepository:
             youtube_channel=lesson.youtube_channel,
             notes_markdown=lesson.notes_markdown,
             position=lesson.position,
-        )
-
-    @staticmethod
-    def _clone_reference_link(link: ReferenceLink, target_lesson_id: uuid.UUID) -> ReferenceLink:
-        """Create an in-memory copy of a reference link for a new lesson."""
-        return ReferenceLink(
-            lesson_id=target_lesson_id,
-            url=link.url,
-            title=link.title,
-            description=link.description,
-            image=link.image,
-            favicon=link.favicon,
-            domain=link.domain,
-            position=link.position,
         )
 
     @staticmethod

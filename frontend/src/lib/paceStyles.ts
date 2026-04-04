@@ -13,6 +13,7 @@ import {
   Zap,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import type { PaceStatus } from "@/types/progress";
 
 export interface PaceStyleConfig {
   color: string;
@@ -22,7 +23,7 @@ export interface PaceStyleConfig {
   label: string;
 }
 
-export const PACE_STYLES: Record<string, PaceStyleConfig> = {
+export const PACE_STYLES: Record<PaceStatus, PaceStyleConfig> = {
   on_track: {
     color: "text-accent-green",
     bg: "bg-accent-green/10",

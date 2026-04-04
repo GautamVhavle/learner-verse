@@ -18,9 +18,11 @@ export interface SectionProgressResponse {
   completed_lessons: number;
 }
 
+export type PaceStatus = "on_track" | "ahead" | "behind" | "completed" | "overdue";
+
 export interface GoalResponse {
   goal_date: string;
-  pace_status: "on_track" | "ahead" | "behind" | "completed" | "overdue";
+  pace_status: PaceStatus;
   lessons_per_week_needed: number;
   days_remaining: number;
   completed_early_by_days: number | null;
@@ -43,7 +45,7 @@ export interface CourseGoalResponse {
   total_lessons: number;
   completed_lessons: number;
   percentage: number;
-  pace_status: string | null;
+  pace_status: PaceStatus | null;
   lessons_per_week_needed: number | null;
   days_remaining: number | null;
   completed_early_by_days: number | null;

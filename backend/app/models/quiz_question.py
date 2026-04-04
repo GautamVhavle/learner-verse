@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Index, Integer, String, Text, func
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, Integer, Text, func
 from sqlalchemy.dialects.postgresql import ARRAY, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -19,7 +19,10 @@ class QuizQuestion(Base):
     """
 
     __tablename__ = "quiz_questions"
-    __table_args__ = (Index("idx_quiz_questions_lesson_id", "lesson_id"),)
+    __table_args__ = (
+        CheckConstraint("correct_option >= 0 AND correct_option <= 3", name="ck_correct_option_range"),
+        Index("idx_quiz_questions_lesson_id", "lesson_id"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4

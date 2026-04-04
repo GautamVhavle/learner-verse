@@ -14,7 +14,7 @@ from app.api.dependencies import get_current_user
 from app.core.database import get_db
 from app.models.course import Course
 from app.models.user import User
-from app.repositories import enrollment_repo
+from app.repositories.enrollment_repo import EnrollmentRepository
 from app.schemas.course import CourseListResponse
 from app.schemas.enrollment import EnrollmentResponse
 from app.services.course_service import CourseService
@@ -62,8 +62,8 @@ async def enroll_in_course(
             detail="Only published courses can be enrolled in.",
         )
 
-    enrollment = await enrollment_repo.enroll(
-        db, user_id=current_user.id, course_id=course_id
+    enrollment = await EnrollmentRepository(db).enroll(
+        user_id=current_user.id, course_id=course_id
     )
     await db.commit()
 
@@ -84,7 +84,7 @@ async def unenroll_from_course(
     current_user: User = Depends(get_current_user),
 ):
     """Remove the current user's enrollment from a course."""
-    await enrollment_repo.unenroll(
-        db, user_id=current_user.id, course_id=course_id
+    await EnrollmentRepository(db).unenroll(
+        user_id=current_user.id, course_id=course_id
     )
     await db.commit()
