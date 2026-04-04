@@ -6,9 +6,9 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import { Menu, ArrowRight } from "lucide-react";
+import { Menu, ArrowRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { useAuth } from "@/hooks/useAuth";
 import { useMode } from "@/hooks/useMode";
 import { SINGLE_USER_MODE } from "@/lib/auth";
@@ -122,16 +122,17 @@ export function HomeNavbar() {
         {/* Mobile hamburger */}
         <div className="md:hidden">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-            <SheetTrigger>
-              <span className="nav-item inline-flex p-2 text-white/70 hover:text-white">
-                <Menu className="size-5" />
-              </span>
+            <SheetTrigger
+              className="inline-flex items-center justify-center rounded-md p-2 text-white/70 transition-colors hover:text-white"
+            >
+              <Menu className="size-5" />
             </SheetTrigger>
             <SheetContent
               side="right"
-              className="w-72 border-white/10 bg-[#030712]"
+              className="w-72 border-white/10 !bg-[#030712]"
+              showCloseButton={false}
             >
-              <div className="flex flex-col gap-6 pt-8">
+              <div className="flex flex-col gap-6 px-4 pt-12">
                 {NAV_LINKS.map((link) => (
                   <button
                     key={link.href}
@@ -152,6 +153,11 @@ export function HomeNavbar() {
                   <ArrowRight className="size-3.5" />
                 </Button>
               </div>
+              <SheetClose
+                className="absolute right-4 top-4 rounded-md p-2 text-white/40 transition-colors hover:text-white"
+              >
+                <X className="size-4" />
+              </SheetClose>
             </SheetContent>
           </Sheet>
         </div>
