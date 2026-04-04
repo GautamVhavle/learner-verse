@@ -169,15 +169,24 @@ class OrganizeService:
         ]
 
         content = await call_chat_completion(
-            messages, extra_payload={"reasoning": {"effort": "low"}}
+            messages,
+            extra_payload={"reasoning": {"effort": "low"}},
+            long_timeout=True,
         )
         if content is None:
+            logger.error(
+                "OpenRouter returned None for %d lessons — check logs above for HTTP/timeout details",
+                len(lesson_titles),
+            )
             return None
 
-        logger.info("AI raw response: %s", content[:1000])
+        logger.info("AI raw response (%d chars): %s", len(content), content[:1000])
         parsed = extract_json_from_response(content)
         if parsed is None:
             logger.error(
-                "Failed to parse JSON from AI response: %s", content[:500]
+                "Failed to parse JSON from AI response (%d chars): %s",
+                len(content), content[:500],
             )
+        else:
+            logger.info("Parsed %d section groups from AI response", len(parsed))
         return parsed

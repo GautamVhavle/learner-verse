@@ -3,7 +3,7 @@
  */
 import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
 import { useEffect, useState, type ReactNode } from "react";
-import { setAccessTokenGetter } from "@/lib/api";
+import { setAccessTokenGetter, setUnauthorizedHandler } from "@/lib/api";
 
 const SINGLE_USER_MODE = import.meta.env.VITE_SINGLE_USER_MODE === "true";
 const AUTH0_DOMAIN = import.meta.env.VITE_AUTH0_DOMAIN;
@@ -25,11 +25,14 @@ export { SINGLE_USER_MODE, SINGLE_USER };
 /**
  * Syncs the Auth0 getAccessTokenSilently into the API client
  * so every fetch call includes the Bearer token.
+ * Also registers a global 401 handler: if the backend returns 401
+ * (e.g. refresh token expired, session revoked), the user is sent
+ * back to the Auth0 login page automatically.
  * Delays rendering children until auth state is resolved to prevent
  * queries from firing before the token is available.
  */
 function AuthTokenSync({ children }: { children: ReactNode }) {
-  const { getAccessTokenSilently, isAuthenticated, isLoading } = useAuth0();
+  const { getAccessTokenSilently, loginWithRedirect, isAuthenticated, isLoading } = useAuth0();
   const [tokenReady, setTokenReady] = useState(false);
 
   useEffect(() => {
@@ -37,13 +40,20 @@ function AuthTokenSync({ children }: { children: ReactNode }) {
 
     if (isAuthenticated) {
       setAccessTokenGetter(() => getAccessTokenSilently());
+      // Redirect to login when any request gets a 401 from the backend.
+      // This handles expired refresh tokens and revoked sessions.
+      setUnauthorizedHandler(() => loginWithRedirect());
     } else {
       setAccessTokenGetter(null);
+      setUnauthorizedHandler(null);
     }
     setTokenReady(true);
 
-    return () => setAccessTokenGetter(null);
-  }, [isAuthenticated, isLoading, getAccessTokenSilently]);
+    return () => {
+      setAccessTokenGetter(null);
+      setUnauthorizedHandler(null);
+    };
+  }, [isAuthenticated, isLoading, getAccessTokenSilently, loginWithRedirect]);
 
   if (!tokenReady) {
     return null;

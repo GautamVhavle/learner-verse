@@ -7,9 +7,10 @@ multi-user modes.
 
 import uuid
 
-from fastapi import Depends, Request, Security
+from fastapi import Depends, HTTPException, Request, Security, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
@@ -56,14 +57,29 @@ async def get_current_user(
     user = result.scalar_one_or_none()
 
     if user is None:
-        # Auto-create user on first authenticated request
-        user = User(
-            clerk_id=auth0_id,
-            email=f"{auth0_id}@auth0.user",
-            display_name="New User",
-        )
-        db.add(user)
-        await db.commit()
-        await db.refresh(user)
+        # Auto-create user on first authenticated request.
+        # Use optimistic insert + catch IntegrityError to handle the race
+        # condition where two concurrent requests for the same new user both
+        # pass the "user is None" check on separate DB replicas.
+        try:
+            user = User(
+                clerk_id=auth0_id,
+                email=f"{auth0_id}@auth0.user",
+                display_name="New User",
+            )
+            db.add(user)
+            await db.commit()
+            await db.refresh(user)
+        except IntegrityError:
+            # Another request inserted the same clerk_id concurrently.
+            await db.rollback()
+            result = await db.execute(select(User).where(User.clerk_id == auth0_id))
+            user = result.scalar_one_or_none()
+            if user is None:
+                # Should be unreachable, but guard against unexpected states.
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Failed to retrieve user after concurrent creation.",
+                )
 
     return user

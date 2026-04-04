@@ -53,6 +53,11 @@ class Settings(BaseSettings):
     OPENROUTER_MODEL: str = "nvidia/nemotron-3-super-120b-a12b:free"
     OPENROUTER_BASE_URL: str = "https://openrouter.ai/api/v1"
 
+    # Observability
+    # Set this in production to enable Sentry error tracking.
+    SENTRY_DSN: str = ""
+    SENTRY_ENVIRONMENT: str = "production"
+
     @property
     def cors_origins_list(self) -> list[str]:
         """Parse the comma-separated CORS_ORIGINS string into a list."""

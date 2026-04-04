@@ -24,8 +24,20 @@ export class ApiError extends Error {
 /** Token getter injected at runtime by AuthTokenSync. */
 let _getAccessToken: (() => Promise<string>) | null = null;
 
+/** Called when the backend returns 401. Injected by AuthTokenSync. */
+let _onUnauthorized: (() => void) | null = null;
+
 export function setAccessTokenGetter(getter: (() => Promise<string>) | null) {
   _getAccessToken = getter;
+}
+
+/**
+ * Register a callback invoked when any API request receives a 401.
+ * Used by AuthTokenSync to redirect the user to re-authenticate
+ * when their session has expired.
+ */
+export function setUnauthorizedHandler(handler: (() => void) | null) {
+  _onUnauthorized = handler;
 }
 
 /** Build auth headers for requests. Exported for streaming transport. */
@@ -67,7 +79,12 @@ async function request<T>(
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new ApiError(res.status, body.detail ?? "Request failed");
+    const error = new ApiError(res.status, body.detail ?? "Request failed");
+    // Notify the auth layer so it can redirect to login on session expiry.
+    if (res.status === 401 && _onUnauthorized) {
+      _onUnauthorized();
+    }
+    throw error;
   }
 
   /* 204 No Content — nothing to parse. */

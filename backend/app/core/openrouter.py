@@ -33,6 +33,14 @@ _TIMEOUT = httpx.Timeout(
     pool=POOL_TIMEOUT,
 )
 
+# Longer timeout for heavy non-streaming calls (e.g. organizing 80+ lessons)
+_TIMEOUT_LONG = httpx.Timeout(
+    connect=CONNECT_TIMEOUT,
+    read=180.0,
+    write=WRITE_TIMEOUT,
+    pool=POOL_TIMEOUT,
+)
+
 
 def _build_headers() -> dict[str, str]:
     """Build request headers including the current API key."""
@@ -118,24 +126,33 @@ async def call_chat_completion(
     *,
     model: str | None = None,
     extra_payload: dict | None = None,
+    long_timeout: bool = False,
 ) -> str | None:
     """Make a non-streaming chat completion request.
 
     Returns the assistant's response content, or None on failure.
+    Set long_timeout=True for heavy prompts (e.g. organizing many lessons).
     """
     if not settings.OPENROUTER_API_KEY:
         logger.error("OPENROUTER_API_KEY not set")
         return None
 
+    used_model = model or settings.OPENROUTER_MODEL
     payload: dict = {
-        "model": model or settings.OPENROUTER_MODEL,
+        "model": used_model,
         "messages": messages,
         "stream": False,
         **(extra_payload or {}),
     }
 
+    timeout = _TIMEOUT_LONG if long_timeout else _TIMEOUT
+    logger.info(
+        "OpenRouter request: model=%s, timeout=%.0fs, msg_chars=%d",
+        used_model, timeout.read, sum(len(m.get("content", "")) for m in messages),
+    )
+
     try:
-        async with httpx.AsyncClient(timeout=_TIMEOUT) as client:
+        async with httpx.AsyncClient(timeout=timeout) as client:
             response = await client.post(
                 f"{settings.OPENROUTER_BASE_URL}/chat/completions",
                 headers=_build_headers(),
@@ -143,17 +160,25 @@ async def call_chat_completion(
             )
             if response.status_code != 200:
                 logger.error(
-                    "OpenRouter returned %s: %s",
+                    "OpenRouter HTTP %s: %s",
                     response.status_code,
                     response.text[:500],
                 )
                 return None
 
             data = response.json()
-            return data["choices"][0]["message"]["content"]
+            content = data["choices"][0]["message"]["content"]
+            logger.info(
+                "OpenRouter response: %d chars, first 200: %s",
+                len(content), content[:200],
+            )
+            return content
 
     except httpx.TimeoutException:
-        logger.error("OpenRouter timeout")
+        logger.error(
+            "OpenRouter timeout after %.0fs (long_timeout=%s)",
+            timeout.read, long_timeout,
+        )
         return None
     except (json.JSONDecodeError, KeyError, IndexError) as exc:
         logger.error("OpenRouter parse error: %s", exc)

@@ -10,6 +10,7 @@ import time
 import traceback
 from contextlib import asynccontextmanager
 
+import sentry_sdk
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -23,9 +24,24 @@ from app.core.storage import ensure_bucket
 from app.models.user import User
 
 
+# ── Sentry error tracking ─────────────────────────────────────────────────────
+# Initialised unconditionally; when SENTRY_DSN is empty the SDK is a no-op.
+# Add SENTRY_DSN=https://...@sentry.io/... to your production environment.
+sentry_sdk.init(
+    dsn=settings.SENTRY_DSN or None,
+    environment=settings.SENTRY_ENVIRONMENT,
+    # Capture 10 % of transactions for performance monitoring.
+    traces_sample_rate=0.1,
+    # Don't send PII (user IPs, emails) to Sentry by default.
+    send_default_pii=False,
+)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan hook: ensures the default user and storage bucket exist."""
+    _validate_config()
+
     if settings.SINGLE_USER_MODE:
         await _ensure_default_user()
 
@@ -53,6 +69,24 @@ async def _ensure_default_user() -> None:
             )
             session.add(user)
             await session.commit()
+
+
+def _validate_config() -> None:
+    """Fail fast on misconfiguration before the first request is served."""
+    _logger = logging.getLogger(__name__)
+    if not settings.SINGLE_USER_MODE and not settings.AUTH0_AUDIENCE:
+        # An empty audience means PyJWT skips the ``aud`` claim check,
+        # allowing tokens issued for *any* Auth0 client to authenticate.
+        _logger.error(
+            "AUTH0_AUDIENCE is not set in multi-user mode. "
+            "Any valid Auth0 token can authenticate against this API. "
+            "Set AUTH0_AUDIENCE to your API identifier in your environment."
+        )
+        # Raise so the process exits clearly rather than silently running insecure.
+        raise RuntimeError(
+            "AUTH0_AUDIENCE must be set when SINGLE_USER_MODE=false. "
+            "See sample.env for instructions."
+        )
 
 
 app = FastAPI(
@@ -89,11 +123,15 @@ async def timing_middleware(request: Request, call_next):
 
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception):
-    """Catch-all handler so unhandled errors still return CORS headers + details."""
+    """Catch-all handler so unhandled errors still return CORS headers.
+
+    The full traceback is logged server-side only — exception details are
+    never forwarded to the client to avoid leaking internal information.
+    """
     logger.error("Unhandled error on %s %s:\n%s", request.method, request.url, traceback.format_exc())
     return JSONResponse(
         status_code=500,
-        content={"detail": f"Internal server error: {exc}"},
+        content={"detail": "Internal server error."},
     )
 
 
