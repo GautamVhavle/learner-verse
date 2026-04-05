@@ -18,6 +18,7 @@ dependencies = [
     "cryptography>=46.0.5",
     "email-validator>=2.3.0",
     "sentry-sdk[fastapi]>=2.0.0",
+    "langchain-openrouter>=0.2.1",
 ]
 
 [dependency-groups]

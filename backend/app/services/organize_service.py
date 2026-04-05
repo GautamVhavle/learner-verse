@@ -1,17 +1,20 @@
-"""Service for AI-powered course organization using OpenRouter.
+"""Service for AI-powered course organization using LangChain + OpenRouter.
 
 Takes all lesson titles from a course and uses AI to group them into
-logical sections with descriptive titles.
+logical sections with descriptive titles.  Uses LangChain's structured
+output for reliable JSON parsing and built-in retry logic.
 """
 
 import json
 import logging
 import uuid
 
+from langchain_openrouter import ChatOpenRouter
+from pydantic import BaseModel, Field
 from sqlalchemy import delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.openrouter import call_chat_completion, extract_json_from_response
+from app.core.config import settings
 from app.models.lesson import Lesson
 from app.models.section import Section
 from app.repositories.section_repo import SectionRepository
@@ -28,14 +31,34 @@ ORGANIZE_PROMPT = (
     "- Use 2-8 sections depending on the number of lessons.\n"
     "- Every lesson must be assigned to exactly one section.\n"
     "- Do NOT rename lessons — keep original titles exactly as given.\n"
-    "- Section titles should be concise (3-8 words).\n\n"
-    "You MUST respond with ONLY a JSON array. No explanation, no markdown, "
-    "no code fences. Just the raw JSON array.\n\n"
-    "Format:\n"
-    '[{"section_title": "Getting Started", "lesson_indices": [0, 1, 2]}, '
-    '{"section_title": "Core Concepts", "lesson_indices": [3, 4, 5]}]\n\n'
-    "lesson_indices are 0-based indices into the provided lesson list."
+    "- Section titles should be concise (3-8 words).\n"
+    "- lesson_indices are 0-based indices into the provided lesson list."
 )
+
+
+# ── Pydantic schemas for structured output ──────────────────
+
+class SectionGroup(BaseModel):
+    """A single section in the organization plan."""
+    section_title: str = Field(description="Concise section title (3-8 words)")
+    lesson_indices: list[int] = Field(description="0-based indices of lessons in this section")
+
+
+class OrganizationPlan(BaseModel):
+    """Complete AI-generated organization plan."""
+    sections: list[SectionGroup] = Field(description="List of sections grouping all lessons")
+
+
+def _build_llm() -> ChatOpenRouter:
+    """Instantiate a ChatOpenRouter configured for organize tasks."""
+    return ChatOpenRouter(
+        model=settings.OPENROUTER_MODEL,
+        openrouter_api_key=settings.OPENROUTER_API_KEY,
+        max_retries=3,
+        timeout=180,
+        temperature=0.3,
+        reasoning={"effort": "low"},
+    )
 
 
 class OrganizeService:
@@ -156,37 +179,47 @@ class OrganizeService:
         from app.schemas.section import SectionResponse
         return [SectionResponse.model_validate(s) for s in new_sections]
 
-    async def _get_ai_plan(self, lesson_titles: list[str]) -> list[dict] | None:
-        """Call OpenRouter to get a JSON organization plan."""
+    async def _get_ai_plan(
+        self, lesson_titles: list[str], *, _retries: int = 3
+    ) -> list[dict] | None:
+        """Call OpenRouter via LangChain to get a structured organization plan.
+
+        Uses `with_structured_output` for reliable JSON parsing.
+        LangChain handles retries on HTTP/timeout errors via `max_retries`.
+        We retry here on validation failures (e.g. bad indices).
+        """
         numbered = "\n".join(
             f"{i}. {title}" for i, title in enumerate(lesson_titles)
         )
         user_msg = f"Organize these {len(lesson_titles)} lessons into sections:\n\n{numbered}"
 
         messages = [
-            {"role": "system", "content": ORGANIZE_PROMPT},
-            {"role": "user", "content": user_msg},
+            ("system", ORGANIZE_PROMPT),
+            ("human", user_msg),
         ]
 
-        content = await call_chat_completion(
-            messages,
-            extra_payload={"reasoning": {"effort": "low"}},
-            long_timeout=True,
-        )
-        if content is None:
-            logger.error(
-                "OpenRouter returned None for %d lessons — check logs above for HTTP/timeout details",
-                len(lesson_titles),
-            )
-            return None
+        llm = _build_llm()
+        structured_llm = llm.with_structured_output(OrganizationPlan)
 
-        logger.info("AI raw response (%d chars): %s", len(content), content[:1000])
-        parsed = extract_json_from_response(content)
-        if parsed is None:
-            logger.error(
-                "Failed to parse JSON from AI response (%d chars): %s",
-                len(content), content[:500],
-            )
-        else:
-            logger.info("Parsed %d section groups from AI response", len(parsed))
-        return parsed
+        for attempt in range(1, _retries + 1):
+            try:
+                result: OrganizationPlan = await structured_llm.ainvoke(messages)
+                plan = [g.model_dump() for g in result.sections]
+                logger.info(
+                    "LangChain structured output (attempt %d/%d): %d sections",
+                    attempt, _retries, len(plan),
+                )
+                return plan
+            except Exception as exc:
+                logger.error(
+                    "LangChain organize failed (attempt %d/%d): %s",
+                    attempt, _retries, exc,
+                )
+                if attempt >= _retries:
+                    break
+
+        logger.error(
+            "All %d attempts to get AI plan failed for %d lessons",
+            _retries, len(lesson_titles),
+        )
+        return None
