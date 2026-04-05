@@ -21,9 +21,8 @@ from app.schemas.section import (
 from app.services.section_service import SectionService
 from app.services.organize_service import (
     OrganizeService,
-    TaskStatus,
     create_task,
-    get_task,
+    get_task_status,
     run_organize_in_background,
 )
 
@@ -81,7 +80,7 @@ async def organize_sections(
             detail="Need at least 2 lessons to organize.",
         )
 
-    task_id = create_task(str(course_id))
+    task_id = await create_task(db, str(course_id))
     logger.info("Organize task %s started for course %s", task_id, course_id)
 
     # Fire and forget — runs in the background event loop
@@ -100,13 +99,13 @@ async def organize_status(
     db: AsyncSession = Depends(get_db),
 ):
     """Poll the status of a background organize task."""
-    task = get_task(task_id)
+    task = await get_task_status(db, task_id)
     if not task:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Task not found or expired.",
         )
-    return OrganizeStatusResponse(status=task.status.value, error=task.error)
+    return OrganizeStatusResponse(status=task["status"], error=task["error"])
 
 
 @router.get("", response_model=list[SectionResponse])

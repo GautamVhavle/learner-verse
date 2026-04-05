@@ -3,23 +3,18 @@
 Takes all lesson titles from a course and uses AI to group them into
 logical sections with descriptive titles.
 
-Uses a background-task pattern: the API returns immediately with a
-task_id, the organize runs asynchronously, and the client polls for
-the result.  This avoids proxy timeouts regardless of model speed.
+Uses a background-task pattern with **database-backed** task state
+so it works correctly across multiple server workers.
 """
 
 import asyncio
 import json
 import logging
-import time
 import uuid
-from dataclasses import dataclass, field
-from enum import Enum
 
-from sqlalchemy import delete, update
+from sqlalchemy import delete, text, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
 from app.core.database import async_session_maker
 from app.core.openrouter import call_chat_completion, extract_json_from_response
 from app.models.lesson import Lesson
@@ -28,7 +23,6 @@ from app.repositories.section_repo import SectionRepository
 
 logger = logging.getLogger(__name__)
 
-# Compact system prompt — every token counts for speed.
 ORGANIZE_PROMPT = (
     "You are an expert course curriculum designer.\n"
     "Given a numbered list of lesson titles, group them into 2-8 logical "
@@ -40,44 +34,52 @@ ORGANIZE_PROMPT = (
 )
 
 
-# ── Background task infrastructure ──────────────────────────
+# ── DB-backed task helpers ──────────────────────────────────
 
-class TaskStatus(str, Enum):
-    PENDING = "pending"
-    DONE = "done"
-    FAILED = "failed"
-
-
-@dataclass
-class OrganizeTask:
-    course_id: str = ""
-    status: TaskStatus = TaskStatus.PENDING
-    error: str | None = None
-    created_at: float = field(default_factory=time.time)
-
-
-# In-memory task store.  Tasks auto-expire after 10 minutes.
-_tasks: dict[str, OrganizeTask] = {}
-_TASK_TTL = 600
-
-
-def _cleanup_tasks() -> None:
-    now = time.time()
-    expired = [k for k, v in _tasks.items() if now - v.created_at > _TASK_TTL]
-    for k in expired:
-        del _tasks[k]
-
-
-def get_task(task_id: str) -> OrganizeTask | None:
-    _cleanup_tasks()
-    return _tasks.get(task_id)
-
-
-def create_task(course_id: str) -> str:
-    _cleanup_tasks()
+async def create_task(db: AsyncSession, course_id: str) -> str:
+    """Insert a new pending task row and return its ID."""
     task_id = uuid.uuid4().hex[:12]
-    _tasks[task_id] = OrganizeTask(course_id=course_id)
+    await db.execute(
+        text(
+            "INSERT INTO organize_tasks (id, course_id, status) "
+            "VALUES (:id, :cid, 'pending') "
+            "ON CONFLICT (id) DO NOTHING"
+        ),
+        {"id": task_id, "cid": course_id},
+    )
+    await db.commit()
     return task_id
+
+
+async def get_task_status(db: AsyncSession, task_id: str) -> dict | None:
+    """Return {status, error} or None if not found."""
+    row = (
+        await db.execute(
+            text("SELECT status, error FROM organize_tasks WHERE id = :id"),
+            {"id": task_id},
+        )
+    ).first()
+    if not row:
+        return None
+    return {"status": row[0], "error": row[1]}
+
+
+async def _set_task_done(task_id: str) -> None:
+    async with async_session_maker() as db:
+        await db.execute(
+            text("UPDATE organize_tasks SET status = 'done' WHERE id = :id"),
+            {"id": task_id},
+        )
+        await db.commit()
+
+
+async def _set_task_failed(task_id: str, error: str) -> None:
+    async with async_session_maker() as db:
+        await db.execute(
+            text("UPDATE organize_tasks SET status = 'failed', error = :err WHERE id = :id"),
+            {"id": task_id, "err": error[:500]},
+        )
+        await db.commit()
 
 
 # ── Background runner ───────────────────────────────────────
@@ -87,24 +89,15 @@ async def run_organize_in_background(
     course_id: uuid.UUID,
     user_id: uuid.UUID,
 ) -> None:
-    """Run the full organize pipeline in a background asyncio task.
-
-    Uses its own DB session (not the request's) so the request can
-    return immediately.
-    """
-    task = _tasks.get(task_id)
-    if not task:
-        return
-
+    """Run the full organize pipeline in a background asyncio task."""
     try:
         async with async_session_maker() as db:
             service = OrganizeService(db)
             await service.organize_course(course_id, user_id)
-        task.status = TaskStatus.DONE
+        await _set_task_done(task_id)
         logger.info("Organize task %s completed for course %s", task_id, course_id)
     except Exception as exc:
-        task.status = TaskStatus.FAILED
-        task.error = str(exc)
+        await _set_task_failed(task_id, str(exc))
         logger.error("Organize task %s failed: %s", task_id, exc)
 
 
@@ -121,7 +114,6 @@ class OrganizeService:
         self, course_id: uuid.UUID, user_id: uuid.UUID
     ) -> None:
         """AI-organize all lessons into new sections."""
-        # 1. Load all current sections & lessons
         sections = await self.section_repo.list_by_course(course_id)
 
         all_lessons: list[Lesson] = []
@@ -140,7 +132,6 @@ class OrganizeService:
             len(all_lessons), len(sections), course_id,
         )
 
-        # 2. Call AI to get organization plan
         plan = await self._get_ai_plan(lesson_titles)
         if not plan:
             raise ValueError(
@@ -148,11 +139,8 @@ class OrganizeService:
             )
 
         logger.info("AI plan: %s", json.dumps(plan, default=str))
-
-        # 3. Validate the plan
         self._validate_plan(plan, len(all_lessons))
 
-        # 4. Apply the plan
         old_section_ids = [s.id for s in sections]
 
         new_section_map: list[tuple[uuid.UUID, list[int]]] = []
@@ -207,7 +195,10 @@ class OrganizeService:
     async def _get_ai_plan(
         self, lesson_titles: list[str], *, _retries: int = 3
     ) -> list[dict] | None:
-        """Single call with compact prompt. Full context, no chunking."""
+        """Single call with compact prompt. Full context, no chunking.
+
+        Waits 20 s between retries to respect free-tier rate limits.
+        """
         compact_lines = []
         for i, title in enumerate(lesson_titles):
             short = title[:60] + "…" if len(title) > 60 else title
@@ -237,6 +228,8 @@ class OrganizeService:
                 logger.error(
                     "OpenRouter returned None (attempt %d/%d)", attempt, _retries
                 )
+                if attempt < _retries:
+                    await asyncio.sleep(20)  # Long pause before retry
                 continue
 
             parsed = extract_json_from_response(content)
@@ -245,6 +238,8 @@ class OrganizeService:
                     "JSON parse failed (attempt %d/%d): %s",
                     attempt, _retries, content[:500],
                 )
+                if attempt < _retries:
+                    await asyncio.sleep(20)
                 continue
 
             logger.info("Parsed %d section groups (attempt %d/%d)", len(parsed), attempt, _retries)

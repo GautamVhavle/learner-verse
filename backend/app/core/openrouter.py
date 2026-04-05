@@ -164,7 +164,7 @@ async def call_chat_completion(
                     json=payload,
                 )
                 if response.status_code == 429:
-                    wait = min(2 ** attempt, 10)
+                    wait = min(15 * attempt, 60)
                     logger.warning(
                         "OpenRouter rate-limited (429), retry %d/%d in %ds",
                         attempt, max_retries, wait,

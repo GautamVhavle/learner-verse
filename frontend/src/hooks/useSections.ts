@@ -149,23 +149,37 @@ interface OrganizeStatusResponse {
 async function pollOrganizeTask(
   courseId: string,
   taskId: string,
-  intervalMs = 3000,
-  maxAttempts = 100,
+  intervalMs = 4000,
+  maxAttempts = 120,
 ): Promise<void> {
   for (let i = 0; i < maxAttempts; i++) {
     await new Promise((r) => setTimeout(r, intervalMs));
-    const res = await api.get<OrganizeStatusResponse>(
-      `/courses/${courseId}/sections/organize/${taskId}`,
-    );
-    if (res.status === "done") {
-      localStorage.removeItem(getStorageKey(courseId));
-      return;
+    try {
+      const res = await api.get<OrganizeStatusResponse>(
+        `/courses/${courseId}/sections/organize/${taskId}`,
+      );
+      if (res.status === "done") {
+        localStorage.removeItem(getStorageKey(courseId));
+        return;
+      }
+      if (res.status === "failed") {
+        localStorage.removeItem(getStorageKey(courseId));
+        throw new Error(res.error ?? "Organization failed");
+      }
+      // still pending — keep polling
+    } catch (err: unknown) {
+      // 404 = task not found (may not have propagated to DB yet, or expired)
+      // Keep polling for a grace period, then give up
+      if (err instanceof Error && "status" in err && (err as { status: number }).status === 404) {
+        if (i > 10) {
+          localStorage.removeItem(getStorageKey(courseId));
+          throw new Error("Task expired. Please try again.");
+        }
+        // else keep polling — task row may not have committed yet
+        continue;
+      }
+      throw err;
     }
-    if (res.status === "failed") {
-      localStorage.removeItem(getStorageKey(courseId));
-      throw new Error(res.error ?? "Organization failed");
-    }
-    // still pending — keep polling
   }
   localStorage.removeItem(getStorageKey(courseId));
   throw new Error("Organization timed out");
