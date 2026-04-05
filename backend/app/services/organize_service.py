@@ -35,10 +35,11 @@ ORGANIZE_PROMPT = (
 
 # Free models to try in order. If one is rate-limited, try the next.
 _FALLBACK_MODELS = [
+    "qwen/qwen3.6-plus:free",
+    "openai/gpt-oss-120b:free",
     "nvidia/nemotron-3-super-120b-a12b:free",
-    "meta-llama/llama-4-maverick:free",
+    "meta-llama/llama-3.3-70b-instruct:free",
     "google/gemma-3-27b-it:free",
-    "qwen/qwen3-235b-a22b:free",
 ]
 
 
