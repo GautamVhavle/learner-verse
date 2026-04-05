@@ -1,0 +1,85 @@
+# LearnerVerse — Full Documentation for LLMs
+
+## Overview
+LearnerVerse (https://learnerverse.xyz) is an AI-powered educational platform that converts YouTube videos and playlists into structured learning courses. It is built for self-learners, students, and anyone who learns from YouTube content.
+
+## How It Works
+1. **Paste a YouTube URL** — A single video or entire playlist.
+2. **AI Organizes** — The AI engine (powered by OpenRouter) analyzes video titles, descriptions, and metadata to create a logically structured course with sections and lessons.
+3. **Learn & Track** — Watch videos within the platform while tracking progress, completing quizzes, and taking notes.
+4. **Earn Certificates** — Complete all lessons and quizzes to receive a verifiable certificate with a unique shareable link.
+
+## Detailed Features
+
+### Course Creation
+- Supports YouTube videos and playlists of any size
+- AI creates sections, orders lessons logically, and generates titles
+- Manual editing of course structure after AI generation
+- Cover image support for courses
+
+### AI-Generated Quizzes
+- Multiple-choice questions auto-generated for each lesson
+- Questions are contextual to the video content
+- Score tracking and attempt history
+- Retry capability
+
+### LiVi — AI Study Companion
+- Inline AI chat available on every lesson page
+- Ask questions about the lesson content
+- Get explanations, summaries, and clarifications
+- Powered by OpenRouter API
+
+### Progress Tracking
+- Per-lesson completion tracking
+- Overall course progress percentage
+- Learning streak system (consecutive days of activity)
+- Activity log with timestamps
+- Detailed statistics page with charts
+
+### Certificates
+- Issued upon 100% course completion
+- Unique certificate ID
+- Public shareable link (e.g., https://learnerverse.xyz/certificates/share/{uid})
+- Displays course name, completion date, and learner name
+
+### Course Hub
+- Public course marketplace
+- Browse community-created courses
+- Course ratings and reviews
+- Search and filter functionality
+- Course tags for categorization
+
+### User Profiles
+- Public profile pages (https://learnerverse.xyz/profile/{userId})
+- Bio, social links, and completed courses
+- Avatar synced from Auth0
+
+### Additional Features
+- Pomodoro focus timer
+- Dark and light mode
+- Notification inbox
+- Goal setting
+- Responsive design (mobile, tablet, desktop)
+- Creator and Learner mode switching
+
+## Public Routes (Crawlable)
+- `/` — Landing page with product overview
+- `/home` — Same as landing page
+- `/login` — Authentication page
+- `/certificates/share/:uid` — Public certificate verification
+- `/profile/:userId` — Public user profiles
+
+## Authenticated Routes (Not Crawlable)
+- `/creator/*` — Course creation and management dashboard
+- `/learner/*` — Course learning and study interface
+
+## API
+- Backend API: https://learner-verse.fastapicloud.dev
+- RESTful JSON API
+- Endpoints under `/api/v1/`
+- Authentication via Auth0 JWT Bearer tokens
+
+## Repository
+- GitHub: https://github.com/GautamVhavle/learner-verse
+- License: Business Source License 1.1 (BSL-1.1)
+- Author: Gautam Vhavle

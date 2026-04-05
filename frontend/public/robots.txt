@@ -1,0 +1,65 @@
+# LearnerVerse — robots.txt
+# https://learnerverse.xyz
+
+User-agent: *
+Allow: /
+Disallow: /creator/
+Disallow: /learner/
+Disallow: /login
+
+# Allow social/search crawlers to index public pages
+User-agent: Googlebot
+Allow: /
+Allow: /home
+Allow: /certificates/share/
+Allow: /profile/
+Disallow: /creator/
+Disallow: /learner/
+
+User-agent: Bingbot
+Allow: /
+Allow: /home
+Allow: /certificates/share/
+Allow: /profile/
+Disallow: /creator/
+Disallow: /learner/
+
+# AI crawlers
+User-agent: GPTBot
+Allow: /
+Allow: /llms.txt
+Disallow: /creator/
+Disallow: /learner/
+
+User-agent: ChatGPT-User
+Allow: /
+Allow: /llms.txt
+Disallow: /creator/
+Disallow: /learner/
+
+User-agent: Claude-Web
+Allow: /
+Allow: /llms.txt
+Disallow: /creator/
+Disallow: /learner/
+
+User-agent: Anthropic-AI
+Allow: /
+Allow: /llms.txt
+Disallow: /creator/
+Disallow: /learner/
+
+User-agent: PerplexityBot
+Allow: /
+Allow: /llms.txt
+Disallow: /creator/
+Disallow: /learner/
+
+User-agent: Cohere-AI
+Allow: /
+Allow: /llms.txt
+Disallow: /creator/
+Disallow: /learner/
+
+# Sitemap
+Sitemap: https://learnerverse.xyz/sitemap.xml

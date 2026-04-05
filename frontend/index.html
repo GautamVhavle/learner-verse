@@ -1,20 +1,129 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en" class="dark" prefix="og: https://ogp.me/ns#">
   <head>
     <meta charset="UTF-8" />
+
+    <!-- Anti-flicker: apply saved theme before first paint -->
     <script>
-      // Anti-flicker: apply saved theme before first paint
       (function(){try{var t=JSON.parse(localStorage.getItem('learnerverse-theme')||'{}');if(t.state&&t.state.theme==='light'){document.documentElement.classList.remove('dark')}else{document.documentElement.classList.add('dark')}}catch(e){document.documentElement.classList.add('dark')}})();
     </script>
-    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+
+    <!-- ── Core Meta ── -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LearnerVerse — Turn YouTube Playlists into Structured Courses with AI</title>
+    <meta name="description" content="Paste any YouTube playlist and LearnerVerse transforms it into a structured learning course with AI-generated quizzes, progress tracking, streaks, certificates, and an inline AI tutor. Learn smarter, not harder." />
+    <meta name="keywords" content="YouTube learning, online courses, AI tutor, playlist to course, quiz generator, learning platform, certificates, progress tracking, LearnerVerse, study tools, educational technology" />
+    <meta name="author" content="Gautam Vhavle" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow" />
+    <meta name="google-site-verification" content="%VITE_GOOGLE_SITE_VERIFICATION%" />
+    <link rel="canonical" href="https://learnerverse.xyz/" />
+
+    <!-- ── AI / LLM discovery ── -->
+    <link rel="alternate" type="text/plain" href="/llms.txt" title="LLMs.txt" />
+    <link rel="alternate" type="text/plain" href="/llms-full.txt" title="LLMs Full Documentation" />
+
+    <!-- ── Favicons ── -->
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/logo.png" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+
+    <!-- ── Open Graph (Facebook, LinkedIn, Discord, Slack) ── -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="LearnerVerse" />
+    <meta property="og:title" content="LearnerVerse — Turn YouTube Playlists into Structured Courses with AI" />
+    <meta property="og:description" content="Paste any YouTube playlist and AI builds your course with sections, quizzes, progress tracking, certificates & an inline tutor — instantly." />
+    <meta property="og:url" content="https://learnerverse.xyz/" />
+    <meta property="og:image" content="https://learnerverse.xyz/preview.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="LearnerVerse — AI-powered learning from YouTube playlists" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- ── Twitter Card ── -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="LearnerVerse — Turn YouTube Playlists into Structured Courses" />
+    <meta name="twitter:description" content="Paste any YouTube playlist → AI builds your course with quizzes, progress tracking, certificates & an inline tutor. Learn smarter." />
+    <meta name="twitter:image" content="https://learnerverse.xyz/preview.png" />
+    <meta name="twitter:image:alt" content="LearnerVerse — AI-powered learning from YouTube playlists" />
+
+    <!-- ── PWA / Manifest ── -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#030712" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="LearnerVerse" />
+    <meta name="application-name" content="LearnerVerse" />
+
+    <!-- ── Preconnect / DNS-Prefetch for performance ── -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://learner-verse.fastapicloud.dev" />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+
+    <!-- ── Fonts ── -->
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
-    <title>Learner Verse</title>
+
+    <!-- ── JSON-LD Structured Data ── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "name": "LearnerVerse",
+          "url": "https://learnerverse.xyz",
+          "description": "Turn any YouTube playlist into a structured, AI-powered learning course with quizzes, progress tracking, streaks, certificates, and an AI tutor.",
+          "applicationCategory": "EducationalApplication",
+          "operatingSystem": "Web",
+          "browserRequirements": "Requires a modern web browser",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "featureList": [
+            "One-click YouTube playlist import",
+            "AI-generated quizzes",
+            "Progress tracking with streaks",
+            "Verifiable completion certificates",
+            "Inline AI tutor (LiVi)",
+            "Community course hub",
+            "Built-in Pomodoro focus timer"
+          ],
+          "screenshot": "https://learnerverse.xyz/preview.png",
+          "author": {
+            "@type": "Person",
+            "name": "Gautam Vhavle",
+            "url": "https://github.com/GautamVhavle"
+          }
+        },
+        {
+          "@type": "WebSite",
+          "name": "LearnerVerse",
+          "url": "https://learnerverse.xyz",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://learnerverse.xyz/creator/hub?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@type": "Organization",
+          "name": "LearnerVerse",
+          "url": "https://learnerverse.xyz",
+          "logo": "https://learnerverse.xyz/logo.png",
+          "sameAs": [
+            "https://github.com/GautamVhavle/learner-verse"
+          ]
+        }
+      ]
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>

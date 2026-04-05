@@ -275,7 +275,7 @@ export function HeroSection() {
             <h1 className="text-3xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-4xl md:text-5xl lg:text-[3.4rem] xl:text-6xl">
               YouTube to{" "}
               <SparklesText
-                className="inline-block bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent"
+                className="inline-block text-white"
                 sparklesCount={4}
                 colors={{ first: "#60a5fa", second: "#a78bfa" }}
               >

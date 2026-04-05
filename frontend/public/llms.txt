@@ -1,0 +1,37 @@
+# LearnerVerse
+> Turn any YouTube playlist into a structured, AI-powered learning experience.
+
+## About
+LearnerVerse is an educational web application that transforms YouTube videos and playlists into organized, structured courses. Paste a URL and the platform uses AI to create sections, generate quizzes, track your learning progress with streaks, award verifiable certificates, and provide an inline AI tutor called LiVi.
+
+## URL
+https://learnerverse.xyz
+
+## Features
+- **One-Click Import**: Paste any YouTube video or playlist URL to create a structured course instantly.
+- **AI Course Organization**: AI automatically organizes videos into logical sections and lessons.
+- **AI-Generated Quizzes**: Auto-generated quiz questions after every lesson to reinforce learning.
+- **LiVi AI Tutor**: An inline AI tutor that answers questions about any lesson in real time.
+- **Progress Tracking**: Track course completion percentage and build learning streaks.
+- **Certificates**: Earn and share verifiable completion certificates.
+- **Course Hub**: Discover and share community-created courses publicly.
+- **Focus Timer**: Built-in Pomodoro timer for productive study sessions.
+- **Study Notes**: Take timestamped notes while watching lessons.
+- **Dark/Light Mode**: Full theme support.
+
+## Tech Stack
+- Frontend: React 19, TypeScript, Tailwind CSS v4, Vite, TanStack Query
+- Backend: FastAPI, SQLAlchemy (async), PostgreSQL
+- Auth: Auth0 (JWT RS256)
+- AI: OpenRouter API
+- Deployment: Vercel (frontend), FastAPI Cloud (backend)
+
+## Source Code
+https://github.com/GautamVhavle/learner-verse
+
+## License
+Business Source License 1.1 (BSL-1.1)
+Non-commercial use is free. Commercial use restricted to the original author.
+
+## Contact
+Gautam Vhavle — https://github.com/GautamVhavle

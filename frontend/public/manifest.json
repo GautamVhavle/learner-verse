@@ -1,0 +1,36 @@
+{
+  "name": "LearnerVerse",
+  "short_name": "LearnerVerse",
+  "description": "Turn any YouTube playlist into a structured, AI-powered learning course with quizzes, progress tracking, certificates, and an AI tutor.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#030712",
+  "theme_color": "#030712",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/preview.png",
+      "type": "image/png",
+      "sizes": "1200x630",
+      "form_factor": "wide",
+      "label": "LearnerVerse — AI-powered learning from YouTube playlists"
+    }
+  ]
+}
