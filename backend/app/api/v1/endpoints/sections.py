@@ -1,9 +1,11 @@
 """API endpoints for section CRUD, reordering, duplication, and AI organization."""
 
+import asyncio
 import logging
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_current_user
@@ -17,7 +19,13 @@ from app.schemas.section import (
     SectionUpdate,
 )
 from app.services.section_service import SectionService
-from app.services.organize_service import OrganizeService
+from app.services.organize_service import (
+    OrganizeService,
+    TaskStatus,
+    create_task,
+    get_task,
+    run_organize_in_background,
+)
 
 router = APIRouter(prefix="/courses/{course_id}/sections", tags=["sections"])
 
@@ -25,6 +33,19 @@ router = APIRouter(prefix="/courses/{course_id}/sections", tags=["sections"])
 def _service(db: AsyncSession) -> SectionService:
     return SectionService(db)
 
+
+# ── Organize response schemas ───────────────────────────────
+
+class OrganizeStartResponse(BaseModel):
+    task_id: str
+
+
+class OrganizeStatusResponse(BaseModel):
+    status: str  # "pending" | "done" | "failed"
+    error: str | None = None
+
+
+# ── Endpoints ───────────────────────────────────────────────
 
 @router.post("", response_model=SectionResponse, status_code=status.HTTP_201_CREATED)
 async def create_section(
@@ -36,24 +57,56 @@ async def create_section(
     return await _service(db).create_section(course_id, user.id, data)
 
 
-@router.post("/organize", response_model=list[SectionResponse])
+@router.post(
+    "/organize",
+    response_model=OrganizeStartResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+)
 async def organize_sections(
     course_id: uuid.UUID,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Use AI to reorganize lessons into logical sections."""
+    """Kick off AI organization as a background task. Returns a task_id to poll."""
     logger = logging.getLogger(__name__)
     await _service(db)._verify_course(course_id, user.id)
+
+    # Quick validation: ensure there are enough lessons
     service = OrganizeService(db)
-    try:
-        return await service.organize_course(course_id, user.id)
-    except ValueError as exc:
-        logger.error("Organize failed: %s", exc)
+    sections = await service.section_repo.list_by_course(course_id)
+    total_lessons = sum(len(s.lessons) for s in sections)
+    if total_lessons < 2:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=str(exc),
+            detail="Need at least 2 lessons to organize.",
         )
+
+    task_id = create_task(str(course_id))
+    logger.info("Organize task %s started for course %s", task_id, course_id)
+
+    # Fire and forget — runs in the background event loop
+    asyncio.create_task(
+        run_organize_in_background(task_id, course_id, user.id)
+    )
+
+    return OrganizeStartResponse(task_id=task_id)
+
+
+@router.get("/organize/{task_id}", response_model=OrganizeStatusResponse)
+async def organize_status(
+    course_id: uuid.UUID,
+    task_id: str,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Poll the status of a background organize task."""
+    task = get_task(task_id)
+    if not task:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found or expired.",
+        )
+    return OrganizeStatusResponse(status=task.status.value, error=task.error)
 
 
 @router.get("", response_model=list[SectionResponse])

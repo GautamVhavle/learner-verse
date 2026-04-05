@@ -39,7 +39,7 @@ import { CourseStatusBadge } from "@/components/course/CourseStatusBadge";
 import { ValidationErrorsDialog } from "@/components/course/ValidationErrorsDialog";
 import { useCourseBuilder } from "@/hooks/useCourseBuilder";
 import { useUpdateCourseMutation, useValidateCourseQuery } from "@/hooks/useCourses";
-import { useOrganizeSectionsMutation } from "@/hooks/useSections";
+import { useOrganizeSectionsMutation, useResumeOrganizePolling } from "@/hooks/useSections";
 import type { ValidationError } from "@/types/course";
 
 export default function CourseBuilderPage() {
@@ -52,6 +52,20 @@ export default function CourseBuilderPage() {
   const updateCourse = useUpdateCourseMutation();
   const validateQuery = useValidateCourseQuery(courseId);
   const organizeMutation = useOrganizeSectionsMutation(courseId!);
+  const [isResuming, setIsResuming] = useState(false);
+
+  // Resume polling if a previous organize task was interrupted by a refresh
+  useResumeOrganizePolling(courseId!, {
+    onStart: () => setIsResuming(true),
+    onSuccess: () => {
+      setIsResuming(false);
+      toast.success("Course organized by LiVi!");
+    },
+    onError: (msg) => {
+      setIsResuming(false);
+      toast.error(msg || "Failed to organize. Please try again.");
+    },
+  });
 
   const handleShowIssues = async () => {
     const { data } = await validateQuery.refetch();
@@ -217,10 +231,10 @@ export default function CourseBuilderPage() {
                   onError: () => toast.error("Failed to organize. Please try again."),
                 })
               }
-              disabled={organizeMutation.isPending}
+              disabled={organizeMutation.isPending || isResuming}
               className="gap-1.5 border-accent-purple/30 text-accent-purple hover:bg-accent-purple/10"
             >
-              {organizeMutation.isPending ? (
+              {organizeMutation.isPending || isResuming ? (
                 <Loader2 className="size-3.5 animate-spin" />
               ) : (
                 <Sparkles className="size-3.5" />
@@ -281,7 +295,7 @@ export default function CourseBuilderPage() {
 
       {/* Section List */}
       <div className={`relative ${isReady ? "pointer-events-none opacity-60" : ""}`}>
-        {organizeMutation.isPending && (
+        {(organizeMutation.isPending || isResuming) && (
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-xl bg-bg-primary/80 backdrop-blur-sm">
             <div className="flex flex-col items-center gap-3">
               <div className="flex size-12 items-center justify-center rounded-full bg-accent-purple/10">
