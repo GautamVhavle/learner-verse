@@ -14,6 +14,15 @@ from app.core.config import settings
 from app.core.database import get_db
 from app.models.base import Base
 
+# ── Safety check: never run tests against a remote / production database ──
+_db_url = settings.DATABASE_URL.lower()
+if "supabase" in _db_url or "neon" in _db_url or "amazonaws" in _db_url:
+    raise RuntimeError(
+        "Refusing to run tests against a remote database!\n"
+        "Tests TRUNCATE all tables. Set DATABASE_URL to a local Postgres instance.\n"
+        "Example: DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/learnerverse_test"
+    )
+
 # NullPool ensures each connection is fresh — avoids "another operation in progress"
 test_engine = create_async_engine(
     settings.DATABASE_URL,

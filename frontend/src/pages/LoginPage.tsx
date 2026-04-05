@@ -51,7 +51,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      navigate("/", { replace: true });
+      navigate("/creator", { replace: true });
     }
   }, [isLoading, isAuthenticated, navigate]);
 
@@ -213,7 +213,7 @@ export default function LoginPage() {
               transition={{ duration: 0.4, delay: 0.7 }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => loginWithRedirect()}
+              onClick={() => loginWithRedirect({ appState: { returnTo: "/creator" } })}
               className="group flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#863bff] to-accent-blue py-3.5 text-sm font-semibold text-white transition-shadow hover:shadow-lg hover:shadow-[#863bff]/25"
             >
               Continue with Log In
@@ -228,6 +228,7 @@ export default function LoginPage() {
               whileTap={{ scale: 0.98 }}
               onClick={() =>
                 loginWithRedirect({
+                  appState: { returnTo: "/creator" },
                   authorizationParams: { screen_hint: "signup" },
                 })
               }

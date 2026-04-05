@@ -48,7 +48,8 @@ playwright-report/
 uploads/
 
 # === GitHub ===
-.github/
+# Keep .github/workflows for CI/CD
+!.github/workflows/
 
 # === Docker ===
 pgdata/

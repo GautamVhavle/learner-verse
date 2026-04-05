@@ -1,18 +1,29 @@
 /**
- * Hero section — the first viewport of the landing page.
+ * Hero section — reimagined as a split-layout with animated product demo.
  *
- * Full-screen height with animated grid background, bold headline
- * with rotating words, CTAs, and a floating Safari browser mockup.
- * GSAP powers all entrance animations and subtle mouse parallax.
+ * Left: punchy headline, subtext, CTAs, social proof
+ * Right: animated product showcase showing YouTube → Course transformation
+ * Responsive: stacks vertically on mobile.
  */
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
-import { ArrowRight, Play } from "lucide-react";
-import { AnimatedGridPattern } from "@/components/ui/animated-grid-pattern";
-import { AnimatedShinyText } from "@/components/ui/animated-shiny-text";
-import { WordRotate } from "@/components/ui/word-rotate";
+import {
+  ArrowRight,
+  Play,
+  BookOpen,
+  Brain,
+  Award,
+  Sparkles,
+  Youtube,
+  CheckCircle2,
+  BarChart3,
+  ChevronRight,
+} from "lucide-react";
+import { Particles } from "@/components/ui/particles";
+import { SparklesText } from "@/components/ui/sparkles-text";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
 import { BorderBeam } from "@/components/ui/border-beam";
+import { AnimatedShinyText } from "@/components/ui/animated-shiny-text";
 import { useAuth } from "@/hooks/useAuth";
 import { useMode } from "@/hooks/useMode";
 import { SINGLE_USER_MODE } from "@/lib/auth";
@@ -21,80 +32,138 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-function DashboardPreview() {
+/* ── Floating Feature Pills ── */
+const PILLS = [
+  { icon: Brain, label: "AI Quizzes", color: "text-purple-400", bg: "bg-purple-500/10 border-purple-500/20" },
+  { icon: BarChart3, label: "Progress Tracking", color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/20" },
+  { icon: Award, label: "Certificates", color: "text-amber-400", bg: "bg-amber-500/10 border-amber-500/20" },
+  { icon: Sparkles, label: "LiVi AI Tutor", color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20" },
+];
+
+/* ── Animated Product Demo (replaces static dashboard) ── */
+function ProductDemo() {
   return (
-    <div className="bg-[#08080f]">
-      {/* Browser chrome */}
-      <div className="flex items-center gap-3 border-b border-white/[0.06] px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <div className="size-2.5 rounded-full bg-[#ff5f57]" />
-          <div className="size-2.5 rounded-full bg-[#febc2e]" />
-          <div className="size-2.5 rounded-full bg-[#28c840]" />
+    <div className="relative w-full">
+      {/* Main card */}
+      <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#08080f] shadow-2xl shadow-purple-500/5">
+        <BorderBeam size={250} duration={12} delay={1} colorFrom="#3b82f6" colorTo="#a855f7" />
+
+        {/* Step 1: Paste URL */}
+        <div className="border-b border-white/[0.06] px-4 py-3 sm:px-5 sm:py-4">
+          <div className="mb-2 flex items-center gap-2">
+            <div className="flex size-5 items-center justify-center rounded-full bg-blue-500/15">
+              <span className="text-[10px] font-bold text-blue-400">1</span>
+            </div>
+            <span className="text-xs font-medium text-white/50">Paste any YouTube URL</span>
+          </div>
+          <div className="demo-url flex items-center gap-2.5 rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5">
+            <Youtube className="size-4 shrink-0 text-red-400" />
+            <div className="min-w-0 flex-1 overflow-hidden">
+              <span className="block truncate text-xs text-white/40 sm:text-sm">youtube.com/playlist?list=PLexample-react-course</span>
+            </div>
+            <div className="shrink-0 rounded-lg bg-blue-500 px-2.5 py-1 text-[10px] font-semibold text-white sm:text-xs">
+              Import
+            </div>
+          </div>
         </div>
-        <div className="flex-1 rounded-md bg-white/[0.05] px-3 py-1 text-center text-[11px] text-white/25">
-          learnerverse.app/creator/dashboard
+
+        {/* Step 2: AI organizes */}
+        <div className="border-b border-white/[0.06] px-4 py-3 sm:px-5 sm:py-4">
+          <div className="mb-3 flex items-center gap-2">
+            <div className="flex size-5 items-center justify-center rounded-full bg-purple-500/15">
+              <span className="text-[10px] font-bold text-purple-400">2</span>
+            </div>
+            <span className="text-xs font-medium text-white/50">AI creates your course</span>
+            <div className="demo-sparkle ml-auto flex items-center gap-1 rounded-full bg-purple-500/10 px-2 py-0.5">
+              <Sparkles className="size-3 text-purple-400" />
+              <span className="text-[10px] text-purple-300">Organizing...</span>
+            </div>
+          </div>
+          {/* Fake course tree */}
+          <div className="space-y-1.5">
+            {[
+              { section: "Getting Started", lessons: 4, done: true },
+              { section: "Core Concepts", lessons: 8, done: true },
+              { section: "Advanced Patterns", lessons: 6, done: false },
+            ].map((s, i) => (
+              <div
+                key={s.section}
+                className="demo-section flex items-center gap-2.5 rounded-lg border border-white/[0.04] bg-white/[0.02] px-3 py-2"
+              >
+                {s.done ? (
+                  <CheckCircle2 className="size-3.5 shrink-0 text-emerald-400" />
+                ) : (
+                  <div className="size-3.5 shrink-0 rounded-full border border-white/10" />
+                )}
+                <span className="min-w-0 flex-1 truncate text-xs text-white/60">{s.section}</span>
+                <span className="shrink-0 text-[10px] text-white/25">{s.lessons} lessons</span>
+                <ChevronRight className="size-3 shrink-0 text-white/15" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Step 3: Learn & Track */}
+        <div className="px-4 py-3 sm:px-5 sm:py-4">
+          <div className="mb-3 flex items-center gap-2">
+            <div className="flex size-5 items-center justify-center rounded-full bg-emerald-500/15">
+              <span className="text-[10px] font-bold text-emerald-400">3</span>
+            </div>
+            <span className="text-xs font-medium text-white/50">Track your progress</span>
+          </div>
+          <div className="demo-progress flex items-center gap-3 rounded-xl border border-white/[0.04] bg-gradient-to-r from-blue-500/5 to-purple-500/5 p-3">
+            <div className="relative size-10 shrink-0 sm:size-12">
+              <svg viewBox="0 0 36 36" className="size-full -rotate-90">
+                <circle cx="18" cy="18" r="15.5" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="3" />
+                <circle
+                  cx="18" cy="18" r="15.5" fill="none" stroke="url(#progressGrad)" strokeWidth="3"
+                  strokeLinecap="round" strokeDasharray="97.4" strokeDashoffset="24.4"
+                />
+                <defs>
+                  <linearGradient id="progressGrad" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stopColor="#3b82f6" />
+                    <stop offset="100%" stopColor="#a855f7" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white/70">75%</span>
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-xs font-medium text-white/70 sm:text-sm">React & Next.js Mastery</div>
+              <div className="mt-0.5 text-[10px] text-white/30 sm:text-xs">13 of 18 lessons completed</div>
+            </div>
+            <div className="hidden items-center gap-1 sm:flex">
+              <div className="flex size-6 items-center justify-center rounded-md bg-orange-500/10">
+                <span className="text-[10px]">🔥</span>
+              </div>
+              <span className="text-xs font-medium text-orange-400">7d</span>
+            </div>
+          </div>
         </div>
       </div>
-      {/* App layout */}
-      <div className="flex h-48 sm:h-64 md:h-80">
-        {/* Sidebar */}
-        <div className="hidden w-44 shrink-0 flex-col gap-0.5 border-r border-white/[0.06] p-3 sm:flex">
-          <div className="mb-3 flex items-center gap-2 px-2">
-            <div className="size-5 rounded-md bg-gradient-to-br from-blue-500 to-purple-500" />
-            <span className="text-[11px] font-semibold text-white/60">LearnerVerse</span>
+
+      {/* Floating accent card — Quiz */}
+      <div className="demo-float-card absolute -bottom-3 -left-3 z-10 rounded-xl border border-white/[0.08] bg-[#0c0c18]/95 p-3 shadow-xl backdrop-blur-md sm:-bottom-4 sm:-left-6 sm:p-3.5">
+        <div className="flex items-center gap-2.5">
+          <div className="flex size-8 items-center justify-center rounded-lg bg-purple-500/15">
+            <Brain className="size-4 text-purple-400" />
           </div>
-          {["Dashboard", "My Courses", "Course Hub", "AI Tools", "Analytics", "Settings"].map(
-            (item, i) => (
-              <div
-                key={item}
-                className={`rounded-md px-2.5 py-1.5 text-[11px] ${
-                  i === 0
-                    ? "bg-white/[0.06] font-medium text-white/70"
-                    : "text-white/25"
-                }`}
-              >
-                {item}
-              </div>
-            ),
-          )}
+          <div>
+            <div className="text-xs font-medium text-white/70">AI Quiz Generated</div>
+            <div className="text-[10px] text-emerald-400">Score: 9/10 ✓</div>
+          </div>
         </div>
-        {/* Main content */}
-        <div className="flex-1 overflow-hidden p-3 sm:p-5">
-          <div className="mb-1 text-xs font-semibold text-white/60 sm:text-[13px]">
-            Good morning, Jane 👋
+      </div>
+
+      {/* Floating accent card — Certificate */}
+      <div className="demo-float-card-2 absolute -right-3 -top-3 z-10 rounded-xl border border-white/[0.08] bg-[#0c0c18]/95 p-3 shadow-xl backdrop-blur-md sm:-right-6 sm:-top-4 sm:p-3.5">
+        <div className="flex items-center gap-2.5">
+          <div className="flex size-8 items-center justify-center rounded-lg bg-amber-500/15">
+            <Award className="size-4 text-amber-400" />
           </div>
-          <div className="mb-3 text-[9px] text-white/25 sm:mb-4 sm:text-[10px]">Here's your learning overview</div>
-          {/* Stat cards */}
-          <div className="mb-4 grid grid-cols-3 gap-1.5 sm:mb-5 sm:gap-2.5">
-            {[
-              { label: "Active Courses", value: "12", sub: "+2 this week", gradient: "from-blue-500/15 to-blue-600/5", accent: "text-blue-400" },
-              { label: "Completion", value: "85%", sub: "↑ 12% vs last month", gradient: "from-emerald-500/15 to-emerald-600/5", accent: "text-emerald-400" },
-              { label: "Study Streak", value: "🔥 7d", sub: "Personal best!", gradient: "from-amber-500/15 to-amber-600/5", accent: "text-amber-400" },
-            ].map((s) => (
-              <div key={s.label} className={`rounded-lg bg-gradient-to-br ${s.gradient} border border-white/[0.04] p-2 sm:rounded-xl sm:p-3`}>
-                <div className={`text-xs font-bold sm:text-sm ${s.accent}`}>{s.value}</div>
-                <div className="text-[8px] text-white/35 sm:text-[10px]">{s.label}</div>
-                <div className="mt-0.5 hidden text-[8px] text-white/20 sm:block">{s.sub}</div>
-              </div>
-            ))}
-          </div>
-          {/* Course progress list */}
-          <div className="mb-2 hidden text-[10px] font-medium text-white/30 sm:block">Recent Courses</div>
-          <div className="hidden flex-col gap-1.5 sm:flex">
-            {[
-              { name: "React & Next.js Mastery", pct: 85, color: "bg-blue-400" },
-              { name: "Python for Machine Learning", pct: 62, color: "bg-purple-400" },
-              { name: "System Design Interviews", pct: 34, color: "bg-emerald-400" },
-            ].map((c) => (
-              <div key={c.name} className="flex items-center gap-3 rounded-lg border border-white/[0.04] bg-white/[0.015] px-3 py-2">
-                <div className={`size-1.5 rounded-full ${c.color}`} />
-                <span className="flex-1 truncate text-[11px] text-white/45">{c.name}</span>
-                <div className="h-1.5 w-20 overflow-hidden rounded-full bg-white/[0.06]">
-                  <div className={`h-full rounded-full ${c.color}`} style={{ width: `${c.pct}%` }} />
-                </div>
-                <span className="w-7 text-right text-[10px] text-white/25">{c.pct}%</span>
-              </div>
-            ))}
+          <div>
+            <div className="text-xs font-medium text-white/70">Certificate Earned</div>
+            <div className="text-[10px] text-white/30">Share & Download</div>
           </div>
         </div>
       </div>
@@ -107,7 +176,6 @@ export function HeroSection() {
   const { isSignedIn } = useAuth();
   const { mode } = useMode();
   const sectionRef = useRef<HTMLElement>(null);
-  const mockupRef = useRef<HTMLDivElement>(null);
 
   const handleCTA = () => {
     if (SINGLE_USER_MODE || isSignedIn) {
@@ -123,142 +191,177 @@ export function HeroSection() {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-      tl.fromTo(".hero-badge", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6 })
-        .fromTo(".hero-headline", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.7 }, "-=0.3")
-        .fromTo(".hero-subtext", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6 }, "-=0.3")
-        .fromTo(".hero-cta", { opacity: 0, y: 20, scale: 0.95 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.12 }, "-=0.2")
-        .fromTo(".hero-mockup", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 1 }, "-=0.3");
+      // Left side entrance
+      tl.fromTo(".hero-badge", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+        .fromTo(".hero-headline", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.7 }, "-=0.2")
+        .fromTo(".hero-subtext", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 }, "-=0.3")
+        .fromTo(".hero-cta", { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.4, stagger: 0.1 }, "-=0.2")
+        .fromTo(".hero-pill", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.4, stagger: 0.08 }, "-=0.2")
+        .fromTo(".hero-social", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4 }, "-=0.3");
 
-      // Parallax on mockup: float up as user scrolls
-      if (mockupRef.current) {
-        gsap.to(mockupRef.current, {
-          y: -40,
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top top",
-            end: "bottom top",
-            scrub: 1,
-          },
-        });
-      }
+      // Right side: product demo entrance
+      tl.fromTo(".hero-demo", { opacity: 0, x: 40, scale: 0.97 }, { opacity: 1, x: 0, scale: 1, duration: 0.8, ease: "power2.out" }, "-=0.8");
+
+      // Floating cards pop in
+      tl.fromTo(".demo-float-card", { opacity: 0, x: -20, y: 20 }, { opacity: 1, x: 0, y: 0, duration: 0.5 }, "-=0.3")
+        .fromTo(".demo-float-card-2", { opacity: 0, x: 20, y: -20 }, { opacity: 1, x: 0, y: 0, duration: 0.5 }, "-=0.3");
+
+      // Subtle sections stagger
+      tl.fromTo(".demo-section", { opacity: 0, x: -10 }, { opacity: 1, x: 0, duration: 0.3, stagger: 0.08 }, "-=0.5");
+
+      // Sparkle pulse
+      gsap.to(".demo-sparkle", {
+        scale: 1.05,
+        duration: 1.2,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+      });
+
+      // Floating cards gentle hover
+      gsap.to(".demo-float-card", {
+        y: -6,
+        duration: 2.5,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+      });
+      gsap.to(".demo-float-card-2", {
+        y: 6,
+        duration: 3,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+        delay: 0.5,
+      });
     }, sectionRef);
 
     return () => ctx.revert();
   }, []);
 
-  // Mouse-move parallax on mockup (desktop only)
-  useEffect(() => {
-    if (!mockupRef.current) return;
-    // Skip mouse parallax on touch/small screens
-    const mql = window.matchMedia("(min-width: 768px)");
-    if (!mql.matches) return;
-
-    const xTo = gsap.quickTo(mockupRef.current, "x", { duration: 0.6, ease: "power2.out" });
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const { clientX } = e;
-      const { innerWidth } = window;
-      xTo((clientX / innerWidth - 0.5) * 30);
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
   return (
     <section
       ref={sectionRef}
-      className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden px-3 pb-8 pt-20 sm:px-6 sm:pt-16"
+      className="relative flex min-h-[100dvh] items-center overflow-hidden px-4 py-20 sm:px-6 lg:py-0"
     >
-      {/* Background layers */}
+      {/* Background */}
       <div className="pointer-events-none absolute inset-0">
-        {/* Radial gradient glow */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(59,130,246,0.15)_0%,_rgba(168,85,247,0.08)_40%,_transparent_70%)]" />
-        {/* Grid pattern */}
-        <AnimatedGridPattern
-          numSquares={40}
-          maxOpacity={0.08}
-          duration={4}
-          className="absolute inset-0 [mask-image:radial-gradient(400px_circle_at_center,white,transparent)] sm:[mask-image:radial-gradient(600px_circle_at_center,white,transparent)]"
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_20%_40%,_rgba(59,130,246,0.12)_0%,_transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_80%_60%,_rgba(168,85,247,0.08)_0%,_transparent_60%)]" />
+        <Particles
+          className="absolute inset-0"
+          quantity={60}
+          staticity={40}
+          color="#ffffff"
+          size={0.4}
         />
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 mx-auto flex max-w-5xl flex-col items-center text-center">
-        {/* Badge */}
-        <div className="hero-badge mb-6 opacity-0">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm backdrop-blur-sm">
-            <AnimatedShinyText className="text-white/80">
-              <span className="mr-1">✨</span> AI-Powered Learning Platform
-            </AnimatedShinyText>
+      {/* Grid */}
+      <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-12 lg:grid-cols-[1fr_1.1fr] lg:gap-16 xl:gap-20">
+        {/* ── Left: Copy ── */}
+        <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
+          {/* Badge */}
+          <div className="hero-badge mb-6 opacity-0">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 backdrop-blur-sm">
+              <AnimatedShinyText className="text-sm text-white/80">
+                <span className="mr-1.5">🚀</span> Free & Open Source
+              </AnimatedShinyText>
+              <ChevronRight className="size-3 text-white/30" />
+            </div>
+          </div>
+
+          {/* Headline */}
+          <div className="hero-headline mb-5 opacity-0 sm:mb-6">
+            <h1 className="text-3xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-4xl md:text-5xl lg:text-[3.4rem] xl:text-6xl">
+              YouTube to{" "}
+              <SparklesText
+                text="Structured"
+                className="inline-block bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent"
+                sparklesCount={4}
+                colors={{ first: "#60a5fa", second: "#a78bfa" }}
+              />
+              <br />
+              Learning in Seconds.
+            </h1>
+          </div>
+
+          {/* Subtext */}
+          <p className="hero-subtext mb-8 max-w-lg text-sm leading-relaxed text-white/45 opacity-0 sm:text-base lg:text-lg">
+            Paste any playlist. AI builds your course with sections, quizzes,
+            progress tracking & certificates — instantly.
+          </p>
+
+          {/* CTAs */}
+          <div className="mb-8 flex flex-col items-center gap-3 sm:flex-row lg:items-start">
+            <ShimmerButton
+              onClick={handleCTA}
+              shimmerColor="#a855f7"
+              shimmerSize="0.08em"
+              background="linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #a855f7 100%)"
+              borderRadius="14px"
+              className="hero-cta h-12 px-8 text-sm font-semibold opacity-0 sm:text-base"
+            >
+              <span className="flex items-center gap-2 text-white">
+                {isSignedIn ? "Go to Dashboard" : "Start Learning Free"}
+                <ArrowRight className="size-4" />
+              </span>
+            </ShimmerButton>
+            <button
+              onClick={() => {
+                document.querySelector("#how-it-works")?.scrollIntoView({ behavior: "smooth" });
+              }}
+              className="hero-cta flex h-12 items-center gap-2 rounded-[14px] border border-white/[0.08] bg-white/[0.03] px-6 text-sm font-medium text-white/60 opacity-0 backdrop-blur-sm transition-all hover:border-white/15 hover:bg-white/[0.06] hover:text-white/90"
+            >
+              <Play className="size-3.5" />
+              Watch Demo
+            </button>
+          </div>
+
+          {/* Feature pills */}
+          <div className="mb-6 flex flex-wrap justify-center gap-2 lg:justify-start">
+            {PILLS.map((pill) => (
+              <div
+                key={pill.label}
+                className={`hero-pill flex items-center gap-1.5 rounded-full border px-3 py-1.5 opacity-0 ${pill.bg}`}
+              >
+                <pill.icon className={`size-3.5 ${pill.color}`} />
+                <span className="text-xs font-medium text-white/60">{pill.label}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Social proof */}
+          <div className="hero-social flex items-center gap-3 opacity-0">
+            {/* Avatar stack */}
+            <div className="flex -space-x-2">
+              {["#3b82f6", "#a855f7", "#10b981", "#f59e0b"].map((color, i) => (
+                <div
+                  key={i}
+                  className="flex size-7 items-center justify-center rounded-full border-2 border-[#030712] text-[9px] font-bold text-white/80 sm:size-8"
+                  style={{ backgroundColor: color }}
+                >
+                  {["JD", "AK", "MS", "RW"][i]}
+                </div>
+              ))}
+            </div>
+            <div className="text-left">
+              <div className="text-xs font-medium text-white/60 sm:text-sm">
+                Trusted by <span className="text-white/90">2,000+</span> learners
+              </div>
+              <div className="flex items-center gap-0.5">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <span key={i} className="text-[10px] text-amber-400">★</span>
+                ))}
+                <span className="ml-1 text-[10px] text-white/30">4.9/5</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Headline */}
-        <div className="hero-headline mb-6 opacity-0">
-          <h1 className="text-3xl font-bold leading-[1.1] tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">
-            Turn Any{" "}
-            <WordRotate
-              words={["YouTube Playlist", "Video Collection", "Knowledge Library"]}
-              duration={3000}
-              className="inline-block bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"
-            />
-            <br className="hidden sm:block" />
-            <span className="sm:hidden"> </span>
-            Into a Complete Learning
-            <br className="hidden sm:block" />
-            <span className="sm:hidden"> </span>
-            Experience.
-          </h1>
-        </div>
-
-        {/* Subtext */}
-        <p className="hero-subtext mb-8 max-w-2xl px-2 text-sm leading-relaxed text-white/50 opacity-0 sm:mb-10 sm:px-0 sm:text-base md:text-lg lg:text-xl">
-          Build structured courses, generate AI quizzes, track your progress,
-          and learn with LiVi — your intelligent study companion. All from
-          YouTube.
-        </p>
-
-        {/* CTAs */}
-        <div className="flex flex-col items-center gap-4 sm:flex-row">
-          <ShimmerButton
-            onClick={handleCTA}
-            shimmerColor="#a855f7"
-            shimmerSize="0.08em"
-            background="linear-gradient(135deg, #3b82f6 0%, #a855f7 100%)"
-            borderRadius="12px"
-            className="hero-cta h-12 px-8 text-base font-semibold opacity-0"
-          >
-            <span className="flex items-center gap-2 text-white">
-              {isSignedIn ? "Go to Dashboard" : "Get Started Free"}
-              <ArrowRight className="size-4" />
-            </span>
-          </ShimmerButton>
-          <button
-            onClick={() => {
-              document.querySelector("#how-it-works")?.scrollIntoView({ behavior: "smooth" });
-            }}
-            className="hero-cta flex h-12 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-6 text-sm font-medium text-white/70 opacity-0 backdrop-blur-sm transition-all hover:border-white/20 hover:bg-white/10 hover:text-white"
-          >
-            <Play className="size-3.5" />
-            See How It Works
-          </button>
-        </div>
-
-        {/* Dashboard mockup */}
-        <div ref={mockupRef} className="hero-mockup relative mt-10 w-full max-w-4xl opacity-0 sm:mt-16 lg:mt-20">
-          <div className="relative overflow-hidden rounded-xl border border-white/[0.08] shadow-2xl shadow-blue-500/10 sm:rounded-2xl">
-            <DashboardPreview />
-            <BorderBeam
-              size={300}
-              duration={15}
-              delay={2}
-              colorFrom="#3b82f6"
-              colorTo="#a855f7"
-            />
-          </div>
-          {/* Bottom fade-out */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#030712] to-transparent" />
+        {/* ── Right: Product Demo ── */}
+        <div className="hero-demo relative opacity-0 lg:py-8">
+          <ProductDemo />
         </div>
       </div>
     </section>

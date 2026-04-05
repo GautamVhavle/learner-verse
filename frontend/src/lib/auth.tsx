@@ -111,9 +111,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const handleRedirectCallback = (appState: any) => {
-    // Redirect to dashboard after login
-    const returnTo = appState?.returnTo || "/";
-    window.location.href = returnTo;
+    // After Auth0 login, redirect to the intended destination (default: creator dashboard)
+    const returnTo = appState?.returnTo || "/creator";
+    window.location.replace(returnTo);
   };
 
   return (

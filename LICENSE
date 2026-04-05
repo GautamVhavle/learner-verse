@@ -1,0 +1,50 @@
+Business Source License 1.1
+
+License text copyright (c) 2017 Elastic and shivering-isles.com
+
+Usage Restrictions
+
+As long as you have not materially breached this License, you may use the software for the purposes of:
+
+1. Non-commercial research, educational, or personal use
+2. Running your own instances for internal purposes
+3. Modifying and creating derivative works for the same purposes
+
+You may NOT use this software for any purpose involving direct or indirect commercial activity or benefit, including:
+
+- Providing the software as a managed service to customers or users
+- Incorporating the software into a commercial product or service
+- Using the software to generate revenue
+- Any other use that results in commercial gain
+
+The restriction on commercial use is the unique aspect of this license and is strictly enforced.
+
+Change Date
+
+On the date that is four (4) years from the date this License file was first distributed by Licensor (the "Change Date"), the software will be made available under the terms of the MIT License.
+
+If you modify the software, this License continues to apply to your modified version under the same Change Date.
+
+Patent
+
+Licensor hereby grants you a non-exclusive, worldwide, royalty-free patent license to make, use, offer to sell, sell, import, and otherwise transfer the software, where such license applies only to those patent claims licensable by Licensor that are necessarily infringed by the software.
+
+Limitations
+
+The software is provided "AS IS" without warranty of any kind. Licensor shall not be liable for any damages arising out of or in connection with this License or the use of the software.
+
+Forfeiture
+
+If you begin litigation against Licensor over patents that you think may apply to the software for a non-defensive purpose, then your license from Licensor to the software ends immediately.
+
+Third-party Components
+
+The software may contain open source components. Any open source components are licensed under their respective licenses, which may be more permissive than this License. In case of conflict, the more permissive license applies to that component.
+
+Changes and Updates
+
+Licensor reserves the right to change the terms of this License in future versions (for software versions released after the effective date of any change), but any change will not retroactively apply to versions released before the change.
+
+---
+
+**Summary**: Non-commercial use is free. Commercial use is restricted to the original author. After 4 years, converts to MIT.
