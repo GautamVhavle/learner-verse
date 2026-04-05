@@ -5,7 +5,8 @@
     { "source": "/llms.txt", "destination": "/llms.txt" },
     { "source": "/llms-full.txt", "destination": "/llms-full.txt" },
     { "source": "/manifest.json", "destination": "/manifest.json" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/assets/:path*", "destination": "/assets/:path*" },
+    { "source": "/:path*", "destination": "/index.html" }
   ],
   "headers": [
     {
@@ -58,6 +59,5 @@
       ]
     }
   ],
-  "trailingSlash": false,
-  "cleanUrls": true
+  "trailingSlash": false
 }
