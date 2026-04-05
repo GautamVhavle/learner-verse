@@ -33,6 +33,14 @@ ORGANIZE_PROMPT = (
     '[{"section_title":"...", "lesson_indices":[0,1,2]}, ...]'
 )
 
+# Free models to try in order. If one is rate-limited, try the next.
+_FALLBACK_MODELS = [
+    "nvidia/nemotron-3-super-120b-a12b:free",
+    "meta-llama/llama-4-maverick:free",
+    "google/gemma-3-27b-it:free",
+    "qwen/qwen3-235b-a22b:free",
+]
+
 
 # ── DB-backed task helpers ──────────────────────────────────
 
@@ -192,13 +200,8 @@ class OrganizeService:
             missing = set(range(total_lessons)) - all_indices
             raise ValueError(f"AI missed {len(missing)} lessons. Please try again.")
 
-    async def _get_ai_plan(
-        self, lesson_titles: list[str], *, _retries: int = 3
-    ) -> list[dict] | None:
-        """Single call with compact prompt. Full context, no chunking.
-
-        Waits 20 s between retries to respect free-tier rate limits.
-        """
+    async def _get_ai_plan(self, lesson_titles: list[str]) -> list[dict] | None:
+        """One API call. If the model is rate-limited, try the next free model."""
         compact_lines = []
         for i, title in enumerate(lesson_titles):
             short = title[:60] + "…" if len(title) > 60 else title
@@ -214,35 +217,24 @@ class OrganizeService:
             {"role": "user", "content": user_msg},
         ]
 
-        for attempt in range(1, _retries + 1):
-            logger.info(
-                "Organize AI call (attempt %d/%d) for %d lessons",
-                attempt, _retries, len(lesson_titles),
-            )
+        for model in _FALLBACK_MODELS:
+            logger.info("Organize: trying model %s for %d lessons", model, len(lesson_titles))
             content = await call_chat_completion(
                 messages,
-                extra_payload={"reasoning": {"effort": "none"}, "max_tokens": 2000},
+                model=model,
+                extra_payload={"max_tokens": 2000},
                 long_timeout=True,
             )
             if content is None:
-                logger.error(
-                    "OpenRouter returned None (attempt %d/%d)", attempt, _retries
-                )
-                if attempt < _retries:
-                    await asyncio.sleep(20)  # Long pause before retry
+                logger.warning("Model %s failed, trying next", model)
                 continue
 
             parsed = extract_json_from_response(content)
             if parsed is None:
-                logger.error(
-                    "JSON parse failed (attempt %d/%d): %s",
-                    attempt, _retries, content[:500],
-                )
-                if attempt < _retries:
-                    await asyncio.sleep(20)
+                logger.error("JSON parse failed for model %s: %s", model, content[:500])
                 continue
 
-            logger.info("Parsed %d section groups (attempt %d/%d)", len(parsed), attempt, _retries)
+            logger.info("Organized into %d sections using model %s", len(parsed), model)
             return parsed
 
         return None

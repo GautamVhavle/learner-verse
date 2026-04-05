@@ -4,7 +4,6 @@ Provides both streaming and non-streaming interfaces to avoid
 duplicating HTTP/auth/error-handling logic across services.
 """
 
-import asyncio
 import json
 import logging
 import re
@@ -152,91 +151,46 @@ async def call_chat_completion(
         used_model, timeout.read, sum(len(m.get("content", "")) for m in messages),
     )
 
-    max_retries = 3 if long_timeout else 1
-    last_error: str | None = None
-
-    for attempt in range(1, max_retries + 1):
-        try:
-            async with httpx.AsyncClient(timeout=timeout) as client:
-                response = await client.post(
-                    f"{settings.OPENROUTER_BASE_URL}/chat/completions",
-                    headers=_build_headers(),
-                    json=payload,
-                )
-                if response.status_code == 429:
-                    wait = min(15 * attempt, 60)
-                    logger.warning(
-                        "OpenRouter rate-limited (429), retry %d/%d in %ds",
-                        attempt, max_retries, wait,
-                    )
-                    last_error = "rate-limited"
-                    await asyncio.sleep(wait)
-                    continue
-
-                if response.status_code != 200:
-                    logger.error(
-                        "OpenRouter HTTP %s (attempt %d/%d): %s",
-                        response.status_code, attempt, max_retries,
-                        response.text[:500],
-                    )
-                    last_error = f"HTTP {response.status_code}"
-                    if attempt < max_retries:
-                        await asyncio.sleep(2 ** attempt)
-                    continue
-
-                data = response.json()
-
-                # Some providers return an error object instead of choices
-                if "error" in data:
-                    err_msg = data["error"] if isinstance(data["error"], str) else data["error"].get("message", str(data["error"]))
-                    logger.error(
-                        "OpenRouter error in response (attempt %d/%d): %s",
-                        attempt, max_retries, err_msg,
-                    )
-                    last_error = err_msg
-                    if attempt < max_retries:
-                        await asyncio.sleep(2 ** attempt)
-                    continue
-
-                choices = data.get("choices")
-                if not choices:
-                    logger.error(
-                        "OpenRouter response missing 'choices' (attempt %d/%d): %s",
-                        attempt, max_retries, json.dumps(data)[:500],
-                    )
-                    last_error = "missing choices in response"
-                    if attempt < max_retries:
-                        await asyncio.sleep(2 ** attempt)
-                    continue
-
-                content = choices[0]["message"]["content"]
-                logger.info(
-                    "OpenRouter response: %d chars, first 200: %s",
-                    len(content), content[:200],
-                )
-                return content
-
-        except httpx.TimeoutException:
-            logger.error(
-                "OpenRouter timeout after %.0fs (attempt %d/%d, long_timeout=%s)",
-                timeout.read, attempt, max_retries, long_timeout,
+    try:
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            response = await client.post(
+                f"{settings.OPENROUTER_BASE_URL}/chat/completions",
+                headers=_build_headers(),
+                json=payload,
             )
-            last_error = "timeout"
-            if attempt < max_retries:
-                await asyncio.sleep(2 ** attempt)
-        except (json.JSONDecodeError, KeyError, IndexError) as exc:
-            logger.error("OpenRouter parse error (attempt %d/%d): %s", attempt, max_retries, exc)
-            last_error = str(exc)
-            if attempt < max_retries:
-                await asyncio.sleep(2 ** attempt)
-        except httpx.HTTPError as exc:
-            logger.error("OpenRouter HTTP error (attempt %d/%d): %s", attempt, max_retries, exc)
-            last_error = str(exc)
-            if attempt < max_retries:
-                await asyncio.sleep(2 ** attempt)
+            if response.status_code == 429:
+                logger.warning("OpenRouter rate-limited (429) for model %s", used_model)
+                return None
 
-    logger.error("OpenRouter failed after %d attempts, last error: %s", max_retries, last_error)
-    return None
+            if response.status_code != 200:
+                logger.error("OpenRouter HTTP %s: %s", response.status_code, response.text[:500])
+                return None
+
+            data = response.json()
+
+            if "error" in data:
+                err_msg = data["error"] if isinstance(data["error"], str) else data["error"].get("message", str(data["error"]))
+                logger.error("OpenRouter error: %s", err_msg)
+                return None
+
+            choices = data.get("choices")
+            if not choices:
+                logger.error("OpenRouter response missing 'choices': %s", json.dumps(data)[:500])
+                return None
+
+            content = choices[0]["message"]["content"]
+            logger.info("OpenRouter response: %d chars, first 200: %s", len(content), content[:200])
+            return content
+
+    except httpx.TimeoutException:
+        logger.error("OpenRouter timeout after %.0fs for model %s", timeout.read, used_model)
+        return None
+    except (json.JSONDecodeError, KeyError, IndexError) as exc:
+        logger.error("OpenRouter parse error: %s", exc)
+        return None
+    except httpx.HTTPError as exc:
+        logger.error("OpenRouter HTTP error: %s", exc)
+        return None
 
 
 # ── Think-block stripping ────────────────────────────────────
