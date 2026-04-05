@@ -10,7 +10,6 @@ import { useNavigate } from "react-router";
 import {
   ArrowRight,
   Play,
-  BookOpen,
   Brain,
   Award,
   Sparkles,
@@ -85,7 +84,7 @@ function ProductDemo() {
               { section: "Getting Started", lessons: 4, done: true },
               { section: "Core Concepts", lessons: 8, done: true },
               { section: "Advanced Patterns", lessons: 6, done: false },
-            ].map((s, i) => (
+            ].map((s) => (
               <div
                 key={s.section}
                 className="demo-section flex items-center gap-2.5 rounded-lg border border-white/[0.04] bg-white/[0.02] px-3 py-2"
@@ -276,11 +275,12 @@ export function HeroSection() {
             <h1 className="text-3xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-4xl md:text-5xl lg:text-[3.4rem] xl:text-6xl">
               YouTube to{" "}
               <SparklesText
-                text="Structured"
                 className="inline-block bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent"
                 sparklesCount={4}
                 colors={{ first: "#60a5fa", second: "#a78bfa" }}
-              />
+              >
+                Structured
+              </SparklesText>
               <br />
               Learning in Seconds.
             </h1>
