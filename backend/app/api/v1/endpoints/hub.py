@@ -229,6 +229,78 @@ async def get_hub_course(
     )
 
 
+# ── Public (Unauthenticated) Course Access ───────────────────
+
+@router.get("/public/courses/{course_id}", response_model=CourseResponse)
+async def get_public_course(
+    course_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """Get a public, ready course by ID (no auth required)."""
+    repo = CourseRepository(db)
+    rating_repo = RatingRepository(db)
+    section_repo = SectionRepository(db)
+    enrollment_repo = EnrollmentRepository(db)
+
+    course = await repo.get_public_by_id(course_id)
+    if not course:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found.")
+
+    sections = await section_repo.list_by_course(course_id)
+    section_count = len(sections)
+    lesson_count = sum(len(s.lessons) for s in sections)
+    avg, r_count = await rating_repo.get_stats(course_id)
+    e_count = await enrollment_repo.get_enrollment_count(course_id)
+
+    from sqlalchemy import select
+    from app.models.user import User as UserModel
+    result = await db.execute(
+        select(UserModel.display_name).where(UserModel.id == course.user_id)
+    )
+    creator_name = result.scalar_one_or_none() or ""
+
+    return CourseResponse(
+        id=course.id,
+        user_id=course.user_id,
+        title=course.title,
+        description=course.description,
+        thumbnail_url=course.thumbnail_url,
+        status=course.status,
+        is_public=course.is_public,
+        is_deleted=course.is_deleted,
+        deleted_at=course.deleted_at,
+        goal_date=course.goal_date,
+        tags=[{"id": t.id, "name": t.name} for t in (course.tags or [])],
+        section_count=section_count,
+        lesson_count=lesson_count,
+        has_issues=False,
+        enrollment_count=e_count,
+        average_rating=avg,
+        rating_count=r_count,
+        creator_name=creator_name,
+        created_at=course.created_at,
+        updated_at=course.updated_at,
+    )
+
+
+@router.get("/public/courses/{course_id}/sections")
+async def list_public_sections(
+    course_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """Return sections for a public, ready course (no auth required)."""
+    repo = CourseRepository(db)
+    section_repo = SectionRepository(db)
+
+    course = await repo.get_public_by_id(course_id)
+    if not course:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found.")
+
+    sections = await section_repo.list_by_course(course_id)
+    from app.schemas.section import SectionResponse
+    return [SectionResponse.model_validate(s) for s in sections]
+
+
 # ── Accessible Sections ───────────────────────────────────────
 
 @router.get("/courses/{course_id}/sections")

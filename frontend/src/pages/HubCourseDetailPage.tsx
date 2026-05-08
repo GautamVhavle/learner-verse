@@ -35,6 +35,9 @@ export default function HubCourseDetailPage() {
   const { user } = useAuth();
   const { mode } = useMode();
   const modePrefix = mode === "creator" ? "/creator" : "/learner";
+  const publicBase = (import.meta.env.VITE_PUBLIC_SITE_URL
+    ?? (typeof window !== "undefined" ? window.location.origin : "")
+  ).replace(/\/$/, "");
 
   const { data: course, isLoading } = useHubCourseQuery(courseId ?? "");
   const { data: ratingsData } = useRatingsQuery(courseId ?? "");
@@ -210,8 +213,7 @@ export default function HubCourseDetailPage() {
               <Button
                 variant="outline"
                 onClick={async () => {
-                  const apiBase = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
-                  const shareUrl = `${apiBase}/share/course/${course.id}`;
+                  const shareUrl = `${publicBase}/share/course/${course.id}`;
                   try {
                     await navigator.clipboard.writeText(shareUrl);
                     toast.success("Share link copied to clipboard");

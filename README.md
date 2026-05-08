@@ -64,7 +64,7 @@ Paste a YouTube video or playlist URL → LearnerVerse uses AI to organize it in
 | **Frontend** | React 19, TypeScript, Tailwind CSS v4, Vite, TanStack Query, GSAP, Motion |
 | **Backend** | FastAPI, SQLAlchemy (async), Alembic, PostgreSQL |
 | **Auth** | Auth0 (JWT RS256) — toggle `SINGLE_USER_MODE=true` for local dev |
-| **AI** | OpenRouter API (quiz generation, course organization, LiVi chat) |
+| **AI** | OpenRouter (primary) + Gemini fallback on OpenRouter 429 rate limits |
 | **Database** | Supabase PostgreSQL (prod) / any Postgres locally |
 | **Deployment** | Vercel (frontend) · FastAPI Cloud (backend) |
 
@@ -83,17 +83,14 @@ Paste a YouTube video or playlist URL → LearnerVerse uses AI to organize it in
 ```bash
 git clone https://github.com/GautamVhavle/learner-verse.git
 cd learner-verse
+make setup   # copies sample.env files → .env / frontend/.env
 ```
 
-Copy and fill in the env files:
-
-```bash
-cp backend/sample.env .env        # root .env used by docker-compose & backend
-cp frontend/sample.env frontend/.env
-```
+Edit the generated `.env` and `frontend/.env` with your settings.
 
 > [!TIP]
 > Set `SINGLE_USER_MODE=true` and `VITE_SINGLE_USER_MODE=true` to skip Auth0 setup entirely during local development.
+> Set `GEMINI_API_KEY` to enable automatic fallback when OpenRouter is rate-limited.
 
 ### 2. Backend
 
@@ -124,8 +121,11 @@ docker compose up --build         # backend :8000, frontend :3000
 
 | Command | Description |
 |---------|-------------|
+| `make setup` | Copy sample.env files for first-time setup |
 | `make dev-backend` | Run backend with hot reload |
 | `make dev-frontend` | Run frontend dev server |
+| `make dev-db` | Start PostgreSQL via Docker |
+| `make docker` | Build & start everything with Docker Compose |
 | `make migrate` | Run alembic migrations |
 | `make migration msg="..."` | Create new migration |
 | `make test` | Run all tests |
@@ -149,8 +149,12 @@ docker compose up --build         # backend :8000, frontend :3000
 | `DATABASE_URL` | Yes | PostgreSQL connection string (asyncpg) |
 | `SECRET_KEY` | Yes | Random 64-char string |
 | `SINGLE_USER_MODE` | No | `true` to bypass auth (local dev) |
+| `PAYMENT_GATEWAY_ENABLED` | No | `true` to enable payment gateway (default `false`) |
 | `AUTH0_AUDIENCE` | Prod | Auth0 API identifier |
 | `OPENROUTER_API_KEY` | For AI | OpenRouter API key |
+| `OPENROUTER_MODEL` | No | Primary OpenRouter model (default: free Nemotron) |
+| `GEMINI_API_KEY` | Optional | Gemini fallback key (used when OpenRouter returns 429) |
+| `GEMINI_MODEL` | No | Gemini fallback model (default: `gemini-2.5-flash`) |
 | `SENTRY_DSN` | Prod | Sentry error tracking |
 | `CORS_ORIGINS` | Yes | Comma-separated allowed origins |
 
@@ -165,6 +169,7 @@ docker compose up --build         # backend :8000, frontend :3000
 |----------|----------|-------------|
 | `VITE_API_BASE_URL` | Yes | Backend API URL |
 | `VITE_SINGLE_USER_MODE` | No | `true` to bypass auth |
+| `VITE_PAYMENT_GATEWAY_ENABLED` | No | `true` to show payment UI (default `false`) |
 | `VITE_AUTH0_DOMAIN` | Prod | Auth0 domain |
 | `VITE_AUTH0_CLIENT_ID` | Prod | Auth0 client ID |
 | `VITE_AUTH0_AUDIENCE` | Prod | Auth0 API identifier |
@@ -179,8 +184,35 @@ docker compose up --build         # backend :8000, frontend :3000
 |--------|---------|
 | **Frontend** (Vercel) | `cd frontend && vercel --prod` |
 | **Backend** (FastAPI Cloud) | `cd backend && uv run fastapi deploy --app-id <YOUR_APP_ID>` |
+| **Docker** (self-hosted) | `make docker` |
 
 > The backend uses `[tool.fastapi] entrypoint = "app.main:app"` in `pyproject.toml`.
+
+<br />
+
+## ✦ Self-Hosting
+
+LearnerVerse supports three deployment modes:
+
+| Mode | Auth | Pro Features | Payment UI |
+|------|------|-------------|------------|
+| **Single-user** | None (`SINGLE_USER_MODE=true`) | All unlocked | Hidden |
+| **Multi-user** | Auth0 | All unlocked | Hidden |
+| **Hosted SaaS** | Auth0 + payment submodule | Gated behind paywall | Visible |
+
+By default, `PAYMENT_GATEWAY_ENABLED=false` — every user gets full Pro access. No pricing pages, upgrade banners, or paywall dialogs appear. Self-hosters get the complete feature set out of the box.
+
+### Quick start (Docker)
+
+```bash
+git clone https://github.com/GautamVhavle/learner-verse.git
+cd learner-verse
+make setup        # copy sample.env files
+# Edit .env and frontend/.env with your settings
+make docker       # start everything
+```
+
+The app will be available at `http://localhost:3000` (frontend) and `http://localhost:8000` (backend API).
 
 <br />
 

@@ -157,9 +157,16 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
     never forwarded to the client to avoid leaking internal information.
     """
     logger.error("Unhandled error on %s %s:\n%s", request.method, request.url, traceback.format_exc())
+    origin = request.headers.get("origin", "")
+    allowed = settings.cors_origins_list
+    headers = {}
+    if origin and (origin in allowed or "*" in allowed):
+        headers["access-control-allow-origin"] = origin
+        headers["access-control-allow-credentials"] = "true"
     return JSONResponse(
         status_code=500,
         content={"detail": "Internal server error."},
+        headers=headers,
     )
 
 

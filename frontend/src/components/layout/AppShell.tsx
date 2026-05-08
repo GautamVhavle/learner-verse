@@ -1,7 +1,7 @@
 /**
  * Application shell providing sidebar, header, search palette, and keyboard shortcuts.
  */
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Outlet, useNavigate } from "react-router";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -16,6 +16,8 @@ import { useMode } from "@/hooks/useMode";
 import { useFocusMode } from "@/hooks/useFocusMode";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useUserQuery } from "@/hooks/useUser";
+import { PRO_WELCOME_PENDING_KEY } from "@/hooks/useSubscription";
+import { CongratulationsDialog } from "@/components/subscription/CongratulationsDialog";
 import { useChatStore } from "@/stores/chatStore";
 import type { AppMode } from "@/stores/modeStore";
 
@@ -29,9 +31,11 @@ export function AppShell({ mode }: AppShellProps) {
   const { focusMode, setFocusMode } = useFocusMode();
   const [searchOpen, setSearchOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [showProWelcome, setShowProWelcome] = useState(false);
   const { data: user, isLoading: userLoading } = useUserQuery();
   const [onboardingDismissed, setOnboardingDismissed] = useState(false);
   const { toggleChat } = useChatStore();
+  const prevIsProRef = useRef<boolean | null>(null);
 
   const handleToggleMode = useCallback(() => {
     const newMode = mode === "creator" ? "student" : "creator";
@@ -80,6 +84,22 @@ export function AppShell({ mode }: AppShellProps) {
 
   useKeyboardShortcuts(shortcuts());
 
+  // Show welcome dialog reliably after a successful Pro activation.
+  useEffect(() => {
+    if (!user || userLoading) return;
+
+    const pending = sessionStorage.getItem(PRO_WELCOME_PENDING_KEY);
+    const previous = prevIsProRef.current;
+    const justActivated = previous === false && user.is_pro;
+
+    if (user.is_pro && (Boolean(pending) || justActivated)) {
+      setShowProWelcome(true);
+      sessionStorage.removeItem(PRO_WELCOME_PENDING_KEY);
+    }
+
+    prevIsProRef.current = user.is_pro;
+  }, [user, userLoading]);
+
   // Show onboarding for first-time users
   if (!userLoading && user && !user.onboarding_complete && !onboardingDismissed) {
     return <OnboardingPage onComplete={() => setOnboardingDismissed(true)} />;
@@ -110,6 +130,10 @@ export function AppShell({ mode }: AppShellProps) {
       <KeyboardShortcuts open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
       <LiviChatPanel />
       <FontSizeSync />
+      <CongratulationsDialog
+        open={showProWelcome}
+        onOpenChange={setShowProWelcome}
+      />
     </TooltipProvider>
   );
 }

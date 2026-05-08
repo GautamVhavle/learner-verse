@@ -22,6 +22,10 @@ class UserResponse(BaseModel):
     cover_image_url: str | None = None
     is_profile_public: bool = False
     auto_play_next: bool = True
+    is_pro: bool = False
+    pro_since: datetime | None = None
+    pro_expires_at: datetime | None = None
+    pro_plan: str | None = None
     created_at: datetime
     updated_at: datetime
 

@@ -1,11 +1,14 @@
 """API endpoints for authentication and user profile."""
 
+from datetime import datetime, timezone
+
 from pydantic import BaseModel, EmailStr
 from fastapi import APIRouter, Depends
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_current_user
+from app.core.config import settings
 from app.core.database import get_db
 from app.models import (
     ActivityLog,
@@ -33,8 +36,25 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.get("/me", response_model=UserResponse)
-async def get_me(user: User = Depends(get_current_user)):
-    """Get current authenticated user profile."""
+async def get_me(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get current authenticated user profile.
+
+    Performs lazy-expiry: if the user's Pro subscription has lapsed,
+    ``is_pro`` is flipped to False and persisted automatically.
+    Skipped when the payment gateway is disabled (all users are Pro).
+    """
+    if (
+        settings.PAYMENT_GATEWAY_ENABLED
+        and user.is_pro
+        and user.pro_expires_at is not None
+        and user.pro_expires_at < datetime.now(timezone.utc)
+    ):
+        user.is_pro = False
+        await db.commit()
+        await db.refresh(user)
     return user
 
 

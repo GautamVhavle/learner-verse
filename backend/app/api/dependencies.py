@@ -82,4 +82,10 @@ async def get_current_user(
                     detail="Failed to retrieve user after concurrent creation.",
                 )
 
+    # When the payment gateway is disabled, treat every user as Pro.
+    # This is a runtime override — no database write — so it's safe and
+    # reversible. Self-hosters get all features unlocked by default.
+    if not settings.PAYMENT_GATEWAY_ENABLED:
+        user.is_pro = True
+
     return user

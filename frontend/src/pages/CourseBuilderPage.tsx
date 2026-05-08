@@ -40,6 +40,7 @@ import { ValidationErrorsDialog } from "@/components/course/ValidationErrorsDial
 import { useCourseBuilder } from "@/hooks/useCourseBuilder";
 import { useUpdateCourseMutation, useValidateCourseQuery } from "@/hooks/useCourses";
 import { useOrganizeSectionsMutation, useResumeOrganizePolling } from "@/hooks/useSections";
+import { useProGate } from "@/hooks/useProGate";
 import type { ValidationError } from "@/types/course";
 
 export default function CourseBuilderPage() {
@@ -48,6 +49,7 @@ export default function CourseBuilderPage() {
   const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
   const [showValidation, setShowValidation] = useState(false);
+  const { gatedAction, ProGate } = useProGate();
   const [showPrivateWarning, setShowPrivateWarning] = useState(false);
   const updateCourse = useUpdateCourseMutation();
   const validateQuery = useValidateCourseQuery(courseId);
@@ -221,16 +223,17 @@ export default function CourseBuilderPage() {
             Preview
           </Button>
 
+          <ProGate />
           {!isReady && totalLessons >= 2 && (
             <Button
               variant="outline"
               size="sm"
-              onClick={() =>
+              onClick={gatedAction(() =>
                 organizeMutation.mutate(undefined, {
                   onSuccess: () => toast.success("Course organized by LiVi!"),
                   onError: () => toast.error("Failed to organize. Please try again."),
                 })
-              }
+              )}
               disabled={organizeMutation.isPending || isResuming}
               className="gap-1.5 border-accent-purple/30 text-accent-purple hover:bg-accent-purple/10"
             >

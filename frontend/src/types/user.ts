@@ -14,6 +14,10 @@ export interface UserSettings {
   social_links: SocialLink[];
   is_profile_public: boolean;
   auto_play_next: boolean;
+  is_pro: boolean;
+  pro_since: string | null;
+  pro_expires_at: string | null;
+  pro_plan: "monthly" | "yearly" | null;
 }
 
 export interface UserProfile {
@@ -32,6 +36,10 @@ export interface UserProfile {
   social_links: SocialLink[];
   is_profile_public: boolean;
   auto_play_next: boolean;
+  is_pro: boolean;
+  pro_since: string | null;
+  pro_expires_at: string | null;
+  pro_plan: "monthly" | "yearly" | null;
   created_at: string;
   updated_at: string;
 }

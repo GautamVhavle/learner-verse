@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/share/:path*", "destination": "https://learner-verse.fastapicloud.dev/api/v1/share/:path*" },
     { "source": "/robots.txt", "destination": "/robots.txt" },
     { "source": "/sitemap.xml", "destination": "/sitemap.xml" },
     { "source": "/llms.txt", "destination": "/llms.txt" },

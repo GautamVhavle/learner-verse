@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/sidebar";
 import { ChevronsUpDown } from "lucide-react";
 import { useModeAwareNavigate } from "@/hooks/useModeAwareNavigate";
+import { useUserQuery } from "@/hooks/useUser";
 import { SINGLE_USER_MODE } from "@/lib/auth";
 
 interface NavUserProps {
@@ -39,6 +40,7 @@ function getInitials(name: string): string {
 export function NavUser({ name, email, avatar }: NavUserProps) {
   const { isMobile } = useSidebar();
   const navigate = useModeAwareNavigate();
+  const { data: profile } = useUserQuery();
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const auth0 = SINGLE_USER_MODE ? null : useAuth0();
 
@@ -63,7 +65,14 @@ export function NavUser({ name, email, avatar }: NavUserProps) {
               </AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-medium">{name}</span>
+              <span className="flex items-center gap-1.5 truncate font-medium">
+                {name}
+                {profile?.is_pro && (
+                  <span className="rounded-sm bg-accent-purple/10 px-1.5 py-0.5 text-[9px] font-semibold text-accent-purple">
+                    PRO
+                  </span>
+                )}
+              </span>
               <span className="truncate text-xs text-muted-foreground">
                 {email}
               </span>

@@ -30,6 +30,7 @@ import {
 } from "@/hooks/useDiscussion";
 import { useQueryClient } from "@tanstack/react-query";
 import type { DiscussionMessage } from "@/types/discussion";
+import { useProGate } from "@/hooks/useProGate";
 
 /* ── Role Config ───────────────────────────────────── */
 
@@ -69,6 +70,7 @@ export function DiscussionRoom({ courseId }: DiscussionRoomProps) {
   const [cursor, setCursor] = useState<string | undefined>(undefined);
   const [allMessages, setAllMessages] = useState<DiscussionMessage[]>([]);
   const [showMiviHint, setShowMiviHint] = useState(false);
+  const { isPro, showGate, ProGate } = useProGate();
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -149,6 +151,12 @@ export function DiscussionRoom({ courseId }: DiscussionRoomProps) {
     const trimmed = input.trim();
     if (!trimmed || sendMutation.isPending) return;
 
+    // Gate @MiVi mentions behind Pro
+    if (!isPro && trimmed.toLowerCase().includes("@mivi")) {
+      showGate();
+      return;
+    }
+
     const replySnapshot = replyTo;
 
     // Optimistic message — show immediately
@@ -201,6 +209,7 @@ export function DiscussionRoom({ courseId }: DiscussionRoomProps) {
   };
 
   const insertMiVi = () => {
+    if (!isPro) { showGate(); return; }
     const atIdx = input.lastIndexOf("@");
     const before = atIdx >= 0 ? input.slice(0, atIdx) : input;
     setInput(before + "@MiVi ");
@@ -212,6 +221,7 @@ export function DiscussionRoom({ courseId }: DiscussionRoomProps) {
   if (showEmptyState) {
     return (
       <div className="flex h-full flex-col">
+        <ProGate />
         <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-16">
           <div className="flex size-12 items-center justify-center rounded-xl bg-accent-purple/10">
             <MessageSquare className="size-5 text-accent-purple" />
@@ -251,6 +261,7 @@ export function DiscussionRoom({ courseId }: DiscussionRoomProps) {
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
+      <ProGate />
       {/* Messages */}
       <div
         ref={scrollRef}

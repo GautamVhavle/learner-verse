@@ -16,6 +16,7 @@ import { ChatEmptyState } from "./ChatEmptyState";
 import { ChatThreadList } from "./ChatThreadList";
 import { useLiviChat } from "@/hooks/useLiviChat";
 import { useChatStore } from "@/stores/chatStore";
+import { useProGate } from "@/hooks/useProGate";
 
 const MIN_WIDTH = 360;
 const MAX_WIDTH = 700;
@@ -95,8 +96,22 @@ export function LiviChatPanel() {
   }, [width]);
 
   const hasMessages = messages.length > 0;
+  const { isPro, showGate, ProGate } = useProGate();
+
+  // When a non-Pro user opens the chat panel, show the upgrade gate
+  // and close the panel when they dismiss it.
+  useEffect(() => {
+    if (isOpen && !isPro) {
+      showGate();
+    }
+  }, [isOpen, isPro, showGate]);
 
   if (!isOpen) return null;
+
+  // Free users see the upgrade dialog instead of the chat panel
+  if (!isPro) {
+    return <ProGate />;
+  }
 
   return (
     <>

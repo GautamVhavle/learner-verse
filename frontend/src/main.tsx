@@ -19,6 +19,15 @@ const queryClient = new QueryClient({
 // Hydrate theme store so the correct class is applied immediately
 useThemeStore.getState();
 
+// Inject google-site-verification meta tag only when the env var is set
+const gsv = import.meta.env.VITE_GOOGLE_SITE_VERIFICATION;
+if (gsv) {
+  const meta = document.createElement('meta');
+  meta.name = 'google-site-verification';
+  meta.content = gsv;
+  document.head.appendChild(meta);
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>

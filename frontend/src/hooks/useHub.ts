@@ -56,11 +56,29 @@ export function useHubCourseQuery(courseId: string) {
   });
 }
 
+export function usePublicCourseQuery(courseId: string) {
+  return useQuery<Course>({
+    queryKey: ["public-course", courseId],
+    queryFn: () => api.get(`/hub/public/courses/${courseId}`),
+    enabled: !!courseId,
+    retry: false,
+  });
+}
+
 export function useHubSectionsQuery(courseId: string | undefined) {
   return useQuery<Section[]>({
     queryKey: ["hub-sections", courseId],
     queryFn: () => api.get(`/hub/courses/${courseId}/sections`),
     enabled: !!courseId,
+  });
+}
+
+export function usePublicCourseSectionsQuery(courseId: string | undefined) {
+  return useQuery<Section[]>({
+    queryKey: ["public-course-sections", courseId],
+    queryFn: () => api.get(`/hub/public/courses/${courseId}/sections`),
+    enabled: !!courseId,
+    retry: false,
   });
 }
 

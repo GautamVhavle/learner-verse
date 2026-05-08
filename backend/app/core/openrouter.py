@@ -41,10 +41,205 @@ _TIMEOUT_LONG = httpx.Timeout(
     pool=POOL_TIMEOUT,
 )
 
+RATE_LIMIT_MESSAGE = (
+    "I'm being rate-limited by the AI provider. Please wait a moment and try again."
+)
+
+
+def _openrouter_payload_overrides(extra_payload: dict | None) -> dict:
+    """Return payload keys safe to send to OpenRouter."""
+    if not extra_payload:
+        return {}
+    return {k: v for k, v in extra_payload.items() if not k.startswith("gemini_")}
+
 
 def _build_headers() -> dict[str, str]:
     """Build request headers including the current API key."""
     return {**_HEADERS_BASE, "Authorization": f"Bearer {settings.OPENROUTER_API_KEY}"}
+
+
+def _normalize_message_content(content: object) -> str:
+    """Normalize OpenAI-style message content into plain text."""
+    if isinstance(content, str):
+        return content
+
+    if isinstance(content, list):
+        parts: list[str] = []
+        for item in content:
+            if isinstance(item, str):
+                parts.append(item)
+                continue
+            if isinstance(item, dict) and item.get("type") == "text":
+                text = item.get("text")
+                if isinstance(text, str):
+                    parts.append(text)
+        return "\n".join(parts)
+
+    return "" if content is None else str(content)
+
+
+def _gemini_payload_from_messages(
+    messages: list[dict], *, extra_payload: dict | None = None
+) -> dict:
+    """Convert OpenAI-style messages into a Gemini generateContent payload."""
+    system_lines: list[str] = []
+    contents: list[dict] = []
+
+    for msg in messages:
+        role = str(msg.get("role", "user"))
+        text = _normalize_message_content(msg.get("content", "")).strip()
+        if not text:
+            continue
+
+        if role == "system":
+            system_lines.append(text)
+            continue
+
+        gemini_role = "model" if role == "assistant" else "user"
+        contents.append({"role": gemini_role, "parts": [{"text": text}]})
+
+    if not contents:
+        contents = [{"role": "user", "parts": [{"text": "Continue."}]}]
+
+    payload: dict = {"contents": contents}
+
+    if system_lines:
+        payload["system_instruction"] = {
+            "parts": [{"text": "\n\n".join(system_lines)}]
+        }
+
+    generation_config: dict = {}
+    if extra_payload:
+        max_tokens = extra_payload.get("max_tokens")
+        if isinstance(max_tokens, int) and max_tokens > 0:
+            generation_config["maxOutputTokens"] = max_tokens
+
+        temperature = extra_payload.get("temperature")
+        if isinstance(temperature, int | float):
+            generation_config["temperature"] = temperature
+
+        top_p = extra_payload.get("top_p")
+        if isinstance(top_p, int | float):
+            generation_config["topP"] = top_p
+
+        top_k = extra_payload.get("top_k")
+        if isinstance(top_k, int):
+            generation_config["topK"] = top_k
+
+        stop = extra_payload.get("stop")
+        if isinstance(stop, str) and stop:
+            generation_config["stopSequences"] = [stop]
+        elif isinstance(stop, list):
+            sequences = [s for s in stop if isinstance(s, str) and s]
+            if sequences:
+                generation_config["stopSequences"] = sequences
+
+        response_mime_type = extra_payload.get("gemini_response_mime_type")
+        if isinstance(response_mime_type, str) and response_mime_type:
+            generation_config["responseMimeType"] = response_mime_type
+
+        thinking_budget = extra_payload.get("gemini_thinking_budget")
+        if isinstance(thinking_budget, int) and thinking_budget >= 0:
+            generation_config["thinkingConfig"] = {
+                "thinkingBudget": thinking_budget
+            }
+
+    if generation_config:
+        payload["generationConfig"] = generation_config
+
+    return payload
+
+
+def _extract_gemini_text(data: dict) -> str | None:
+    """Extract plain text from Gemini generateContent JSON response."""
+    candidates = data.get("candidates")
+    if not isinstance(candidates, list) or not candidates:
+        return None
+
+    first = candidates[0] if isinstance(candidates[0], dict) else {}
+    content = first.get("content") if isinstance(first, dict) else {}
+    parts = content.get("parts") if isinstance(content, dict) else []
+    if not isinstance(parts, list):
+        return None
+
+    chunks: list[str] = []
+    for part in parts:
+        if isinstance(part, dict):
+            text = part.get("text")
+            if isinstance(text, str) and text:
+                chunks.append(text)
+
+    merged = "".join(chunks).strip()
+    return merged or None
+
+
+async def call_gemini_completion(
+    messages: list[dict],
+    *,
+    model: str | None = None,
+    extra_payload: dict | None = None,
+    long_timeout: bool = False,
+) -> str | None:
+    """Call Gemini generateContent API and return text, or None on failure."""
+    if not settings.GEMINI_API_KEY:
+        logger.info("Gemini fallback skipped: GEMINI_API_KEY not set")
+        return None
+
+    used_model = model or settings.GEMINI_MODEL
+    payload = _gemini_payload_from_messages(messages, extra_payload=extra_payload)
+    timeout = _TIMEOUT_LONG if long_timeout else _TIMEOUT
+
+    logger.info(
+        "Gemini request: model=%s, timeout=%.0fs, msg_chars=%d",
+        used_model,
+        timeout.read,
+        sum(len(_normalize_message_content(m.get("content", ""))) for m in messages),
+    )
+
+    try:
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            response = await client.post(
+                f"{settings.GEMINI_BASE_URL}/models/{used_model}:generateContent",
+                headers={"x-goog-api-key": settings.GEMINI_API_KEY},
+                json=payload,
+            )
+
+        if response.status_code == 429:
+            logger.warning("Gemini rate-limited (429) for model %s", used_model)
+            return None
+
+        if response.status_code != 200:
+            logger.error("Gemini HTTP %s: %s", response.status_code, response.text[:500])
+            return None
+
+        data = response.json()
+
+        if "error" in data:
+            err = data["error"]
+            if isinstance(err, dict):
+                err_msg = err.get("message", str(err))
+            else:
+                err_msg = str(err)
+            logger.error("Gemini error: %s", err_msg)
+            return None
+
+        content = _extract_gemini_text(data)
+        if not content:
+            logger.error("Gemini response missing text: %s", json.dumps(data)[:500])
+            return None
+
+        logger.info("Gemini response: %d chars, first 200: %s", len(content), content[:200])
+        return content
+
+    except httpx.TimeoutException:
+        logger.error("Gemini timeout after %.0fs for model %s", timeout.read, used_model)
+        return None
+    except (json.JSONDecodeError, KeyError, IndexError) as exc:
+        logger.error("Gemini parse error: %s", exc)
+        return None
+    except httpx.HTTPError as exc:
+        logger.error("Gemini HTTP error: %s", exc)
+        return None
 
 
 # ── Streaming ────────────────────────────────────────────────
@@ -70,7 +265,7 @@ async def stream_chat_completions(
         "messages": messages,
         "stream": True,
         "reasoning": {"effort": "none"},
-        **(extra_payload or {}),
+        **_openrouter_payload_overrides(extra_payload),
     }
 
     try:
@@ -82,7 +277,15 @@ async def stream_chat_completions(
                 json=payload,
             ) as response:
                 if response.status_code == 429:
-                    yield "I'm being rate-limited by the AI provider. Please wait a moment and try again."
+                    logger.warning("OpenRouter streaming rate-limited (429); trying Gemini")
+                    fallback = await call_gemini_completion(
+                        messages,
+                        extra_payload=extra_payload,
+                    )
+                    if fallback is not None:
+                        yield fallback
+                    else:
+                        yield RATE_LIMIT_MESSAGE
                     return
                 if response.status_code != 200:
                     logger.error(
@@ -138,11 +341,12 @@ async def call_chat_completion(
         return None
 
     used_model = model or settings.OPENROUTER_MODEL
+    openrouter_extra = _openrouter_payload_overrides(extra_payload)
     payload: dict = {
         "model": used_model,
         "messages": messages,
         "stream": False,
-        **(extra_payload or {}),
+        **openrouter_extra,
     }
 
     timeout = _TIMEOUT_LONG if long_timeout else _TIMEOUT
@@ -160,6 +364,14 @@ async def call_chat_completion(
             )
             if response.status_code == 429:
                 logger.warning("OpenRouter rate-limited (429) for model %s", used_model)
+                fallback = await call_gemini_completion(
+                    messages,
+                    extra_payload=extra_payload,
+                    long_timeout=long_timeout,
+                )
+                if fallback is not None:
+                    logger.info("Served completion from Gemini fallback after OpenRouter 429")
+                    return fallback
                 return None
 
             if response.status_code != 200:

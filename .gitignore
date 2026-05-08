@@ -43,6 +43,7 @@ htmlcov/
 coverage/
 test-results/
 playwright-report/
+temp
 
 # === Uploads ===
 uploads/

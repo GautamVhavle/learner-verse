@@ -11,6 +11,9 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
+    // Resolve imports relative to the symlink location (not the target).
+    // Required for the payment submodule symlinks to find node_modules.
+    preserveSymlinks: true,
   },
   server: {
     port: 5173,

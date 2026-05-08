@@ -9,7 +9,7 @@ const FOOTER_LINKS = {
     { label: "Features", href: "#features" },
     { label: "How It Works", href: "#how-it-works" },
     { label: "Course Hub", href: "#" },
-    { label: "Pricing", href: "#" },
+    { label: "Pricing", href: "/pricing" },
   ],
   Resources: [
     { label: "Documentation", href: "#" },

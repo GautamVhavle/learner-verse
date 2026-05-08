@@ -13,6 +13,7 @@ services:
       BACKEND_HOST: "0.0.0.0"
       BACKEND_PORT: "8000"
       UPLOAD_DIR: "/app/uploads"
+      PAYMENT_GATEWAY_ENABLED: "${PAYMENT_GATEWAY_ENABLED:-false}"
       CORS_ORIGINS: "http://localhost:3000,http://localhost:5173,https://learner-verse.vercel.app"
     volumes:
       - uploads:/app/uploads
@@ -34,6 +35,7 @@ services:
         VITE_AUTH0_DOMAIN: ${VITE_AUTH0_DOMAIN:-}
         VITE_AUTH0_CLIENT_ID: ${VITE_AUTH0_CLIENT_ID:-}
         VITE_AUTH0_AUDIENCE: ${VITE_AUTH0_AUDIENCE:-}
+        VITE_PAYMENT_GATEWAY_ENABLED: ${VITE_PAYMENT_GATEWAY_ENABLED:-false}
     container_name: learnerverse-frontend
     restart: unless-stopped
     ports:

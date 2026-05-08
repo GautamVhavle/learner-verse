@@ -3,7 +3,7 @@
  *
  * Profile editing is on a separate dedicated page (/profile).
  */
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import {
   Keyboard,
   Database,
@@ -17,10 +17,15 @@ import {
   Settings,
   Mail,
   Shield,
+  Sparkles,
+  Crown,
 } from "lucide-react";
 import { PreferencesSection } from "@/components/settings/PreferencesSection";
 import { DangerZoneSection } from "@/components/settings/DangerZoneSection";
 import { useUserQuery, useUpdateUserMutation } from "@/hooks/useUser";
+import { PAYMENT_GATEWAY_ENABLED } from "@/lib/payment";
+import { useCancelSubscriptionMutation } from "@/hooks/useSubscription";
+import { useModeAwareNavigate } from "@/hooks/useModeAwareNavigate";
 import { useThemeStore, type Theme } from "@/stores/themeStore";
 import { usePlatform } from "@/hooks/usePlatform";
 import {
@@ -29,6 +34,17 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 import type { UserSettings } from "@/types/user";
 
 /** Reusable tooltip icon for inline help. */
@@ -53,6 +69,9 @@ function HelpTip({ text }: { text: string }) {
 export default function SettingsPage() {
   const { data: user, isLoading } = useUserQuery();
   const update = useUpdateUserMutation();
+  const cancelSub = useCancelSubscriptionMutation();
+  const navigate = useModeAwareNavigate();
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
   const { theme, setTheme } = useThemeStore();
   const { isMobile, mod, shift } = usePlatform();
 
@@ -264,6 +283,68 @@ export default function SettingsPage() {
           </div>
         </section>
 
+        {/* ── Subscription (only when payment gateway is enabled) ── */}
+        {PAYMENT_GATEWAY_ENABLED && (
+        <section className="space-y-4 rounded-xl border border-border-default bg-bg-secondary p-5">
+          <div className="flex items-center gap-2">
+            {user.is_pro ? (
+              <Crown className="size-4 text-accent-purple" />
+            ) : (
+              <Sparkles className="size-4 text-accent-purple" />
+            )}
+            <h2 className="text-sm font-semibold text-text-primary">
+              Subscription
+            </h2>
+          </div>
+          {user.is_pro ? (
+            <div className="space-y-2">
+              <p className="text-xs text-text-secondary">
+                <span className="font-medium text-accent-purple">LearnerVerse Pro</span>
+                {user.pro_plan && (
+                  <span className="capitalize"> ({user.pro_plan})</span>
+                )}
+                {user.pro_expires_at && (
+                  <> · Expires{" "}
+                    {new Date(user.pro_expires_at).toLocaleDateString("en-IN", {
+                      month: "long",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </>
+                )}
+              </p>
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <button
+                  onClick={() => navigate("/renew")}
+                  className="rounded-lg bg-accent-purple/10 px-3 py-1.5 text-xs font-medium text-accent-purple transition-colors hover:bg-accent-purple/20"
+                >
+                  Manage / Renew
+                </button>
+                <button
+                  onClick={() => setShowCancelDialog(true)}
+                  className="rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-1.5 text-xs font-medium text-red-500 transition-colors hover:bg-red-500/10"
+                >
+                  Cancel Subscription
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-xs text-text-secondary">
+                You're on the <span className="font-medium">Free</span> plan.
+                Upgrade to unlock AI features.
+              </p>
+              <a
+                href="/pricing"
+                className="inline-block rounded-lg bg-accent-purple px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-accent-purple/90"
+              >
+                Upgrade to Pro
+              </a>
+            </div>
+          )}
+        </section>
+        )}
+
         {/* ── Danger Zone ───────────────────────────────────────── */}
         <DangerZoneSection />
 
@@ -290,6 +371,74 @@ export default function SettingsPage() {
         <p className="text-center text-xs text-text-tertiary">
           Changes are saved automatically.
         </p>
+
+        {/* Cancel Subscription Confirmation (only when payment gateway is enabled) */}
+        {PAYMENT_GATEWAY_ENABLED && (
+        <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+          <AlertDialogContent className="max-w-[calc(100%-2rem)] overflow-hidden p-0 sm:max-w-lg">
+            <AlertDialogHeader className="gap-3 border-b border-border-default bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent px-6 py-5 text-left sm:place-items-start">
+              <div className="flex items-start gap-3">
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/10">
+                  <Crown className="size-4 text-red-400" />
+                </div>
+                <div>
+                  <AlertDialogTitle className="text-lg text-text-primary">
+                    Cancel Subscription?
+                  </AlertDialogTitle>
+                  <p className="mt-1 text-xs text-text-secondary">
+                    Before you go, we want you to know how much your support means to us.
+                  </p>
+                </div>
+              </div>
+            </AlertDialogHeader>
+
+            <div className="space-y-4 px-6 py-5">
+              <AlertDialogDescription className="text-sm leading-relaxed text-text-secondary">
+                If you cancel now, your Pro access will end immediately. Your courses,
+                progress, and certificates will stay safe in your account.
+              </AlertDialogDescription>
+
+              <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-red-400">
+                  What changes right away
+                </p>
+                <ul className="space-y-1.5 pl-4 text-sm text-text-secondary">
+                  <li className="list-disc">LiVi Chat will be locked</li>
+                  <li className="list-disc">AI Quiz Generation will be locked</li>
+                  <li className="list-disc">Smart Organize will be locked</li>
+                  <li className="list-disc">Discussion AI features will be locked</li>
+                </ul>
+              </div>
+
+              <div className="rounded-xl border border-accent-purple/20 bg-accent-purple/5 p-4">
+                <p className="flex items-start gap-2 text-sm leading-relaxed text-text-secondary">
+                  <Sparkles className="mt-0.5 size-3.5 shrink-0 text-accent-purple" />
+                  LearnerVerse is built with care for learners like you. If there is anything
+                  we can improve to make Pro more valuable for you, we would truly love to hear it.
+                </p>
+              </div>
+            </div>
+
+            <AlertDialogFooter className="mx-0 mb-0 rounded-none bg-bg-secondary px-6 py-4">
+              <AlertDialogCancel>Keep Pro</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-red-600 text-white hover:bg-red-700"
+                onClick={() => {
+                  cancelSub.mutate(undefined, {
+                    onSuccess: () => {
+                      toast.success("Subscription cancelled");
+                      setShowCancelDialog(false);
+                    },
+                    onError: () => toast.error("Failed to cancel. Please try again."),
+                  });
+                }}
+              >
+                {cancelSub.isPending ? "Cancelling..." : "Yes, Cancel Subscription"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+        )}
       </div>
     </TooltipProvider>
   );

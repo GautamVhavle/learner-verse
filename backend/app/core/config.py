@@ -38,6 +38,8 @@ class Settings(BaseSettings):
     BACKEND_HOST: str = "0.0.0.0"
     BACKEND_PORT: int = 8000
     CORS_ORIGINS: str = "http://localhost:5173"
+    FRONTEND_URL: str = "http://localhost:5173"
+    DEFAULT_OG_IMAGE_URL: str = "https://learnerverse.xyz/preview.png"
 
     # Storage
     UPLOAD_DIR: str = "./uploads"
@@ -52,6 +54,20 @@ class Settings(BaseSettings):
     OPENROUTER_API_KEY: str = ""
     OPENROUTER_MODEL: str = "nvidia/nemotron-3-super-120b-a12b:free"
     OPENROUTER_BASE_URL: str = "https://openrouter.ai/api/v1"
+    GEMINI_API_KEY: str = ""
+    GEMINI_MODEL: str = "gemini-2.5-flash"
+    GEMINI_BASE_URL: str = "https://generativelanguage.googleapis.com/v1beta"
+
+    # Payment Gateway
+    # Set to true only when the private payment submodule is present
+    # and you want to enable Razorpay-based Pro subscriptions.
+    PAYMENT_GATEWAY_ENABLED: bool = False
+
+    # Razorpay (only used when PAYMENT_GATEWAY_ENABLED=true)
+    RAZORPAY_KEY_ID: str = ""
+    RAZORPAY_KEY_SECRET: str = ""
+    RAZORPAY_MONTHLY_AMOUNT: int = 9900   # ₹99 in paise
+    RAZORPAY_YEARLY_AMOUNT: int = 99900   # ₹999 in paise
 
     # Observability
     # Set this in production to enable Sentry error tracking.

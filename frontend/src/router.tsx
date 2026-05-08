@@ -10,6 +10,7 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router";
 import { SINGLE_USER_MODE } from "@/lib/auth";
+import { PAYMENT_GATEWAY_ENABLED } from "@/lib/payment";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 import { AppShell } from "@/components/layout/AppShell";
@@ -37,6 +38,13 @@ const HubCourseDetailPage = lazy(() => import("@/pages/HubCourseDetailPage"));
 const CreatorAnalyticsPage = lazy(() => import("@/pages/CreatorAnalyticsPage"));
 const CourseAnalyticsDetailPage = lazy(() => import("@/pages/CourseAnalyticsDetailPage"));
 const PublicProfilePage = lazy(() => import("@/pages/PublicProfilePage"));
+const PublicCoursePage = lazy(() => import("@/pages/PublicCoursePage"));
+
+// Payment-gated pages — only loaded when PAYMENT_GATEWAY_ENABLED is true.
+// The lazy() calls are harmless even if the underlying files are stubs;
+// they will simply never be rendered when the flag is false.
+const PricingPage = lazy(() => import("@/pages/PricingPage"));
+const RenewPage = lazy(() => import("@/pages/RenewPage"));
 
 /**
  * Routes shared by both /creator and /learner mode blocks.
@@ -56,6 +64,9 @@ function SharedRoutes() {
       <Route path="settings" element={<SettingsPage />} />
       <Route path="profile" element={<ProfilePage />} />
       <Route path="inbox" element={<InboxPage />} />
+      {PAYMENT_GATEWAY_ENABLED && (
+        <Route path="renew" element={<RenewPage />} />
+      )}
     </>
   );
 }
@@ -102,6 +113,10 @@ export default function AppRouter() {
             {/* ── Public routes (no auth) ── */}
             <Route path="certificates/share/:uid" element={<CertificateSharePage />} />
             <Route path="/profile/:userId" element={<PublicProfilePage />} />
+            <Route path="/courses/:courseId" element={<PublicCoursePage />} />
+            {PAYMENT_GATEWAY_ENABLED && (
+              <Route path="/pricing" element={<PricingPage />} />
+            )}
             <Route path="/" element={<HomePage />} />
             <Route path="/home" element={<HomePage />} />
 

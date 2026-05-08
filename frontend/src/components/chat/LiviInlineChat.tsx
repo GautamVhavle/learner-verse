@@ -18,6 +18,7 @@ import {
   type InlineContextType,
   type InlineMessage,
 } from "@/hooks/useInlineChat";
+import { useProGate } from "@/hooks/useProGate";
 
 interface LiviInlineChatProps {
   contextType: InlineContextType;
@@ -40,6 +41,8 @@ export function LiviInlineChat({
     contextType,
     contextData,
   });
+
+  const { isPro, showGate, ProGate } = useProGate();
 
   const defaultLabel =
     contextType === "quiz"
@@ -76,9 +79,14 @@ export function LiviInlineChat({
 
   return (
     <div className="rounded-xl border border-border-default bg-bg-secondary overflow-hidden">
+      <ProGate />
+
       {/* Trigger bar */}
       <button
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={() => {
+          if (!isPro) { showGate(); return; }
+          setIsOpen((prev) => !prev);
+        }}
         className="flex w-full items-center gap-2 px-4 py-2.5 text-left transition-colors hover:bg-bg-tertiary"
       >
         <div className="flex size-5 items-center justify-center rounded-full bg-accent-purple/10">

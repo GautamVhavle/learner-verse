@@ -9,6 +9,7 @@ import { useLocation, useNavigate } from "react-router";
 import {
   BookOpen,
   ChevronRight,
+  Crown,
   Pen,
   Sparkles,
 } from "lucide-react";
@@ -42,6 +43,7 @@ import { useCoursesQuery } from "@/hooks/useCourses";
 import { useEnrolledCoursesQuery } from "@/hooks/useEnrollments";
 import { NotificationBadge } from "@/components/notification/NotificationBadge";
 import { useChatStore } from "@/stores/chatStore";
+import { UpgradeBanner } from "@/components/layout/UpgradeBanner";
 import {
   CREATOR_LINKS,
   CREATOR_EXTRA,
@@ -118,11 +120,19 @@ export function AppSidebar({
               size="lg"
               className="pointer-events-none"
             >
-              <div className="flex items-center justify-center rounded-lg">
-                <img src="/logo.svg" alt="Learner Verse Logo" className=" h-8 p-1" />
+              <div className="flex size-8 shrink-0 items-center justify-center rounded-lg">
+                <img src="/logo.svg" alt="Learner Verse Logo" className="h-6 w-6" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">Learner Verse</span>
+                <span className="flex items-center gap-1.5 font-semibold overflow-visible">
+                  <span className="truncate">Learner Verse</span>
+                  {profile?.is_pro && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-accent-purple/20 to-amber-500/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-500 ring-1 ring-amber-500/30">
+                      <Crown className="size-2.5 fill-amber-500/40" />
+                      Pro
+                    </span>
+                  )}
+                </span>
                 <span className="truncate text-xs text-muted-foreground">
                   {isCreator ? "Creator Mode" : "Learner Mode"}
                 </span>
@@ -224,6 +234,9 @@ export function AppSidebar({
         </SidebarGroup>
 
         <SidebarSeparator />
+
+        {/* Upgrade / Pro Status Banner */}
+        <UpgradeBanner />
 
         {/* LiVi AI Assistant */}
         <SidebarGroup>

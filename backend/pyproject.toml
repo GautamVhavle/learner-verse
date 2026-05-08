@@ -19,6 +19,7 @@ dependencies = [
     "email-validator>=2.3.0",
     "sentry-sdk[fastapi]>=2.0.0",
     "langchain-openrouter>=0.2.1",
+    "razorpay>=2.0.1",
 ]
 
 [dependency-groups]

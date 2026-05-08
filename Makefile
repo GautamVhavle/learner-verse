@@ -1,4 +1,8 @@
-.PHONY: dev-db dev-backend dev-frontend test test-backend test-frontend test-e2e lint lint-backend lint-frontend format migrate
+.PHONY: dev-db dev-backend dev-frontend test test-backend test-frontend test-e2e lint lint-backend lint-frontend format migrate setup setup-payment undo-payment docker
+
+# === Setup ===
+setup:
+	./scripts/setup.sh
 
 # === Database ===
 dev-db:
@@ -6,6 +10,10 @@ dev-db:
 
 stop-db:
 	docker compose down
+
+# === Docker ===
+docker:
+	docker compose up --build
 
 # === Backend ===
 dev-backend:
@@ -47,3 +55,10 @@ lint-frontend:
 format:
 	cd backend && uv run ruff format .
 	cd frontend && npx prettier --write "src/**/*.{ts,tsx,css,json}"
+
+# === Payment Gateway (Private Submodule) ===
+setup-payment:
+	./scripts/setup-payment.sh
+
+undo-payment:
+	./scripts/setup-payment.sh --undo

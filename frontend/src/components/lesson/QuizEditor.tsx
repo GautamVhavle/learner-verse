@@ -27,6 +27,7 @@ import {
   useGenerateQuizMutation,
 } from "@/hooks/useQuiz";
 import type { QuizQuestion, QuizQuestionCreate } from "@/types/quiz";
+import { useProGate } from "@/hooks/useProGate";
 
 interface QuizEditorProps {
   lessonId: string;
@@ -48,6 +49,7 @@ export function QuizEditor({ lessonId, courseId }: QuizEditorProps) {
 
   const [newQuestion, setNewQuestion] = useState<QuizQuestionCreate>({ ...EMPTY_QUESTION });
   const [showNewForm, setShowNewForm] = useState(false);
+  const { gatedAction, ProGate } = useProGate();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editData, setEditData] = useState<QuizQuestionCreate>({ ...EMPTY_QUESTION });
 
@@ -122,11 +124,12 @@ export function QuizEditor({ lessonId, courseId }: QuizEditorProps) {
         <h3 className="text-sm font-medium text-text-primary">
           Quiz Questions ({questions.length})
         </h3>
+        <ProGate />
         {!showAiPanel && (
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setShowAiPanel(true)}
+            onClick={gatedAction(() => setShowAiPanel(true))}
             className="gap-1.5 text-accent-purple hover:text-accent-purple"
           >
             <Sparkles className="size-3.5" />

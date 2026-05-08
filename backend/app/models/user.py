@@ -38,6 +38,23 @@ class User(Base):
     cover_image_url: Mapped[str | None] = mapped_column(String, nullable=True)
     is_profile_public: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     auto_play_next: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+
+    # Subscription / Pro
+    is_pro: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    pro_since: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    pro_expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    pro_plan: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    razorpay_payment_id: Mapped[str | None] = mapped_column(
+        String(255), nullable=True
+    )
+    razorpay_order_id: Mapped[str | None] = mapped_column(
+        String(255), nullable=True
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

@@ -1,7 +1,10 @@
 """Central v1 API router — includes all domain endpoint routers."""
 
+import logging
+
 from fastapi import APIRouter
 
+from app.core.config import settings
 from app.api.v1.endpoints import (
     analytics,
     auth,
@@ -52,3 +55,17 @@ api_v1_router.include_router(opengraph.router)
 api_v1_router.include_router(profile.router)
 api_v1_router.include_router(share.router)
 api_v1_router.include_router(uploads.router)
+
+# Payment / subscription endpoints are only registered when the payment
+# gateway is explicitly enabled AND the private submodule is present.
+if settings.PAYMENT_GATEWAY_ENABLED:
+    try:
+        from app.api.v1.endpoints import subscription
+
+        api_v1_router.include_router(subscription.router)
+    except ImportError:
+        logging.getLogger(__name__).warning(
+            "PAYMENT_GATEWAY_ENABLED=true but the subscription module was not "
+            "found. Did you initialize the private submodule? "
+            "(git submodule update --init)"
+        )
