@@ -33,7 +33,7 @@ export default function PublicCoursePage() {
     import.meta.env.VITE_PUBLIC_SITE_URL
     ?? (typeof window !== "undefined" ? window.location.origin : "")
   ).replace(/\/$/, "");
-  const shareUrl = courseId ? `${publicBase}/share/course/${courseId}` : "";
+  const shareUrl = courseId ? `${publicBase}/courses/${courseId}` : "";
   const openUrl = SINGLE_USER_MODE ? `/learner/hub/${courseId}` : "/login";
   const openLabel = SINGLE_USER_MODE ? "Open in LearnerVerse" : "Sign in to enroll";
 

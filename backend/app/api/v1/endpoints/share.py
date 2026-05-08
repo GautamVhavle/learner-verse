@@ -46,8 +46,8 @@ async def share_course(
 ):
     """Serve OpenGraph HTML with a meta refresh to the public course page."""
     frontend_base = settings.FRONTEND_URL.rstrip("/")
-    share_url = f"{frontend_base}/share/course/{course_id}"
-    course_url = f"{frontend_base}/courses/{course_id}"
+    canonical_url = f"{frontend_base}/courses/{course_id}"
+    course_url = canonical_url
 
     # Fetch course data for OG tags
     result = await db.execute(
@@ -68,7 +68,7 @@ async def share_course(
                 title="Course Not Found — Learner Verse",
                 description="This course is no longer available.",
                 image=settings.DEFAULT_OG_IMAGE_URL or None,
-                share_url=share_url,
+                url=canonical_url,
                 redirect_url=course_url,
             )
         )
@@ -131,7 +131,7 @@ async def share_course(
             title=f"{course.title} — Learner Verse",
             description=description,
             image=image,
-            share_url=share_url,
+            url=canonical_url,
             redirect_url=course_url,
             creator=creator_name,
             tags=tag_names,
@@ -144,7 +144,7 @@ def _build_og_html(
     title: str,
     description: str,
     image: str | None,
-    share_url: str,
+    url: str,
     redirect_url: str,
     creator: str | None = None,
     tags: list[str] | None = None,
@@ -152,8 +152,9 @@ def _build_og_html(
     """Build minimal HTML with OpenGraph and Twitter Card meta tags."""
     t = _escape(title)
     d = _escape(description)
-    share = _escape(share_url)
+    u = _escape(url)
     redirect = _escape(redirect_url)
+    logo = _escape(settings.FRONTEND_URL.rstrip("/") + "/logo.png")
 
     image_tags = ""
     if image:
@@ -194,8 +195,9 @@ def _build_og_html(
     <meta property="og:type" content="website" />
     <meta property="og:title" content="{t}" />
     <meta property="og:description" content="{d}" />
-    <meta property="og:url" content="{share}" />
-    <meta property="og:site_name" content="LearnerVerse" />{image_tags}{tag_meta}
+    <meta property="og:url" content="{u}" />
+    <meta property="og:site_name" content="LearnerVerse" />
+    <meta property="og:logo" content="{logo}" />{image_tags}{tag_meta}
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />

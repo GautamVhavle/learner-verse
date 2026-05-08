@@ -225,7 +225,7 @@ export default function HubCourseDetailPage() {
               <Button
                 variant="outline"
                 onClick={async () => {
-                  const shareUrl = `${publicBase}/share/course/${course.id}`;
+                  const shareUrl = `${publicBase}/courses/${course.id}`;
                   try {
                     await navigator.clipboard.writeText(shareUrl);
                     toast.success("Share link copied to clipboard");

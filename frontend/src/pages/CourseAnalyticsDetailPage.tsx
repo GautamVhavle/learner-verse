@@ -237,7 +237,7 @@ export default function CourseAnalyticsDetailPage() {
 
   const course = courseData?.items.find((c) => c.course_id === courseId);
 
-  const shareUrl = courseId ? `${SHARE_BASE}/share/course/${courseId}` : "";
+  const shareUrl = courseId ? `${SHARE_BASE}/courses/${courseId}` : "";
 
   const handleCopyLink = async () => {
     try {

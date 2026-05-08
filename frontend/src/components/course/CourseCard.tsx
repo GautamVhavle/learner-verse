@@ -10,8 +10,10 @@ import {
   Trash2,
   LayoutList,
   Loader2,
+  Share2,
 } from "lucide-react";
 import { useModeAwareNavigate } from "@/hooks/useModeAwareNavigate";
+import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,6 +53,22 @@ export function CourseCard({
 }: CourseCardProps) {
   const navigate = useModeAwareNavigate();
   const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const publicBase = (
+    import.meta.env.VITE_PUBLIC_SITE_URL
+    ?? (typeof window !== "undefined" ? window.location.origin : "")
+  ).replace(/\/$/, "");
+  const shareUrl = `${publicBase}/courses/${course.id}`;
+
+  const handleShare = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success("Share link copied!");
+    } catch {
+      toast.error("Failed to copy link");
+    }
+  };
 
   return (
     <>
@@ -122,6 +140,12 @@ export function CourseCard({
                       {course.is_public ? "Make Private" : "Make Public"}
                     </DropdownMenuItem>
                   )}
+                  {course.is_public && (
+                    <DropdownMenuItem onClick={handleShare}>
+                      <Share2 className="size-4" />
+                      Share
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem
                     variant="destructive"
                     onClick={() => onDelete(course.id)}
@@ -149,6 +173,15 @@ export function CourseCard({
           {/* Tags & Status */}
           <div className="mt-auto flex items-center gap-2 pt-1">
             <CourseStatusBadge status={course.status} />
+            {course.is_public && (
+              <button
+                onClick={handleShare}
+                className="ml-auto rounded-md p-1 text-text-tertiary opacity-0 transition-opacity hover:text-accent-blue group-hover:opacity-100"
+                title="Copy share link"
+              >
+                <Share2 className="size-3.5" />
+              </button>
+            )}
             {course.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag.id}

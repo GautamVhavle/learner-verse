@@ -18,7 +18,7 @@ const FOOTER_LINKS = {
     { label: "Changelog", href: "#" },
   ],
   Connect: [
-    { label: "GitHub", href: "#", icon: Github },
+    { label: "GitHub", href: "https://github.com/GautamVhavle/learner-verse", icon: Github },
     { label: "Twitter", href: "#", icon: Twitter },
     { label: "Discord", href: "#", icon: MessageCircle },
   ],
@@ -54,6 +54,7 @@ export function Footer() {
                   <li key={link.label}>
                     <a
                       href={link.href}
+                      {...(link.href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                       onClick={(e) => {
                         if (link.href.startsWith("#") && link.href !== "#") {
                           e.preventDefault();
@@ -79,9 +80,20 @@ export function Footer() {
           <p className="text-xs text-white/30">
             © {new Date().getFullYear()} LearnerVerse. All rights reserved.
           </p>
-          <p className="text-xs text-white/20">
-            Made with ♥ for curious minds.
-          </p>
+          <div className="flex items-center gap-4">
+            <a
+              href="https://github.com/GautamVhavle/learner-verse"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-xs text-white/30 transition-colors hover:text-white/60"
+            >
+              <Github className="size-3.5" />
+              Star on GitHub
+            </a>
+            <p className="text-xs text-white/20">
+              Made with ♥ for curious minds.
+            </p>
+          </div>
         </div>
       </div>
     </footer>

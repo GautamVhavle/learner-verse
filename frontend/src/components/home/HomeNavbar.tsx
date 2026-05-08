@@ -7,6 +7,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { Menu, ArrowRight, X } from "lucide-react";
+import { Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { useAuth } from "@/hooks/useAuth";
@@ -110,7 +111,16 @@ export function HomeNavbar() {
         </div>
 
         {/* Desktop CTA */}
-        <div className="hidden md:block">
+        <div className="hidden items-center gap-3 md:flex">
+          <a
+            href="https://github.com/GautamVhavle/learner-verse"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="nav-item inline-flex items-center justify-center rounded-full border border-white/10 p-2 text-white/60 transition-colors hover:border-white/20 hover:text-white"
+            title="View on GitHub"
+          >
+            <Github className="size-4" />
+          </a>
           <Button
             onClick={handleCTA}
             className="nav-item gap-2 rounded-full bg-white px-5 text-sm font-semibold text-[#030712] hover:bg-white/90"
@@ -153,6 +163,15 @@ export function HomeNavbar() {
                   {isSignedIn ? "Dashboard" : "Get Started"}
                   <ArrowRight className="size-3.5" />
                 </Button>
+                <a
+                  href="https://github.com/GautamVhavle/learner-verse"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 flex items-center gap-2 text-base font-medium text-white/70 transition-colors hover:text-white"
+                >
+                  <Github className="size-4" />
+                  GitHub
+                </a>
               </div>
               <SheetClose
                 className="absolute right-4 top-4 rounded-md p-2 text-white/40 transition-colors hover:text-white"
