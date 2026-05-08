@@ -188,6 +188,9 @@ async def get_hub_course(
         enrolled = await enrollment_repo.is_enrolled(user.id, course_id)
         if enrolled:
             course = await repo.get_by_id_no_owner(course_id)
+            # Enrolled users should only access published courses
+            if course and course.status != "ready":
+                course = None
     if not course:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found.")
 
@@ -322,6 +325,8 @@ async def list_hub_sections(
         enrolled = await enrollment_repo.is_enrolled(user.id, course_id)
         if enrolled:
             course = await repo.get_by_id_no_owner(course_id)
+            if course and course.status != "ready":
+                course = None
     if not course:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found.")
 
@@ -366,6 +371,10 @@ async def list_ratings(
     db: AsyncSession = Depends(get_db),
 ):
     """List all ratings for a public course."""
+    repo = CourseRepository(db)
+    course = await repo.get_public_by_id(course_id)
+    if not course:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found.")
     rating_repo = RatingRepository(db)
     items = await rating_repo.list_by_course(course_id)
     avg, count = await rating_repo.get_stats(course_id)

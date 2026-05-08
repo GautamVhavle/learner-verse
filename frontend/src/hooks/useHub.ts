@@ -19,7 +19,7 @@ interface HubParams {
   per_page?: number;
 }
 
-export function useHubCoursesQuery(params: HubParams = {}) {
+export function useHubCoursesQuery(params: HubParams = {}, enabled = true) {
   const qs = new URLSearchParams();
   if (params.search) qs.set("search", params.search);
   if (params.tags) qs.set("tags", params.tags);
@@ -31,10 +31,11 @@ export function useHubCoursesQuery(params: HubParams = {}) {
   return useQuery<CourseListResponse>({
     queryKey: ["hub-courses", params],
     queryFn: () => api.get(`/hub/courses${query ? `?${query}` : ""}`),
+    enabled,
   });
 }
 
-export function useMyCoursesQuery(params: HubParams = {}) {
+export function useMyCoursesQuery(params: HubParams = {}, enabled = true) {
   const qs = new URLSearchParams();
   if (params.search) qs.set("search", params.search);
   if (params.sort) qs.set("sort", params.sort);
@@ -45,6 +46,7 @@ export function useMyCoursesQuery(params: HubParams = {}) {
   return useQuery<CourseListResponse>({
     queryKey: ["hub-my-courses", params],
     queryFn: () => api.get(`/hub/my-courses${query ? `?${query}` : ""}`),
+    enabled,
   });
 }
 

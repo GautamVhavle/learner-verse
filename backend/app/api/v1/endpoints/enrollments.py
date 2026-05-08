@@ -56,10 +56,20 @@ async def enroll_in_course(
     course = result.scalar_one_or_none()
     if not course:
         raise HTTPException(status_code=404, detail="Course not found.")
+    if course.user_id == current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot enroll in your own course.",
+        )
     if course.status != "ready":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Only published courses can be enrolled in.",
+        )
+    if not course.is_public:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Course is not public.",
         )
 
     enrollment = await EnrollmentRepository(db).enroll(

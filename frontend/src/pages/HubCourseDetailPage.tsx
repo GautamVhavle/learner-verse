@@ -19,6 +19,7 @@ import {
   StickyNote,
   ClipboardCheck,
   CheckCircle2,
+  FileEdit,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StarRating } from "@/components/hub/StarRating";
@@ -28,6 +29,7 @@ import { useEnrollMutation, useUnenrollMutation, useEnrolledCoursesQuery } from 
 import { useCourseProgressQuery } from "@/hooks/useProgress";
 import { useAuth } from "@/hooks/useAuth";
 import { useMode } from "@/hooks/useMode";
+import { useUserQuery } from "@/hooks/useUser";
 
 export default function HubCourseDetailPage() {
   const { courseId } = useParams<{ courseId: string }>();
@@ -42,6 +44,7 @@ export default function HubCourseDetailPage() {
   const { data: course, isLoading } = useHubCourseQuery(courseId ?? "");
   const { data: ratingsData } = useRatingsQuery(courseId ?? "");
   const { data: enrolledData } = useEnrolledCoursesQuery();
+  const { data: dbUser } = useUserQuery();
   const enrollMutation = useEnrollMutation();
   const unenrollMutation = useUnenrollMutation();
   const createRating = useCreateRatingMutation(courseId ?? "");
@@ -54,6 +57,7 @@ export default function HubCourseDetailPage() {
   const { data: sections } = useHubSectionsQuery(courseId);
 
   const isEnrolled = enrolledData?.items.some((c) => c.id === courseId) ?? false;
+  const isOwner = !!(dbUser && course && dbUser.id === course.user_id);
   const { data: progress } = useCourseProgressQuery(isEnrolled ? courseId : undefined);
   const isCompleted = isEnrolled && progress?.percentage === 100;
   const myRating = ratingsData?.items.find((r) => r.user_id === user?.id);
@@ -169,7 +173,15 @@ export default function HubCourseDetailPage() {
 
           {/* Action buttons */}
           <div className="flex items-center gap-3">
-            {isEnrolled ? (
+            {isOwner ? (
+              <Button
+                onClick={() => navigate(`/creator/courses/${course.id}/edit`)}
+                className="gap-1.5"
+              >
+                <FileEdit className="size-4" />
+                Edit Course
+              </Button>
+            ) : isEnrolled ? (
               <>
                 {isCompleted ? (
                   <>
@@ -266,8 +278,8 @@ export default function HubCourseDetailPage() {
         </div>
       )}
 
-      {/* Rating Form */}
-      {!myRating && (
+      {/* Rating Form — hidden for course owner */}
+      {!isOwner && !myRating && (
         <div className="space-y-3 rounded-xl border border-border-default bg-bg-secondary p-5">
           <h2 className="text-sm font-semibold text-text-primary">Rate this Course</h2>
           <div className="space-y-3">

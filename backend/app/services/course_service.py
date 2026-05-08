@@ -123,7 +123,7 @@ class CourseService:
             description=course.description,
             thumbnail_url=course.thumbnail_url,
             status=course.status,
-            is_public=getattr(course, "is_public", False),
+            is_public=course.is_public,
             is_deleted=course.is_deleted,
             deleted_at=course.deleted_at,
             goal_date=course.goal_date,
@@ -216,6 +216,11 @@ class CourseService:
             )
 
         update_fields = data.model_dump(exclude_unset=True, exclude={"tags"})
+        if update_fields.get("is_public") is True and course.status != "ready":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Only published courses can be made public.",
+            )
         if update_fields:
             await self.repo.update(course, **update_fields)
 
@@ -361,6 +366,12 @@ class CourseService:
             if errors:
                 return StatusUpdateResponse(status=course.status, valid=False, errors=errors)
 
-        await self.repo.update(course, status=new_status)
+        update_kwargs: dict = {"status": new_status}
+        # Clear is_public when moving back to draft to prevent
+        # surprise re-publication when the course is later re-published.
+        if new_status == "draft" and course.is_public:
+            update_kwargs["is_public"] = False
+
+        await self.repo.update(course, **update_kwargs)
         await self.db.commit()
         return StatusUpdateResponse(status=new_status, valid=True, errors=[])

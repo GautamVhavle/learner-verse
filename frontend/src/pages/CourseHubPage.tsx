@@ -42,8 +42,8 @@ export default function CourseHubPage() {
     per_page: PER_PAGE,
   };
 
-  const publicQuery = useHubCoursesQuery(tab === "public" ? queryParams : {});
-  const myQuery = useMyCoursesQuery(tab === "mine" ? queryParams : {});
+  const publicQuery = useHubCoursesQuery(queryParams, tab === "public");
+  const myQuery = useMyCoursesQuery(queryParams, tab === "mine");
 
   const activeQuery = tab === "public" ? publicQuery : myQuery;
   const courses = activeQuery.data?.items ?? [];

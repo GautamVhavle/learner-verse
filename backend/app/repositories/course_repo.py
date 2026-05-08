@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import func, select
+from sqlalchemy import distinct, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -104,7 +104,7 @@ class CourseRepository:
             )
         )
         count_q = (
-            select(func.count(Course.id))
+            select(func.count(distinct(Course.id)))
             .where(
                 Course.is_public.is_(True),
                 Course.status == "ready",

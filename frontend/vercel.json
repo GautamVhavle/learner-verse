@@ -1,5 +1,20 @@
 {
   "rewrites": [
+    {
+      "source": "/learner/hub/:courseId",
+      "has": [{ "type": "header", "key": "user-agent", "value": "(?i)facebookexternalhit|Facebot|Twitterbot|LinkedInBot|Slackbot|WhatsApp|Discordbot|TelegramBot|Googlebot|bingbot|Baiduspider|DuckDuckBot|Embedly|pinterest|vkShare|redditbot|Applebot|Mastodon" }],
+      "destination": "https://learner-verse.fastapicloud.dev/api/v1/share/course/:courseId"
+    },
+    {
+      "source": "/creator/hub/:courseId",
+      "has": [{ "type": "header", "key": "user-agent", "value": "(?i)facebookexternalhit|Facebot|Twitterbot|LinkedInBot|Slackbot|WhatsApp|Discordbot|TelegramBot|Googlebot|bingbot|Baiduspider|DuckDuckBot|Embedly|pinterest|vkShare|redditbot|Applebot|Mastodon" }],
+      "destination": "https://learner-verse.fastapicloud.dev/api/v1/share/course/:courseId"
+    },
+    {
+      "source": "/courses/:courseId",
+      "has": [{ "type": "header", "key": "user-agent", "value": "(?i)facebookexternalhit|Facebot|Twitterbot|LinkedInBot|Slackbot|WhatsApp|Discordbot|TelegramBot|Googlebot|bingbot|Baiduspider|DuckDuckBot|Embedly|pinterest|vkShare|redditbot|Applebot|Mastodon" }],
+      "destination": "https://learner-verse.fastapicloud.dev/api/v1/share/course/:courseId"
+    },
     { "source": "/share/:path*", "destination": "https://learner-verse.fastapicloud.dev/api/v1/share/:path*" },
     { "source": "/robots.txt", "destination": "/robots.txt" },
     { "source": "/sitemap.xml", "destination": "/sitemap.xml" },
