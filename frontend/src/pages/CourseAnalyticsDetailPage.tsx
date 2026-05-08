@@ -49,8 +49,10 @@ import {
 } from "@/hooks/useAnalytics";
 import type { LearnerInfo, RatingDetail } from "@/types/analytics";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
-const SHARE_BASE = API_BASE.replace("/api/v1", "/api/v1/share");
+const SHARE_BASE = (
+  import.meta.env.VITE_PUBLIC_SITE_URL
+  ?? (typeof window !== "undefined" ? window.location.origin : "")
+).replace(/\/$/, "");
 
 // ── Chart configs ───────────────────────────────────────────
 
@@ -235,7 +237,7 @@ export default function CourseAnalyticsDetailPage() {
 
   const course = courseData?.items.find((c) => c.course_id === courseId);
 
-  const shareUrl = courseId ? `${SHARE_BASE}/course/${courseId}` : "";
+  const shareUrl = courseId ? `${SHARE_BASE}/share/course/${courseId}` : "";
 
   const handleCopyLink = async () => {
     try {
