@@ -60,7 +60,7 @@ async def share_course(
             Course.is_deleted.is_(False),
         )
     )
-    course = result.scalar_one_or_none()
+    course = result.unique().scalar_one_or_none()
 
     if not course:
         return HTMLResponse(
