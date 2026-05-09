@@ -128,5 +128,7 @@ jobs:
           FASTAPI_CLOUD_TOKEN: ${{ secrets.FASTAPI_CLOUD_TOKEN }}
         run: |
           cd backend
+          mkdir -p .fastapicloud
+          echo '{"app_id":"${{ secrets.FASTAPI_CLOUD_APP_ID }}"}' > .fastapicloud/cloud.json
           uv sync
           uv run fastapi cloud deploy
