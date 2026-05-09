@@ -31,6 +31,7 @@ class SectionResponse(BaseModel):
 
 class SectionBriefResponse(BaseModel):
     """Section without nested lessons — for reorder responses."""
+
     id: uuid.UUID
     course_id: uuid.UUID
     title: str

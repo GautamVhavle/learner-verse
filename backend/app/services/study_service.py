@@ -24,9 +24,7 @@ class StudyService:
 
     # ── Study Notes ──────────────────────────────────────────
 
-    async def get_study_note(
-        self, lesson_id: uuid.UUID, user_id: uuid.UUID
-    ) -> StudyNoteResponse:
+    async def get_study_note(self, lesson_id: uuid.UUID, user_id: uuid.UUID) -> StudyNoteResponse:
         note = await self.note_repo.get(user_id, lesson_id)
         if note is None:
             return StudyNoteResponse(content=None, updated_at=None)

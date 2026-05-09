@@ -15,8 +15,7 @@ const PROGRESS_KEY = ["progress"] as const;
 export function useCourseProgressQuery(courseId: string | undefined) {
   return useQuery({
     queryKey: [...PROGRESS_KEY, "course", courseId],
-    queryFn: () =>
-      api.get<CourseProgressResponse>(`/progress/courses/${courseId}`),
+    queryFn: () => api.get<CourseProgressResponse>(`/progress/courses/${courseId}`),
     enabled: !!courseId,
   });
 }
@@ -24,17 +23,8 @@ export function useCourseProgressQuery(courseId: string | undefined) {
 export function useToggleProgressMutation() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      lessonId,
-      data,
-    }: {
-      lessonId: string;
-      data: ProgressToggle;
-    }) =>
-      api.put<LessonProgressResponse>(
-        `/progress/lessons/${lessonId}`,
-        data,
-      ),
+    mutationFn: ({ lessonId, data }: { lessonId: string; data: ProgressToggle }) =>
+      api.put<LessonProgressResponse>(`/progress/lessons/${lessonId}`, data),
     onMutate: async ({ lessonId, data }) => {
       // Optimistic update: update course progress caches
       const queries = qc.getQueriesData<CourseProgressResponse>({

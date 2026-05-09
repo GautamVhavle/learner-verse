@@ -27,9 +27,7 @@ class CertificateRepository:
         )
         return result.scalar_one_or_none()
 
-    async def get_by_id(
-        self, cert_id: uuid.UUID, user_id: uuid.UUID
-    ) -> Certificate | None:
+    async def get_by_id(self, cert_id: uuid.UUID, user_id: uuid.UUID) -> Certificate | None:
         """Fetch a certificate by primary key, scoped to a user."""
         result = await self.db.execute(
             select(Certificate).where(

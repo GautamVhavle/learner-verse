@@ -29,15 +29,15 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <div
-      className={`flex items-center justify-center rounded-xl border border-dashed border-border-default ${
+      className={`border-border-default flex items-center justify-center rounded-xl border border-dashed ${
         compact ? "py-12" : "min-h-[40vh] py-16"
       }`}
       data-testid="empty-state"
     >
       <div className="flex max-w-sm flex-col items-center text-center">
-        {icon && <div className="mb-4 text-text-tertiary">{icon}</div>}
-        <h3 className="text-base font-medium text-text-primary">{title}</h3>
-        <p className="mt-1 text-sm text-text-secondary">{description}</p>
+        {icon && <div className="text-text-tertiary mb-4">{icon}</div>}
+        <h3 className="text-text-primary text-base font-medium">{title}</h3>
+        <p className="text-text-secondary mt-1 text-sm">{description}</p>
         {(actionLabel || secondaryLabel) && (
           <div className="mt-5 flex gap-2">
             {secondaryLabel && onSecondary && (

@@ -39,10 +39,30 @@ const CHAT_MESSAGES = [
 ];
 
 const CAPABILITIES = [
-  { icon: PlayCircle, label: "Video lessons", color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/15" },
-  { icon: FileText, label: "Reading notes", color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/15" },
-  { icon: HelpCircle, label: "Quiz hints", color: "text-purple-400", bg: "bg-purple-500/10 border-purple-500/15" },
-  { icon: Zap, label: "Context-aware", color: "text-amber-400", bg: "bg-amber-500/10 border-amber-500/15" },
+  {
+    icon: PlayCircle,
+    label: "Video lessons",
+    color: "text-blue-400",
+    bg: "bg-blue-500/10 border-blue-500/15",
+  },
+  {
+    icon: FileText,
+    label: "Reading notes",
+    color: "text-emerald-400",
+    bg: "bg-emerald-500/10 border-emerald-500/15",
+  },
+  {
+    icon: HelpCircle,
+    label: "Quiz hints",
+    color: "text-purple-400",
+    bg: "bg-purple-500/10 border-purple-500/15",
+  },
+  {
+    icon: Zap,
+    label: "Context-aware",
+    color: "text-amber-400",
+    bg: "bg-amber-500/10 border-amber-500/15",
+  },
 ];
 
 const LIVI_FEATURES = [
@@ -68,7 +88,7 @@ function LessonPane() {
           <div className="h-full w-[42%] bg-blue-500" />
         </div>
         {/* Timestamp */}
-        <div className="absolute bottom-2 right-2 rounded bg-black/60 px-1.5 py-0.5 text-[9px] font-medium text-white/60">
+        <div className="absolute right-2 bottom-2 rounded bg-black/60 px-1.5 py-0.5 text-[9px] font-medium text-white/60">
           12:34 / 28:15
         </div>
       </div>
@@ -78,9 +98,7 @@ function LessonPane() {
           <div className="text-[11px] font-semibold text-white/70">
             Virtual DOM & Reconciliation
           </div>
-          <div className="mt-0.5 text-[9px] text-white/30">
-            Section 2 · Lesson 4 of 8
-          </div>
+          <div className="mt-0.5 text-[9px] text-white/30">Section 2 · Lesson 4 of 8</div>
         </div>
         {/* Lesson list */}
         <div className="flex flex-col gap-1">
@@ -103,11 +121,7 @@ function LessonPane() {
             >
               <div
                 className={`size-1.5 shrink-0 rounded-full ${
-                  lesson.active
-                    ? "bg-blue-400"
-                    : lesson.done
-                      ? "bg-emerald-400/50"
-                      : "bg-white/10"
+                  lesson.active ? "bg-blue-400" : lesson.done ? "bg-emerald-400/50" : "bg-white/10"
                 }`}
               />
               {lesson.title}
@@ -158,7 +172,6 @@ export function AIShowcase() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_50%,_rgba(168,85,247,0.08)_0%,_transparent_70%)]" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
-
         {/* Section label */}
         <BlurFade delay={0} inView>
           <div className="mb-12 text-center">
@@ -171,15 +184,14 @@ export function AIShowcase() {
 
         {/* Two-column layout */}
         <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.3fr] lg:gap-14">
-
           {/* LEFT — Copy */}
           <BlurFade delay={0.1} inView>
             <div className="flex flex-col gap-8">
               <div>
-                <h2 className="text-3xl font-bold leading-tight tracking-tight text-white sm:text-4xl md:text-5xl">
+                <h2 className="text-3xl leading-tight font-bold tracking-tight text-white sm:text-4xl md:text-5xl">
                   Meet{" "}
                   <SparklesText
-                    className="inline text-3xl font-bold leading-tight sm:text-4xl md:text-5xl"
+                    className="inline text-3xl leading-tight font-bold sm:text-4xl md:text-5xl"
                     colors={{ first: "#a855f7", second: "#3b82f6" }}
                   >
                     LiVi
@@ -192,9 +204,8 @@ export function AIShowcase() {
                   </span>
                 </h2>
                 <p className="mt-4 text-base leading-relaxed text-white/50 sm:text-lg">
-                  LiVi lives inside your course and knows every lesson. It's not
-                  a generic chatbot — it reads your content and answers with full
-                  context.
+                  LiVi lives inside your course and knows every lesson. It's not a generic chatbot —
+                  it reads your content and answers with full context.
                 </p>
               </div>
 
@@ -256,7 +267,9 @@ export function AIShowcase() {
                       </div>
                       <div className="flex-1">
                         <p className="text-[12px] font-semibold text-white">LiVi</p>
-                        <p className="text-[9px] text-white/30">Context: Virtual DOM & Reconciliation</p>
+                        <p className="text-[9px] text-white/30">
+                          Context: Virtual DOM & Reconciliation
+                        </p>
                       </div>
                       <div className="flex items-center gap-1">
                         <div className="size-1.5 rounded-full bg-emerald-400" />
@@ -313,7 +326,10 @@ export function AIShowcase() {
 
                       {/* Typing indicator */}
                       {started && visibleMessages < CHAT_MESSAGES.length && (
-                        <div className="flex items-end gap-2" style={{ animation: "fadeSlideUp 0.35s ease-out both" }}>
+                        <div
+                          className="flex items-end gap-2"
+                          style={{ animation: "fadeSlideUp 0.35s ease-out both" }}
+                        >
                           <div className="mb-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-blue-500">
                             <Sparkles className="size-2 text-white" />
                           </div>
@@ -347,7 +363,6 @@ export function AIShowcase() {
               />
             </div>
           </BlurFade>
-
         </div>
       </div>
 
@@ -360,4 +375,3 @@ export function AIShowcase() {
     </section>
   );
 }
-

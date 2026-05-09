@@ -71,44 +71,44 @@ export default function CourseHubPage() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-2">
-          <Globe className="size-6 text-accent-blue" />
-          <h1 className="text-2xl font-semibold text-text-primary">Course Hub</h1>
+          <Globe className="text-accent-blue size-6" />
+          <h1 className="text-text-primary text-2xl font-semibold">Course Hub</h1>
         </div>
-        <p className="mt-1 text-sm text-text-secondary">
+        <p className="text-text-secondary mt-1 text-sm">
           Browse public community courses or manage your own.
         </p>
       </div>
 
       {/* Tab Toggle */}
-      <div className="flex items-center gap-1 rounded-lg border border-border-default bg-bg-secondary p-1">
-          <button
-            onClick={() => handleTabChange("public")}
-            className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors sm:flex-initial sm:px-4 ${
-              tab === "public"
-                ? "bg-bg-primary text-text-primary shadow-sm"
-                : "text-text-tertiary hover:text-text-secondary"
-            }`}
-          >
-            <Globe className="size-3.5" />
-            <span className="hidden sm:inline">Public </span>Courses
-          </button>
-          <button
-            onClick={() => handleTabChange("mine")}
-            className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors sm:flex-initial sm:px-4 ${
-              tab === "mine"
-                ? "bg-bg-primary text-text-primary shadow-sm"
-                : "text-text-tertiary hover:text-text-secondary"
-            }`}
-          >
-            <Lock className="size-3.5" />
-            <span className="hidden sm:inline">My </span>Courses
-          </button>
-        </div>
+      <div className="border-border-default bg-bg-secondary flex items-center gap-1 rounded-lg border p-1">
+        <button
+          onClick={() => handleTabChange("public")}
+          className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors sm:flex-initial sm:px-4 ${
+            tab === "public"
+              ? "bg-bg-primary text-text-primary shadow-sm"
+              : "text-text-tertiary hover:text-text-secondary"
+          }`}
+        >
+          <Globe className="size-3.5" />
+          <span className="hidden sm:inline">Public </span>Courses
+        </button>
+        <button
+          onClick={() => handleTabChange("mine")}
+          className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors sm:flex-initial sm:px-4 ${
+            tab === "mine"
+              ? "bg-bg-primary text-text-primary shadow-sm"
+              : "text-text-tertiary hover:text-text-secondary"
+          }`}
+        >
+          <Lock className="size-3.5" />
+          <span className="hidden sm:inline">My </span>Courses
+        </button>
+      </div>
 
       {/* Search + Filters */}
       <div className="flex flex-col gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-tertiary" />
+          <Search className="text-text-tertiary absolute top-1/2 left-3 size-4 -translate-y-1/2" />
           <Input
             value={search}
             onChange={(e) => {
@@ -121,7 +121,7 @@ export default function CourseHubPage() {
           />
         </div>
         <div className="flex items-center gap-2 overflow-x-auto">
-          <SlidersHorizontal className="size-4 shrink-0 text-text-tertiary" />
+          <SlidersHorizontal className="text-text-tertiary size-4 shrink-0" />
           {SORT_OPTIONS.map((opt) => (
             <Button
               key={opt.value}
@@ -141,7 +141,7 @@ export default function CourseHubPage() {
 
       {/* Results count */}
       {!isLoading && (
-        <p className="text-xs text-text-tertiary">
+        <p className="text-text-tertiary text-xs">
           {total} course{total !== 1 ? "s" : ""}{" "}
           {tab === "public" ? "available" : "in your library"}
         </p>
@@ -150,7 +150,7 @@ export default function CourseHubPage() {
       {/* Loading */}
       {isLoading && (
         <div className="flex h-48 items-center justify-center">
-          <Loader2 className="size-6 animate-spin text-text-tertiary" />
+          <Loader2 className="text-text-tertiary size-6 animate-spin" />
         </div>
       )}
 
@@ -169,13 +169,13 @@ export default function CourseHubPage() {
 
       {/* Empty state */}
       {!isLoading && courses.length === 0 && (
-        <div className="flex h-48 flex-col items-center justify-center gap-2 rounded-xl border border-border-default bg-bg-secondary">
+        <div className="border-border-default bg-bg-secondary flex h-48 flex-col items-center justify-center gap-2 rounded-xl border">
           {tab === "public" ? (
-            <Globe className="size-10 text-text-tertiary" />
+            <Globe className="text-text-tertiary size-10" />
           ) : (
-            <Lock className="size-10 text-text-tertiary" />
+            <Lock className="text-text-tertiary size-10" />
           )}
-          <p className="text-sm text-text-secondary">
+          <p className="text-text-secondary text-sm">
             {search
               ? "No courses match your search."
               : tab === "public"
@@ -201,7 +201,7 @@ export default function CourseHubPage() {
           >
             Previous
           </Button>
-          <span className="text-xs text-text-secondary">
+          <span className="text-text-secondary text-xs">
             Page {page} of {totalPages}
           </span>
           <Button

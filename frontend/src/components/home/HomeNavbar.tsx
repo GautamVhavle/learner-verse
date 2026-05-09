@@ -64,7 +64,7 @@ export function HomeNavbar() {
       gsap.fromTo(
         ".nav-item",
         { opacity: 0, y: -10 },
-        { opacity: 1, y: 0, stagger: 0.08, duration: 0.5, ease: "power2.out", delay: 0.2 }
+        { opacity: 1, y: 0, stagger: 0.08, duration: 0.5, ease: "power2.out", delay: 0.2 },
       );
     });
 
@@ -92,9 +92,7 @@ export function HomeNavbar() {
           className="nav-item flex items-center gap-2.5"
         >
           <img src="/logo.svg" alt="LearnerVerse" className="size-8" />
-          <span className="text-lg font-semibold tracking-tight text-white">
-            LearnerVerse
-          </span>
+          <span className="text-lg font-semibold tracking-tight text-white">LearnerVerse</span>
         </button>
 
         {/* Desktop nav links */}
@@ -133,9 +131,7 @@ export function HomeNavbar() {
         {/* Mobile hamburger */}
         <div className="md:hidden">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-            <SheetTrigger
-              className="inline-flex items-center justify-center rounded-md p-2 text-white/70 transition-colors hover:text-white"
-            >
+            <SheetTrigger className="inline-flex items-center justify-center rounded-md p-2 text-white/70 transition-colors hover:text-white">
               <Menu className="size-5" />
             </SheetTrigger>
             <SheetContent
@@ -173,9 +169,7 @@ export function HomeNavbar() {
                   GitHub
                 </a>
               </div>
-              <SheetClose
-                className="absolute right-4 top-4 rounded-md p-2 text-white/40 transition-colors hover:text-white"
-              >
+              <SheetClose className="absolute top-4 right-4 rounded-md p-2 text-white/40 transition-colors hover:text-white">
                 <X className="size-4" />
               </SheetClose>
             </SheetContent>

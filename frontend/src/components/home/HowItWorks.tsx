@@ -4,14 +4,7 @@
  * with dotted lines animated on scroll.
  */
 import { useEffect, useRef } from "react";
-import {
-  Upload,
-  GraduationCap,
-  Trophy,
-  Youtube,
-  Sparkles,
-  ArrowRight,
-} from "lucide-react";
+import { Upload, GraduationCap, Trophy, Youtube, Sparkles, ArrowRight } from "lucide-react";
 import { BlurFade } from "@/components/ui/blur-fade";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -59,17 +52,23 @@ const STEPS = [
       <div className="mt-5 flex flex-col gap-2 overflow-hidden">
         <div className="flex items-center gap-2 rounded-lg border border-white/5 bg-white/[0.02] px-2.5 py-2 sm:gap-3 sm:px-3">
           <div className="size-2 shrink-0 rounded-full bg-emerald-400" />
-          <span className="min-w-0 flex-1 truncate text-xs text-white/50">Watch: React Hooks Deep Dive</span>
+          <span className="min-w-0 flex-1 truncate text-xs text-white/50">
+            Watch: React Hooks Deep Dive
+          </span>
           <span className="text-[11px] text-emerald-400">✓</span>
         </div>
         <div className="flex items-center gap-2 rounded-lg border border-purple-500/10 bg-purple-500/5 px-2.5 py-2 sm:gap-3 sm:px-3">
           <div className="size-2 shrink-0 animate-pulse rounded-full bg-purple-400" />
-          <span className="min-w-0 flex-1 truncate text-xs text-white/60">Quiz: Test Your Knowledge</span>
+          <span className="min-w-0 flex-1 truncate text-xs text-white/60">
+            Quiz: Test Your Knowledge
+          </span>
           <span className="text-[11px] text-purple-400">In Progress</span>
         </div>
         <div className="flex items-center gap-2 rounded-lg border border-white/5 bg-white/[0.02] px-2.5 py-2 sm:gap-3 sm:px-3">
           <div className="size-2 shrink-0 rounded-full bg-white/15" />
-          <span className="min-w-0 flex-1 truncate text-xs text-white/30">Watch: Context API Patterns</span>
+          <span className="min-w-0 flex-1 truncate text-xs text-white/30">
+            Watch: Context API Patterns
+          </span>
         </div>
       </div>
     ),
@@ -86,9 +85,7 @@ const STEPS = [
     visual: (
       <div className="mt-5 flex flex-col items-center gap-3 overflow-hidden rounded-xl border border-white/5 bg-white/[0.02] p-3 text-center sm:p-4">
         <Trophy className="size-7 text-amber-400 sm:size-8" />
-        <div className="text-xs font-semibold text-white/70">
-          Course Completed!
-        </div>
+        <div className="text-xs font-semibold text-white/70">Course Completed!</div>
         <div className="flex items-center gap-3 text-[11px] text-white/40">
           <span>🔥 12-day streak</span>
           <span>•</span>
@@ -122,7 +119,7 @@ export function HowItWorks() {
             trigger: sectionRef.current,
             start: "top 70%",
           },
-        }
+        },
       );
     }, sectionRef);
 
@@ -162,7 +159,9 @@ export function HowItWorks() {
               {/* Step number badge */}
               <div className="mb-4 flex items-center justify-between">
                 <div className="relative">
-                  <div className={`flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br ${step.iconBg}`}>
+                  <div
+                    className={`flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br ${step.iconBg}`}
+                  >
                     <step.icon className={`size-5 ${step.iconColor}`} />
                   </div>
                 </div>
@@ -181,7 +180,7 @@ export function HowItWorks() {
 
               {/* Arrow connector (desktop only, except last) */}
               {i < STEPS.length - 1 && (
-                <div className="pointer-events-none absolute -right-[26px] top-1/2 z-10 hidden -translate-y-1/2 md:block">
+                <div className="pointer-events-none absolute top-1/2 -right-[26px] z-10 hidden -translate-y-1/2 md:block">
                   <ArrowRight className="size-5 text-white/10" />
                 </div>
               )}

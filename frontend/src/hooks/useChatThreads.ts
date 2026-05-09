@@ -107,7 +107,6 @@ export function useChatInvalidation() {
   const qc = useQueryClient();
   return {
     invalidateThreads: () => qc.invalidateQueries({ queryKey: THREADS_KEY }),
-    invalidateMessages: (id: string) =>
-      qc.invalidateQueries({ queryKey: threadMessagesKey(id) }),
+    invalidateMessages: (id: string) => qc.invalidateQueries({ queryKey: threadMessagesKey(id) }),
   };
 }

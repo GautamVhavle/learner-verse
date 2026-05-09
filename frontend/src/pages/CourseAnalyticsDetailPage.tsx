@@ -26,13 +26,7 @@ import {
   Users,
 } from "lucide-react";
 import { DiscussionRoom } from "@/components/discussion/DiscussionRoom";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartContainer,
   ChartTooltip,
@@ -50,8 +44,8 @@ import {
 import type { LearnerInfo, RatingDetail } from "@/types/analytics";
 
 const SHARE_BASE = (
-  import.meta.env.VITE_PUBLIC_SITE_URL
-  ?? (typeof window !== "undefined" ? window.location.origin : "")
+  import.meta.env.VITE_PUBLIC_SITE_URL ??
+  (typeof window !== "undefined" ? window.location.origin : "")
 ).replace(/\/$/, "");
 
 // ── Chart configs ───────────────────────────────────────────
@@ -117,11 +111,11 @@ function MiniStat({
   accent: string;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-border-default bg-bg-primary px-4 py-3">
+    <div className="border-border-default bg-bg-primary flex items-center gap-3 rounded-lg border px-4 py-3">
       <Icon className={`size-5 ${accent}`} />
       <div>
-        <p className="text-lg font-bold text-text-primary">{value}</p>
-        <p className="text-xs text-text-secondary">{label}</p>
+        <p className="text-text-primary text-lg font-bold">{value}</p>
+        <p className="text-text-secondary text-xs">{label}</p>
       </div>
     </div>
   );
@@ -146,13 +140,13 @@ function StarDisplay({ rating }: { rating: number }) {
 
 function LearnerRow({ learner }: { learner: LearnerInfo }) {
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-border-default bg-bg-primary px-4 py-3">
+    <div className="border-border-default bg-bg-primary flex items-center gap-3 rounded-lg border px-4 py-3">
       {/* Avatar */}
-      <div className="size-8 shrink-0 overflow-hidden rounded-full bg-muted">
+      <div className="bg-muted size-8 shrink-0 overflow-hidden rounded-full">
         {learner.avatar_url ? (
           <img src={learner.avatar_url} alt="" className="size-full object-cover" />
         ) : (
-          <div className="flex size-full items-center justify-center text-xs font-bold text-text-secondary">
+          <div className="text-text-secondary flex size-full items-center justify-center text-xs font-bold">
             {learner.display_name.charAt(0).toUpperCase()}
           </div>
         )}
@@ -160,14 +154,14 @@ function LearnerRow({ learner }: { learner: LearnerInfo }) {
 
       {/* Info */}
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-text-primary">{learner.display_name}</p>
-        <p className="text-xs text-text-secondary">Enrolled {formatFull(learner.enrolled_at)}</p>
+        <p className="text-text-primary truncate text-sm font-medium">{learner.display_name}</p>
+        <p className="text-text-secondary text-xs">Enrolled {formatFull(learner.enrolled_at)}</p>
       </div>
 
       {/* Progress */}
       <div className="flex items-center gap-2">
         <div className="w-24">
-          <div className="h-2 overflow-hidden rounded-full bg-muted">
+          <div className="bg-muted h-2 overflow-hidden rounded-full">
             <div
               className={`h-full rounded-full transition-all ${
                 learner.completed_course ? "bg-emerald-500" : "bg-blue-500"
@@ -176,12 +170,10 @@ function LearnerRow({ learner }: { learner: LearnerInfo }) {
             />
           </div>
         </div>
-        <span className="w-10 text-right text-xs text-text-secondary">
+        <span className="text-text-secondary w-10 text-right text-xs">
           {Math.round(learner.progress_percent)}%
         </span>
-        {learner.completed_course && (
-          <CheckCircle2 className="size-4 text-emerald-500" />
-        )}
+        {learner.completed_course && <CheckCircle2 className="size-4 text-emerald-500" />}
       </div>
     </div>
   );
@@ -191,27 +183,25 @@ function LearnerRow({ learner }: { learner: LearnerInfo }) {
 
 function ReviewCard({ review }: { review: RatingDetail }) {
   return (
-    <div className="rounded-lg border border-border-default bg-bg-primary p-4">
+    <div className="border-border-default bg-bg-primary rounded-lg border p-4">
       <div className="flex items-start gap-3">
         {/* Avatar */}
-        <div className="size-8 shrink-0 overflow-hidden rounded-full bg-muted">
+        <div className="bg-muted size-8 shrink-0 overflow-hidden rounded-full">
           {review.user_avatar ? (
             <img src={review.user_avatar} alt="" className="size-full object-cover" />
           ) : (
-            <div className="flex size-full items-center justify-center text-xs font-bold text-text-secondary">
+            <div className="text-text-secondary flex size-full items-center justify-center text-xs font-bold">
               {review.user_name.charAt(0).toUpperCase()}
             </div>
           )}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <p className="text-sm font-medium text-text-primary">{review.user_name}</p>
+            <p className="text-text-primary text-sm font-medium">{review.user_name}</p>
             <StarDisplay rating={review.rating} />
-            <span className="text-xs text-text-secondary">{formatFull(review.created_at)}</span>
+            <span className="text-text-secondary text-xs">{formatFull(review.created_at)}</span>
           </div>
-          {review.review && (
-            <p className="mt-1.5 text-sm text-text-secondary">{review.review}</p>
-          )}
+          {review.review && <p className="text-text-secondary mt-1.5 text-sm">{review.review}</p>}
         </div>
       </div>
     </div>
@@ -232,7 +222,9 @@ export default function CourseAnalyticsDetailPage() {
     sort: "enrollments",
     per_page: 100,
   });
-  const { data: ratingsData, isLoading: ratingsLoading } = useCourseRatingsDetailQuery(courseId ?? "");
+  const { data: ratingsData, isLoading: ratingsLoading } = useCourseRatingsDetailQuery(
+    courseId ?? "",
+  );
   const { data: learnersData, isLoading: learnersLoading } = useCourselearnersQuery(courseId ?? "");
 
   const course = courseData?.items.find((c) => c.course_id === courseId);
@@ -251,13 +243,13 @@ export default function CourseAnalyticsDetailPage() {
   if (courseLoading) {
     return (
       <div className="space-y-6">
-        <div className="h-8 w-64 animate-pulse rounded bg-muted" />
+        <div className="bg-muted h-8 w-64 animate-pulse rounded" />
         <div className="grid grid-cols-4 gap-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-20 animate-pulse rounded-lg bg-muted" />
+            <div key={i} className="bg-muted h-20 animate-pulse rounded-lg" />
           ))}
         </div>
-        <div className="h-64 animate-pulse rounded-xl bg-muted" />
+        <div className="bg-muted h-64 animate-pulse rounded-xl" />
       </div>
     );
   }
@@ -293,26 +285,30 @@ export default function CourseAnalyticsDetailPage() {
         </Button>
         <div className="flex items-start gap-4">
           {/* Thumbnail */}
-          <div className="size-14 shrink-0 overflow-hidden rounded-lg bg-muted">
+          <div className="bg-muted size-14 shrink-0 overflow-hidden rounded-lg">
             {course.thumbnail_url ? (
               <img src={course.thumbnail_url} alt="" className="size-full object-cover" />
             ) : (
               <div className="flex size-full items-center justify-center">
-                <BookOpen className="size-6 text-muted-foreground" />
+                <BookOpen className="text-muted-foreground size-6" />
               </div>
             )}
           </div>
           <div className="min-w-0 flex-1">
-            <h1 className="text-xl font-bold tracking-tight text-text-primary">{course.title}</h1>
-            <div className="mt-1 flex items-center gap-3 text-sm text-text-secondary">
-              <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                course.is_public
-                  ? "bg-emerald-500/10 text-emerald-500"
-                  : "bg-muted text-muted-foreground"
-              }`}>
+            <h1 className="text-text-primary text-xl font-bold tracking-tight">{course.title}</h1>
+            <div className="text-text-secondary mt-1 flex items-center gap-3 text-sm">
+              <span
+                className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                  course.is_public
+                    ? "bg-emerald-500/10 text-emerald-500"
+                    : "bg-muted text-muted-foreground"
+                }`}
+              >
                 {course.is_public ? "Public" : "Private"}
               </span>
-              <span>{course.section_count} sections · {course.lesson_count} lessons</span>
+              <span>
+                {course.section_count} sections · {course.lesson_count} lessons
+              </span>
             </div>
           </div>
           {/* Share button */}
@@ -328,8 +324,18 @@ export default function CourseAnalyticsDetailPage() {
 
       {/* Mini stats */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <MiniStat label="Enrolled" value={course.enrollment_count} icon={Users} accent="text-blue-500" />
-        <MiniStat label="Completed" value={course.completion_count} icon={GraduationCap} accent="text-emerald-500" />
+        <MiniStat
+          label="Enrolled"
+          value={course.enrollment_count}
+          icon={Users}
+          accent="text-blue-500"
+        />
+        <MiniStat
+          label="Completed"
+          value={course.completion_count}
+          icon={GraduationCap}
+          accent="text-emerald-500"
+        />
         <MiniStat
           label="Completion Rate"
           value={`${course.completion_rate}%`}
@@ -345,8 +351,15 @@ export default function CourseAnalyticsDetailPage() {
       </div>
 
       {/* Tab Toggle */}
-      <div className="flex gap-1 rounded-lg bg-muted p-1">
-        {(["overview", "learners", "ratings", ...(course.is_public ? ["discussion"] as const : [])] as const).map((t) => (
+      <div className="bg-muted flex gap-1 rounded-lg p-1">
+        {(
+          [
+            "overview",
+            "learners",
+            "ratings",
+            ...(course.is_public ? (["discussion"] as const) : []),
+          ] as const
+        ).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t as Tab)}
@@ -356,7 +369,13 @@ export default function CourseAnalyticsDetailPage() {
                 : "text-text-secondary hover:text-text-primary"
             }`}
           >
-            {t === "overview" ? "Overview" : t === "learners" ? `Learners (${learnersData?.total ?? 0})` : t === "ratings" ? `Ratings (${course.rating_count})` : "Discussion"}
+            {t === "overview"
+              ? "Overview"
+              : t === "learners"
+                ? `Learners (${learnersData?.total ?? 0})`
+                : t === "ratings"
+                  ? `Ratings (${course.rating_count})`
+                  : "Discussion"}
           </button>
         ))}
       </div>
@@ -381,10 +400,30 @@ export default function CourseAnalyticsDetailPage() {
                       </linearGradient>
                     </defs>
                     <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                    <XAxis dataKey="date" tickLine={false} axisLine={false} tick={{ fontSize: 10 }} tickFormatter={formatDate} interval="preserveStartEnd" />
-                    <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={28} tick={{ fontSize: 10 }} />
+                    <XAxis
+                      dataKey="date"
+                      tickLine={false}
+                      axisLine={false}
+                      tick={{ fontSize: 10 }}
+                      tickFormatter={formatDate}
+                      interval="preserveStartEnd"
+                    />
+                    <YAxis
+                      allowDecimals={false}
+                      tickLine={false}
+                      axisLine={false}
+                      width={28}
+                      tick={{ fontSize: 10 }}
+                    />
                     <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-                    <Area type="monotone" dataKey="value" stroke="var(--chart-1)" fill="url(#eGrad)" strokeWidth={2} name="Enrollments" />
+                    <Area
+                      type="monotone"
+                      dataKey="value"
+                      stroke="var(--chart-1)"
+                      fill="url(#eGrad)"
+                      strokeWidth={2}
+                      name="Enrollments"
+                    />
                   </AreaChart>
                 </ChartContainer>
               </CardContent>
@@ -405,10 +444,30 @@ export default function CourseAnalyticsDetailPage() {
                       </linearGradient>
                     </defs>
                     <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                    <XAxis dataKey="date" tickLine={false} axisLine={false} tick={{ fontSize: 10 }} tickFormatter={formatDate} interval="preserveStartEnd" />
-                    <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={28} tick={{ fontSize: 10 }} />
+                    <XAxis
+                      dataKey="date"
+                      tickLine={false}
+                      axisLine={false}
+                      tick={{ fontSize: 10 }}
+                      tickFormatter={formatDate}
+                      interval="preserveStartEnd"
+                    />
+                    <YAxis
+                      allowDecimals={false}
+                      tickLine={false}
+                      axisLine={false}
+                      width={28}
+                      tick={{ fontSize: 10 }}
+                    />
                     <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-                    <Area type="monotone" dataKey="value" stroke="var(--chart-2)" fill="url(#cGrad)" strokeWidth={2} name="Completions" />
+                    <Area
+                      type="monotone"
+                      dataKey="value"
+                      stroke="var(--chart-2)"
+                      fill="url(#cGrad)"
+                      strokeWidth={2}
+                      name="Completions"
+                    />
                   </AreaChart>
                 </ChartContainer>
               </CardContent>
@@ -420,7 +479,9 @@ export default function CourseAnalyticsDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">Rating Distribution</CardTitle>
-                <CardDescription>{course.average_rating} average from {course.rating_count} ratings</CardDescription>
+                <CardDescription>
+                  {course.average_rating} average from {course.rating_count} ratings
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-6">
@@ -450,14 +511,16 @@ export default function CourseAnalyticsDetailPage() {
                       const pct = course.rating_count > 0 ? (count / course.rating_count) * 100 : 0;
                       return (
                         <div key={stars} className="flex items-center gap-2">
-                          <span className="w-8 text-right text-xs text-text-secondary">{stars}★</span>
-                          <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-muted">
+                          <span className="text-text-secondary w-8 text-right text-xs">
+                            {stars}★
+                          </span>
+                          <div className="bg-muted h-2.5 flex-1 overflow-hidden rounded-full">
                             <div
                               className="h-full rounded-full"
                               style={{ width: `${pct}%`, backgroundColor: ratingColors[stars - 1] }}
                             />
                           </div>
-                          <span className="w-8 text-xs text-text-secondary">{count}</span>
+                          <span className="text-text-secondary w-8 text-xs">{count}</span>
                         </div>
                       );
                     })}
@@ -473,13 +536,14 @@ export default function CourseAnalyticsDetailPage() {
               <CardHeader>
                 <CardTitle className="text-base">Shareable Link</CardTitle>
                 <CardDescription>
-                  Share this link on social media — includes OpenGraph preview with course image and description
+                  Share this link on social media — includes OpenGraph preview with course image and
+                  description
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center gap-2 rounded-lg border border-border-default bg-bg-secondary px-3 py-2">
-                  <Link2 className="size-4 shrink-0 text-text-secondary" />
-                  <code className="flex-1 truncate text-sm text-text-primary">{shareUrl}</code>
+                <div className="border-border-default bg-bg-secondary flex items-center gap-2 rounded-lg border px-3 py-2">
+                  <Link2 className="text-text-secondary size-4 shrink-0" />
+                  <code className="text-text-primary flex-1 truncate text-sm">{shareUrl}</code>
                   <Button variant="ghost" size="sm" onClick={handleCopyLink}>
                     <Copy className="size-3.5" />
                   </Button>
@@ -494,14 +558,12 @@ export default function CourseAnalyticsDetailPage() {
         <div className="space-y-3">
           {learnersLoading ? (
             Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="h-16 animate-pulse rounded-lg bg-muted" />
+              <div key={i} className="bg-muted h-16 animate-pulse rounded-lg" />
             ))
           ) : learnersData && learnersData.learners.length > 0 ? (
-            learnersData.learners.map((l) => (
-              <LearnerRow key={l.user_id} learner={l} />
-            ))
+            learnersData.learners.map((l) => <LearnerRow key={l.user_id} learner={l} />)
           ) : (
-            <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-border-default text-sm text-text-secondary">
+            <div className="border-border-default text-text-secondary flex h-40 items-center justify-center rounded-xl border border-dashed text-sm">
               No learners enrolled in this course yet.
             </div>
           )}
@@ -509,7 +571,10 @@ export default function CourseAnalyticsDetailPage() {
       )}
 
       {tab === "discussion" && courseId && (
-        <div className="overflow-hidden rounded-xl border border-border-default bg-bg-primary" style={{ height: "calc(100vh - 320px)", minHeight: 400 }}>
+        <div
+          className="border-border-default bg-bg-primary overflow-hidden rounded-xl border"
+          style={{ height: "calc(100vh - 320px)", minHeight: 400 }}
+        >
           <DiscussionRoom courseId={courseId} />
         </div>
       )}
@@ -518,24 +583,30 @@ export default function CourseAnalyticsDetailPage() {
         <div className="space-y-4">
           {/* Rating summary */}
           {ratingsData && ratingsData.rating_count > 0 && (
-            <div className="flex items-center gap-4 rounded-lg border border-border-default bg-bg-primary p-4">
+            <div className="border-border-default bg-bg-primary flex items-center gap-4 rounded-lg border p-4">
               <div className="text-center">
-                <p className="text-3xl font-bold text-text-primary">{ratingsData.average_rating}</p>
+                <p className="text-text-primary text-3xl font-bold">{ratingsData.average_rating}</p>
                 <StarDisplay rating={ratingsData.average_rating} />
-                <p className="mt-1 text-xs text-text-secondary">{ratingsData.rating_count} ratings</p>
+                <p className="text-text-secondary mt-1 text-xs">
+                  {ratingsData.rating_count} ratings
+                </p>
               </div>
               <div className="flex flex-1 flex-col gap-1">
                 {[5, 4, 3, 2, 1].map((stars) => {
                   const bucket = ratingsData.distribution.find((b) => b.stars === stars);
                   const count = bucket?.count ?? 0;
-                  const pct = ratingsData.rating_count > 0 ? (count / ratingsData.rating_count) * 100 : 0;
+                  const pct =
+                    ratingsData.rating_count > 0 ? (count / ratingsData.rating_count) * 100 : 0;
                   return (
                     <div key={stars} className="flex items-center gap-2">
-                      <span className="w-8 text-right text-xs text-text-secondary">{stars}★</span>
-                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
-                        <div className="h-full rounded-full bg-amber-400" style={{ width: `${pct}%` }} />
+                      <span className="text-text-secondary w-8 text-right text-xs">{stars}★</span>
+                      <div className="bg-muted h-2 flex-1 overflow-hidden rounded-full">
+                        <div
+                          className="h-full rounded-full bg-amber-400"
+                          style={{ width: `${pct}%` }}
+                        />
                       </div>
-                      <span className="w-6 text-xs text-text-secondary">{count}</span>
+                      <span className="text-text-secondary w-6 text-xs">{count}</span>
                     </div>
                   );
                 })}
@@ -546,7 +617,7 @@ export default function CourseAnalyticsDetailPage() {
           {/* Reviews list */}
           {ratingsLoading ? (
             Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-20 animate-pulse rounded-lg bg-muted" />
+              <div key={i} className="bg-muted h-20 animate-pulse rounded-lg" />
             ))
           ) : ratingsData && ratingsData.recent_reviews.length > 0 ? (
             <div className="space-y-3">
@@ -555,7 +626,7 @@ export default function CourseAnalyticsDetailPage() {
               ))}
             </div>
           ) : (
-            <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-border-default text-sm text-text-secondary">
+            <div className="border-border-default text-text-secondary flex h-40 items-center justify-center rounded-xl border border-dashed text-sm">
               No ratings for this course yet.
             </div>
           )}

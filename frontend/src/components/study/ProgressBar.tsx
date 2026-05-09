@@ -19,9 +19,7 @@ export function ProgressBar({
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <div
-        className={`${h} flex-1 overflow-hidden rounded-full bg-bg-tertiary`}
-      >
+      <div className={`${h} bg-bg-tertiary flex-1 overflow-hidden rounded-full`}>
         <div
           className={`${h} rounded-full transition-all duration-500 ease-out ${
             clamped === 100 ? "bg-accent-green" : "bg-accent-blue"
@@ -30,7 +28,7 @@ export function ProgressBar({
         />
       </div>
       {showLabel && (
-        <span className="shrink-0 text-xs tabular-nums text-text-tertiary">
+        <span className="text-text-tertiary shrink-0 text-xs tabular-nums">
           {Math.round(clamped)}%
         </span>
       )}

@@ -22,13 +22,7 @@ import {
   Star,
   Users,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartContainer,
   ChartTooltip,
@@ -104,11 +98,11 @@ function StatCard({ label, value, sub, icon: Icon, accent, iconBg }: StatCardPro
           <div className={`flex size-8 shrink-0 items-center justify-center rounded-lg ${iconBg}`}>
             <Icon className={`size-4 ${accent}`} />
           </div>
-          <span className="text-xs font-medium text-text-secondary">{label}</span>
+          <span className="text-text-secondary text-xs font-medium">{label}</span>
         </div>
         <div>
-          <span className="text-2xl font-bold tracking-tight text-text-primary">{value}</span>
-          <p className="mt-0.5 text-xs text-text-secondary">{sub}</p>
+          <span className="text-text-primary text-2xl font-bold tracking-tight">{value}</span>
+          <p className="text-text-secondary mt-0.5 text-xs">{sub}</p>
         </div>
       </CardContent>
     </Card>
@@ -127,27 +121,23 @@ function CourseRow({
   return (
     <button
       onClick={() => onNavigate(course.course_id)}
-      className="flex w-full items-center gap-3 rounded-lg border border-border-default bg-bg-primary px-4 py-3 text-left transition-colors hover:bg-bg-secondary"
+      className="border-border-default bg-bg-primary hover:bg-bg-secondary flex w-full items-center gap-3 rounded-lg border px-4 py-3 text-left transition-colors"
     >
       {/* Thumbnail */}
-      <div className="size-10 shrink-0 overflow-hidden rounded-md bg-muted">
+      <div className="bg-muted size-10 shrink-0 overflow-hidden rounded-md">
         {course.thumbnail_url ? (
-          <img
-            src={course.thumbnail_url}
-            alt=""
-            className="size-full object-cover"
-          />
+          <img src={course.thumbnail_url} alt="" className="size-full object-cover" />
         ) : (
           <div className="flex size-full items-center justify-center">
-            <BookOpen className="size-4 text-muted-foreground" />
+            <BookOpen className="text-muted-foreground size-4" />
           </div>
         )}
       </div>
 
       {/* Info */}
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-text-primary">{course.title}</p>
-        <div className="mt-0.5 flex items-center gap-3 text-xs text-text-secondary">
+        <p className="text-text-primary truncate text-sm font-medium">{course.title}</p>
+        <div className="text-text-secondary mt-0.5 flex items-center gap-3 text-xs">
           <span>{course.enrollment_count} enrolled</span>
           <span>{course.completion_rate}% completion</span>
           {course.rating_count > 0 && (
@@ -172,7 +162,7 @@ function CourseRow({
         {course.is_public ? "Public" : course.status === "ready" ? "Ready" : "Draft"}
       </span>
 
-      <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+      <ChevronRight className="text-muted-foreground size-4 shrink-0" />
     </button>
   );
 }
@@ -182,25 +172,30 @@ function CourseRow({
 export default function CreatorAnalyticsPage() {
   const navigate = useModeAwareNavigate();
   const [trendDays] = useState(30);
-  const [sort, setSort] = useState<"enrollments" | "completions" | "rating" | "newest">("enrollments");
+  const [sort, setSort] = useState<"enrollments" | "completions" | "rating" | "newest">(
+    "enrollments",
+  );
 
   const { data: overview, isLoading: overviewLoading } = useAnalyticsOverviewQuery(trendDays);
-  const { data: courses, isLoading: coursesLoading } = useCourseAnalyticsQuery({ sort, per_page: 50 });
+  const { data: courses, isLoading: coursesLoading } = useCourseAnalyticsQuery({
+    sort,
+    per_page: 50,
+  });
   const { data: topCourses } = useTopCoursesQuery(5);
 
   if (overviewLoading) {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-text-primary">Creator Analytics</h1>
-          <p className="mt-1 text-sm text-text-secondary">Loading your analytics…</p>
+          <h1 className="text-text-primary text-2xl font-bold tracking-tight">Creator Analytics</h1>
+          <p className="text-text-secondary mt-1 text-sm">Loading your analytics…</p>
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-28 animate-pulse rounded-xl bg-muted" />
+            <div key={i} className="bg-muted h-28 animate-pulse rounded-xl" />
           ))}
         </div>
-        <div className="h-72 animate-pulse rounded-xl bg-muted" />
+        <div className="bg-muted h-72 animate-pulse rounded-xl" />
       </div>
     );
   }
@@ -209,16 +204,16 @@ export default function CreatorAnalyticsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-text-primary">Creator Analytics</h1>
-          <p className="mt-1 text-sm text-text-secondary">Track your course performance.</p>
+          <h1 className="text-text-primary text-2xl font-bold tracking-tight">Creator Analytics</h1>
+          <p className="text-text-secondary mt-1 text-sm">Track your course performance.</p>
         </div>
-        <div className="flex min-h-[40vh] items-center justify-center rounded-xl border border-dashed border-border-default py-16">
+        <div className="border-border-default flex min-h-[40vh] items-center justify-center rounded-xl border border-dashed py-16">
           <div className="flex max-w-sm flex-col items-center text-center">
-            <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-accent-amber/10">
-              <LineChartIcon className="size-7 text-accent-amber/50" />
+            <div className="bg-accent-amber/10 mb-4 flex size-14 items-center justify-center rounded-full">
+              <LineChartIcon className="text-accent-amber/50 size-7" />
             </div>
-            <h3 className="text-base font-medium text-text-primary">No analytics yet</h3>
-            <p className="mt-1 text-sm text-text-secondary">
+            <h3 className="text-text-primary text-base font-medium">No analytics yet</h3>
+            <p className="text-text-secondary mt-1 text-sm">
               Create and publish courses to start seeing analytics.
             </p>
           </div>
@@ -240,8 +235,8 @@ export default function CreatorAnalyticsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-text-primary">Creator Analytics</h1>
-        <p className="mt-1 text-sm text-text-secondary">
+        <h1 className="text-text-primary text-2xl font-bold tracking-tight">Creator Analytics</h1>
+        <p className="text-text-secondary mt-1 text-sm">
           Track enrollments, completions, and ratings across your courses.
         </p>
       </div>
@@ -267,9 +262,10 @@ export default function CreatorAnalyticsPage() {
         <StatCard
           label="Completions"
           value={overview.total_completions}
-          sub={overview.total_enrollments > 0
-            ? `${Math.round((overview.total_completions / overview.total_enrollments) * 100)}% completion rate`
-            : "No enrollments yet"
+          sub={
+            overview.total_enrollments > 0
+              ? `${Math.round((overview.total_completions / overview.total_enrollments) * 100)}% completion rate`
+              : "No enrollments yet"
           }
           icon={GraduationCap}
           accent="text-violet-500"
@@ -318,9 +314,7 @@ export default function CreatorAnalyticsPage() {
                   width={28}
                   tick={{ fontSize: 10 }}
                 />
-                <ChartTooltip
-                  content={<ChartTooltipContent hideLabel />}
-                />
+                <ChartTooltip content={<ChartTooltipContent hideLabel />} />
                 <Area
                   type="monotone"
                   dataKey="value"
@@ -365,9 +359,7 @@ export default function CreatorAnalyticsPage() {
                   width={28}
                   tick={{ fontSize: 10 }}
                 />
-                <ChartTooltip
-                  content={<ChartTooltipContent hideLabel />}
-                />
+                <ChartTooltip content={<ChartTooltipContent hideLabel />} />
                 <Area
                   type="monotone"
                   dataKey="value"
@@ -422,11 +414,12 @@ export default function CreatorAnalyticsPage() {
                   {[5, 4, 3, 2, 1].map((stars) => {
                     const bucket = overview.rating_distribution.find((b) => b.stars === stars);
                     const count = bucket?.count ?? 0;
-                    const pct = overview.total_ratings > 0 ? (count / overview.total_ratings) * 100 : 0;
+                    const pct =
+                      overview.total_ratings > 0 ? (count / overview.total_ratings) * 100 : 0;
                     return (
                       <div key={stars} className="flex items-center gap-2">
-                        <span className="w-8 text-right text-xs text-text-secondary">{stars}★</span>
-                        <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-muted">
+                        <span className="text-text-secondary w-8 text-right text-xs">{stars}★</span>
+                        <div className="bg-muted h-2.5 flex-1 overflow-hidden rounded-full">
                           <div
                             className="h-full rounded-full transition-all"
                             style={{
@@ -435,14 +428,14 @@ export default function CreatorAnalyticsPage() {
                             }}
                           />
                         </div>
-                        <span className="w-8 text-xs text-text-secondary">{count}</span>
+                        <span className="text-text-secondary w-8 text-xs">{count}</span>
                       </div>
                     );
                   })}
                 </div>
               </div>
             ) : (
-              <div className="flex h-36 items-center justify-center text-sm text-text-secondary">
+              <div className="text-text-secondary flex h-36 items-center justify-center text-sm">
                 Publish courses and collect ratings to see distribution.
               </div>
             )}
@@ -462,14 +455,14 @@ export default function CreatorAnalyticsPage() {
                   <button
                     key={tc.course_id}
                     onClick={() => navigate(`/analytics/${tc.course_id}`)}
-                    className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition-colors hover:bg-bg-secondary"
+                    className="hover:bg-bg-secondary flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition-colors"
                   >
-                    <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted text-xs font-bold text-text-secondary">
+                    <span className="bg-muted text-text-secondary flex size-6 shrink-0 items-center justify-center rounded-md text-xs font-bold">
                       {i + 1}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-text-primary">{tc.title}</p>
-                      <div className="flex items-center gap-2 text-xs text-text-secondary">
+                      <p className="text-text-primary truncate text-sm font-medium">{tc.title}</p>
+                      <div className="text-text-secondary flex items-center gap-2 text-xs">
                         <span>{tc.enrollment_count} enrolled</span>
                         {tc.rating_count > 0 && (
                           <span className="flex items-center gap-0.5">
@@ -479,12 +472,12 @@ export default function CreatorAnalyticsPage() {
                         )}
                       </div>
                     </div>
-                    <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+                    <ChevronRight className="text-muted-foreground size-4 shrink-0" />
                   </button>
                 ))}
               </div>
             ) : (
-              <div className="flex h-36 items-center justify-center text-sm text-text-secondary">
+              <div className="text-text-secondary flex h-36 items-center justify-center text-sm">
                 No courses yet.
               </div>
             )}
@@ -497,9 +490,7 @@ export default function CreatorAnalyticsPage() {
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle className="text-base">All Courses</CardTitle>
-            <CardDescription>
-              {courses ? `${courses.total} courses` : "Loading…"}
-            </CardDescription>
+            <CardDescription>{courses ? `${courses.total} courses` : "Loading…"}</CardDescription>
           </div>
           <div className="flex items-center gap-1">
             {(["enrollments", "completions", "rating", "newest"] as const).map((s) => (
@@ -519,7 +510,7 @@ export default function CreatorAnalyticsPage() {
           {coursesLoading ? (
             <div className="space-y-2">
               {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="h-16 animate-pulse rounded-lg bg-muted" />
+                <div key={i} className="bg-muted h-16 animate-pulse rounded-lg" />
               ))}
             </div>
           ) : courses && courses.items.length > 0 ? (
@@ -533,7 +524,7 @@ export default function CreatorAnalyticsPage() {
               ))}
             </div>
           ) : (
-            <div className="flex h-32 items-center justify-center text-sm text-text-secondary">
+            <div className="text-text-secondary flex h-32 items-center justify-center text-sm">
               No courses found. Create a course to see analytics.
             </div>
           )}

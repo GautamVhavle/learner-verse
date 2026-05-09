@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.dependencies import get_current_user
 from app.core.database import get_db
 from app.models.user import User
+from app.repositories.section_repo import SectionRepository
 from app.schemas.certificate import (
     CertificateDetailResponse,
     CertificateResponse,
@@ -16,7 +17,6 @@ from app.schemas.certificate import (
 )
 from app.services.certificate_service import CertificateService
 from app.services.notification_service import NotificationService
-from app.repositories.section_repo import SectionRepository
 
 router = APIRouter(prefix="/certificates", tags=["certificates"])
 
@@ -30,9 +30,7 @@ async def get_shared_certificate(
     svc = CertificateService(db)
     cert = await svc.get_by_uid(certificate_uid)
     if cert is None:
-        raise HTTPException(
-            status_code=404, detail="Certificate not found."
-        )
+        raise HTTPException(status_code=404, detail="Certificate not found.")
 
     # Build course structure metadata
     section_repo = SectionRepository(db)
@@ -45,8 +43,8 @@ async def get_shared_certificate(
         SectionBrief(
             title=s.title,
             lessons=[
-                LessonBrief(title=l.title, lesson_type=l.lesson_type or "video")
-                for l in sorted(s.lessons, key=lambda le: le.position)
+                LessonBrief(title=lesson.title, lesson_type=lesson.lesson_type or "video")
+                for lesson in sorted(s.lessons, key=lambda le: le.position)
             ],
         )
         for s in sections

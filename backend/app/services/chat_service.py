@@ -134,9 +134,7 @@ class ChatService:
 class InlineChatService:
     """Stateless inline chat — no thread persistence, context-aware responses."""
 
-    def _build_system_prompt(
-        self, context_type: str, context_data: dict
-    ) -> str:
+    def _build_system_prompt(self, context_type: str, context_data: dict) -> str:
         if context_type == "video":
             prompt = INLINE_VIDEO_PROMPT
             title = context_data.get("lesson_title", "")
@@ -177,9 +175,7 @@ class InlineChatService:
             if question:
                 prompt += f"\n\nQuestion: {question}"
             if options:
-                labeled = [
-                    f"  {chr(65 + i)}. {opt}" for i, opt in enumerate(options)
-                ]
+                labeled = [f"  {chr(65 + i)}. {opt}" for i, opt in enumerate(options)]
                 prompt += "\nOptions:\n" + "\n".join(labeled)
             return prompt
 

@@ -19,7 +19,7 @@ from app.schemas.lesson import (
 )
 from app.schemas.section import ReorderRequest
 from app.services.lesson_service import LessonService
-from app.services.playlist_service import PlaylistResult, extract_playlist
+from app.services.playlist_service import extract_playlist
 
 router = APIRouter(prefix="/sections/{section_id}/lessons", tags=["lessons"])
 
@@ -92,7 +92,9 @@ async def move_lesson(
     return await _service(db).move_lesson(lesson_id, user.id, data)
 
 
-@router.post("/{lesson_id}/duplicate", response_model=LessonResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/{lesson_id}/duplicate", response_model=LessonResponse, status_code=status.HTTP_201_CREATED
+)
 async def duplicate_lesson(
     section_id: uuid.UUID,
     lesson_id: uuid.UUID,
@@ -160,18 +162,14 @@ async def import_playlist(
     try:
         playlist = await extract_playlist(data.playlist_url)
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="Failed to fetch playlist from YouTube. It may be private or unavailable.",
         )
 
-    lessons = await _service(db).import_playlist_videos(
-        section_id, user.id, playlist
-    )
+    lessons = await _service(db).import_playlist_videos(section_id, user.id, playlist)
     return PlaylistImportResponse(
         playlist_title=playlist.playlist_title,
         imported_count=len(lessons),

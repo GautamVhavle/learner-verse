@@ -5,15 +5,7 @@
  * A4 landscape = 842 × 595 pt.  All spacing is tuned so every element
  * sits on a single page with balanced whitespace.
  */
-import {
-  Document,
-  Page,
-  Text,
-  View,
-  StyleSheet,
-  pdf,
-  Image,
-} from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet, pdf, Image } from "@react-pdf/renderer";
 import { Download, Loader2 } from "lucide-react";
 import { useState } from "react";
 import type { CertificateResponse } from "@/types/certificate";
@@ -208,10 +200,11 @@ const s = StyleSheet.create({
 /* ── PDF Document ──────────────────────────────────── */
 
 export function CertificatePDF({ certificate }: { certificate: CertificateResponse }) {
-  const completedDate = new Date(certificate.completed_at).toLocaleDateString(
-    "en-US",
-    { year: "numeric", month: "long", day: "numeric" },
-  );
+  const completedDate = new Date(certificate.completed_at).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
   const shareUrl = `${window.location.origin}/certificates/share/${certificate.certificate_uid}`;
 
   return (
@@ -257,8 +250,7 @@ export function CertificatePDF({ certificate }: { certificate: CertificateRespon
             </Text>
             <Text style={s.statDot}>·</Text>
             <Text style={s.stat}>
-              {certificate.lessons_count}{" "}
-              {certificate.lessons_count === 1 ? "lesson" : "lessons"}
+              {certificate.lessons_count} {certificate.lessons_count === 1 ? "lesson" : "lessons"}
             </Text>
           </View>
 
@@ -312,11 +304,7 @@ export function CertificateDownload({ certificate }: CertificateDownloadProps) {
       className="flex w-full items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium text-white transition-all hover:opacity-90 disabled:opacity-60"
       style={{ background: "#6366f1" }}
     >
-      {generating ? (
-        <Loader2 className="size-4 animate-spin" />
-      ) : (
-        <Download className="size-4" />
-      )}
+      {generating ? <Loader2 className="size-4 animate-spin" /> : <Download className="size-4" />}
       {generating ? "Generating…" : "Download PDF"}
     </button>
   );

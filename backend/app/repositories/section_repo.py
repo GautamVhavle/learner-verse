@@ -24,7 +24,9 @@ class SectionRepository:
 
     # ── CRUD ─────────────────────────────────────────────────
 
-    async def create(self, course_id: uuid.UUID, title: str, position: int | None = None, **kwargs) -> Section:
+    async def create(
+        self, course_id: uuid.UUID, title: str, position: int | None = None, **kwargs
+    ) -> Section:
         """Create a section at the given position (or the next available)."""
         if position is None:
             position = await self._next_position(course_id)

@@ -48,50 +48,82 @@ export function ProfileSection({ user, onSave }: ProfileSectionProps) {
   const uploadAvatar = useUploadAvatarMutation();
   const uploadCover = useUploadCoverMutation();
 
-  useEffect(() => { setDisplayName(user.display_name); }, [user.display_name]);
-  useEffect(() => { setBio(user.bio ?? ""); }, [user.bio]);
-  useEffect(() => { setTags(user.profile_tags ?? []); }, [user.profile_tags]);
-  useEffect(() => { setLinks(user.social_links ?? []); }, [user.social_links]);
-  useEffect(() => { setIsPublic(user.is_profile_public); }, [user.is_profile_public]);
+  useEffect(() => {
+    setDisplayName(user.display_name);
+  }, [user.display_name]);
+  useEffect(() => {
+    setBio(user.bio ?? "");
+  }, [user.bio]);
+  useEffect(() => {
+    setTags(user.profile_tags ?? []);
+  }, [user.profile_tags]);
+  useEffect(() => {
+    setLinks(user.social_links ?? []);
+  }, [user.social_links]);
+  useEffect(() => {
+    setIsPublic(user.is_profile_public);
+  }, [user.is_profile_public]);
 
   const flash = useCallback(() => {
     setSaved(true);
     setTimeout(() => setSaved(false), 1500);
   }, []);
 
-  const handleNameChange = useCallback((value: string) => {
-    setDisplayName(value);
-    clearTimeout(nameDebounceRef.current);
-    nameDebounceRef.current = setTimeout(() => {
-      if (value.trim()) { onSave({ display_name: value.trim() }, "name"); flash(); }
-    }, NAME_DEBOUNCE_MS);
-  }, [onSave, flash]);
+  const handleNameChange = useCallback(
+    (value: string) => {
+      setDisplayName(value);
+      clearTimeout(nameDebounceRef.current);
+      nameDebounceRef.current = setTimeout(() => {
+        if (value.trim()) {
+          onSave({ display_name: value.trim() }, "name");
+          flash();
+        }
+      }, NAME_DEBOUNCE_MS);
+    },
+    [onSave, flash],
+  );
 
-  const handleBioChange = useCallback((value: string) => {
-    if (value.length > MAX_BIO_LENGTH) return;
-    setBio(value);
-    clearTimeout(bioDebounceRef.current);
-    bioDebounceRef.current = setTimeout(() => {
-      onSave({ bio: value || null }, "bio"); flash();
-    }, BIO_DEBOUNCE_MS);
-  }, [onSave, flash]);
+  const handleBioChange = useCallback(
+    (value: string) => {
+      if (value.length > MAX_BIO_LENGTH) return;
+      setBio(value);
+      clearTimeout(bioDebounceRef.current);
+      bioDebounceRef.current = setTimeout(() => {
+        onSave({ bio: value || null }, "bio");
+        flash();
+      }, BIO_DEBOUNCE_MS);
+    },
+    [onSave, flash],
+  );
 
-  const addTag = useCallback((raw: string) => {
-    const tag = raw.trim().toLowerCase();
-    if (!tag || tags.length >= MAX_TAGS || tags.includes(tag)) return;
-    const next = [...tags, tag];
-    setTags(next); setTagInput("");
-    onSave({ profile_tags: next }, "tags"); flash();
-  }, [tags, onSave, flash]);
+  const addTag = useCallback(
+    (raw: string) => {
+      const tag = raw.trim().toLowerCase();
+      if (!tag || tags.length >= MAX_TAGS || tags.includes(tag)) return;
+      const next = [...tags, tag];
+      setTags(next);
+      setTagInput("");
+      onSave({ profile_tags: next }, "tags");
+      flash();
+    },
+    [tags, onSave, flash],
+  );
 
-  const removeTag = useCallback((tag: string) => {
-    const next = tags.filter((t) => t !== tag);
-    setTags(next);
-    onSave({ profile_tags: next }, "tags"); flash();
-  }, [tags, onSave, flash]);
+  const removeTag = useCallback(
+    (tag: string) => {
+      const next = tags.filter((t) => t !== tag);
+      setTags(next);
+      onSave({ profile_tags: next }, "tags");
+      flash();
+    },
+    [tags, onSave, flash],
+  );
 
   const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(tagInput); }
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      addTag(tagInput);
+    }
     if (e.key === "Backspace" && !tagInput && tags.length > 0) removeTag(tags[tags.length - 1]);
   };
 
@@ -103,29 +135,35 @@ export function ProfileSection({ user, onSave }: ProfileSectionProps) {
   }, [links]);
 
   const updateLink = useCallback((idx: number, field: "label" | "url", value: string) => {
-    setLinks((prev) => prev.map((l, i) => i === idx ? { ...l, [field]: value } : l));
+    setLinks((prev) => prev.map((l, i) => (i === idx ? { ...l, [field]: value } : l)));
   }, []);
 
   const saveLinks = useCallback(() => {
     setLinks((prev) => {
       const validLinks = prev.filter((l) => l.label.trim() && l.url.trim());
-      onSave({ social_links: validLinks }, "links"); flash();
+      onSave({ social_links: validLinks }, "links");
+      flash();
       return prev;
     });
   }, [onSave, flash]);
 
-  const removeLink = useCallback((idx: number) => {
-    setLinks((prev) => {
-      const next = prev.filter((_, i) => i !== idx);
-      onSave({ social_links: next.filter((l) => l.label.trim() && l.url.trim()) }, "links"); flash();
-      return next;
-    });
-  }, [onSave, flash]);
+  const removeLink = useCallback(
+    (idx: number) => {
+      setLinks((prev) => {
+        const next = prev.filter((_, i) => i !== idx);
+        onSave({ social_links: next.filter((l) => l.label.trim() && l.url.trim()) }, "links");
+        flash();
+        return next;
+      });
+    },
+    [onSave, flash],
+  );
 
   const togglePublic = useCallback(() => {
     const next = !isPublic;
     setIsPublic(next);
-    onSave({ is_profile_public: next }, "public"); flash();
+    onSave({ is_profile_public: next }, "public");
+    flash();
   }, [isPublic, onSave, flash]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: "avatar" | "cover") => {
@@ -140,15 +178,11 @@ export function ProfileSection({ user, onSave }: ProfileSectionProps) {
   return (
     <div className="space-y-6">
       {/* Cover Image */}
-      <section className="overflow-hidden rounded-xl border border-border-default bg-bg-secondary">
+      <section className="border-border-default bg-bg-secondary overflow-hidden rounded-xl border">
         <div className="relative">
-          <div className="h-36 w-full bg-gradient-to-br from-accent-blue/20 via-accent-purple/10 to-accent-green/20 sm:h-44">
+          <div className="from-accent-blue/20 via-accent-purple/10 to-accent-green/20 h-36 w-full bg-gradient-to-br sm:h-44">
             {user.cover_image_url && (
-              <img
-                src={user.cover_image_url}
-                alt="Cover"
-                className="h-full w-full object-cover"
-              />
+              <img src={user.cover_image_url} alt="Cover" className="h-full w-full object-cover" />
             )}
           </div>
           <input
@@ -161,7 +195,7 @@ export function ProfileSection({ user, onSave }: ProfileSectionProps) {
           <button
             onClick={() => coverInputRef.current?.click()}
             disabled={uploadCover.isPending}
-            className="absolute right-3 top-3 flex items-center gap-1.5 rounded-lg border border-white/20 bg-black/40 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm transition-colors hover:bg-black/60 disabled:opacity-50"
+            className="absolute top-3 right-3 flex items-center gap-1.5 rounded-lg border border-white/20 bg-black/40 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm transition-colors hover:bg-black/60 disabled:opacity-50"
           >
             {uploadCover.isPending ? (
               <Loader2 className="size-3 animate-spin" />
@@ -173,7 +207,7 @@ export function ProfileSection({ user, onSave }: ProfileSectionProps) {
           {/* Avatar overlapping cover */}
           <div className="absolute -bottom-10 left-5">
             <div className="relative">
-              <Avatar size="lg" className="size-20 ring-4 ring-bg-secondary shadow-lg">
+              <Avatar size="lg" className="ring-bg-secondary size-20 shadow-lg ring-4">
                 {user.avatar_url ? (
                   <AvatarImage src={user.avatar_url} alt={user.display_name} />
                 ) : null}
@@ -191,7 +225,7 @@ export function ProfileSection({ user, onSave }: ProfileSectionProps) {
               <button
                 onClick={() => avatarInputRef.current?.click()}
                 disabled={uploadAvatar.isPending}
-                className="absolute -bottom-1 -right-1 flex size-7 items-center justify-center rounded-full border-2 border-bg-secondary bg-bg-tertiary text-text-secondary transition-colors hover:bg-bg-quaternary hover:text-text-primary disabled:opacity-50"
+                className="border-bg-secondary bg-bg-tertiary text-text-secondary hover:bg-bg-quaternary hover:text-text-primary absolute -right-1 -bottom-1 flex size-7 items-center justify-center rounded-full border-2 transition-colors disabled:opacity-50"
               >
                 {uploadAvatar.isPending ? (
                   <Loader2 className="size-3 animate-spin" />
@@ -204,11 +238,11 @@ export function ProfileSection({ user, onSave }: ProfileSectionProps) {
         </div>
 
         {/* Name + email below cover */}
-        <div className="px-5 pb-5 pt-14">
+        <div className="px-5 pt-14 pb-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-base font-semibold text-text-primary">{user.display_name}</p>
-              <p className="text-xs text-text-tertiary">{user.email}</p>
+              <p className="text-text-primary text-base font-semibold">{user.display_name}</p>
+              <p className="text-text-tertiary text-xs">{user.email}</p>
             </div>
             <SettingsSaveIndicator visible={saved} />
           </div>
@@ -216,15 +250,15 @@ export function ProfileSection({ user, onSave }: ProfileSectionProps) {
       </section>
 
       {/* Fields */}
-      <section className="space-y-5 rounded-xl border border-border-default bg-bg-secondary p-5">
+      <section className="border-border-default bg-bg-secondary space-y-5 rounded-xl border p-5">
         <div className="flex items-center gap-2">
-          <User className="size-4 text-accent-blue" />
-          <h2 className="text-sm font-semibold text-text-primary">Details</h2>
+          <User className="text-accent-blue size-4" />
+          <h2 className="text-text-primary text-sm font-semibold">Details</h2>
         </div>
 
         {/* Display Name */}
         <div className="space-y-1.5">
-          <label htmlFor="display-name" className="text-xs font-medium text-text-secondary">
+          <label htmlFor="display-name" className="text-text-secondary text-xs font-medium">
             Display Name
           </label>
           <Input
@@ -240,8 +274,12 @@ export function ProfileSection({ user, onSave }: ProfileSectionProps) {
         {/* Bio */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <label htmlFor="bio" className="text-xs font-medium text-text-secondary">Bio</label>
-            <span className="text-[10px] text-text-tertiary">{bio.length}/{MAX_BIO_LENGTH}</span>
+            <label htmlFor="bio" className="text-text-secondary text-xs font-medium">
+              Bio
+            </label>
+            <span className="text-text-tertiary text-[10px]">
+              {bio.length}/{MAX_BIO_LENGTH}
+            </span>
           </div>
           <textarea
             id="bio"
@@ -249,7 +287,7 @@ export function ProfileSection({ user, onSave }: ProfileSectionProps) {
             onChange={(e) => handleBioChange(e.target.value)}
             placeholder="Tell others about yourself, your learning goals, interests…"
             rows={3}
-            className="w-full rounded-lg border border-border-default bg-bg-tertiary px-3 py-2 text-sm text-text-primary placeholder:text-text-tertiary focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue/30 resize-none"
+            className="border-border-default bg-bg-tertiary text-text-primary placeholder:text-text-tertiary focus:border-accent-blue focus:ring-accent-blue/30 w-full resize-none rounded-lg border px-3 py-2 text-sm focus:ring-1 focus:outline-none"
             data-testid="settings-bio"
           />
         </div>
@@ -257,14 +295,24 @@ export function ProfileSection({ user, onSave }: ProfileSectionProps) {
         {/* Tags */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <label htmlFor="profile-tags" className="text-xs font-medium text-text-secondary">Tags</label>
-            <span className="text-[10px] text-text-tertiary">{tags.length}/{MAX_TAGS}</span>
+            <label htmlFor="profile-tags" className="text-text-secondary text-xs font-medium">
+              Tags
+            </label>
+            <span className="text-text-tertiary text-[10px]">
+              {tags.length}/{MAX_TAGS}
+            </span>
           </div>
-          <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-border-default bg-bg-tertiary px-2 py-1.5 focus-within:border-accent-blue focus-within:ring-1 focus-within:ring-accent-blue/30">
+          <div className="border-border-default bg-bg-tertiary focus-within:border-accent-blue focus-within:ring-accent-blue/30 flex flex-wrap items-center gap-1.5 rounded-lg border px-2 py-1.5 focus-within:ring-1">
             {tags.map((tag) => (
-              <span key={tag} className="inline-flex items-center gap-1 rounded-md bg-accent-blue/10 px-2 py-0.5 text-xs font-medium text-accent-blue">
+              <span
+                key={tag}
+                className="bg-accent-blue/10 text-accent-blue inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium"
+              >
                 {tag}
-                <button onClick={() => removeTag(tag)} className="ml-0.5 rounded-sm text-accent-blue/60 hover:text-accent-blue">
+                <button
+                  onClick={() => removeTag(tag)}
+                  className="text-accent-blue/60 hover:text-accent-blue ml-0.5 rounded-sm"
+                >
                   <X className="size-3" />
                 </button>
               </span>
@@ -275,35 +323,37 @@ export function ProfileSection({ user, onSave }: ProfileSectionProps) {
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleTagKeyDown}
-                onBlur={() => { if (tagInput.trim()) addTag(tagInput); }}
+                onBlur={() => {
+                  if (tagInput.trim()) addTag(tagInput);
+                }}
                 placeholder={tags.length === 0 ? "e.g. python, web dev, AI…" : "Add tag…"}
-                className="min-w-[80px] flex-1 bg-transparent py-0.5 text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none"
+                className="text-text-primary placeholder:text-text-tertiary min-w-[80px] flex-1 bg-transparent py-0.5 text-sm focus:outline-none"
                 data-testid="settings-tags-input"
               />
             )}
           </div>
-          <p className="text-[10px] text-text-tertiary">Press Enter or comma to add.</p>
+          <p className="text-text-tertiary text-[10px]">Press Enter or comma to add.</p>
         </div>
       </section>
 
       {/* Social Links */}
-      <section className="space-y-4 rounded-xl border border-border-default bg-bg-secondary p-5">
+      <section className="border-border-default bg-bg-secondary space-y-4 rounded-xl border p-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Link2 className="size-4 text-accent-purple" />
-            <h2 className="text-sm font-semibold text-text-primary">Links</h2>
+            <Link2 className="text-accent-purple size-4" />
+            <h2 className="text-text-primary text-sm font-semibold">Links</h2>
           </div>
           {links.length < MAX_LINKS && (
             <button
               onClick={addLink}
-              className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-accent-blue hover:bg-accent-blue/10 transition-colors"
+              className="text-accent-blue hover:bg-accent-blue/10 flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition-colors"
             >
               <Plus className="size-3" /> Add link
             </button>
           )}
         </div>
         {links.length === 0 && (
-          <p className="text-xs text-text-tertiary">
+          <p className="text-text-tertiary text-xs">
             Add links to your portfolio, GitHub, LinkedIn, Twitter, etc.
           </p>
         )}
@@ -326,7 +376,7 @@ export function ProfileSection({ user, onSave }: ProfileSectionProps) {
               />
               <button
                 onClick={() => removeLink(idx)}
-                className="shrink-0 rounded-md p-1.5 text-text-tertiary hover:bg-bg-tertiary hover:text-text-primary transition-colors"
+                className="text-text-tertiary hover:bg-bg-tertiary hover:text-text-primary shrink-0 rounded-md p-1.5 transition-colors"
               >
                 <X className="size-3.5" />
               </button>
@@ -336,18 +386,20 @@ export function ProfileSection({ user, onSave }: ProfileSectionProps) {
       </section>
 
       {/* Public Toggle */}
-      <section className="rounded-xl border border-border-default bg-bg-secondary p-5">
+      <section className="border-border-default bg-bg-secondary rounded-xl border p-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {isPublic ? (
-              <Globe className="size-4 text-accent-green" />
+              <Globe className="text-accent-green size-4" />
             ) : (
-              <GlobeLock className="size-4 text-text-tertiary" />
+              <GlobeLock className="text-text-tertiary size-4" />
             )}
             <div>
-              <p className="text-sm font-medium text-text-primary">Public Profile</p>
-              <p className="text-[11px] text-text-tertiary">
-                {isPublic ? "Anyone with your link can see your profile" : "Your profile is private"}
+              <p className="text-text-primary text-sm font-medium">Public Profile</p>
+              <p className="text-text-tertiary text-[11px]">
+                {isPublic
+                  ? "Anyone with your link can see your profile"
+                  : "Your profile is private"}
               </p>
             </div>
           </div>
@@ -357,7 +409,7 @@ export function ProfileSection({ user, onSave }: ProfileSectionProps) {
                 href={`/profile/${user.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-accent-blue hover:bg-accent-blue/10 transition-colors"
+                className="text-accent-blue hover:bg-accent-blue/10 flex items-center gap-1 rounded-md px-2 py-1 text-xs transition-colors"
               >
                 View <ExternalLink className="size-3" />
               </a>

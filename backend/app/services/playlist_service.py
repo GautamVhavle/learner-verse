@@ -62,9 +62,7 @@ def _extract_videos_from_data(data: dict) -> tuple[str, list[dict]]:
             if not tab_renderer:
                 continue
             section_contents = (
-                tab_renderer.get("content", {})
-                .get("sectionListRenderer", {})
-                .get("contents", [])
+                tab_renderer.get("content", {}).get("sectionListRenderer", {}).get("contents", [])
             )
             for section in section_contents:
                 items_renderer = section.get("itemSectionRenderer", {})
@@ -77,16 +75,18 @@ def _extract_videos_from_data(data: dict) -> tuple[str, list[dict]]:
                         vid_id = vr.get("videoId", "")
                         title_runs = vr.get("title", {}).get("runs", [])
                         title = title_runs[0].get("text", "Untitled") if title_runs else "Untitled"
-                        channel_runs = (
-                            vr.get("shortBylineText", {}).get("runs", [])
+                        channel_runs = vr.get("shortBylineText", {}).get("runs", [])
+                        channel = (
+                            channel_runs[0].get("text", "Unknown") if channel_runs else "Unknown"
                         )
-                        channel = channel_runs[0].get("text", "Unknown") if channel_runs else "Unknown"
                         if vid_id:
-                            videos.append({
-                                "video_id": vid_id,
-                                "title": title,
-                                "channel": channel,
-                            })
+                            videos.append(
+                                {
+                                    "video_id": vid_id,
+                                    "title": title,
+                                    "channel": channel,
+                                }
+                            )
     except (KeyError, IndexError, TypeError):
         pass
 
@@ -133,14 +133,10 @@ async def extract_playlist(url: str) -> PlaylistResult:
         resp = await client.get(playlist_url)
         resp.raise_for_status()
 
-    playlist_title, raw_videos = _extract_videos_from_data(
-        _parse_initial_data(resp.text)
-    )
+    playlist_title, raw_videos = _extract_videos_from_data(_parse_initial_data(resp.text))
 
     if not raw_videos:
-        raise ValueError(
-            "No videos found in this playlist. It may be private or empty."
-        )
+        raise ValueError("No videos found in this playlist. It may be private or empty.")
 
     videos = [
         PlaylistVideo(

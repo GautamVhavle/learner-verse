@@ -20,17 +20,13 @@ import {
   useAddReferenceLinkMutation,
   useDeleteReferenceLinkMutation,
 } from "@/hooks/useSections";
-import {
-  useCourseQuery,
-  useUpdateCourseStatusMutation,
-} from "@/hooks/useCourses";
+import { useCourseQuery, useUpdateCourseStatusMutation } from "@/hooks/useCourses";
 import type { ReorderItem, LessonUpdate, ReferenceLinkCreate } from "@/types/section";
 import type { ValidationError } from "@/types/course";
 
 export function useCourseBuilder(courseId: string | undefined) {
   const { data: course, isLoading: courseLoading } = useCourseQuery(courseId);
-  const { data: sections, isLoading: sectionsLoading } =
-    useSectionsQuery(courseId);
+  const { data: sections, isLoading: sectionsLoading } = useSectionsQuery(courseId);
 
   const updateStatus = useUpdateCourseStatusMutation();
 
@@ -85,19 +81,13 @@ export function useCourseBuilder(courseId: string | undefined) {
     });
   };
 
-  const handleUpdateLesson = (
-    sectionId: string,
-    lessonId: string,
-    title: string,
-  ) => {
+  const handleUpdateLesson = (sectionId: string, lessonId: string, title: string) => {
     updateLesson.mutate({ sectionId, lessonId, data: { title } });
   };
 
   /** Update a lesson by ID, auto-resolving its parent section. */
   const handleUpdateLessonFull = (lessonId: string, data: LessonUpdate) => {
-    const section = sections?.find((s) =>
-      s.lessons.some((l) => l.id === lessonId),
-    );
+    const section = sections?.find((s) => s.lessons.some((l) => l.id === lessonId));
     if (!section) return;
     updateLesson.mutate({ sectionId: section.id, lessonId, data });
   };
@@ -117,26 +107,20 @@ export function useCourseBuilder(courseId: string | undefined) {
   // ── Reference link handlers ───────────────────────────────
 
   const handleAddReferenceLink = (lessonId: string, data: ReferenceLinkCreate) => {
-    const section = sections?.find((s) =>
-      s.lessons.some((l) => l.id === lessonId),
-    );
+    const section = sections?.find((s) => s.lessons.some((l) => l.id === lessonId));
     if (!section) return;
     addReferenceLink.mutate({ sectionId: section.id, lessonId, data });
   };
 
   const handleDeleteReferenceLink = (lessonId: string, linkId: string) => {
-    const section = sections?.find((s) =>
-      s.lessons.some((l) => l.id === lessonId),
-    );
+    const section = sections?.find((s) => s.lessons.some((l) => l.id === lessonId));
     if (!section) return;
     deleteReferenceLink.mutate({ sectionId: section.id, lessonId, linkId });
   };
 
   // ── Status handlers ───────────────────────────────────────
 
-  const handleMarkReady = (
-    onValidationErrors: (errors: ValidationError[]) => void,
-  ) => {
+  const handleMarkReady = (onValidationErrors: (errors: ValidationError[]) => void) => {
     if (!courseId) return;
     updateStatus.mutate(
       { id: courseId, status: "ready" },
@@ -155,8 +139,7 @@ export function useCourseBuilder(courseId: string | undefined) {
 
   // ── Derived data ──────────────────────────────────────────
 
-  const totalLessons =
-    sections?.reduce((sum, s) => sum + s.lessons.length, 0) ?? 0;
+  const totalLessons = sections?.reduce((sum, s) => sum + s.lessons.length, 0) ?? 0;
 
   /** Find a lesson by ID across all sections. */
   const findLesson = (lessonId: string) =>

@@ -5,12 +5,7 @@
  * goal date, and section/lesson counts. Clicking navigates to the
  * study view for the course.
  */
-import {
-  BookOpen,
-  CalendarDays,
-  Layers,
-  Play,
-} from "lucide-react";
+import { BookOpen, CalendarDays, Layers, Play } from "lucide-react";
 import { ProgressBar } from "@/components/study/ProgressBar";
 import { PaceIndicator } from "@/components/goals/PaceIndicator";
 import { useCourseProgressQuery } from "@/hooks/useProgress";
@@ -26,11 +21,11 @@ export function LearnerCourseCard({ course, onStudy }: LearnerCourseCardProps) {
 
   return (
     <div
-      className="group flex cursor-pointer flex-col rounded-xl border border-border-default bg-bg-secondary transition-colors hover:border-border-hover"
+      className="group border-border-default bg-bg-secondary hover:border-border-hover flex cursor-pointer flex-col rounded-xl border transition-colors"
       onClick={onStudy}
     >
       {/* Thumbnail */}
-      <div className="relative aspect-video w-full overflow-hidden rounded-t-xl bg-bg-tertiary">
+      <div className="bg-bg-tertiary relative aspect-video w-full overflow-hidden rounded-t-xl">
         {course.thumbnail_url ? (
           <img
             src={course.thumbnail_url}
@@ -39,7 +34,7 @@ export function LearnerCourseCard({ course, onStudy }: LearnerCourseCardProps) {
           />
         ) : (
           <div className="flex h-full items-center justify-center">
-            <BookOpen className="size-8 text-text-tertiary opacity-30" />
+            <BookOpen className="text-text-tertiary size-8 opacity-30" />
           </div>
         )}
         {/* Play overlay */}
@@ -52,13 +47,9 @@ export function LearnerCourseCard({ course, onStudy }: LearnerCourseCardProps) {
 
       {/* Content */}
       <div className="flex flex-1 flex-col gap-2 p-4">
-        <h3 className="line-clamp-2 text-sm font-medium text-text-primary">
-          {course.title}
-        </h3>
+        <h3 className="text-text-primary line-clamp-2 text-sm font-medium">{course.title}</h3>
         {course.description && (
-          <p className="line-clamp-2 text-xs text-text-secondary">
-            {course.description}
-          </p>
+          <p className="text-text-secondary line-clamp-2 text-xs">{course.description}</p>
         )}
 
         {/* Progress bar */}
@@ -67,31 +58,28 @@ export function LearnerCourseCard({ course, onStudy }: LearnerCourseCardProps) {
         )}
 
         {/* Pace badge */}
-        {progress?.goal && (
-          <PaceIndicator goal={progress.goal} compact />
-        )}
+        {progress?.goal && <PaceIndicator goal={progress.goal} compact />}
 
         {/* Goal date */}
         {course.goal_date && !progress?.goal && (
-          <div className="flex items-center gap-1 text-[11px] text-text-tertiary">
+          <div className="text-text-tertiary flex items-center gap-1 text-[11px]">
             <CalendarDays className="size-3" />
             <span>
               Goal:{" "}
-              {new Date(course.goal_date + "T00:00:00").toLocaleDateString(
-                undefined,
-                { month: "short", day: "numeric" },
-              )}
+              {new Date(course.goal_date + "T00:00:00").toLocaleDateString(undefined, {
+                month: "short",
+                day: "numeric",
+              })}
             </span>
           </div>
         )}
 
         {/* Stats */}
-        <div className="mt-auto flex items-center gap-3 pt-2 text-[11px] text-text-tertiary">
+        <div className="text-text-tertiary mt-auto flex items-center gap-3 pt-2 text-[11px]">
           <div className="flex items-center gap-1">
             <Layers className="size-3" />
             <span>
-              {course.section_count}{" "}
-              {course.section_count === 1 ? "section" : "sections"}
+              {course.section_count} {course.section_count === 1 ? "section" : "sections"}
             </span>
           </div>
           <span>&middot;</span>

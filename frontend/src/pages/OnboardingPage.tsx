@@ -64,11 +64,7 @@ const STEPS = [
   },
 ] as const;
 
-export default function OnboardingPage({
-  onComplete,
-}: {
-  onComplete: () => void;
-}) {
+export default function OnboardingPage({ onComplete }: { onComplete: () => void }) {
   const [step, setStep] = useState(0);
   const update = useUpdateUserMutation();
 
@@ -90,12 +86,12 @@ export default function OnboardingPage({
   const Icon = current.icon;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-bg-root p-4">
+    <div className="bg-bg-root flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-lg" data-testid="onboarding">
         {/* Card */}
-        <div className="relative overflow-hidden rounded-2xl border border-border-default bg-bg-primary shadow-2xl">
+        <div className="border-border-default bg-bg-primary relative overflow-hidden rounded-2xl border shadow-2xl">
           {/* Gradient accent top */}
-          <div className="h-1 bg-gradient-to-r from-accent-blue via-accent-purple to-accent-green" />
+          <div className="from-accent-blue via-accent-purple to-accent-green h-1 bg-gradient-to-r" />
 
           <div className="p-8 sm:p-10">
             {/* Icon */}
@@ -107,15 +103,13 @@ export default function OnboardingPage({
 
             {/* Title & Description */}
             <h1
-              className="text-2xl font-bold tracking-tight text-text-primary"
+              className="text-text-primary text-2xl font-bold tracking-tight"
               data-testid="onboarding-title"
             >
               {current.title}
             </h1>
-            <p className="mt-1 text-sm font-medium text-text-secondary">
-              {current.subtitle}
-            </p>
-            <p className="mt-3 text-sm leading-relaxed text-text-secondary">
+            <p className="text-text-secondary mt-1 text-sm font-medium">{current.subtitle}</p>
+            <p className="text-text-secondary mt-3 text-sm leading-relaxed">
               {current.description}
             </p>
 
@@ -124,12 +118,12 @@ export default function OnboardingPage({
               {current.features.map((f) => (
                 <div
                   key={f.label}
-                  className="flex items-center gap-3 rounded-lg bg-bg-secondary px-3 py-2.5"
+                  className="bg-bg-secondary flex items-center gap-3 rounded-lg px-3 py-2.5"
                 >
-                  <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-bg-tertiary">
-                    <f.icon className="size-4 text-text-secondary" />
+                  <div className="bg-bg-tertiary flex size-8 shrink-0 items-center justify-center rounded-lg">
+                    <f.icon className="text-text-secondary size-4" />
                   </div>
-                  <span className="text-sm text-text-primary">{f.label}</span>
+                  <span className="text-text-primary text-sm">{f.label}</span>
                 </div>
               ))}
             </div>
@@ -138,7 +132,7 @@ export default function OnboardingPage({
             <div className="mt-8 flex items-center justify-between">
               <button
                 onClick={handleSkip}
-                className="text-xs text-text-tertiary transition-colors hover:text-text-secondary"
+                className="text-text-tertiary hover:text-text-secondary text-xs transition-colors"
                 data-testid="onboarding-skip"
               >
                 Skip
@@ -152,10 +146,10 @@ export default function OnboardingPage({
                       key={i}
                       className={`h-1.5 rounded-full transition-all duration-300 ${
                         i === step
-                          ? "w-6 bg-accent-blue"
+                          ? "bg-accent-blue w-6"
                           : i < step
-                            ? "w-1.5 bg-accent-blue/40"
-                            : "w-1.5 bg-bg-tertiary"
+                            ? "bg-accent-blue/40 w-1.5"
+                            : "bg-bg-tertiary w-1.5"
                       }`}
                     />
                   ))}
@@ -185,7 +179,7 @@ export default function OnboardingPage({
         </div>
 
         {/* Step counter below card */}
-        <p className="mt-4 text-center text-xs text-text-tertiary">
+        <p className="text-text-tertiary mt-4 text-center text-xs">
           Step {step + 1} of {STEPS.length}
         </p>
       </div>

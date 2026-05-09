@@ -13,9 +13,7 @@ from app.models.base import Base
 class ChatThread(Base):
     __tablename__ = "chat_threads"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="CASCADE"),
@@ -33,6 +31,4 @@ class ChatThread(Base):
         back_populates="thread", cascade="all, delete-orphan", order_by="ChatMessage.created_at"
     )
 
-    __table_args__ = (
-        Index("ix_chat_thread_user_id", "user_id"),
-    )
+    __table_args__ = (Index("ix_chat_thread_user_id", "user_id"),)

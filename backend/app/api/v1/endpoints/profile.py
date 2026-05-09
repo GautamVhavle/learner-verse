@@ -4,15 +4,13 @@ import uuid
 from datetime import date, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.models.certificate import Certificate
-from app.models.lesson_progress import LessonProgress
 from app.models.user import User
 from app.repositories.activity_repo import ActivityRepository
-from app.schemas.stats import ActivityDayResponse
 from app.schemas.user import (
     ActivityDayItem,
     PublicCertificateItem,

@@ -11,7 +11,7 @@ export function NotificationBadge() {
   if (count === 0) return null;
 
   return (
-    <span className="ml-auto flex size-5 items-center justify-center rounded-full bg-accent-purple text-[10px] font-bold text-white">
+    <span className="bg-accent-purple ml-auto flex size-5 items-center justify-center rounded-full text-[10px] font-bold text-white">
       {count > 9 ? "9+" : count}
     </span>
   );

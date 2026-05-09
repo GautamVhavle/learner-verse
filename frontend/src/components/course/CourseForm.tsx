@@ -24,13 +24,7 @@ interface CourseFormProps {
   isPending?: boolean;
 }
 
-export function CourseForm({
-  open,
-  onOpenChange,
-  course,
-  onSubmit,
-  isPending,
-}: CourseFormProps) {
+export function CourseForm({ open, onOpenChange, course, onSubmit, isPending }: CourseFormProps) {
   const isEdit = !!course;
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -93,9 +87,7 @@ export function CourseForm({
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {/* Thumbnail upload */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium text-text-secondary">
-              Thumbnail
-            </label>
+            <label className="text-text-secondary text-xs font-medium">Thumbnail</label>
             <input
               ref={fileInputRef}
               type="file"
@@ -104,13 +96,13 @@ export function CourseForm({
               className="hidden"
             />
             {thumbnailUrl ? (
-              <div className="relative aspect-video w-full overflow-hidden rounded-lg border border-border-default bg-bg-tertiary">
+              <div className="border-border-default bg-bg-tertiary relative aspect-video w-full overflow-hidden rounded-lg border">
                 <img
                   src={thumbnailUrl}
                   alt="Course thumbnail"
                   className="h-full w-full object-cover"
                 />
-                <div className="absolute right-2 top-2 flex gap-1.5">
+                <div className="absolute top-2 right-2 flex gap-1.5">
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
@@ -132,7 +124,7 @@ export function CourseForm({
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadMutation.isPending}
-                className="flex aspect-video w-full flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border-default bg-bg-tertiary text-text-tertiary transition-colors hover:border-border-hover hover:text-text-secondary"
+                className="border-border-default bg-bg-tertiary text-text-tertiary hover:border-border-hover hover:text-text-secondary flex aspect-video w-full flex-col items-center justify-center gap-2 rounded-lg border border-dashed transition-colors"
               >
                 {uploadMutation.isPending ? (
                   <Loader2 className="size-6 animate-spin" />
@@ -145,17 +137,12 @@ export function CourseForm({
               </button>
             )}
             {uploadMutation.isError && (
-              <p className="text-xs text-accent-red">
-                Upload failed. Please try again.
-              </p>
+              <p className="text-accent-red text-xs">Upload failed. Please try again.</p>
             )}
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="course-title"
-              className="text-xs font-medium text-text-secondary"
-            >
+            <label htmlFor="course-title" className="text-text-secondary text-xs font-medium">
               Title <span className="text-accent-red">*</span>
             </label>
             <Input
@@ -170,10 +157,7 @@ export function CourseForm({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="course-description"
-              className="text-xs font-medium text-text-secondary"
-            >
+            <label htmlFor="course-description" className="text-text-secondary text-xs font-medium">
               Description
             </label>
             <textarea
@@ -182,17 +166,13 @@ export function CourseForm({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              className="w-full resize-none rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
+              className="border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 w-full resize-none rounded-lg border bg-transparent px-2.5 py-2 text-sm outline-none focus-visible:ring-3"
             />
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="course-tags"
-              className="text-xs font-medium text-text-secondary"
-            >
-              Tags{" "}
-              <span className="text-text-tertiary">(comma separated)</span>
+            <label htmlFor="course-tags" className="text-text-secondary text-xs font-medium">
+              Tags <span className="text-text-tertiary">(comma separated)</span>
             </label>
             <Input
               id="course-tags"
@@ -203,9 +183,7 @@ export function CourseForm({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium text-text-secondary">
-              Goal Date
-            </label>
+            <label className="text-text-secondary text-xs font-medium">Goal Date</label>
             <DatePicker
               value={goalDate || null}
               onChange={(date) => setGoalDate(date ?? "")}

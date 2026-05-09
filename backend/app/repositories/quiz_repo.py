@@ -33,9 +33,7 @@ class QuizRepository:
         return q
 
     async def get_question(self, question_id: uuid.UUID) -> QuizQuestion | None:
-        result = await self.db.execute(
-            select(QuizQuestion).where(QuizQuestion.id == question_id)
-        )
+        result = await self.db.execute(select(QuizQuestion).where(QuizQuestion.id == question_id))
         return result.scalar_one_or_none()
 
     async def list_questions(self, lesson_id: uuid.UUID) -> list[QuizQuestion]:
@@ -111,9 +109,7 @@ class QuizRepository:
         await self.db.flush()
         return attempt
 
-    async def get_attempts(
-        self, user_id: uuid.UUID, lesson_id: uuid.UUID
-    ) -> list[QuizAttempt]:
+    async def get_attempts(self, user_id: uuid.UUID, lesson_id: uuid.UUID) -> list[QuizAttempt]:
         result = await self.db.execute(
             select(QuizAttempt)
             .where(QuizAttempt.user_id == user_id, QuizAttempt.lesson_id == lesson_id)
@@ -132,11 +128,10 @@ class QuizRepository:
         )
         return result.scalar_one_or_none()
 
-    async def count_attempts(
-        self, user_id: uuid.UUID, lesson_id: uuid.UUID
-    ) -> int:
+    async def count_attempts(self, user_id: uuid.UUID, lesson_id: uuid.UUID) -> int:
         result = await self.db.execute(
-            select(func.count())
-            .where(QuizAttempt.user_id == user_id, QuizAttempt.lesson_id == lesson_id)
+            select(func.count()).where(
+                QuizAttempt.user_id == user_id, QuizAttempt.lesson_id == lesson_id
+            )
         )
         return result.scalar_one()

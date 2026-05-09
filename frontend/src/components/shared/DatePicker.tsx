@@ -3,11 +3,7 @@
  */
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { ChevronDownIcon } from "lucide-react";
 
@@ -17,11 +13,7 @@ interface DatePickerProps {
   placeholder?: string;
 }
 
-export function DatePicker({
-  value,
-  onChange,
-  placeholder = "Pick a date",
-}: DatePickerProps) {
+export function DatePicker({ value, onChange, placeholder = "Pick a date" }: DatePickerProps) {
   const date = value ? new Date(value + "T00:00:00") : undefined;
 
   return (
@@ -30,7 +22,7 @@ export function DatePicker({
         <Button
           variant="outline"
           data-empty={!date}
-          className="w-full justify-between text-left font-normal data-[empty=true]:text-muted-foreground"
+          className="data-[empty=true]:text-muted-foreground w-full justify-between text-left font-normal"
         >
           {date ? format(date, "PPP") : <span>{placeholder}</span>}
           <ChevronDownIcon />

@@ -74,25 +74,19 @@ async def share_course(
         )
 
     # Creator name
-    creator_result = await db.execute(
-        select(User.display_name).where(User.id == course.user_id)
-    )
+    creator_result = await db.execute(select(User.display_name).where(User.id == course.user_id))
     creator_name = creator_result.scalar_one_or_none() or "Unknown Creator"
 
     # Stats
     lesson_count_result = await db.execute(
         select(func.count(Lesson.id)).where(
-            Lesson.section_id.in_(
-                select(Section.id).where(Section.course_id == course_id)
-            )
+            Lesson.section_id.in_(select(Section.id).where(Section.course_id == course_id))
         )
     )
     lesson_count = lesson_count_result.scalar_one()
 
     enrollment_result = await db.execute(
-        select(func.count(CourseEnrollment.id)).where(
-            CourseEnrollment.course_id == course_id
-        )
+        select(func.count(CourseEnrollment.id)).where(CourseEnrollment.course_id == course_id)
     )
     enrollment_count = enrollment_result.scalar_one()
 
@@ -178,8 +172,7 @@ def _build_og_html(
             keywords = ", ".join(clean_tags)
             tag_meta = f'\n    <meta name="keywords" content="{keywords}" />'
             tag_meta += "".join(
-                f'\n    <meta property="article:tag" content="{tag}" />'
-                for tag in clean_tags
+                f'\n    <meta property="article:tag" content="{tag}" />' for tag in clean_tags
             )
 
     return f"""<!DOCTYPE html>

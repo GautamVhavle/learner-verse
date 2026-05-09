@@ -60,24 +60,22 @@ export function ChatInput({ onSend, onStop, status, disabled }: ChatInputProps) 
   const canSend = input.trim().length > 0 && status === "ready" && !disabled;
 
   return (
-    <div className="border-t border-border-primary bg-bg-primary px-3 pb-3 pt-2">
+    <div className="border-border-primary bg-bg-primary border-t px-3 pt-2 pb-3">
       {/* File chips */}
       {files.length > 0 && (
         <div className="mb-2 flex flex-wrap gap-1.5">
           {files.map((f, i) => (
             <div
               key={`${f.name}-${i}`}
-              className="flex items-center gap-1.5 rounded-lg border border-border-primary bg-bg-secondary px-2 py-1"
+              className="border-border-primary bg-bg-secondary flex items-center gap-1.5 rounded-lg border px-2 py-1"
             >
-              <span className="max-w-[140px] truncate text-[11px] text-text-secondary">
+              <span className="text-text-secondary max-w-[140px] truncate text-[11px]">
                 {f.name}
               </span>
-              <span className="text-[10px] text-text-tertiary">
-                {formatSize(f.size)}
-              </span>
+              <span className="text-text-tertiary text-[10px]">{formatSize(f.size)}</span>
               <button
                 onClick={() => removeFile(i)}
-                className="flex size-4 items-center justify-center rounded-full text-text-tertiary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+                className="text-text-tertiary hover:bg-bg-tertiary hover:text-text-primary flex size-4 items-center justify-center rounded-full transition-colors"
               >
                 <X className="size-2.5" />
               </button>
@@ -87,12 +85,12 @@ export function ChatInput({ onSend, onStop, status, disabled }: ChatInputProps) 
       )}
 
       {/* Input container */}
-      <div className="flex items-end gap-1.5 rounded-xl border border-border-primary bg-bg-secondary transition-colors focus-within:border-accent-blue/40">
+      <div className="border-border-primary bg-bg-secondary focus-within:border-accent-blue/40 flex items-end gap-1.5 rounded-xl border transition-colors">
         {/* Attach button */}
         <button
           onClick={() => fileInputRef.current?.click()}
           disabled={disabled || isStreaming || files.length >= MAX_FILES}
-          className="mb-1.5 ml-2 flex size-7 shrink-0 items-center justify-center rounded-lg text-text-tertiary transition-colors hover:text-text-secondary disabled:opacity-30"
+          className="text-text-tertiary hover:text-text-secondary mb-1.5 ml-2 flex size-7 shrink-0 items-center justify-center rounded-lg transition-colors disabled:opacity-30"
           title="Attach file"
         >
           <Paperclip className="size-4" />
@@ -115,13 +113,13 @@ export function ChatInput({ onSend, onStop, status, disabled }: ChatInputProps) 
           disabled={disabled}
           minRows={1}
           maxRows={5}
-          className="flex-1 resize-none bg-transparent py-2.5 text-[13px] leading-relaxed text-text-primary placeholder:text-text-tertiary focus:outline-none disabled:opacity-50"
+          className="text-text-primary placeholder:text-text-tertiary flex-1 resize-none bg-transparent py-2.5 text-[13px] leading-relaxed focus:outline-none disabled:opacity-50"
         />
 
         {isStreaming ? (
           <button
             onClick={onStop}
-            className="mb-1.5 mr-1.5 flex size-7 shrink-0 items-center justify-center rounded-lg bg-text-primary text-bg-root transition-colors hover:bg-text-secondary"
+            className="bg-text-primary text-bg-root hover:bg-text-secondary mr-1.5 mb-1.5 flex size-7 shrink-0 items-center justify-center rounded-lg transition-colors"
             title="Stop generating"
           >
             <Square className="size-3" />
@@ -130,7 +128,7 @@ export function ChatInput({ onSend, onStop, status, disabled }: ChatInputProps) 
           <button
             onClick={handleSubmit}
             disabled={!canSend}
-            className="mb-1.5 mr-1.5 flex size-7 shrink-0 items-center justify-center rounded-lg bg-accent-blue text-white transition-all hover:bg-accent-blue/90 disabled:opacity-20"
+            className="bg-accent-blue hover:bg-accent-blue/90 mr-1.5 mb-1.5 flex size-7 shrink-0 items-center justify-center rounded-lg text-white transition-all disabled:opacity-20"
             title="Send message"
           >
             <ArrowUp className="size-3.5" />
@@ -140,7 +138,7 @@ export function ChatInput({ onSend, onStop, status, disabled }: ChatInputProps) 
 
       {/* Character counter */}
       {input.length > MAX_LENGTH * 0.9 && (
-        <p className="mt-1 text-right text-[10px] text-text-tertiary">
+        <p className="text-text-tertiary mt-1 text-right text-[10px]">
           {input.length}/{MAX_LENGTH}
         </p>
       )}

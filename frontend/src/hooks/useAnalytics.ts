@@ -57,8 +57,7 @@ export function useCourseRatingsDetailQuery(courseId: string) {
 export function useCourselearnersQuery(courseId: string, page = 1) {
   return useQuery<CourseLearnersList>({
     queryKey: ["analytics-learners", courseId, page],
-    queryFn: () =>
-      api.get(`/analytics/courses/${courseId}/learners?page=${page}&per_page=50`),
+    queryFn: () => api.get(`/analytics/courses/${courseId}/learners?page=${page}&per_page=50`),
     enabled: !!courseId,
   });
 }

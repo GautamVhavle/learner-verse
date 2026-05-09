@@ -1,7 +1,7 @@
 """Repository for Course CRUD, tagging, soft-deletion, and duplication."""
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import distinct, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -75,7 +75,8 @@ class CourseRepository:
         """Count non-deleted courses belonging to a user."""
         result = await self.db.execute(
             select(func.count(Course.id)).where(
-                Course.user_id == user_id, Course.is_deleted == False  # noqa: E712
+                Course.user_id == user_id,
+                Course.is_deleted == False,  # noqa: E712
             )
         )
         return result.scalar_one()
@@ -92,7 +93,8 @@ class CourseRepository:
         per_page: int = 20,
     ) -> tuple[list[Course], int]:
         """Return paginated public courses with filtering and sorting."""
-        from app.models.tag import Tag as TagModel, course_tags
+        from app.models.tag import Tag as TagModel
+        from app.models.tag import course_tags
 
         base = (
             select(Course)
@@ -103,23 +105,16 @@ class CourseRepository:
                 Course.is_deleted.is_(False),
             )
         )
-        count_q = (
-            select(func.count(distinct(Course.id)))
-            .where(
-                Course.is_public.is_(True),
-                Course.status == "ready",
-                Course.is_deleted.is_(False),
-            )
+        count_q = select(func.count(distinct(Course.id))).where(
+            Course.is_public.is_(True),
+            Course.status == "ready",
+            Course.is_deleted.is_(False),
         )
 
         if search:
             pattern = f"%{search}%"
-            base = base.where(
-                Course.title.ilike(pattern) | Course.description.ilike(pattern)
-            )
-            count_q = count_q.where(
-                Course.title.ilike(pattern) | Course.description.ilike(pattern)
-            )
+            base = base.where(Course.title.ilike(pattern) | Course.description.ilike(pattern))
+            count_q = count_q.where(Course.title.ilike(pattern) | Course.description.ilike(pattern))
 
         if tags:
             clean_tags = [t.strip().lower() for t in tags if t.strip()]
@@ -176,7 +171,7 @@ class CourseRepository:
     async def soft_delete(self, course: Course) -> Course:
         """Mark a course as deleted (move to trash)."""
         course.is_deleted = True
-        course.deleted_at = datetime.now(timezone.utc)
+        course.deleted_at = datetime.now(UTC)
         await self.db.flush()
         return course
 
@@ -225,9 +220,7 @@ class CourseRepository:
         """Create a shallow copy of a course (metadata + tags only, no sections)."""
         # Re-fetch to ensure all attributes and tags are fully loaded
         result = await self.db.execute(
-            select(Course)
-            .options(joinedload(Course.tags))
-            .where(Course.id == course.id)
+            select(Course).options(joinedload(Course.tags)).where(Course.id == course.id)
         )
         source = result.unique().scalar_one()
         tag_objects = list(source.tags) if source.tags else []

@@ -28,12 +28,7 @@ import { useCancelSubscriptionMutation } from "@/hooks/useSubscription";
 import { useModeAwareNavigate } from "@/hooks/useModeAwareNavigate";
 import { useThemeStore, type Theme } from "@/stores/themeStore";
 import { usePlatform } from "@/hooks/usePlatform";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -55,7 +50,7 @@ function HelpTip({ text }: { text: string }) {
         render={
           <button
             type="button"
-            className="inline-flex text-text-tertiary hover:text-text-secondary transition-colors"
+            className="text-text-tertiary hover:text-text-secondary inline-flex transition-colors"
           >
             <HelpCircle className="size-3.5" />
           </button>
@@ -85,7 +80,7 @@ export default function SettingsPage() {
   if (isLoading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
-        <Loader2 className="size-6 animate-spin text-text-tertiary" />
+        <Loader2 className="text-text-tertiary size-6 animate-spin" />
       </div>
     );
   }
@@ -97,14 +92,12 @@ export default function SettingsPage() {
       <div className="mx-auto max-w-2xl space-y-8 pb-12">
         {/* Page Header */}
         <div className="flex items-start gap-3">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-bg-tertiary">
-            <Settings className="size-5 text-text-secondary" />
+          <div className="bg-bg-tertiary flex size-10 shrink-0 items-center justify-center rounded-xl">
+            <Settings className="text-text-secondary size-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold text-text-primary">
-              Settings
-            </h1>
-            <p className="mt-0.5 text-sm text-text-secondary">
+            <h1 className="text-text-primary text-2xl font-semibold">Settings</h1>
+            <p className="text-text-secondary mt-0.5 text-sm">
               Manage your preferences, appearance, and account.
             </p>
           </div>
@@ -120,16 +113,15 @@ export default function SettingsPage() {
         />
 
         {/* ── Appearance ────────────────────────────────────────── */}
-        <section className="space-y-4 rounded-xl border border-border-default bg-bg-secondary p-5">
+        <section className="border-border-default bg-bg-secondary space-y-4 rounded-xl border p-5">
           <div className="flex items-center gap-2">
-            <Monitor className="size-4 text-accent-blue" />
-            <h2 className="text-sm font-semibold text-text-primary">
-              Appearance
-            </h2>
+            <Monitor className="text-accent-blue size-4" />
+            <h2 className="text-text-primary text-sm font-semibold">Appearance</h2>
             <HelpTip text="Changes apply instantly across the entire app." />
           </div>
-          <p className="text-[11px] leading-relaxed text-text-tertiary">
-            Choose a visual theme that suits your environment. Light mode works best during the day, while dark mode reduces eye strain at night.
+          <p className="text-text-tertiary text-[11px] leading-relaxed">
+            Choose a visual theme that suits your environment. Light mode works best during the day,
+            while dark mode reduces eye strain at night.
           </p>
           <div className="grid gap-2 sm:grid-cols-2">
             {(
@@ -154,7 +146,7 @@ export default function SettingsPage() {
                 data-testid={`theme-${opt.value}`}
                 className={`group relative flex items-center gap-3 rounded-lg border p-3 text-left transition-all ${
                   theme === opt.value
-                    ? "border-accent-blue bg-accent-blue/5 ring-1 ring-accent-blue/30"
+                    ? "border-accent-blue bg-accent-blue/5 ring-accent-blue/30 ring-1"
                     : "border-border-default bg-bg-tertiary hover:border-border-hover"
                 }`}
               >
@@ -170,16 +162,12 @@ export default function SettingsPage() {
                 <div>
                   <span
                     className={`text-sm font-medium ${
-                      theme === opt.value
-                        ? "text-accent-blue"
-                        : "text-text-primary"
+                      theme === opt.value ? "text-accent-blue" : "text-text-primary"
                     }`}
                   >
                     {opt.label}
                   </span>
-                  <p className="text-[11px] text-text-tertiary">
-                    {opt.description}
-                  </p>
+                  <p className="text-text-tertiary text-[11px]">{opt.description}</p>
                 </div>
               </button>
             ))}
@@ -188,16 +176,15 @@ export default function SettingsPage() {
 
         {/* ── Keyboard Shortcuts ────────────────────────────────── */}
         {!isMobile && (
-          <section className="space-y-4 rounded-xl border border-border-default bg-bg-secondary p-5">
+          <section className="border-border-default bg-bg-secondary space-y-4 rounded-xl border p-5">
             <div className="flex items-center gap-2">
-              <Keyboard className="size-4 text-accent-green" />
-              <h2 className="text-sm font-semibold text-text-primary">
-                Keyboard Shortcuts
-              </h2>
+              <Keyboard className="text-accent-green size-4" />
+              <h2 className="text-text-primary text-sm font-semibold">Keyboard Shortcuts</h2>
               <HelpTip text="These work on any page — no need to click into a text field first." />
             </div>
-            <p className="text-[11px] leading-relaxed text-text-tertiary">
-              Speed up your workflow with these keyboard shortcuts. They work globally while studying lessons or browsing courses.
+            <p className="text-text-tertiary text-[11px] leading-relaxed">
+              Speed up your workflow with these keyboard shortcuts. They work globally while
+              studying lessons or browsing courses.
             </p>
             <div className="grid gap-2 text-xs sm:grid-cols-2">
               {[
@@ -212,10 +199,10 @@ export default function SettingsPage() {
               ].map(([key, desc]) => (
                 <div
                   key={key}
-                  className="flex items-center justify-between rounded-md bg-bg-tertiary px-3 py-2"
+                  className="bg-bg-tertiary flex items-center justify-between rounded-md px-3 py-2"
                 >
                   <span className="text-text-secondary">{desc}</span>
-                  <kbd className="rounded border border-border-default bg-bg-quaternary px-1.5 py-0.5 font-mono text-[10px] text-text-tertiary">
+                  <kbd className="border-border-default bg-bg-quaternary text-text-tertiary rounded border px-1.5 py-0.5 font-mono text-[10px]">
                     {key}
                   </kbd>
                 </div>
@@ -225,34 +212,29 @@ export default function SettingsPage() {
         )}
 
         {/* ── Account Info ──────────────────────────────────────── */}
-        <section className="space-y-4 rounded-xl border border-border-default bg-bg-secondary p-5">
+        <section className="border-border-default bg-bg-secondary space-y-4 rounded-xl border p-5">
           <div className="flex items-center gap-2">
-            <Shield className="size-4 text-accent-amber" />
-            <h2 className="text-sm font-semibold text-text-primary">
-              Account
-            </h2>
+            <Shield className="text-accent-amber size-4" />
+            <h2 className="text-text-primary text-sm font-semibold">Account</h2>
           </div>
-          <p className="text-[11px] leading-relaxed text-text-tertiary">
-            Your account details and login information. Email and sign-in method are managed through your identity provider.
+          <p className="text-text-tertiary text-[11px] leading-relaxed">
+            Your account details and login information. Email and sign-in method are managed through
+            your identity provider.
           </p>
           <div className="space-y-3">
-            <div className="flex items-center justify-between rounded-lg bg-bg-tertiary px-3 py-2.5">
+            <div className="bg-bg-tertiary flex items-center justify-between rounded-lg px-3 py-2.5">
               <div className="flex items-center gap-2">
-                <Mail className="size-3.5 text-text-tertiary" />
-                <span className="text-xs text-text-secondary">Email</span>
+                <Mail className="text-text-tertiary size-3.5" />
+                <span className="text-text-secondary text-xs">Email</span>
               </div>
-              <span className="text-xs font-medium text-text-primary">
-                {user.email}
-              </span>
+              <span className="text-text-primary text-xs font-medium">{user.email}</span>
             </div>
-            <div className="flex items-center justify-between rounded-lg bg-bg-tertiary px-3 py-2.5">
+            <div className="bg-bg-tertiary flex items-center justify-between rounded-lg px-3 py-2.5">
               <div className="flex items-center gap-2">
-                <Calendar className="size-3.5 text-text-tertiary" />
-                <span className="text-xs text-text-secondary">
-                  Member since
-                </span>
+                <Calendar className="text-text-tertiary size-3.5" />
+                <span className="text-text-secondary text-xs">Member since</span>
               </div>
-              <span className="text-xs font-medium text-text-primary">
+              <span className="text-text-primary text-xs font-medium">
                 {user.created_at
                   ? new Date(user.created_at).toLocaleDateString("en-US", {
                       year: "numeric",
@@ -262,17 +244,15 @@ export default function SettingsPage() {
                   : "Unknown"}
               </span>
             </div>
-            <div className="flex items-center justify-between rounded-lg bg-bg-tertiary px-3 py-2.5">
+            <div className="bg-bg-tertiary flex items-center justify-between rounded-lg px-3 py-2.5">
               <div className="flex items-center gap-2">
-                <Database className="size-3.5 text-text-tertiary" />
-                <span className="text-xs text-text-secondary">Storage</span>
+                <Database className="text-text-tertiary size-3.5" />
+                <span className="text-text-secondary text-xs">Storage</span>
               </div>
               <Tooltip>
                 <TooltipTrigger
                   render={
-                    <span className="text-xs font-medium text-accent-green">
-                      Cloud (Supabase)
-                    </span>
+                    <span className="text-accent-green text-xs font-medium">Cloud (Supabase)</span>
                   }
                 />
                 <TooltipContent side="left">
@@ -285,81 +265,77 @@ export default function SettingsPage() {
 
         {/* ── Subscription (only when payment gateway is enabled) ── */}
         {PAYMENT_GATEWAY_ENABLED && (
-        <section className="space-y-4 rounded-xl border border-border-default bg-bg-secondary p-5">
-          <div className="flex items-center gap-2">
+          <section className="border-border-default bg-bg-secondary space-y-4 rounded-xl border p-5">
+            <div className="flex items-center gap-2">
+              {user.is_pro ? (
+                <Crown className="text-accent-purple size-4" />
+              ) : (
+                <Sparkles className="text-accent-purple size-4" />
+              )}
+              <h2 className="text-text-primary text-sm font-semibold">Subscription</h2>
+            </div>
             {user.is_pro ? (
-              <Crown className="size-4 text-accent-purple" />
-            ) : (
-              <Sparkles className="size-4 text-accent-purple" />
-            )}
-            <h2 className="text-sm font-semibold text-text-primary">
-              Subscription
-            </h2>
-          </div>
-          {user.is_pro ? (
-            <div className="space-y-2">
-              <p className="text-xs text-text-secondary">
-                <span className="font-medium text-accent-purple">LearnerVerse Pro</span>
-                {user.pro_plan && (
-                  <span className="capitalize"> ({user.pro_plan})</span>
-                )}
-                {user.pro_expires_at && (
-                  <> · Expires{" "}
-                    {new Date(user.pro_expires_at).toLocaleDateString("en-IN", {
-                      month: "long",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </>
-                )}
-              </p>
-              <div className="flex flex-wrap items-center gap-2 pt-1">
-                <button
-                  onClick={() => navigate("/renew")}
-                  className="rounded-lg bg-accent-purple/10 px-3 py-1.5 text-xs font-medium text-accent-purple transition-colors hover:bg-accent-purple/20"
-                >
-                  Manage / Renew
-                </button>
-                <button
-                  onClick={() => setShowCancelDialog(true)}
-                  className="rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-1.5 text-xs font-medium text-red-500 transition-colors hover:bg-red-500/10"
-                >
-                  Cancel Subscription
-                </button>
+              <div className="space-y-2">
+                <p className="text-text-secondary text-xs">
+                  <span className="text-accent-purple font-medium">LearnerVerse Pro</span>
+                  {user.pro_plan && <span className="capitalize"> ({user.pro_plan})</span>}
+                  {user.pro_expires_at && (
+                    <>
+                      {" "}
+                      · Expires{" "}
+                      {new Date(user.pro_expires_at).toLocaleDateString("en-IN", {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </>
+                  )}
+                </p>
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <button
+                    onClick={() => navigate("/renew")}
+                    className="bg-accent-purple/10 text-accent-purple hover:bg-accent-purple/20 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
+                  >
+                    Manage / Renew
+                  </button>
+                  <button
+                    onClick={() => setShowCancelDialog(true)}
+                    className="rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-1.5 text-xs font-medium text-red-500 transition-colors hover:bg-red-500/10"
+                  >
+                    Cancel Subscription
+                  </button>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              <p className="text-xs text-text-secondary">
-                You're on the <span className="font-medium">Free</span> plan.
-                Upgrade to unlock AI features.
-              </p>
-              <a
-                href="/pricing"
-                className="inline-block rounded-lg bg-accent-purple px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-accent-purple/90"
-              >
-                Upgrade to Pro
-              </a>
-            </div>
-          )}
-        </section>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-text-secondary text-xs">
+                  You're on the <span className="font-medium">Free</span> plan. Upgrade to unlock AI
+                  features.
+                </p>
+                <a
+                  href="/pricing"
+                  className="bg-accent-purple hover:bg-accent-purple/90 inline-block rounded-lg px-3 py-1.5 text-xs font-medium text-white transition-colors"
+                >
+                  Upgrade to Pro
+                </a>
+              </div>
+            )}
+          </section>
         )}
 
         {/* ── Danger Zone ───────────────────────────────────────── */}
         <DangerZoneSection />
 
         {/* ── About ─────────────────────────────────────────────── */}
-        <section className="space-y-3 rounded-xl border border-border-default bg-bg-secondary p-5">
+        <section className="border-border-default bg-bg-secondary space-y-3 rounded-xl border p-5">
           <div className="flex items-center gap-2">
-            <Info className="size-4 text-text-secondary" />
-            <h2 className="text-sm font-semibold text-text-primary">About</h2>
+            <Info className="text-text-secondary size-4" />
+            <h2 className="text-text-primary text-sm font-semibold">About</h2>
           </div>
-          <div className="space-y-1.5 text-xs text-text-secondary">
+          <div className="text-text-secondary space-y-1.5 text-xs">
             <p>
-              <span className="font-medium text-text-primary">
-                Learner Verse
-              </span>{" "}
-              — Personal Learning Management System
+              <span className="text-text-primary font-medium">Learner Verse</span> — Personal
+              Learning Management System
             </p>
             <p>Version 1.0.0 (MVP)</p>
             <p className="text-text-tertiary">
@@ -368,76 +344,74 @@ export default function SettingsPage() {
           </div>
         </section>
 
-        <p className="text-center text-xs text-text-tertiary">
-          Changes are saved automatically.
-        </p>
+        <p className="text-text-tertiary text-center text-xs">Changes are saved automatically.</p>
 
         {/* Cancel Subscription Confirmation (only when payment gateway is enabled) */}
         {PAYMENT_GATEWAY_ENABLED && (
-        <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
-          <AlertDialogContent className="max-w-[calc(100%-2rem)] overflow-hidden p-0 sm:max-w-lg">
-            <AlertDialogHeader className="gap-3 border-b border-border-default bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent px-6 py-5 text-left sm:place-items-start">
-              <div className="flex items-start gap-3">
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/10">
-                  <Crown className="size-4 text-red-400" />
+          <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+            <AlertDialogContent className="max-w-[calc(100%-2rem)] overflow-hidden p-0 sm:max-w-lg">
+              <AlertDialogHeader className="border-border-default gap-3 border-b bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent px-6 py-5 text-left sm:place-items-start">
+                <div className="flex items-start gap-3">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/10">
+                    <Crown className="size-4 text-red-400" />
+                  </div>
+                  <div>
+                    <AlertDialogTitle className="text-text-primary text-lg">
+                      Cancel Subscription?
+                    </AlertDialogTitle>
+                    <p className="text-text-secondary mt-1 text-xs">
+                      Before you go, we want you to know how much your support means to us.
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <AlertDialogTitle className="text-lg text-text-primary">
-                    Cancel Subscription?
-                  </AlertDialogTitle>
-                  <p className="mt-1 text-xs text-text-secondary">
-                    Before you go, we want you to know how much your support means to us.
+              </AlertDialogHeader>
+
+              <div className="space-y-4 px-6 py-5">
+                <AlertDialogDescription className="text-text-secondary text-sm leading-relaxed">
+                  If you cancel now, your Pro access will end immediately. Your courses, progress,
+                  and certificates will stay safe in your account.
+                </AlertDialogDescription>
+
+                <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4">
+                  <p className="mb-2 text-xs font-semibold tracking-wider text-red-400 uppercase">
+                    What changes right away
+                  </p>
+                  <ul className="text-text-secondary space-y-1.5 pl-4 text-sm">
+                    <li className="list-disc">LiVi Chat will be locked</li>
+                    <li className="list-disc">AI Quiz Generation will be locked</li>
+                    <li className="list-disc">Smart Organize will be locked</li>
+                    <li className="list-disc">Discussion AI features will be locked</li>
+                  </ul>
+                </div>
+
+                <div className="border-accent-purple/20 bg-accent-purple/5 rounded-xl border p-4">
+                  <p className="text-text-secondary flex items-start gap-2 text-sm leading-relaxed">
+                    <Sparkles className="text-accent-purple mt-0.5 size-3.5 shrink-0" />
+                    LearnerVerse is built with care for learners like you. If there is anything we
+                    can improve to make Pro more valuable for you, we would truly love to hear it.
                   </p>
                 </div>
               </div>
-            </AlertDialogHeader>
 
-            <div className="space-y-4 px-6 py-5">
-              <AlertDialogDescription className="text-sm leading-relaxed text-text-secondary">
-                If you cancel now, your Pro access will end immediately. Your courses,
-                progress, and certificates will stay safe in your account.
-              </AlertDialogDescription>
-
-              <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-red-400">
-                  What changes right away
-                </p>
-                <ul className="space-y-1.5 pl-4 text-sm text-text-secondary">
-                  <li className="list-disc">LiVi Chat will be locked</li>
-                  <li className="list-disc">AI Quiz Generation will be locked</li>
-                  <li className="list-disc">Smart Organize will be locked</li>
-                  <li className="list-disc">Discussion AI features will be locked</li>
-                </ul>
-              </div>
-
-              <div className="rounded-xl border border-accent-purple/20 bg-accent-purple/5 p-4">
-                <p className="flex items-start gap-2 text-sm leading-relaxed text-text-secondary">
-                  <Sparkles className="mt-0.5 size-3.5 shrink-0 text-accent-purple" />
-                  LearnerVerse is built with care for learners like you. If there is anything
-                  we can improve to make Pro more valuable for you, we would truly love to hear it.
-                </p>
-              </div>
-            </div>
-
-            <AlertDialogFooter className="mx-0 mb-0 rounded-none bg-bg-secondary px-6 py-4">
-              <AlertDialogCancel>Keep Pro</AlertDialogCancel>
-              <AlertDialogAction
-                className="bg-red-600 text-white hover:bg-red-700"
-                onClick={() => {
-                  cancelSub.mutate(undefined, {
-                    onSuccess: () => {
-                      toast.success("Subscription cancelled");
-                      setShowCancelDialog(false);
-                    },
-                    onError: () => toast.error("Failed to cancel. Please try again."),
-                  });
-                }}
-              >
-                {cancelSub.isPending ? "Cancelling..." : "Yes, Cancel Subscription"}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+              <AlertDialogFooter className="bg-bg-secondary mx-0 mb-0 rounded-none px-6 py-4">
+                <AlertDialogCancel>Keep Pro</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-red-600 text-white hover:bg-red-700"
+                  onClick={() => {
+                    cancelSub.mutate(undefined, {
+                      onSuccess: () => {
+                        toast.success("Subscription cancelled");
+                        setShowCancelDialog(false);
+                      },
+                      onError: () => toast.error("Failed to cancel. Please try again."),
+                    });
+                  }}
+                >
+                  {cancelSub.isPending ? "Cancelling..." : "Yes, Cancel Subscription"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         )}
       </div>
     </TooltipProvider>

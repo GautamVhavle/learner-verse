@@ -1,6 +1,7 @@
 """Repository for Notification lookup, listing, and creation."""
 
 import uuid
+from datetime import UTC
 
 from sqlalchemy import delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,9 +15,7 @@ class NotificationRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def list_by_user(
-        self, user_id: uuid.UUID, limit: int = 50
-    ) -> list[Notification]:
+    async def list_by_user(self, user_id: uuid.UUID, limit: int = 50) -> list[Notification]:
         """Return notifications for a user, newest first."""
         result = await self.db.execute(
             select(Notification)
@@ -61,9 +60,7 @@ class NotificationRepository:
         )
         return result.rowcount
 
-    async def delete_one(
-        self, notification_id: uuid.UUID, user_id: uuid.UUID
-    ) -> bool:
+    async def delete_one(self, notification_id: uuid.UUID, user_id: uuid.UUID) -> bool:
         """Delete a single notification. Returns True if deleted."""
         result = await self.db.execute(
             delete(Notification).where(
@@ -83,9 +80,9 @@ class NotificationRepository:
         self, user_id: uuid.UUID, notification_type: str, course_title: str
     ) -> bool:
         """Check if a notification of this type for this course exists today."""
-        from datetime import date, datetime, timezone
+        from datetime import date, datetime
 
-        today_start = datetime.combine(date.today(), datetime.min.time(), tzinfo=timezone.utc)
+        today_start = datetime.combine(date.today(), datetime.min.time(), tzinfo=UTC)
         result = await self.db.execute(
             select(func.count())
             .select_from(Notification)

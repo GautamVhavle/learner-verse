@@ -32,25 +32,14 @@ interface LessonItemProps {
   onClick?: () => void;
 }
 
-export function LessonItem({
-  lesson,
-  onUpdate,
-  onDelete,
-  onDuplicate,
-  onClick,
-}: LessonItemProps) {
+export function LessonItem({ lesson, onUpdate, onDelete, onDuplicate, onClick }: LessonItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(lesson.title);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: lesson.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: lesson.id,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -75,14 +64,14 @@ export function LessonItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`group/lesson flex items-center gap-2 rounded-lg border border-border-default bg-bg-primary px-3 py-2 transition-colors hover:border-border-hover cursor-pointer ${isDragging ? "z-50 opacity-50 shadow-lg" : ""}`}
+      className={`group/lesson border-border-default bg-bg-primary hover:border-border-hover flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 transition-colors ${isDragging ? "z-50 opacity-50 shadow-lg" : ""}`}
       onClick={onClick}
     >
       {/* Drag handle */}
       <button
         {...attributes}
         {...listeners}
-        className="cursor-grab touch-none text-text-tertiary hover:text-text-secondary"
+        className="text-text-tertiary hover:text-text-secondary cursor-grab touch-none"
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
       >
@@ -91,7 +80,9 @@ export function LessonItem({
 
       {/* Lesson type icon */}
       {(lesson.lesson_type ?? "video") === "video" ? (
-        <Video className={`size-4 shrink-0 ${lesson.youtube_url ? "text-accent-blue" : "text-text-tertiary"}`} />
+        <Video
+          className={`size-4 shrink-0 ${lesson.youtube_url ? "text-accent-blue" : "text-text-tertiary"}`}
+        />
       ) : (lesson.lesson_type ?? "video") === "quiz" ? (
         <ClipboardCheck className="size-4 shrink-0 text-purple-500" />
       ) : (
@@ -118,7 +109,7 @@ export function LessonItem({
         </div>
       ) : (
         <span
-          className="flex-1 truncate text-sm text-text-primary cursor-pointer"
+          className="text-text-primary flex-1 cursor-pointer truncate text-sm"
           onDoubleClick={() => setIsEditing(true)}
         >
           {lesson.title}
@@ -127,7 +118,7 @@ export function LessonItem({
 
       {/* Type badge */}
       {(lesson.lesson_type ?? "video") === "video" && lesson.youtube_duration && (
-        <span className="shrink-0 rounded bg-bg-tertiary px-1.5 py-0.5 text-[10px] text-text-secondary">
+        <span className="bg-bg-tertiary text-text-secondary shrink-0 rounded px-1.5 py-0.5 text-[10px]">
           {lesson.youtube_duration}
         </span>
       )}
@@ -145,31 +136,31 @@ export function LessonItem({
       {/* Actions */}
       <div onClick={(e) => e.stopPropagation()}>
         <DropdownMenu>
-        <DropdownMenuTrigger
-          render={
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              className="shrink-0 opacity-0 group-hover/lesson:opacity-100 transition-opacity"
-            />
-          }
-        >
-          <MoreHorizontal className="size-3.5" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" sideOffset={4}>
-          <DropdownMenuItem onClick={() => setIsEditing(true)}>
-            <Pencil className="size-4" />
-            Rename
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={onDuplicate}>
-            <Copy className="size-4" />
-            Duplicate
-          </DropdownMenuItem>
-          <DropdownMenuItem variant="destructive" onClick={onDelete}>
-            <Trash2 className="size-4" />
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                className="shrink-0 opacity-0 transition-opacity group-hover/lesson:opacity-100"
+              />
+            }
+          >
+            <MoreHorizontal className="size-3.5" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" sideOffset={4}>
+            <DropdownMenuItem onClick={() => setIsEditing(true)}>
+              <Pencil className="size-4" />
+              Rename
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onDuplicate}>
+              <Copy className="size-4" />
+              Duplicate
+            </DropdownMenuItem>
+            <DropdownMenuItem variant="destructive" onClick={onDelete}>
+              <Trash2 className="size-4" />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
         </DropdownMenu>
       </div>
     </div>

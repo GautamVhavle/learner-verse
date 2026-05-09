@@ -39,9 +39,7 @@ export function LessonDetailPanel({
   const isVideo = lessonType === "video";
   const isQuiz = lessonType === "quiz";
 
-  const videoId = lesson.youtube_url
-    ? extractVideoId(lesson.youtube_url)
-    : null;
+  const videoId = lesson.youtube_url ? extractVideoId(lesson.youtube_url) : null;
 
   const [markdown, setMarkdown] = useState(lesson.notes_markdown ?? "");
 
@@ -64,33 +62,26 @@ export function LessonDetailPanel({
     <div className="space-y-8">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onClose}
-          className="shrink-0"
-        >
+        <Button variant="ghost" size="icon" onClick={onClose} className="shrink-0">
           <ArrowLeft className="size-4" />
         </Button>
         <div className="min-w-0 flex-1">
-          <h2 className="truncate text-base font-semibold text-text-primary">
-            {lesson.title}
-          </h2>
-          <p className="text-xs text-text-secondary">Lesson content</p>
+          <h2 className="text-text-primary truncate text-base font-semibold">{lesson.title}</h2>
+          <p className="text-text-secondary text-xs">Lesson content</p>
         </div>
       </div>
 
       {/* ── Lesson Type Toggle ────────────────────────────────── */}
       <div
-        className="flex gap-1 rounded-lg border border-border-default bg-bg-secondary p-1"
+        className="border-border-default bg-bg-secondary flex gap-1 rounded-lg border p-1"
         role="radiogroup"
         aria-label="Lesson type"
       >
-        {([
+        {[
           { type: "video" as LessonType, icon: Video, label: "Video" },
           { type: "note" as LessonType, icon: StickyNote, label: "Reading" },
           { type: "quiz" as LessonType, icon: ClipboardCheck, label: "Quiz" },
-        ]).map(({ type, icon: Icon, label }) => (
+        ].map(({ type, icon: Icon, label }) => (
           <button
             key={type}
             role="radio"
@@ -109,26 +100,17 @@ export function LessonDetailPanel({
       </div>
 
       {/* ── Quiz Editor (quiz type only) ────────────────────── */}
-      {isQuiz && (
-        <QuizEditor lessonId={lesson.id} courseId={courseId} />
-      )}
+      {isQuiz && <QuizEditor lessonId={lesson.id} courseId={courseId} />}
 
       {/* ── YouTube Video Section (video type only) ───────────── */}
       {isVideo && (
         <section className="space-y-3">
           <div className="flex items-center gap-2">
-            <Video className="size-4 text-text-secondary" />
-            <h3 className="text-sm font-medium text-text-primary">
-              YouTube Video
-            </h3>
+            <Video className="text-text-secondary size-4" />
+            <h3 className="text-text-primary text-sm font-medium">YouTube Video</h3>
           </div>
 
-          {videoId && (
-            <YouTubeEmbed
-              videoId={videoId}
-              title={lesson.youtube_title ?? undefined}
-            />
-          )}
+          {videoId && <YouTubeEmbed videoId={videoId} title={lesson.youtube_title ?? undefined} />}
 
           <YouTubeInput
             currentUrl={lesson.youtube_url}
@@ -145,15 +127,11 @@ export function LessonDetailPanel({
       {!isQuiz && (
         <section className="space-y-3">
           <div className="flex items-center gap-2">
-            <FileText className="size-4 text-text-secondary" />
-            <h3 className="text-sm font-medium text-text-primary">Notes</h3>
+            <FileText className="text-text-secondary size-4" />
+            <h3 className="text-text-primary text-sm font-medium">Notes</h3>
           </div>
 
-          <MarkdownEditor
-            value={markdown}
-            onChange={setMarkdown}
-            onBlur={handleMarkdownBlur}
-          />
+          <MarkdownEditor value={markdown} onChange={setMarkdown} onBlur={handleMarkdownBlur} />
         </section>
       )}
 
@@ -162,13 +140,11 @@ export function LessonDetailPanel({
         <section className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Link2 className="size-4 text-text-secondary" />
-              <h3 className="text-sm font-medium text-text-primary">
-                Reference Links
-              </h3>
+              <Link2 className="text-text-secondary size-4" />
+              <h3 className="text-text-primary text-sm font-medium">Reference Links</h3>
             </div>
             {links.length > 0 && (
-              <span className="text-xs tabular-nums text-text-tertiary">
+              <span className="text-text-tertiary text-xs tabular-nums">
                 {links.length} / {MAX_REFERENCE_LINKS}
               </span>
             )}
@@ -188,12 +164,10 @@ export function LessonDetailPanel({
           )}
 
           {/* Add new link */}
-          {!atLinkLimit && (
-            <LinkInput onAdd={onAddReferenceLink} />
-          )}
+          {!atLinkLimit && <LinkInput onAdd={onAddReferenceLink} />}
 
           {atLinkLimit && (
-            <p className="text-xs text-text-tertiary">
+            <p className="text-text-tertiary text-xs">
               Maximum of {MAX_REFERENCE_LINKS} reference links reached.
             </p>
           )}

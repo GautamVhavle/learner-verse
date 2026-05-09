@@ -33,9 +33,7 @@ class ExportImportService:
         self.course_repo = CourseRepository(db)
         self.section_repo = SectionRepository(db)
 
-    async def export_course(
-        self, course_id: uuid.UUID, user_id: uuid.UUID
-    ) -> CourseExportData:
+    async def export_course(self, course_id: uuid.UUID, user_id: uuid.UUID) -> CourseExportData:
         """Serialise a course and its full hierarchy into an exportable format."""
         course = await self.course_repo.get_by_id(course_id, user_id)
         if not course:
@@ -94,9 +92,7 @@ class ExportImportService:
             sections=section_exports,
         )
 
-    async def import_course(
-        self, user_id: uuid.UUID, data: CourseExportData
-    ) -> CourseResponse:
+    async def import_course(self, user_id: uuid.UUID, data: CourseExportData) -> CourseResponse:
         """Recreate a full course structure from exported JSON data."""
         if data.export_version != 1:
             raise HTTPException(

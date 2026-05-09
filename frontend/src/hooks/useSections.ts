@@ -33,15 +33,9 @@ export {
   useImportPlaylistMutation,
 } from "./useLessons";
 
-export {
-  useFetchYouTubeMetadata,
-  useFetchOpenGraph,
-} from "./useMetadata";
+export { useFetchYouTubeMetadata, useFetchOpenGraph } from "./useMetadata";
 
-export {
-  useAddReferenceLinkMutation,
-  useDeleteReferenceLinkMutation,
-} from "./useReferenceLinks";
+export { useAddReferenceLinkMutation, useDeleteReferenceLinkMutation } from "./useReferenceLinks";
 
 // ── Query Keys ──────────────────────────────────────────────
 const sectionKeys = {
@@ -60,12 +54,11 @@ export function useSectionsQuery(courseId: string | undefined) {
 export function useCreateSectionMutation(courseId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: SectionCreate) =>
-      api.post<Section>(`/courses/${courseId}/sections`, data),
+    mutationFn: (data: SectionCreate) => api.post<Section>(`/courses/${courseId}/sections`, data),
     onSuccess: (newSection) => {
       // Optimistic: append the new section to the cached list instantly
       qc.setQueryData<Section[]>(sectionKeys.all(courseId), (old) =>
-        old ? [...old, newSection] : [newSection]
+        old ? [...old, newSection] : [newSection],
       );
       // Background refetch for consistency
       qc.invalidateQueries({ queryKey: sectionKeys.all(courseId) });
@@ -80,7 +73,7 @@ export function useUpdateSectionMutation(courseId: string) {
       api.put<Section>(`/courses/${courseId}/sections/${id}`, data),
     onSuccess: (updated) => {
       qc.setQueryData<Section[]>(sectionKeys.all(courseId), (old) =>
-        old ? old.map((s) => (s.id === updated.id ? updated : s)) : old
+        old ? old.map((s) => (s.id === updated.id ? updated : s)) : old,
       );
       qc.invalidateQueries({ queryKey: sectionKeys.all(courseId) });
     },
@@ -90,12 +83,11 @@ export function useUpdateSectionMutation(courseId: string) {
 export function useDeleteSectionMutation(courseId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) =>
-      api.delete<void>(`/courses/${courseId}/sections/${id}`),
+    mutationFn: (id: string) => api.delete<void>(`/courses/${courseId}/sections/${id}`),
     onSuccess: (_data, deletedId) => {
       // Optimistic: remove the section from the cached list instantly
       qc.setQueryData<Section[]>(sectionKeys.all(courseId), (old) =>
-        old ? old.filter((s) => s.id !== deletedId) : old
+        old ? old.filter((s) => s.id !== deletedId) : old,
       );
       qc.invalidateQueries({ queryKey: sectionKeys.all(courseId) });
     },
@@ -118,7 +110,7 @@ export function useDuplicateSectionMutation(courseId: string) {
       api.post<Section>(`/courses/${courseId}/sections/${sectionId}/duplicate`),
     onSuccess: (newSection) => {
       qc.setQueryData<Section[]>(sectionKeys.all(courseId), (old) =>
-        old ? [...old, newSection] : [newSection]
+        old ? [...old, newSection] : [newSection],
       );
       qc.invalidateQueries({ queryKey: sectionKeys.all(courseId) });
     },

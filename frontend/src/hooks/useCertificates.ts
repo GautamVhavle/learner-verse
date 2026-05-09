@@ -26,10 +26,7 @@ export function useCertificateQuery(certId: string | undefined) {
 export function useCourseCertificateQuery(courseId: string | undefined) {
   return useQuery({
     queryKey: [...CERT_KEY, "course", courseId],
-    queryFn: () =>
-      api.get<CertificateResponse | null>(
-        `/certificates/courses/${courseId}`,
-      ),
+    queryFn: () => api.get<CertificateResponse | null>(`/certificates/courses/${courseId}`),
     enabled: !!courseId,
   });
 }

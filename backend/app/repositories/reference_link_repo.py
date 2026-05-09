@@ -29,17 +29,13 @@ class ReferenceLinkRepository:
     async def count_by_lesson(self, lesson_id: uuid.UUID) -> int:
         """Return the number of reference links attached to a lesson."""
         result = await self.db.execute(
-            select(func.count(ReferenceLink.id)).where(
-                ReferenceLink.lesson_id == lesson_id
-            )
+            select(func.count(ReferenceLink.id)).where(ReferenceLink.lesson_id == lesson_id)
         )
         return result.scalar_one()
 
     async def delete(self, link_id: uuid.UUID) -> None:
         """Delete a reference link by ID (no-op if not found)."""
-        result = await self.db.execute(
-            select(ReferenceLink).where(ReferenceLink.id == link_id)
-        )
+        result = await self.db.execute(select(ReferenceLink).where(ReferenceLink.id == link_id))
         link = result.scalar_one_or_none()
         if link:
             await self.db.delete(link)

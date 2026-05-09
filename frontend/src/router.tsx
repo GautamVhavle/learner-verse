@@ -64,9 +64,7 @@ function SharedRoutes() {
       <Route path="settings" element={<SettingsPage />} />
       <Route path="profile" element={<ProfilePage />} />
       <Route path="inbox" element={<InboxPage />} />
-      {PAYMENT_GATEWAY_ENABLED && (
-        <Route path="renew" element={<RenewPage />} />
-      )}
+      {PAYMENT_GATEWAY_ENABLED && <Route path="renew" element={<RenewPage />} />}
     </>
   );
 }
@@ -114,9 +112,7 @@ export default function AppRouter() {
             <Route path="certificates/share/:uid" element={<CertificateSharePage />} />
             <Route path="/profile/:userId" element={<PublicProfilePage />} />
             <Route path="/courses/:courseId" element={<PublicCoursePage />} />
-            {PAYMENT_GATEWAY_ENABLED && (
-              <Route path="/pricing" element={<PricingPage />} />
-            )}
+            {PAYMENT_GATEWAY_ENABLED && <Route path="/pricing" element={<PricingPage />} />}
             <Route path="/" element={<HomePage />} />
             <Route path="/home" element={<HomePage />} />
 

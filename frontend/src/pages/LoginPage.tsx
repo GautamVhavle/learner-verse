@@ -6,14 +6,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useAuth0 } from "@auth0/auth0-react";
 import { motion } from "motion/react";
-import {
-  Loader2,
-  BookOpen,
-  Brain,
-  Target,
-  Sparkles,
-  ArrowRight,
-} from "lucide-react";
+import { Loader2, BookOpen, Brain, Target, Sparkles, ArrowRight } from "lucide-react";
 import { Particles } from "@/components/ui/particles";
 import { BorderBeam } from "@/components/ui/border-beam";
 import { WordRotate } from "@/components/ui/word-rotate";
@@ -38,9 +31,7 @@ function BrandLogo({ size = "default" }: { size?: "default" | "large" }) {
         animate={{ rotate: 0, scale: 1 }}
         transition={{ type: "spring", stiffness: 200, damping: 15 }}
       />
-      <span className="text-lg font-semibold text-white">
-        Learner Verse
-      </span>
+      <span className="text-lg font-semibold text-white">Learner Verse</span>
     </div>
   );
 }
@@ -57,8 +48,8 @@ export default function LoginPage() {
 
   if (isLoading || isAuthenticated) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-bg-root">
-        <Loader2 className="size-6 animate-spin text-text-tertiary" />
+      <div className="bg-bg-root flex min-h-screen items-center justify-center">
+        <Loader2 className="text-text-tertiary size-6 animate-spin" />
       </div>
     );
   }
@@ -76,9 +67,9 @@ export default function LoginPage() {
       />
 
       {/* Gradient orbs — match brand purple (#863bff) */}
-      <div className="pointer-events-none absolute -left-40 -top-40 size-[500px] rounded-full bg-[#863bff]/20 blur-[120px]" />
-      <div className="pointer-events-none absolute -bottom-40 -right-40 size-[400px] rounded-full bg-accent-blue/15 blur-[120px]" />
-      <div className="pointer-events-none absolute left-1/2 top-1/2 size-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#863bff]/10 blur-[100px]" />
+      <div className="pointer-events-none absolute -top-40 -left-40 size-[500px] rounded-full bg-[#863bff]/20 blur-[120px]" />
+      <div className="bg-accent-blue/15 pointer-events-none absolute -right-40 -bottom-40 size-[400px] rounded-full blur-[120px]" />
+      <div className="pointer-events-none absolute top-1/2 left-1/2 size-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#863bff]/10 blur-[100px]" />
 
       {/* ── Left panel: Branding ── */}
       <div className="relative z-10 hidden flex-1 flex-col justify-between p-12 lg:flex">
@@ -98,14 +89,14 @@ export default function LoginPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <h1 className="text-4xl font-bold leading-tight tracking-tight text-white xl:text-5xl">
+            <h1 className="text-4xl leading-tight font-bold tracking-tight text-white xl:text-5xl">
               Your learning
               <br />
               journey{" "}
               <WordRotate
                 words={["starts here", "reimagined", "simplified", "amplified"]}
                 duration={3000}
-                className="inline-block bg-gradient-to-r from-[#863bff] via-accent-blue to-[#863bff] bg-clip-text text-transparent"
+                className="via-accent-blue inline-block bg-gradient-to-r from-[#863bff] to-[#863bff] bg-clip-text text-transparent"
               />
             </h1>
           </motion.div>
@@ -116,9 +107,8 @@ export default function LoginPage() {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="mt-4 text-lg leading-relaxed text-white/60"
           >
-            Transform any playlist into a structured course. Let AI organize
-            your content, track your progress, and earn certificates along the
-            way.
+            Transform any playlist into a structured course. Let AI organize your content, track
+            your progress, and earn certificates along the way.
           </motion.p>
 
           {/* Feature pills */}
@@ -152,16 +142,13 @@ export default function LoginPage() {
         >
           <div className="flex items-center gap-3 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3">
             <div className="flex -space-x-2">
-              {["bg-accent-blue", "bg-accent-purple", "bg-accent-green", "bg-accent-amber"].map((bg, i) => (
-                <div
-                  key={i}
-                  className={`size-7 rounded-full ${bg} ring-2 ring-[#030712]`}
-                />
-              ))}
+              {["bg-accent-blue", "bg-accent-purple", "bg-accent-green", "bg-accent-amber"].map(
+                (bg, i) => (
+                  <div key={i} className={`size-7 rounded-full ${bg} ring-2 ring-[#030712]`} />
+                ),
+              )}
             </div>
-            <p className="text-sm text-white/50">
-              Join learners turning playlists into progress
-            </p>
+            <p className="text-sm text-white/50">Join learners turning playlists into progress</p>
           </div>
           <p className="text-sm text-white/30">learnerverse.xyz</p>
         </motion.div>
@@ -175,12 +162,7 @@ export default function LoginPage() {
           transition={{ duration: 0.7, delay: 0.3, ease: "easeOut" }}
           className="relative w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl sm:p-10"
         >
-          <BorderBeam
-            size={200}
-            duration={8}
-            colorFrom="#863bff"
-            colorTo="#3b82f6"
-          />
+          <BorderBeam size={200} duration={8} colorFrom="#863bff" colorTo="#3b82f6" />
 
           {/* Mobile logo */}
           <div className="mb-8 lg:hidden">
@@ -214,7 +196,7 @@ export default function LoginPage() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => loginWithRedirect({ appState: { returnTo: "/creator" } })}
-              className="group flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#863bff] to-accent-blue py-3.5 text-sm font-semibold text-white transition-shadow hover:shadow-lg hover:shadow-[#863bff]/25"
+              className="group to-accent-blue flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#863bff] py-3.5 text-sm font-semibold text-white transition-shadow hover:shadow-lg hover:shadow-[#863bff]/25"
             >
               Continue with Log In
               <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
@@ -235,7 +217,7 @@ export default function LoginPage() {
               className="group flex w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 py-3.5 text-sm font-semibold text-white transition-all hover:border-white/25 hover:bg-white/10"
             >
               Create an Account
-              <Sparkles className="size-4 text-accent-amber transition-transform group-hover:rotate-12" />
+              <Sparkles className="text-accent-amber size-4 transition-transform group-hover:rotate-12" />
             </motion.button>
           </div>
 
@@ -266,9 +248,7 @@ export default function LoginPage() {
                 className="rounded-lg border border-white/5 bg-white/[0.02] p-3 text-center"
               >
                 <div className="text-lg">{item.icon}</div>
-                <div className="mt-1 text-xs font-medium text-white/70">
-                  {item.label}
-                </div>
+                <div className="mt-1 text-xs font-medium text-white/70">{item.label}</div>
                 <div className="text-[10px] text-white/30">{item.sub}</div>
               </div>
             ))}

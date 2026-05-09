@@ -27,10 +27,10 @@ export function BrowseCourseCard({
   onStudy,
 }: BrowseCourseCardProps) {
   return (
-    <div className="flex flex-col rounded-xl border border-border-default bg-bg-secondary transition-colors hover:border-border-hover">
+    <div className="border-border-default bg-bg-secondary hover:border-border-hover flex flex-col rounded-xl border transition-colors">
       {/* Thumbnail */}
       <div
-        className={`group relative aspect-video w-full overflow-hidden rounded-t-xl bg-bg-tertiary ${isEnrolled ? "cursor-pointer" : ""}`}
+        className={`group bg-bg-tertiary relative aspect-video w-full overflow-hidden rounded-t-xl ${isEnrolled ? "cursor-pointer" : ""}`}
         onClick={isEnrolled ? onStudy : undefined}
       >
         {course.thumbnail_url ? (
@@ -41,7 +41,7 @@ export function BrowseCourseCard({
           />
         ) : (
           <div className="flex h-full items-center justify-center">
-            <BookOpen className="size-8 text-text-tertiary opacity-30" />
+            <BookOpen className="text-text-tertiary size-8 opacity-30" />
           </div>
         )}
         {/* Play overlay shown for enrolled courses on hover */}
@@ -56,28 +56,22 @@ export function BrowseCourseCard({
 
       {/* Content */}
       <div className="flex flex-1 flex-col gap-2 p-4">
-        <h3 className="line-clamp-2 text-sm font-semibold text-text-primary">
-          {course.title}
-        </h3>
+        <h3 className="text-text-primary line-clamp-2 text-sm font-semibold">{course.title}</h3>
         {course.description && (
-          <p className="line-clamp-2 text-xs text-text-secondary">
-            {course.description}
-          </p>
+          <p className="text-text-secondary line-clamp-2 text-xs">{course.description}</p>
         )}
 
         {/* Stats row */}
-        <div className="mt-auto flex items-center gap-3 pt-2 text-[11px] text-text-tertiary">
+        <div className="text-text-tertiary mt-auto flex items-center gap-3 pt-2 text-[11px]">
           <div className="flex items-center gap-1">
             <Layers className="size-3" />
             <span>
-              {course.section_count}{" "}
-              {course.section_count === 1 ? "section" : "sections"}
+              {course.section_count} {course.section_count === 1 ? "section" : "sections"}
             </span>
           </div>
           <span>&middot;</span>
           <span>
-            {course.lesson_count}{" "}
-            {course.lesson_count === 1 ? "lesson" : "lessons"}
+            {course.lesson_count} {course.lesson_count === 1 ? "lesson" : "lessons"}
           </span>
         </div>
 

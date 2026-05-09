@@ -73,7 +73,9 @@ class RatingRepository:
         avg, count = result.one()
         return round(float(avg), 1), int(count)
 
-    async def get_stats_batch(self, course_ids: list[uuid.UUID]) -> dict[uuid.UUID, tuple[float, int]]:
+    async def get_stats_batch(
+        self, course_ids: list[uuid.UUID]
+    ) -> dict[uuid.UUID, tuple[float, int]]:
         """Return {course_id: (avg_rating, count)} for multiple courses."""
         if not course_ids:
             return {}

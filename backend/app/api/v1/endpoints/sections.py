@@ -18,13 +18,13 @@ from app.schemas.section import (
     SectionResponse,
     SectionUpdate,
 )
-from app.services.section_service import SectionService
 from app.services.organize_service import (
     OrganizeService,
     create_task,
     get_task_status,
     run_organize_in_background,
 )
+from app.services.section_service import SectionService
 
 router = APIRouter(prefix="/courses/{course_id}/sections", tags=["sections"])
 
@@ -34,6 +34,7 @@ def _service(db: AsyncSession) -> SectionService:
 
 
 # ── Organize response schemas ───────────────────────────────
+
 
 class OrganizeStartResponse(BaseModel):
     task_id: str
@@ -45,6 +46,7 @@ class OrganizeStatusResponse(BaseModel):
 
 
 # ── Endpoints ───────────────────────────────────────────────
+
 
 @router.post("", response_model=SectionResponse, status_code=status.HTTP_201_CREATED)
 async def create_section(
@@ -84,9 +86,7 @@ async def organize_sections(
     logger.info("Organize task %s started for course %s", task_id, course_id)
 
     # Fire and forget — runs in the background event loop
-    asyncio.create_task(
-        run_organize_in_background(task_id, course_id, user.id)
-    )
+    asyncio.create_task(run_organize_in_background(task_id, course_id, user.id))
 
     return OrganizeStartResponse(task_id=task_id)
 
@@ -159,7 +159,9 @@ async def reorder_sections(
     return await _service(db).reorder_sections(course_id, user.id, data)
 
 
-@router.post("/{section_id}/duplicate", response_model=SectionResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/{section_id}/duplicate", response_model=SectionResponse, status_code=status.HTTP_201_CREATED
+)
 async def duplicate_section(
     course_id: uuid.UUID,
     section_id: uuid.UUID,

@@ -24,10 +24,7 @@ import {
   Sparkles,
   AtSign,
 } from "lucide-react";
-import {
-  useDiscussionMessages,
-  useSendDiscussionMessage,
-} from "@/hooks/useDiscussion";
+import { useDiscussionMessages, useSendDiscussionMessage } from "@/hooks/useDiscussion";
 import { useQueryClient } from "@tanstack/react-query";
 import type { DiscussionMessage } from "@/types/discussion";
 import { useProGate } from "@/hooks/useProGate";
@@ -98,21 +95,15 @@ export function DiscussionRoom({ courseId }: DiscussionRoomProps) {
 
     setAllMessages((prev) => {
       // Remove optimistic messages that now have real counterparts
-      const withoutOptimistic = prev.filter(
-        (m) => !m.id.startsWith("optimistic-")
-      );
+      const withoutOptimistic = prev.filter((m) => !m.id.startsWith("optimistic-"));
       const existing = new Set(withoutOptimistic.map((m) => m.id));
       const newOnes = data.items.filter((m) => !existing.has(m.id));
-      if (newOnes.length === 0 && withoutOptimistic.length === prev.length)
-        return prev; // no change
+      if (newOnes.length === 0 && withoutOptimistic.length === prev.length) return prev; // no change
       if (cursor) {
         return [...newOnes, ...withoutOptimistic];
       }
       const merged = [...withoutOptimistic, ...newOnes];
-      merged.sort(
-        (a, b) =>
-          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-      );
+      merged.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
       return merged;
     });
   }, [data, cursor]);
@@ -135,8 +126,7 @@ export function DiscussionRoom({ courseId }: DiscussionRoomProps) {
     const el = scrollRef.current;
     if (!el) return;
     const threshold = 80;
-    isAtBottom.current =
-      el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
+    isAtBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
   }, []);
 
   /* ── Load older ── */
@@ -194,11 +184,9 @@ export function DiscussionRoom({ courseId }: DiscussionRoomProps) {
         },
         onError: () => {
           // Remove optimistic message on failure
-          setAllMessages((prev) =>
-            prev.filter((m) => m.id !== optimisticMsg.id)
-          );
+          setAllMessages((prev) => prev.filter((m) => m.id !== optimisticMsg.id));
         },
-      }
+      },
     );
   };
 
@@ -209,7 +197,10 @@ export function DiscussionRoom({ courseId }: DiscussionRoomProps) {
   };
 
   const insertMiVi = () => {
-    if (!isPro) { showGate(); return; }
+    if (!isPro) {
+      showGate();
+      return;
+    }
     const atIdx = input.lastIndexOf("@");
     const before = atIdx >= 0 ? input.slice(0, atIdx) : input;
     setInput(before + "@MiVi ");
@@ -223,16 +214,13 @@ export function DiscussionRoom({ courseId }: DiscussionRoomProps) {
       <div className="flex h-full flex-col">
         <ProGate />
         <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-16">
-          <div className="flex size-12 items-center justify-center rounded-xl bg-accent-purple/10">
-            <MessageSquare className="size-5 text-accent-purple" />
+          <div className="bg-accent-purple/10 flex size-12 items-center justify-center rounded-xl">
+            <MessageSquare className="text-accent-purple size-5" />
           </div>
-          <h3 className="text-sm font-semibold text-text-primary">
-            Discussion Room
-          </h3>
-          <p className="max-w-xs text-center text-xs text-text-secondary">
+          <h3 className="text-text-primary text-sm font-semibold">Discussion Room</h3>
+          <p className="text-text-secondary max-w-xs text-center text-xs">
             Start the conversation! Ask questions, share insights, or tag{" "}
-            <span className="font-semibold text-accent-purple">@MiVi</span> for
-            AI-powered help.
+            <span className="text-accent-purple font-semibold">@MiVi</span> for AI-powered help.
           </p>
         </div>
         <InputBar
@@ -254,7 +242,7 @@ export function DiscussionRoom({ courseId }: DiscussionRoomProps) {
   if (showInitialLoading) {
     return (
       <div className="flex h-full items-center justify-center">
-        <Loader2 className="size-5 animate-spin text-text-tertiary" />
+        <Loader2 className="text-text-tertiary size-5 animate-spin" />
       </div>
     );
   }
@@ -274,7 +262,7 @@ export function DiscussionRoom({ courseId }: DiscussionRoomProps) {
             <button
               onClick={loadOlder}
               disabled={isFetching}
-              className="flex items-center gap-1.5 rounded-full border border-border-default px-3 py-1.5 text-[11px] font-medium text-text-secondary transition-colors hover:bg-bg-secondary disabled:opacity-50"
+              className="border-border-default text-text-secondary hover:bg-bg-secondary flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-medium transition-colors disabled:opacity-50"
             >
               {isFetching ? (
                 <Loader2 className="size-3 animate-spin" />
@@ -288,29 +276,27 @@ export function DiscussionRoom({ courseId }: DiscussionRoomProps) {
 
         <div className="space-y-0.5 px-4 py-3">
           {allMessages.map((msg, i) => {
-              const prev = i > 0 ? allMessages[i - 1] : null;
-              const showHeader =
-                !prev ||
-                prev.user_id !== msg.user_id ||
-                prev.role !== msg.role ||
-                new Date(msg.created_at).getTime() -
-                  new Date(prev.created_at).getTime() >
-                  300_000; // 5 min gap
+            const prev = i > 0 ? allMessages[i - 1] : null;
+            const showHeader =
+              !prev ||
+              prev.user_id !== msg.user_id ||
+              prev.role !== msg.role ||
+              new Date(msg.created_at).getTime() - new Date(prev.created_at).getTime() > 300_000; // 5 min gap
 
-              return (
-                <ChatBubble
-                  key={msg.id}
-                  message={msg}
-                  showHeader={showHeader}
-                  onReply={() => {
-                    setReplyTo(msg);
-                    inputRef.current?.focus();
-                  }}
-                />
-              );
-            })}
-            <div ref={bottomRef} />
-          </div>
+            return (
+              <ChatBubble
+                key={msg.id}
+                message={msg}
+                showHeader={showHeader}
+                onReply={() => {
+                  setReplyTo(msg);
+                  inputRef.current?.focus();
+                }}
+              />
+            );
+          })}
+          <div ref={bottomRef} />
+        </div>
       </div>
 
       {/* Input */}
@@ -351,19 +337,19 @@ function ChatBubble({
 
   return (
     <div
-      className={`group relative rounded-lg px-3 py-1.5 transition-colors hover:bg-bg-secondary ${
+      className={`group hover:bg-bg-secondary relative rounded-lg px-3 py-1.5 transition-colors ${
         showHeader ? "mt-3" : "mt-0"
-      } ${isAI ? "border-l-2 border-accent-purple/30 bg-accent-purple/[0.03]" : ""}`}
+      } ${isAI ? "border-accent-purple/30 bg-accent-purple/[0.03] border-l-2" : ""}`}
     >
       {/* Reply preview */}
       {message.reply_preview && (
-        <div className="mb-1.5 flex items-start gap-1.5 rounded border-l-2 border-text-tertiary/30 bg-bg-tertiary/30 px-2 py-1">
-          <Reply className="mt-0.5 size-3 shrink-0 text-text-tertiary" />
+        <div className="border-text-tertiary/30 bg-bg-tertiary/30 mb-1.5 flex items-start gap-1.5 rounded border-l-2 px-2 py-1">
+          <Reply className="text-text-tertiary mt-0.5 size-3 shrink-0" />
           <div className="min-w-0">
-            <span className="text-[10px] font-semibold text-text-secondary">
+            <span className="text-text-secondary text-[10px] font-semibold">
               {message.reply_preview.display_name}
             </span>
-            <p className="truncate text-[11px] text-text-tertiary">
+            <p className="text-text-tertiary truncate text-[11px]">
               {message.reply_preview.content}
             </p>
           </div>
@@ -377,16 +363,10 @@ function ChatBubble({
           <div
             className={`flex size-6 items-center justify-center rounded-full text-[10px] font-bold ${role.bg} ${role.text}`}
           >
-            {isAI ? (
-              <Sparkles className="size-3" />
-            ) : (
-              message.display_name.charAt(0).toUpperCase()
-            )}
+            {isAI ? <Sparkles className="size-3" /> : message.display_name.charAt(0).toUpperCase()}
           </div>
 
-          <span className="text-xs font-semibold text-text-primary">
-            {message.display_name}
-          </span>
+          <span className="text-text-primary text-xs font-semibold">{message.display_name}</span>
 
           <span
             className={`rounded-full border px-1.5 py-px text-[9px] font-semibold ${role.bg} ${role.text} ${role.border}`}
@@ -394,15 +374,13 @@ function ChatBubble({
             {role.label}
           </span>
 
-          <span className="text-[10px] text-text-tertiary">{time}</span>
+          <span className="text-text-tertiary text-[10px]">{time}</span>
         </div>
       )}
 
       {/* Content */}
       <div
-        className={`text-[13px] leading-relaxed text-text-primary ${
-          showHeader ? "pl-8" : "pl-8"
-        }`}
+        className={`text-text-primary text-[13px] leading-relaxed ${showHeader ? "pl-8" : "pl-8"}`}
       >
         <MessageContent content={message.content} role={message.role} />
       </div>
@@ -410,7 +388,7 @@ function ChatBubble({
       {/* Reply button */}
       <button
         onClick={onReply}
-        className="absolute right-2 top-1.5 hidden items-center gap-1 rounded border border-border-default bg-bg-primary px-1.5 py-0.5 text-[10px] font-medium text-text-secondary shadow-sm transition-all hover:bg-bg-secondary group-hover:flex"
+        className="border-border-default bg-bg-primary text-text-secondary hover:bg-bg-secondary absolute top-1.5 right-2 hidden items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-medium shadow-sm transition-all group-hover:flex"
       >
         <Reply className="size-2.5" />
         Reply
@@ -425,14 +403,12 @@ function MessageContent({ content, role }: { content: string; role: string }) {
   // AI messages — render markdown with full typography
   if (role === "ai") {
     return (
-      <div className="prose prose-sm dark:prose-invert max-w-none text-[13px] leading-relaxed text-text-primary prose-p:my-1 prose-pre:my-2 prose-pre:rounded-lg prose-pre:bg-[#1c1c1c] prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-headings:my-1.5 prose-headings:text-sm prose-code:rounded prose-code:bg-bg-tertiary prose-code:px-1 prose-code:py-0.5 prose-code:text-xs prose-code:before:content-none prose-code:after:content-none prose-a:text-accent-purple prose-a:no-underline hover:prose-a:underline">
+      <div className="prose prose-sm dark:prose-invert text-text-primary prose-p:my-1 prose-pre:my-2 prose-pre:rounded-lg prose-pre:bg-[#1c1c1c] prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-headings:my-1.5 prose-headings:text-sm prose-code:rounded prose-code:bg-bg-tertiary prose-code:px-1 prose-code:py-0.5 prose-code:text-xs prose-code:before:content-none prose-code:after:content-none prose-a:text-accent-purple prose-a:no-underline hover:prose-a:underline max-w-none text-[13px] leading-relaxed">
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeHighlight]}
           components={{
-            a: ({ ...props }) => (
-              <a {...props} target="_blank" rel="noopener noreferrer" />
-            ),
+            a: ({ ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" />,
             pre: ({ children, ...props }) => (
               <pre {...props} className="overflow-x-auto rounded-lg bg-[#1c1c1c] p-3 text-xs">
                 {children}
@@ -449,13 +425,13 @@ function MessageContent({ content, role }: { content: string; role: string }) {
   // User messages — highlight @mentions
   const parts = content.split(/(@\w+)/g);
   return (
-    <p className="whitespace-pre-wrap break-words">
+    <p className="break-words whitespace-pre-wrap">
       {parts.map((part, i) => {
         if (part.match(/^@[Mm]i[Vv]i$/)) {
           return (
             <span
               key={i}
-              className="inline-flex items-center gap-0.5 rounded bg-accent-purple/10 px-1 py-px text-xs font-semibold text-accent-purple"
+              className="bg-accent-purple/10 text-accent-purple inline-flex items-center gap-0.5 rounded px-1 py-px text-xs font-semibold"
             >
               <Sparkles className="size-2.5" />
               {part}
@@ -466,7 +442,7 @@ function MessageContent({ content, role }: { content: string; role: string }) {
           return (
             <span
               key={i}
-              className="rounded bg-accent-blue/10 px-1 py-px text-xs font-semibold text-accent-blue"
+              className="bg-accent-blue/10 text-accent-blue rounded px-1 py-px text-xs font-semibold"
             >
               {part}
             </span>
@@ -502,34 +478,31 @@ function InputBar({
   inputRef: React.RefObject<HTMLTextAreaElement | null>;
 }) {
   return (
-    <div className="shrink-0 border-t border-border-default bg-bg-primary px-3 pb-3 pt-2">
+    <div className="border-border-default bg-bg-primary shrink-0 border-t px-3 pt-2 pb-3">
       {/* MiVi suggestion */}
       {showMiviHint && (
         <button
           onClick={onInsertMivi}
-          className="mb-2 flex w-full items-center gap-2 rounded-lg border border-accent-purple/20 bg-accent-purple/[0.04] px-3 py-1.5 text-xs transition-all hover:bg-accent-purple/[0.08]"
+          className="border-accent-purple/20 bg-accent-purple/[0.04] hover:bg-accent-purple/[0.08] mb-2 flex w-full items-center gap-2 rounded-lg border px-3 py-1.5 text-xs transition-all"
         >
-          <Sparkles className="size-3 text-accent-purple" />
+          <Sparkles className="text-accent-purple size-3" />
           <span className="text-text-secondary">
-            Tag <span className="font-semibold text-accent-purple">@MiVi</span>{" "}
-            for AI help
+            Tag <span className="text-accent-purple font-semibold">@MiVi</span> for AI help
           </span>
         </button>
       )}
 
       {/* Reply indicator */}
       {replyTo && (
-        <div className="mb-2 flex items-center justify-between rounded-lg bg-bg-secondary px-3 py-1.5">
+        <div className="bg-bg-secondary mb-2 flex items-center justify-between rounded-lg px-3 py-1.5">
           <div className="flex items-center gap-2 text-xs">
-            <Reply className="size-3 text-accent-purple" />
+            <Reply className="text-accent-purple size-3" />
             <span className="text-text-tertiary">Replying to</span>
-            <span className="font-semibold text-text-primary">
-              {replyTo.display_name}
-            </span>
+            <span className="text-text-primary font-semibold">{replyTo.display_name}</span>
           </div>
           <button
             onClick={onCancelReply}
-            className="flex size-5 items-center justify-center rounded-full text-text-tertiary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+            className="text-text-tertiary hover:bg-bg-tertiary hover:text-text-primary flex size-5 items-center justify-center rounded-full transition-colors"
           >
             <X className="size-3" />
           </button>
@@ -537,11 +510,11 @@ function InputBar({
       )}
 
       {/* Input container — matches LiVi ChatInput style */}
-      <div className="flex items-end gap-1.5 rounded-xl border border-border-default bg-bg-secondary transition-colors focus-within:border-accent-purple/40">
+      <div className="border-border-default bg-bg-secondary focus-within:border-accent-purple/40 flex items-end gap-1.5 rounded-xl border transition-colors">
         {/* @MiVi shortcut */}
         <button
           onClick={onInsertMivi}
-          className="mb-1.5 ml-2 flex size-7 shrink-0 items-center justify-center rounded-lg text-text-tertiary transition-colors hover:text-accent-purple"
+          className="text-text-tertiary hover:text-accent-purple mb-1.5 ml-2 flex size-7 shrink-0 items-center justify-center rounded-lg transition-colors"
           title="Mention @MiVi"
         >
           <AtSign className="size-4" />
@@ -560,14 +533,14 @@ function InputBar({
           placeholder="Type a message…"
           minRows={1}
           maxRows={5}
-          className="flex-1 resize-none bg-transparent py-2.5 text-[13px] leading-relaxed text-text-primary placeholder:text-text-tertiary focus:outline-none"
+          className="text-text-primary placeholder:text-text-tertiary flex-1 resize-none bg-transparent py-2.5 text-[13px] leading-relaxed focus:outline-none"
         />
 
         {/* Send button */}
         <button
           onClick={onSend}
           disabled={!input.trim() || isPending}
-          className="mb-1.5 mr-1.5 flex size-7 shrink-0 items-center justify-center rounded-lg bg-accent-purple text-white transition-all hover:bg-accent-purple/90 disabled:opacity-20"
+          className="bg-accent-purple hover:bg-accent-purple/90 mr-1.5 mb-1.5 flex size-7 shrink-0 items-center justify-center rounded-lg text-white transition-all disabled:opacity-20"
           title="Send message"
         >
           {isPending ? (

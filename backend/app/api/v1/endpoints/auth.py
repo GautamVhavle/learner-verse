@@ -1,9 +1,9 @@
 """API endpoints for authentication and user profile."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-from pydantic import BaseModel, EmailStr
 from fastapi import APIRouter, Depends
+from pydantic import BaseModel, EmailStr
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -50,7 +50,7 @@ async def get_me(
         settings.PAYMENT_GATEWAY_ENABLED
         and user.is_pro
         and user.pro_expires_at is not None
-        and user.pro_expires_at < datetime.now(timezone.utc)
+        and user.pro_expires_at < datetime.now(UTC)
     ):
         user.is_pro = False
         await db.commit()
@@ -75,6 +75,7 @@ async def update_me(
 
 class ProfileSyncRequest(BaseModel):
     """One-time sync of OAuth provider email to the backend user record."""
+
     email: EmailStr
 
 

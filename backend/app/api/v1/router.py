@@ -4,7 +4,6 @@ import logging
 
 from fastapi import APIRouter
 
-from app.core.config import settings
 from app.api.v1.endpoints import (
     analytics,
     auth,
@@ -30,6 +29,7 @@ from app.api.v1.endpoints import (
     uploads,
     youtube,
 )
+from app.core.config import settings
 
 api_v1_router = APIRouter(prefix="/api/v1")
 api_v1_router.include_router(health.router, tags=["health"])

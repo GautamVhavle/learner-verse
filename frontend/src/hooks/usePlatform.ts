@@ -7,8 +7,10 @@
  */
 export function usePlatform() {
   const ua = navigator.userAgent;
-  const platform = (navigator as Navigator & { userAgentData?: { platform?: string } })
-    .userAgentData?.platform ?? navigator.platform ?? "";
+  const platform =
+    (navigator as Navigator & { userAgentData?: { platform?: string } }).userAgentData?.platform ??
+    navigator.platform ??
+    "";
 
   // iPads on iOS 13+ report platform as "MacIntel" but have touch points
   const isMobile =

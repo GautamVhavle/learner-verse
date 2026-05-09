@@ -67,7 +67,9 @@ class LessonService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Maximum of {MAX_LESSONS_PER_SECTION} lessons per section.",
             )
-        lesson = await self.lesson_repo.create(section_id=section_id, title=data.title, lesson_type=data.lesson_type)
+        lesson = await self.lesson_repo.create(
+            section_id=section_id, title=data.title, lesson_type=data.lesson_type
+        )
         await self.db.commit()
         # New lesson — construct response directly (no links or questions yet)
         return LessonResponse(
@@ -121,7 +123,7 @@ class LessonService:
         items = [{"id": item.id, "position": item.position} for item in data.items]
         lessons = await self.lesson_repo.reorder(section_id, items)
         await self.db.commit()
-        return [LessonResponse.model_validate(l) for l in lessons]
+        return [LessonResponse.model_validate(lesson) for lesson in lessons]
 
     async def move_lesson(
         self, lesson_id: uuid.UUID, user_id: uuid.UUID, data: LessonMove
@@ -145,9 +147,7 @@ class LessonService:
         await self.db.refresh(lesson, attribute_names=["updated_at"])
         return LessonResponse.model_validate(lesson)
 
-    async def duplicate_lesson(
-        self, lesson_id: uuid.UUID, user_id: uuid.UUID
-    ) -> LessonResponse:
+    async def duplicate_lesson(self, lesson_id: uuid.UUID, user_id: uuid.UUID) -> LessonResponse:
         """Deep-copy a lesson (including all reference links)."""
         lesson = await self.lesson_repo.get_by_id(lesson_id)
         if not lesson:
@@ -184,9 +184,7 @@ class LessonService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Maximum of {MAX_REFERENCE_LINKS_PER_LESSON} reference links per lesson.",
             )
-        link = await self.ref_link_repo.add(
-            lesson_id=lesson_id, **data.model_dump()
-        )
+        link = await self.ref_link_repo.add(lesson_id=lesson_id, **data.model_dump())
         await self.db.commit()
         return ReferenceLinkResponse.model_validate(link)
 

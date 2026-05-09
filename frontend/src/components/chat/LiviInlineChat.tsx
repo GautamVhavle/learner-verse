@@ -13,11 +13,7 @@ import TextareaAutosize from "react-textarea-autosize";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
-import {
-  useInlineChat,
-  type InlineContextType,
-  type InlineMessage,
-} from "@/hooks/useInlineChat";
+import { useInlineChat, type InlineContextType, type InlineMessage } from "@/hooks/useInlineChat";
 import { useProGate } from "@/hooks/useProGate";
 
 interface LiviInlineChatProps {
@@ -27,11 +23,7 @@ interface LiviInlineChatProps {
   label?: string;
 }
 
-export function LiviInlineChat({
-  contextType,
-  contextData,
-  label,
-}: LiviInlineChatProps) {
+export function LiviInlineChat({ contextType, contextData, label }: LiviInlineChatProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -78,39 +70,42 @@ export function LiviInlineChat({
   };
 
   return (
-    <div className="rounded-xl border border-border-default bg-bg-secondary overflow-hidden">
+    <div className="border-border-default bg-bg-secondary overflow-hidden rounded-xl border">
       <ProGate />
 
       {/* Trigger bar */}
       <button
         onClick={() => {
-          if (!isPro) { showGate(); return; }
+          if (!isPro) {
+            showGate();
+            return;
+          }
           setIsOpen((prev) => !prev);
         }}
-        className="flex w-full items-center gap-2 px-4 py-2.5 text-left transition-colors hover:bg-bg-tertiary"
+        className="hover:bg-bg-tertiary flex w-full items-center gap-2 px-4 py-2.5 text-left transition-colors"
       >
-        <div className="flex size-5 items-center justify-center rounded-full bg-accent-purple/10">
-          <Sparkles className="size-3 text-accent-purple" />
+        <div className="bg-accent-purple/10 flex size-5 items-center justify-center rounded-full">
+          <Sparkles className="text-accent-purple size-3" />
         </div>
-        <span className="flex-1 text-xs font-medium text-text-secondary">
+        <span className="text-text-secondary flex-1 text-xs font-medium">
           {label ?? defaultLabel}
         </span>
         {messages.length > 0 && (
-          <span className="rounded-full bg-accent-purple/10 px-1.5 py-0.5 text-[10px] font-medium text-accent-purple">
+          <span className="bg-accent-purple/10 text-accent-purple rounded-full px-1.5 py-0.5 text-[10px] font-medium">
             {messages.filter((m) => m.role === "user").length}
           </span>
         )}
         <ChevronDown
-          className={`size-3.5 text-text-tertiary transition-transform ${isOpen ? "rotate-180" : ""}`}
+          className={`text-text-tertiary size-3.5 transition-transform ${isOpen ? "rotate-180" : ""}`}
         />
       </button>
 
       {/* Expandable content */}
       {isOpen && (
-        <div className="border-t border-border-default">
+        <div className="border-border-default border-t">
           {/* Messages area */}
           {messages.length > 0 && (
-            <div className="max-h-72 overflow-y-auto px-4 py-3 space-y-3">
+            <div className="max-h-72 space-y-3 overflow-y-auto px-4 py-3">
               {messages.map((msg) => (
                 <InlineMessageBubble
                   key={msg.id}
@@ -129,8 +124,8 @@ export function LiviInlineChat({
           {/* Empty state */}
           {messages.length === 0 && (
             <div className="px-4 py-4 text-center">
-              <Sparkles className="mx-auto size-5 text-accent-purple/40" />
-              <p className="mt-1.5 text-xs text-text-tertiary">
+              <Sparkles className="text-accent-purple/40 mx-auto size-5" />
+              <p className="text-text-tertiary mt-1.5 text-xs">
                 {contextType === "quiz"
                   ? "I'll help you think through this question — no spoilers!"
                   : "Ask me anything about this lesson content."}
@@ -146,28 +141,24 @@ export function LiviInlineChat({
           )}
 
           {/* Input area */}
-          <div className="flex items-center gap-2 border-t border-border-default px-3 py-2">
+          <div className="border-border-default flex items-center gap-2 border-t px-3 py-2">
             <TextareaAutosize
               ref={textareaRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={
-                contextType === "quiz"
-                  ? "Ask for a hint…"
-                  : "Ask about this lesson…"
-              }
+              placeholder={contextType === "quiz" ? "Ask for a hint…" : "Ask about this lesson…"}
               maxLength={2000}
               minRows={1}
               maxRows={3}
-              className="min-h-[28px] flex-1 resize-none bg-transparent py-1 text-xs leading-normal text-text-primary placeholder:text-text-tertiary outline-none"
+              className="text-text-primary placeholder:text-text-tertiary min-h-[28px] flex-1 resize-none bg-transparent py-1 text-xs leading-normal outline-none"
               disabled={status === "streaming"}
             />
             <div className="flex shrink-0 items-center gap-1">
               {messages.length > 0 && status !== "streaming" && (
                 <button
                   onClick={clear}
-                  className="flex size-7 items-center justify-center rounded-lg text-text-tertiary transition-colors hover:bg-bg-tertiary hover:text-text-secondary"
+                  className="text-text-tertiary hover:bg-bg-tertiary hover:text-text-secondary flex size-7 items-center justify-center rounded-lg transition-colors"
                   title="Clear chat"
                 >
                   <Eraser className="size-3.5" />
@@ -185,7 +176,7 @@ export function LiviInlineChat({
                 <button
                   onClick={handleSend}
                   disabled={!input.trim()}
-                  className="flex size-7 items-center justify-center rounded-lg bg-accent-purple text-white transition-colors hover:bg-accent-purple/90 disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="bg-accent-purple hover:bg-accent-purple/90 flex size-7 items-center justify-center rounded-lg text-white transition-colors disabled:cursor-not-allowed disabled:opacity-40"
                   title="Send"
                 >
                   <ArrowUp className="size-3.5" />
@@ -210,7 +201,7 @@ function InlineMessageBubble({
   if (message.role === "user") {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[85%] rounded-xl rounded-br-sm bg-accent-blue px-3 py-1.5 text-xs leading-relaxed text-white">
+        <div className="bg-accent-blue max-w-[85%] rounded-xl rounded-br-sm px-3 py-1.5 text-xs leading-relaxed text-white">
           <p className="whitespace-pre-wrap">{message.content}</p>
         </div>
       </div>
@@ -219,24 +210,22 @@ function InlineMessageBubble({
 
   return (
     <div className="flex items-start gap-2">
-      <div className="flex size-5 shrink-0 items-center justify-center rounded-full bg-accent-purple/10 mt-0.5">
-        <Sparkles className="size-2.5 text-accent-purple" />
+      <div className="bg-accent-purple/10 mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full">
+        <Sparkles className="text-accent-purple size-2.5" />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="prose prose-sm dark:prose-invert max-w-none text-xs leading-relaxed text-text-primary prose-p:my-1 prose-pre:my-2 prose-pre:rounded-lg prose-pre:bg-[#1c1c1c] prose-ul:my-1 prose-ol:my-1 prose-li:my-0 prose-headings:my-1.5 prose-headings:text-xs prose-code:rounded prose-code:bg-bg-tertiary prose-code:px-1 prose-code:py-0.5 prose-code:text-[11px] prose-code:before:content-none prose-code:after:content-none prose-a:text-accent-blue prose-a:no-underline hover:prose-a:underline">
+        <div className="prose prose-sm dark:prose-invert text-text-primary prose-p:my-1 prose-pre:my-2 prose-pre:rounded-lg prose-pre:bg-[#1c1c1c] prose-ul:my-1 prose-ol:my-1 prose-li:my-0 prose-headings:my-1.5 prose-headings:text-xs prose-code:rounded prose-code:bg-bg-tertiary prose-code:px-1 prose-code:py-0.5 prose-code:text-[11px] prose-code:before:content-none prose-code:after:content-none prose-a:text-accent-blue prose-a:no-underline hover:prose-a:underline max-w-none text-xs leading-relaxed">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeHighlight]}
             components={{
-              a: ({ ...props }) => (
-                <a {...props} target="_blank" rel="noopener noreferrer" />
-              ),
+              a: ({ ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" />,
             }}
           >
             {message.content || " "}
           </ReactMarkdown>
           {isStreaming && (
-            <span className="inline-block h-3 w-0.5 animate-pulse bg-accent-purple" />
+            <span className="bg-accent-purple inline-block h-3 w-0.5 animate-pulse" />
           )}
         </div>
       </div>

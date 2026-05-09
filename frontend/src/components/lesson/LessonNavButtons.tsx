@@ -29,7 +29,7 @@ export function LessonNavButtons({
   isLoading = false,
 }: LessonNavButtonsProps) {
   return (
-    <div className="mt-6 flex items-center justify-between gap-2 border-t border-border-default pt-4">
+    <div className="border-border-default mt-6 flex items-center justify-between gap-2 border-t pt-4">
       {/* Previous */}
       <button
         onClick={prevLesson ? () => onNavigate(prevLesson.id) : undefined}
@@ -37,11 +37,11 @@ export function LessonNavButtons({
         className={`group flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${
           prevLesson
             ? "text-text-secondary hover:bg-bg-tertiary hover:text-text-primary"
-            : "cursor-default text-text-tertiary/40"
+            : "text-text-tertiary/40 cursor-default"
         }`}
       >
         <ArrowLeft className="size-4 flex-shrink-0" />
-        <span className="max-w-[120px] truncate hidden sm:inline">
+        <span className="hidden max-w-[120px] truncate sm:inline">
           {prevLesson?.title ?? "Previous"}
         </span>
         <span className="sm:hidden">Prev</span>
@@ -50,7 +50,7 @@ export function LessonNavButtons({
       {/* Center: progress pill + mark complete */}
       <div className="flex items-center gap-2">
         {currentLessonNumber != null && totalLessons != null && (
-          <span className="text-xs tabular-nums text-text-tertiary">
+          <span className="text-text-tertiary text-xs tabular-nums">
             {currentLessonNumber}/{totalLessons}
           </span>
         )}
@@ -65,11 +65,7 @@ export function LessonNavButtons({
                 : "bg-accent-blue/10 text-accent-blue hover:bg-accent-blue/20"
             }`}
           >
-            {isCompleted ? (
-              <Check className="size-3.5" />
-            ) : (
-              <Circle className="size-3.5" />
-            )}
+            {isCompleted ? <Check className="size-3.5" /> : <Circle className="size-3.5" />}
             {isCompleted ? "Completed" : "Complete"}
           </button>
         )}
@@ -82,10 +78,10 @@ export function LessonNavButtons({
         className={`group flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${
           nextLesson
             ? "text-text-secondary hover:bg-bg-tertiary hover:text-text-primary"
-            : "cursor-default text-text-tertiary/40"
+            : "text-text-tertiary/40 cursor-default"
         }`}
       >
-        <span className="max-w-[120px] truncate hidden sm:inline">
+        <span className="hidden max-w-[120px] truncate sm:inline">
           {nextLesson?.title ?? "Next"}
         </span>
         <span className="sm:hidden">Next</span>

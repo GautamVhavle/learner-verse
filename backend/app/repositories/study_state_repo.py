@@ -1,7 +1,7 @@
 """Repository for CourseStudyState upsert operations."""
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,9 +15,7 @@ class StudyStateRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def get(
-        self, user_id: uuid.UUID, course_id: uuid.UUID
-    ) -> CourseStudyState | None:
+    async def get(self, user_id: uuid.UUID, course_id: uuid.UUID) -> CourseStudyState | None:
         """Fetch the study state for a (user, course) pair."""
         result = await self.db.execute(
             select(CourseStudyState).where(
@@ -40,12 +38,12 @@ class StudyStateRepository:
                 user_id=user_id,
                 course_id=course_id,
                 last_lesson_id=last_lesson_id,
-                last_accessed_at=datetime.now(timezone.utc),
+                last_accessed_at=datetime.now(UTC),
             )
             self.db.add(state)
         else:
             state.last_lesson_id = last_lesson_id
-            state.last_accessed_at = datetime.now(timezone.utc)
+            state.last_accessed_at = datetime.now(UTC)
         await self.db.flush()
         await self.db.refresh(state)
         return state

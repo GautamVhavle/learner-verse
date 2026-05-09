@@ -63,8 +63,7 @@ export function useUpdateQuizQuestionMutation(lessonId: string, courseId: string
 export function useDeleteQuizQuestionMutation(lessonId: string, courseId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (questionId: string) =>
-      api.delete<void>(`/quiz/questions/${questionId}`),
+    mutationFn: (questionId: string) => api.delete<void>(`/quiz/questions/${questionId}`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: quizKeys.questions(lessonId) });
       qc.invalidateQueries({ queryKey: sectionKeys.all(courseId) });

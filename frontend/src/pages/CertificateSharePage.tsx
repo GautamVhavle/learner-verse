@@ -48,7 +48,8 @@ function tokens(dark: boolean) {
         green: "#4ade80",
         greenSubtle: "rgba(74,222,128,0.1)",
         heroBg: "linear-gradient(160deg, #0c0a1f 0%, #1a0f2e 50%, #0f172a 100%)",
-        heroOverlay: "radial-gradient(ellipse at 30% 0%, rgba(99,102,241,0.12) 0%, transparent 60%)",
+        heroOverlay:
+          "radial-gradient(ellipse at 30% 0%, rgba(99,102,241,0.12) 0%, transparent 60%)",
         pillBg: "#18181b",
         pillBorder: "#27272a",
       }
@@ -66,7 +67,8 @@ function tokens(dark: boolean) {
         green: "#16a34a",
         greenSubtle: "rgba(22,163,74,0.06)",
         heroBg: "linear-gradient(160deg, #eef2ff 0%, #f5f3ff 50%, #ecfeff 100%)",
-        heroOverlay: "radial-gradient(ellipse at 30% 0%, rgba(99,102,241,0.06) 0%, transparent 60%)",
+        heroOverlay:
+          "radial-gradient(ellipse at 30% 0%, rgba(99,102,241,0.06) 0%, transparent 60%)",
         pillBg: "#f1f5f9",
         pillBorder: "#e2e8f0",
       };
@@ -80,19 +82,23 @@ export default function CertificateSharePage() {
   const { copied, copyToClipboard } = useCopyToClipboard();
   const [expandedSections, setExpandedSections] = useState<Set<number>>(new Set());
   const [dark, setDark] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches,
+    () =>
+      typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches,
   );
   const t = tokens(dark);
 
-  const { data: certificate, isLoading, error } = useQuery<CertificateDetailResponse>({
+  const {
+    data: certificate,
+    isLoading,
+    error,
+  } = useQuery<CertificateDetailResponse>({
     queryKey: ["certificate-share", uid],
     queryFn: () => api.get<CertificateDetailResponse>(`/certificates/share/${uid}`),
     enabled: !!uid,
   });
 
-  const shareUrl = typeof window !== "undefined"
-    ? `${window.location.origin}/certificates/share/${uid}`
-    : "";
+  const shareUrl =
+    typeof window !== "undefined" ? `${window.location.origin}/certificates/share/${uid}` : "";
 
   const toggleSection = (idx: number) =>
     setExpandedSections((prev) => {
@@ -104,7 +110,10 @@ export default function CertificateSharePage() {
   /* ── Loading ── */
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center" style={{ background: t.pageBg }}>
+      <div
+        className="flex min-h-screen items-center justify-center"
+        style={{ background: t.pageBg }}
+      >
         <Loader2 className="size-6 animate-spin" style={{ color: t.accent }} />
       </div>
     );
@@ -113,9 +122,16 @@ export default function CertificateSharePage() {
   /* ── 404 ── */
   if (error || !certificate) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4" style={{ background: t.pageBg }}>
-        <p className="text-7xl font-black" style={{ color: t.borderSubtle }}>404</p>
-        <h2 className="text-lg font-semibold" style={{ color: t.text }}>Certificate not found</h2>
+      <div
+        className="flex min-h-screen flex-col items-center justify-center gap-4"
+        style={{ background: t.pageBg }}
+      >
+        <p className="text-7xl font-black" style={{ color: t.borderSubtle }}>
+          404
+        </p>
+        <h2 className="text-lg font-semibold" style={{ color: t.text }}>
+          Certificate not found
+        </h2>
         <p className="text-sm" style={{ color: t.textSec }}>
           This link may be invalid or has been removed.
         </p>
@@ -181,7 +197,10 @@ export default function CertificateSharePage() {
       {/* ══════════ Hero ══════════ */}
       <div className="relative overflow-hidden" style={{ background: t.heroBg }}>
         {/* overlay glow */}
-        <div className="pointer-events-none absolute inset-0" style={{ background: t.heroOverlay }} />
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{ background: t.heroOverlay }}
+        />
         <div className="relative mx-auto max-w-6xl px-5 py-10 sm:py-14">
           <div className="flex items-center gap-2 text-xs font-medium" style={{ color: t.green }}>
             <CheckCircle2 className="size-3.5" />
@@ -197,8 +216,8 @@ export default function CertificateSharePage() {
             Earned by{" "}
             <span className="font-semibold" style={{ color: t.text }}>
               {certificate.user_name}
-            </span>
-            {" "}on {completedDate}
+            </span>{" "}
+            on {completedDate}
           </p>
 
           {/* Quick pills */}
@@ -227,7 +246,10 @@ export default function CertificateSharePage() {
 
             {/* Syllabus */}
             {certificate.sections.length > 0 && (
-              <div className="overflow-hidden rounded-xl border" style={{ background: t.cardBg, borderColor: t.border }}>
+              <div
+                className="overflow-hidden rounded-xl border"
+                style={{ background: t.cardBg, borderColor: t.border }}
+              >
                 <div className="px-5 py-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -351,10 +373,7 @@ function Pill({
 
 function Card({ children, t }: { children: React.ReactNode; t: Tokens }) {
   return (
-    <div
-      className="rounded-xl border p-5"
-      style={{ background: t.cardBg, borderColor: t.border }}
-    >
+    <div className="rounded-xl border p-5" style={{ background: t.cardBg, borderColor: t.border }}>
       {children}
     </div>
   );
@@ -441,7 +460,7 @@ function SyllabusSection({
         >
           {index + 1}
         </div>
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium" style={{ color: t.text }}>
             {section.title}
           </p>
@@ -458,7 +477,7 @@ function SyllabusSection({
       {expanded && (
         <div className="pb-2">
           {section.lessons.map((lesson, i) => (
-            <div key={i} className="flex items-center gap-3 py-1.5 pl-[3.75rem] pr-5">
+            <div key={i} className="flex items-center gap-3 py-1.5 pr-5 pl-[3.75rem]">
               {lesson.lesson_type === "video" ? (
                 <PlayCircle className="size-3.5 shrink-0" style={{ color: t.textMuted }} />
               ) : (

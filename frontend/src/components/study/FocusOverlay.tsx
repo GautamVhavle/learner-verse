@@ -20,8 +20,8 @@ export function FocusOverlay({
   lessonTitle,
 }: FocusOverlayProps) {
   return (
-    <div className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 animate-in fade-in slide-in-from-bottom-4 duration-200">
-      <div className="flex items-center gap-1 rounded-full border border-border-default bg-bg-primary/90 px-2 py-1 shadow-lg backdrop-blur-md">
+    <div className="animate-in fade-in slide-in-from-bottom-4 fixed bottom-4 left-1/2 z-50 -translate-x-1/2 duration-200">
+      <div className="border-border-default bg-bg-primary/90 flex items-center gap-1 rounded-full border px-2 py-1 shadow-lg backdrop-blur-md">
         {/* Prev */}
         <Button
           variant="ghost"
@@ -36,7 +36,7 @@ export function FocusOverlay({
 
         {/* Lesson title */}
         {lessonTitle && (
-          <span className="max-w-[200px] truncate px-2 text-xs text-text-secondary">
+          <span className="text-text-secondary max-w-[200px] truncate px-2 text-xs">
             {lessonTitle}
           </span>
         )}
@@ -54,7 +54,7 @@ export function FocusOverlay({
         </Button>
 
         {/* Separator */}
-        <div className="mx-1 h-4 w-px bg-border-default" />
+        <div className="bg-border-default mx-1 h-4 w-px" />
 
         {/* Shortcuts */}
         <Button

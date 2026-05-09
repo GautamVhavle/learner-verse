@@ -18,13 +18,9 @@ class CourseStudyState(Base):
     """
 
     __tablename__ = "course_study_state"
-    __table_args__ = (
-        Index("idx_study_state_user_course", "user_id", "course_id", unique=True),
-    )
+    __table_args__ = (Index("idx_study_state_user_course", "user_id", "course_id", unique=True),)
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )

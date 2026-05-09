@@ -22,14 +22,16 @@ interface LessonContentProps {
   playbackSpeed?: number;
 }
 
-export function LessonContent({ lesson, onQuizCompleted, onVideoEnded, playbackSpeed = 1 }: LessonContentProps) {
+export function LessonContent({
+  lesson,
+  onQuizCompleted,
+  onVideoEnded,
+  playbackSpeed = 1,
+}: LessonContentProps) {
   const isVideo = (lesson.lesson_type ?? "video") === "video";
   const isNote = (lesson.lesson_type ?? "video") === "note";
   const isQuiz = (lesson.lesson_type ?? "video") === "quiz";
-  const videoId =
-    isVideo && lesson.youtube_url
-      ? extractVideoId(lesson.youtube_url)
-      : null;
+  const videoId = isVideo && lesson.youtube_url ? extractVideoId(lesson.youtube_url) : null;
   const links = lesson.reference_links ?? [];
 
   const hasContent = videoId || lesson.notes_markdown || links.length > 0 || isQuiz;
@@ -57,7 +59,11 @@ export function LessonContent({ lesson, onQuizCompleted, onVideoEnded, playbackS
       {/* Quiz */}
       {isQuiz && (
         <section>
-          <QuizPlayer lessonId={lesson.id} lessonTitle={lesson.title} onQuizCompleted={onQuizCompleted} />
+          <QuizPlayer
+            lessonId={lesson.id}
+            lessonTitle={lesson.title}
+            onQuizCompleted={onQuizCompleted}
+          />
         </section>
       )}
 
@@ -70,31 +76,23 @@ export function LessonContent({ lesson, onQuizCompleted, onVideoEnded, playbackS
             playbackSpeed={playbackSpeed}
             onEnded={onVideoEnded}
           />
-          <LiviInlineChat
-            contextType="video"
-            contextData={videoContext}
-          />
+          <LiviInlineChat contextType="video" contextData={videoContext} />
         </section>
       )}
 
       {/* Markdown notes */}
       {lesson.notes_markdown && !isVideo && (
         <section className="space-y-3">
-          <div className="rounded-xl border border-border-default bg-bg-secondary p-5">
+          <div className="border-border-default bg-bg-secondary rounded-xl border p-5">
             <MarkdownRenderer content={lesson.notes_markdown} />
           </div>
-          {isNote && (
-            <LiviInlineChat
-              contextType="reading"
-              contextData={readingContext}
-            />
-          )}
+          {isNote && <LiviInlineChat contextType="reading" contextData={readingContext} />}
         </section>
       )}
 
       {/* Video lesson notes (below inline chat) */}
       {lesson.notes_markdown && isVideo && (
-        <section className="rounded-xl border border-border-default bg-bg-secondary p-5">
+        <section className="border-border-default bg-bg-secondary rounded-xl border p-5">
           <MarkdownRenderer content={lesson.notes_markdown} />
         </section>
       )}
@@ -102,8 +100,8 @@ export function LessonContent({ lesson, onQuizCompleted, onVideoEnded, playbackS
       {/* Reference links */}
       {links.length > 0 && (
         <section className="space-y-3">
-          <h3 className="flex items-center gap-2 text-sm font-medium text-text-primary">
-            <Link2 className="size-4 text-text-secondary" />
+          <h3 className="text-text-primary flex items-center gap-2 text-sm font-medium">
+            <Link2 className="text-text-secondary size-4" />
             Reference Links
           </h3>
           <div className="space-y-2">
@@ -116,10 +114,8 @@ export function LessonContent({ lesson, onQuizCompleted, onVideoEnded, playbackS
 
       {/* No content fallback */}
       {!hasContent && (
-        <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-border-default">
-          <p className="text-sm text-text-tertiary">
-            This lesson has no content yet.
-          </p>
+        <div className="border-border-default flex h-40 items-center justify-center rounded-xl border border-dashed">
+          <p className="text-text-tertiary text-sm">This lesson has no content yet.</p>
         </div>
       )}
     </>

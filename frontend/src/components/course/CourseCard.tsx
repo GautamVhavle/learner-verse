@@ -55,8 +55,8 @@ export function CourseCard({
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const publicBase = (
-    import.meta.env.VITE_PUBLIC_SITE_URL
-    ?? (typeof window !== "undefined" ? window.location.origin : "")
+    import.meta.env.VITE_PUBLIC_SITE_URL ??
+    (typeof window !== "undefined" ? window.location.origin : "")
   ).replace(/\/$/, "");
   const shareUrl = `${publicBase}/courses/${course.id}`;
 
@@ -74,11 +74,11 @@ export function CourseCard({
     <>
       <div
         data-testid="course-card"
-        className="group relative flex cursor-pointer flex-col rounded-xl border border-border-default bg-bg-secondary transition-colors hover:border-border-hover"
+        className="group border-border-default bg-bg-secondary hover:border-border-hover relative flex cursor-pointer flex-col rounded-xl border transition-colors"
         onClick={() => navigate(`/courses/${course.id}/edit`)}
       >
         {/* Thumbnail */}
-        <div className="relative aspect-video w-full overflow-hidden rounded-t-xl bg-bg-tertiary">
+        <div className="bg-bg-tertiary relative aspect-video w-full overflow-hidden rounded-t-xl">
           {course.thumbnail_url ? (
             <img
               src={course.thumbnail_url}
@@ -86,7 +86,7 @@ export function CourseCard({
               className="h-full w-full object-cover"
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-text-tertiary">
+            <div className="text-text-tertiary flex h-full items-center justify-center">
               <span className="text-3xl font-bold opacity-30">
                 {course.title.charAt(0).toUpperCase()}
               </span>
@@ -103,9 +103,7 @@ export function CourseCard({
         {/* Content */}
         <div className="flex flex-1 flex-col gap-2 p-4">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="line-clamp-2 text-sm font-medium text-text-primary">
-              {course.title}
-            </h3>
+            <h3 className="text-text-primary line-clamp-2 text-sm font-medium">{course.title}</h3>
             <div onClick={(e) => e.stopPropagation()}>
               <DropdownMenu>
                 <DropdownMenuTrigger
@@ -113,7 +111,7 @@ export function CourseCard({
                     <Button
                       variant="ghost"
                       size="icon-xs"
-                      className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
                     />
                   }
                 >
@@ -133,9 +131,7 @@ export function CourseCard({
                     Duplicate
                   </DropdownMenuItem>
                   {course.status === "ready" && onTogglePublic && (
-                    <DropdownMenuItem
-                      onClick={() => onTogglePublic(course.id, !course.is_public)}
-                    >
+                    <DropdownMenuItem onClick={() => onTogglePublic(course.id, !course.is_public)}>
                       <Globe className="size-4" />
                       {course.is_public ? "Make Private" : "Make Public"}
                     </DropdownMenuItem>
@@ -146,10 +142,7 @@ export function CourseCard({
                       Share
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem
-                    variant="destructive"
-                    onClick={() => onDelete(course.id)}
-                  >
+                  <DropdownMenuItem variant="destructive" onClick={() => onDelete(course.id)}>
                     <Trash2 className="size-4" />
                     Delete
                   </DropdownMenuItem>
@@ -159,13 +152,11 @@ export function CourseCard({
           </div>
 
           {course.description && (
-            <p className="line-clamp-2 text-xs text-text-secondary">
-              {course.description}
-            </p>
+            <p className="text-text-secondary line-clamp-2 text-xs">{course.description}</p>
           )}
 
           {/* Stats */}
-          <p className="text-[11px] tabular-nums text-text-tertiary">
+          <p className="text-text-tertiary text-[11px] tabular-nums">
             {course.section_count} {course.section_count === 1 ? "section" : "sections"} &middot;{" "}
             {course.lesson_count} {course.lesson_count === 1 ? "lesson" : "lessons"}
           </p>
@@ -176,7 +167,7 @@ export function CourseCard({
             {course.is_public && (
               <button
                 onClick={handleShare}
-                className="ml-auto rounded-md p-1 text-text-tertiary opacity-0 transition-opacity hover:text-accent-blue group-hover:opacity-100"
+                className="text-text-tertiary hover:text-accent-blue ml-auto rounded-md p-1 opacity-0 transition-opacity group-hover:opacity-100"
                 title="Copy share link"
               >
                 <Share2 className="size-3.5" />
@@ -185,15 +176,13 @@ export function CourseCard({
             {course.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag.id}
-                className="rounded-full bg-bg-tertiary px-2 py-0.5 text-[10px] text-text-secondary"
+                className="bg-bg-tertiary text-text-secondary rounded-full px-2 py-0.5 text-[10px]"
               >
                 {tag.name}
               </span>
             ))}
             {course.tags.length > 3 && (
-              <span className="text-[10px] text-text-tertiary">
-                +{course.tags.length - 3}
-              </span>
+              <span className="text-text-tertiary text-[10px]">+{course.tags.length - 3}</span>
             )}
           </div>
         </div>
@@ -205,8 +194,8 @@ export function CourseCard({
           <AlertDialogHeader>
             <AlertDialogTitle>Duplicate Course</AlertDialogTitle>
             <AlertDialogDescription>
-              This will create a full copy of &ldquo;{course.title}&rdquo; including all
-              sections, lessons, and reference links. The copy will be set to Draft status.
+              This will create a full copy of &ldquo;{course.title}&rdquo; including all sections,
+              lessons, and reference links. The copy will be set to Draft status.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

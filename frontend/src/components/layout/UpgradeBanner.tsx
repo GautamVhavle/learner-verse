@@ -37,27 +37,23 @@ export function UpgradeBanner() {
   return (
     <>
       <ProGate />
-      <div className="mx-2 mb-1 rounded-lg border border-accent-purple/20 bg-gradient-to-br from-accent-purple/[0.06] to-accent-purple/[0.02] p-2.5">
-        <div className="flex items-center justify-between mb-1">
+      <div className="border-accent-purple/20 from-accent-purple/[0.06] to-accent-purple/[0.02] mx-2 mb-1 rounded-lg border bg-gradient-to-br p-2.5">
+        <div className="mb-1 flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <Sparkles className="size-3.5 text-accent-purple" />
-            <span className="text-[11px] font-semibold text-text-primary">
-              Upgrade to Pro
-            </span>
+            <Sparkles className="text-accent-purple size-3.5" />
+            <span className="text-text-primary text-[11px] font-semibold">Upgrade to Pro</span>
           </div>
           <button
             onClick={handleDismiss}
-            className="rounded p-0.5 text-text-tertiary transition-colors hover:text-text-secondary"
+            className="text-text-tertiary hover:text-text-secondary rounded p-0.5 transition-colors"
           >
             <X className="size-3" />
           </button>
         </div>
-        <p className="text-[10px] text-text-tertiary">
-          Unlock AI features — ₹99/mo
-        </p>
+        <p className="text-text-tertiary text-[10px]">Unlock AI features — ₹99/mo</p>
         <button
           onClick={showGate}
-          className="mt-2 w-full rounded-md bg-accent-purple py-1 text-[10px] font-medium text-white transition-colors hover:bg-accent-purple/90"
+          className="bg-accent-purple hover:bg-accent-purple/90 mt-2 w-full rounded-md py-1 text-[10px] font-medium text-white transition-colors"
         >
           Upgrade
         </button>

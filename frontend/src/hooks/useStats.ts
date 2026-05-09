@@ -3,11 +3,7 @@
  */
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import type {
-  StatsOverviewResponse,
-  StreakResponse,
-  ActivityResponse,
-} from "@/types/stats";
+import type { StatsOverviewResponse, StreakResponse, ActivityResponse } from "@/types/stats";
 
 const STATS_KEY = ["stats"] as const;
 
@@ -28,7 +24,6 @@ export function useStreakQuery() {
 export function useActivityQuery(months: number = 12) {
   return useQuery({
     queryKey: [...STATS_KEY, "activity", months],
-    queryFn: () =>
-      api.get<ActivityResponse>(`/stats/activity?months=${months}`),
+    queryFn: () => api.get<ActivityResponse>(`/stats/activity?months=${months}`),
   });
 }

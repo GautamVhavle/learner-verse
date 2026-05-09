@@ -13,9 +13,7 @@ from app.models.base import Base
 class DiscussionMessage(Base):
     __tablename__ = "discussion_messages"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     course_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("courses.id", ondelete="CASCADE"),
@@ -45,6 +43,4 @@ class DiscussionMessage(Base):
     # Relationships
     course: Mapped["Course"] = relationship(lazy="noload")
     user: Mapped["User | None"] = relationship(lazy="noload")
-    reply_to: Mapped["DiscussionMessage | None"] = relationship(
-        remote_side=[id], lazy="noload"
-    )
+    reply_to: Mapped["DiscussionMessage | None"] = relationship(remote_side=[id], lazy="noload")

@@ -7,13 +7,7 @@
  * stay readable at every breakpoint.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ActivityDayResponse } from "@/types/stats";
 
 interface ActivityHeatmapProps {
@@ -28,8 +22,18 @@ const CELL_STEP = CELL_SIZE + CELL_GAP;
 const LABEL_WIDTH = 28;
 const DAY_LABELS = ["", "Mon", "", "Wed", "", "Fri", ""];
 const MONTH_NAMES = [
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
 ];
 
 function getColor(count: number, max: number): string {
@@ -47,10 +51,7 @@ function computeWeeksForWidth(containerWidth: number): number {
   return Math.min(weeks, MAX_WEEKS);
 }
 
-function getMonthLabels(
-  startDate: Date,
-  weeks: number,
-): { label: string; x: number }[] {
+function getMonthLabels(startDate: Date, weeks: number): { label: string; x: number }[] {
   const labels: { label: string; x: number }[] = [];
   let lastMonth = -1;
 
@@ -146,12 +147,12 @@ export function ActivityHeatmap({ days, totalLessons }: ActivityHeatmapProps) {
           <div>
             <CardTitle className="text-base">Activity</CardTitle>
             <CardDescription>
-              {totalLessons} {totalLessons === 1 ? "lesson" : "lessons"} in the
-              last {visibleWeeks === MAX_WEEKS ? "year" : `${visibleWeeks} weeks`}
+              {totalLessons} {totalLessons === 1 ? "lesson" : "lessons"} in the last{" "}
+              {visibleWeeks === MAX_WEEKS ? "year" : `${visibleWeeks} weeks`}
             </CardDescription>
           </div>
           {/* Legend */}
-          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+          <div className="text-muted-foreground flex items-center gap-1.5 text-[11px]">
             <span>Less</span>
             {[0, 1, 2, 3, 4].map((level) => (
               <div
@@ -211,9 +212,7 @@ export function ActivityHeatmap({ days, totalLessons }: ActivityHeatmapProps) {
               fill={getColor(cell.count, maxCount)}
               className="cursor-pointer transition-opacity hover:opacity-75"
               onMouseEnter={(e) => {
-                const formatted = new Date(
-                  cell.date + "T00:00:00",
-                ).toLocaleDateString(undefined, {
+                const formatted = new Date(cell.date + "T00:00:00").toLocaleDateString(undefined, {
                   month: "short",
                   day: "numeric",
                   year: "numeric",
@@ -236,7 +235,7 @@ export function ActivityHeatmap({ days, totalLessons }: ActivityHeatmapProps) {
       {/* Floating tooltip */}
       {tooltip && (
         <div
-          className="pointer-events-none fixed z-50 rounded-md bg-popover px-2.5 py-1.5 text-xs font-medium text-popover-foreground shadow-lg ring-1 ring-border"
+          className="bg-popover text-popover-foreground ring-border pointer-events-none fixed z-50 rounded-md px-2.5 py-1.5 text-xs font-medium shadow-lg ring-1"
           style={{ left: tooltip.x + 12, top: tooltip.y - 36 }}
         >
           {tooltip.text}
@@ -245,4 +244,3 @@ export function ActivityHeatmap({ days, totalLessons }: ActivityHeatmapProps) {
     </Card>
   );
 }
-

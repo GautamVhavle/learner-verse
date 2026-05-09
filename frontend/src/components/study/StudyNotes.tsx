@@ -29,7 +29,7 @@ export function StudyNotes({ lessonId }: StudyNotesProps) {
         data: { content: data || null },
       });
     },
-    [lessonId, updateNote]
+    [lessonId, updateNote],
   );
 
   const { status } = useAutoSave({
@@ -40,31 +40,31 @@ export function StudyNotes({ lessonId }: StudyNotesProps) {
   });
 
   return (
-    <div className="rounded-xl border border-border-default bg-bg-secondary">
+    <div className="border-border-default bg-bg-secondary rounded-xl border">
       <button
         onClick={() => setOpen(!open)}
-        className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-medium text-text-primary transition-colors hover:bg-bg-tertiary rounded-xl"
+        className="text-text-primary hover:bg-bg-tertiary flex w-full items-center gap-2 rounded-xl px-4 py-3 text-left text-sm font-medium transition-colors"
       >
         {open ? (
-          <ChevronDown className="size-4 text-text-tertiary" />
+          <ChevronDown className="text-text-tertiary size-4" />
         ) : (
-          <ChevronRight className="size-4 text-text-tertiary" />
+          <ChevronRight className="text-text-tertiary size-4" />
         )}
-        <StickyNote className="size-4 text-accent-amber" />
+        <StickyNote className="text-accent-amber size-4" />
         <span>My Notes</span>
         <span className="ml-auto">
           <SaveIndicator status={status} />
         </span>
       </button>
       {open && (
-        <div className="border-t border-border-default px-4 py-3">
+        <div className="border-border-default border-t px-4 py-3">
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Write your personal study notes here… (Markdown supported)"
-            className="min-h-[120px] w-full resize-y rounded-lg border border-border-default bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-tertiary focus:border-accent-blue focus:outline-none"
+            className="border-border-default bg-bg-primary text-text-primary placeholder:text-text-tertiary focus:border-accent-blue min-h-[120px] w-full resize-y rounded-lg border px-3 py-2 text-sm focus:outline-none"
           />
-          <p className="mt-1.5 text-[10px] text-text-tertiary">
+          <p className="text-text-tertiary mt-1.5 text-[10px]">
             Notes auto-save as you type. Only visible to you.
           </p>
         </div>

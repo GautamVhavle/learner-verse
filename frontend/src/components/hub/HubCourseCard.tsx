@@ -14,10 +14,10 @@ export function HubCourseCard({ course, onClick }: HubCourseCardProps) {
   return (
     <button
       onClick={onClick}
-      className="group flex flex-col overflow-hidden rounded-xl border border-border-default bg-bg-secondary text-left transition-all hover:border-border-hover hover:shadow-lg"
+      className="group border-border-default bg-bg-secondary hover:border-border-hover flex flex-col overflow-hidden rounded-xl border text-left transition-all hover:shadow-lg"
     >
       {/* Thumbnail */}
-      <div className="relative aspect-video w-full overflow-hidden bg-bg-tertiary">
+      <div className="bg-bg-tertiary relative aspect-video w-full overflow-hidden">
         {course.thumbnail_url ? (
           <img
             src={course.thumbnail_url}
@@ -26,7 +26,7 @@ export function HubCourseCard({ course, onClick }: HubCourseCardProps) {
           />
         ) : (
           <div className="flex size-full items-center justify-center">
-            <BookOpen className="size-10 text-text-tertiary" />
+            <BookOpen className="text-text-tertiary size-10" />
           </div>
         )}
         <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/30">
@@ -36,20 +36,14 @@ export function HubCourseCard({ course, onClick }: HubCourseCardProps) {
 
       {/* Content */}
       <div className="flex flex-1 flex-col gap-2 p-4">
-        <h3 className="line-clamp-2 text-sm font-semibold text-text-primary">
-          {course.title}
-        </h3>
+        <h3 className="text-text-primary line-clamp-2 text-sm font-semibold">{course.title}</h3>
 
         {course.creator_name && (
-          <p className="text-xs text-text-secondary">
-            by {course.creator_name}
-          </p>
+          <p className="text-text-secondary text-xs">by {course.creator_name}</p>
         )}
 
         {course.description && (
-          <p className="line-clamp-2 text-xs text-text-tertiary">
-            {course.description}
-          </p>
+          <p className="text-text-tertiary line-clamp-2 text-xs">{course.description}</p>
         )}
 
         {/* Tags */}
@@ -58,25 +52,25 @@ export function HubCourseCard({ course, onClick }: HubCourseCardProps) {
             {course.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag.id}
-                className="rounded-full bg-bg-tertiary px-2 py-0.5 text-[10px] font-medium text-text-secondary"
+                className="bg-bg-tertiary text-text-secondary rounded-full px-2 py-0.5 text-[10px] font-medium"
               >
                 {tag.name}
               </span>
             ))}
             {course.tags.length > 3 && (
-              <span className="text-[10px] text-text-tertiary">
-                +{course.tags.length - 3}
-              </span>
+              <span className="text-text-tertiary text-[10px]">+{course.tags.length - 3}</span>
             )}
           </div>
         )}
 
         {/* Stats row */}
-        <div className="mt-auto flex items-center gap-3 pt-2 text-xs text-text-secondary">
+        <div className="text-text-secondary mt-auto flex items-center gap-3 pt-2 text-xs">
           {course.is_public && (
             <div className="flex items-center gap-1">
               <StarRating value={course.average_rating} readOnly size="sm" />
-              <span className="font-medium">{course.average_rating > 0 ? course.average_rating.toFixed(1) : "—"}</span>
+              <span className="font-medium">
+                {course.average_rating > 0 ? course.average_rating.toFixed(1) : "—"}
+              </span>
               {course.rating_count > 0 && (
                 <span className="text-text-tertiary">({course.rating_count})</span>
               )}

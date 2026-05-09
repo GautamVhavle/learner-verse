@@ -51,7 +51,7 @@ export function ProblemSolution() {
             trigger: sectionRef.current,
             start: "top 75%",
           },
-        }
+        },
       );
       gsap.fromTo(
         ".ps-card-right",
@@ -65,7 +65,7 @@ export function ProblemSolution() {
             trigger: sectionRef.current,
             start: "top 75%",
           },
-        }
+        },
       );
     }, sectionRef);
 
@@ -85,8 +85,8 @@ export function ProblemSolution() {
               </span>
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-base text-white/50 sm:text-lg">
-              YouTube has incredible educational content. But watching playlists
-              without structure, quizzes, or tracking doesn't lead to real learning.
+              YouTube has incredible educational content. But watching playlists without structure,
+              quizzes, or tracking doesn't lead to real learning.
             </p>
           </div>
         </BlurFade>

@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.discussion_message import DiscussionMessage
@@ -21,18 +21,14 @@ class DiscussionRepository:
         limit: int = 50,
     ) -> list[DiscussionMessage]:
         """Fetch messages newest-first. If `before` is given, only older ones."""
-        q = select(DiscussionMessage).where(
-            DiscussionMessage.course_id == course_id
-        )
+        q = select(DiscussionMessage).where(DiscussionMessage.course_id == course_id)
         if before:
             q = q.where(DiscussionMessage.created_at < before)
         q = q.order_by(DiscussionMessage.created_at.desc()).limit(limit)
         result = await self.db.execute(q)
         return list(result.scalars().all())
 
-    async def get_by_id(
-        self, message_id: uuid.UUID
-    ) -> DiscussionMessage | None:
+    async def get_by_id(self, message_id: uuid.UUID) -> DiscussionMessage | None:
         result = await self.db.execute(
             select(DiscussionMessage).where(DiscussionMessage.id == message_id)
         )
@@ -45,8 +41,6 @@ class DiscussionRepository:
 
     async def count(self, course_id: uuid.UUID) -> int:
         result = await self.db.execute(
-            select(func.count()).where(
-                DiscussionMessage.course_id == course_id
-            )
+            select(func.count()).where(DiscussionMessage.course_id == course_id)
         )
         return result.scalar_one()

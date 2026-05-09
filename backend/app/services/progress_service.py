@@ -63,9 +63,7 @@ class ProgressService:
         """
         # Fetch sections+lessons AND goal_date in parallel-friendly single session
         sections = await self._fetch_sections_with_lessons(course_id)
-        all_lesson_ids = [
-            lesson.id for section in sections for lesson in section.lessons
-        ]
+        all_lesson_ids = [lesson.id for section in sections for lesson in section.lessons]
 
         # Get goal_date with a lightweight scalar query
         goal_date_result = await self.db.execute(
@@ -79,9 +77,7 @@ class ProgressService:
             sections, completed_set
         )
 
-        percentage = (
-            round(total_completed / total_lessons * 100, 1) if total_lessons > 0 else 0
-        )
+        percentage = round(total_completed / total_lessons * 100, 1) if total_lessons > 0 else 0
 
         goal = None
         if goal_date:

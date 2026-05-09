@@ -37,9 +37,7 @@ async def toggle_lesson_progress(
 
     # Check for course completion + streak milestones
     notif_svc = NotificationService(db)
-    await notif_svc.check_course_completion_on_lesson_toggle(
-        lesson_id, user.id, data.completed
-    )
+    await notif_svc.check_course_completion_on_lesson_toggle(lesson_id, user.id, data.completed)
 
     return result
 

@@ -1,6 +1,5 @@
 """API endpoints for quiz question management (creator) and quiz attempts (learner)."""
 
-import json
 import logging
 import random
 import uuid
@@ -10,9 +9,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_current_user
+from app.core.config import settings
 from app.core.database import get_db
 from app.core.openrouter import call_chat_completion, extract_json_from_response
-from app.core.config import settings
 from app.models.course import Course
 from app.models.enrollment import CourseEnrollment
 from app.models.lesson import Lesson
@@ -39,6 +38,7 @@ PASS_PERCENTAGE = 60.0
 
 
 # ── Helpers ───────────────────────────────────────────────────
+
 
 async def _verify_lesson_owner(
     db: AsyncSession, lesson_id: uuid.UUID, user_id: uuid.UUID
@@ -102,6 +102,7 @@ async def _verify_learner_access(
 
 # ── Creator: Question CRUD ────────────────────────────────────
 
+
 @router.post(
     "/lessons/{lesson_id}/questions",
     response_model=QuizQuestionResponse,
@@ -141,10 +142,7 @@ async def list_questions(
     db: AsyncSession = Depends(get_db),
 ):
     repo = QuizRepository(db)
-    return [
-        QuizQuestionResponse.model_validate(q)
-        for q in await repo.list_questions(lesson_id)
-    ]
+    return [QuizQuestionResponse.model_validate(q) for q in await repo.list_questions(lesson_id)]
 
 
 @router.put(
@@ -304,7 +302,7 @@ async def generate_quiz_with_ai(
 
     # Validate, shuffle, and save each question
     saved: list[QuizQuestionResponse] = []
-    for i, raw_q in enumerate(raw_questions[:data.num_questions]):
+    for _, raw_q in enumerate(raw_questions[: data.num_questions]):
         if (
             not isinstance(raw_q, dict)
             or "question" not in raw_q
@@ -336,6 +334,7 @@ async def generate_quiz_with_ai(
 
 # ── Learner: Quiz Taking ──────────────────────────────────────
 
+
 @router.post(
     "/lessons/{lesson_id}/submit",
     response_model=QuizAttemptResponse,
@@ -365,14 +364,16 @@ async def submit_quiz(
         is_correct = selected == q.correct_option
         if is_correct:
             score += 1
-        results.append({
-            "question_id": str(q.id),
-            "question": q.question,
-            "options": q.options,
-            "correct_option": q.correct_option,
-            "selected_option": selected,
-            "is_correct": is_correct,
-        })
+        results.append(
+            {
+                "question_id": str(q.id),
+                "question": q.question,
+                "options": q.options,
+                "correct_option": q.correct_option,
+                "selected_option": selected,
+                "is_correct": is_correct,
+            }
+        )
 
     percentage = round((score / total) * 100, 1) if total > 0 else 0
     passed = percentage >= PASS_PERCENTAGE

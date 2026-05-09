@@ -20,8 +20,7 @@ const PACE_DESCRIPTIONS: Record<
 > = {
   on_track: {
     label: "On Track",
-    description: (lpw) =>
-      `${lpw} lesson${lpw === 1 ? "" : "s"}/week to stay on track`,
+    description: (lpw) => `${lpw} lesson${lpw === 1 ? "" : "s"}/week to stay on track`,
   },
   ahead: {
     label: "Ahead of Schedule!",
@@ -49,10 +48,11 @@ export function PaceIndicator({ goal, compact = false }: PaceIndicatorProps) {
   const desc = PACE_DESCRIPTIONS[goal.pace_status] ?? PACE_DESCRIPTIONS.on_track;
   const Icon = style.icon;
 
-  const formattedDate = new Date(goal.goal_date + "T00:00:00").toLocaleDateString(
-    undefined,
-    { month: "short", day: "numeric", year: "numeric" },
-  );
+  const formattedDate = new Date(goal.goal_date + "T00:00:00").toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 
   if (compact) {
     return (
@@ -66,9 +66,7 @@ export function PaceIndicator({ goal, compact = false }: PaceIndicatorProps) {
   }
 
   return (
-    <div
-      className={`rounded-xl border ${style.border} ${style.bg} p-4 transition-colors`}
-    >
+    <div className={`rounded-xl border ${style.border} ${style.bg} p-4 transition-colors`}>
       <div className="flex items-start gap-3">
         <div
           className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${style.bg} ${style.color}`}
@@ -77,26 +75,20 @@ export function PaceIndicator({ goal, compact = false }: PaceIndicatorProps) {
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
-            <p className={`text-sm font-semibold ${style.color}`}>
-              {desc.label}
-            </p>
-            <div className="flex items-center gap-1 text-xs text-text-tertiary">
+            <p className={`text-sm font-semibold ${style.color}`}>{desc.label}</p>
+            <div className="text-text-tertiary flex items-center gap-1 text-xs">
               <CalendarDays className="size-3" />
               <span>{formattedDate}</span>
             </div>
           </div>
-          <p className="mt-0.5 text-xs text-text-secondary">
-            {desc.description(
-              goal.lessons_per_week_needed,
-              goal.completed_early_by_days,
-            )}
+          <p className="text-text-secondary mt-0.5 text-xs">
+            {desc.description(goal.lessons_per_week_needed, goal.completed_early_by_days)}
           </p>
           {goal.pace_status !== "completed" && goal.days_remaining > 0 && (
-            <div className="mt-2 flex items-center gap-1.5 text-xs text-text-tertiary">
+            <div className="text-text-tertiary mt-2 flex items-center gap-1.5 text-xs">
               <Clock className="size-3" />
               <span>
-                {goal.days_remaining} day{goal.days_remaining === 1 ? "" : "s"}{" "}
-                remaining
+                {goal.days_remaining} day{goal.days_remaining === 1 ? "" : "s"} remaining
               </span>
             </div>
           )}

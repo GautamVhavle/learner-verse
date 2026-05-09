@@ -98,9 +98,7 @@ export function useInlineChat({ contextType, contextData }: UseInlineChatOptions
           accumulated += decoder.decode(value, { stream: true });
           const current = accumulated;
           setMessages((prev) =>
-            prev.map((m) =>
-              m.id === assistantMsg.id ? { ...m, content: current } : m,
-            ),
+            prev.map((m) => (m.id === assistantMsg.id ? { ...m, content: current } : m)),
           );
         }
 
@@ -110,16 +108,11 @@ export function useInlineChat({ contextType, contextData }: UseInlineChatOptions
           setStatus("ready");
           return;
         }
-        const message =
-          err instanceof Error ? err.message : "Something went wrong.";
+        const message = err instanceof Error ? err.message : "Something went wrong.";
         setError(message);
         setStatus("error");
         // Remove empty assistant message
-        setMessages((prev) =>
-          prev.filter(
-            (m) => !(m.id === assistantMsg.id && !m.content.trim()),
-          ),
-        );
+        setMessages((prev) => prev.filter((m) => !(m.id === assistantMsg.id && !m.content.trim())));
       } finally {
         abortRef.current = null;
       }

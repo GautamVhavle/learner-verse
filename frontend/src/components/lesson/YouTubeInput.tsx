@@ -85,11 +85,11 @@ export function YouTubeInput({
 
   if (hasVideo) {
     return (
-      <div className="overflow-hidden rounded-lg border border-border-default bg-bg-primary">
+      <div className="border-border-default bg-bg-primary overflow-hidden rounded-lg border">
         {/* Preview Card */}
         <div className="flex gap-3 p-3">
           {/* Thumbnail */}
-          <div className="relative shrink-0 overflow-hidden rounded-md bg-bg-tertiary">
+          <div className="bg-bg-tertiary relative shrink-0 overflow-hidden rounded-md">
             {currentThumbnail ? (
               <img
                 src={currentThumbnail}
@@ -97,12 +97,12 @@ export function YouTubeInput({
                 className="h-20 w-36 object-cover"
               />
             ) : (
-              <div className="flex h-20 w-36 items-center justify-center text-text-tertiary">
+              <div className="text-text-tertiary flex h-20 w-36 items-center justify-center">
                 <Link2 className="size-6" />
               </div>
             )}
             {currentDuration && (
-              <span className="absolute bottom-1 right-1 rounded bg-black/80 px-1 py-0.5 text-[10px] font-medium text-white">
+              <span className="absolute right-1 bottom-1 rounded bg-black/80 px-1 py-0.5 text-[10px] font-medium text-white">
                 {currentDuration}
               </span>
             )}
@@ -110,17 +110,15 @@ export function YouTubeInput({
 
           {/* Info */}
           <div className="flex min-w-0 flex-1 flex-col justify-center gap-1">
-            <p className="line-clamp-2 text-sm font-medium text-text-primary">
+            <p className="text-text-primary line-clamp-2 text-sm font-medium">
               {currentTitle ?? "Untitled Video"}
             </p>
-            {currentChannel && (
-              <p className="text-xs text-text-secondary">{currentChannel}</p>
-            )}
+            {currentChannel && <p className="text-text-secondary text-xs">{currentChannel}</p>}
             <a
               href={currentUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-0.5 inline-flex items-center gap-1 text-xs text-accent-blue hover:underline"
+              className="text-accent-blue mt-0.5 inline-flex items-center gap-1 text-xs hover:underline"
               onClick={(e) => e.stopPropagation()}
             >
               <ExternalLink className="size-3" />
@@ -133,7 +131,7 @@ export function YouTubeInput({
             variant="ghost"
             size="icon-xs"
             onClick={handleRemove}
-            className="shrink-0 self-start text-text-tertiary hover:text-error"
+            className="text-text-tertiary hover:text-error shrink-0 self-start"
           >
             <X className="size-3.5" />
           </Button>
@@ -170,11 +168,7 @@ export function YouTubeInput({
           className="flex-1"
           disabled={fetchMeta.isPending}
         />
-        <Button
-          onClick={handleSubmit}
-          disabled={!url.trim() || fetchMeta.isPending}
-          size="default"
-        >
+        <Button onClick={handleSubmit} disabled={!url.trim() || fetchMeta.isPending} size="default">
           {fetchMeta.isPending ? (
             <Loader2 className="size-4 animate-spin" />
           ) : (
@@ -184,7 +178,7 @@ export function YouTubeInput({
         </Button>
       </div>
       {error && (
-        <p className="flex items-center gap-1 text-xs text-error">
+        <p className="text-error flex items-center gap-1 text-xs">
           <AlertCircle className="size-3" />
           {error}
         </p>

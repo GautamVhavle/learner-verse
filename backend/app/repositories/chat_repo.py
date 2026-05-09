@@ -69,25 +69,19 @@ class ChatRepository:
     async def touch_thread(self, thread: ChatThread) -> None:
         """Update the thread's updated_at timestamp via SQL func.now()."""
         await self.db.execute(
-            update(ChatThread)
-            .where(ChatThread.id == thread.id)
-            .values(updated_at=func.now())
+            update(ChatThread).where(ChatThread.id == thread.id).values(updated_at=func.now())
         )
         await self.db.flush()
 
     # ── Messages ───────────────────────────────────────────
 
-    async def add_message(
-        self, thread_id: uuid.UUID, role: str, content: str
-    ) -> ChatMessage:
+    async def add_message(self, thread_id: uuid.UUID, role: str, content: str) -> ChatMessage:
         msg = ChatMessage(thread_id=thread_id, role=role, content=content)
         self.db.add(msg)
         await self.db.flush()
         return msg
 
-    async def list_messages(
-        self, thread_id: uuid.UUID, limit: int = 50
-    ) -> list[ChatMessage]:
+    async def list_messages(self, thread_id: uuid.UUID, limit: int = 50) -> list[ChatMessage]:
         result = await self.db.execute(
             select(ChatMessage)
             .where(ChatMessage.thread_id == thread_id)

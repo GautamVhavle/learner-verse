@@ -31,7 +31,7 @@ export default function InboxPage() {
   if (isLoading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
-        <Loader2 className="size-6 animate-spin text-text-tertiary" />
+        <Loader2 className="text-text-tertiary size-6 animate-spin" />
       </div>
     );
   }
@@ -41,10 +41,8 @@ export default function InboxPage() {
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-text-primary">
-            Inbox
-          </h1>
-          <p className="mt-1 text-sm text-text-secondary">
+          <h1 className="text-text-primary text-2xl font-bold tracking-tight">Inbox</h1>
+          <p className="text-text-secondary mt-1 text-sm">
             Notifications and reminders for your learning goals.
           </p>
         </div>
@@ -64,19 +62,16 @@ export default function InboxPage() {
       {/* Notification list */}
       {items.length === 0 ? (
         <div
-          className="flex min-h-[40vh] items-center justify-center rounded-xl border border-dashed border-border-default py-16"
+          className="border-border-default flex min-h-[40vh] items-center justify-center rounded-xl border border-dashed py-16"
           data-testid="empty-state"
         >
           <div className="flex max-w-sm flex-col items-center text-center">
-            <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-accent-purple/10">
-              <Bell className="size-7 text-accent-purple/50" />
+            <div className="bg-accent-purple/10 mb-4 flex size-14 items-center justify-center rounded-full">
+              <Bell className="text-accent-purple/50 size-7" />
             </div>
-            <h3 className="text-base font-medium text-text-primary">
-              No notifications
-            </h3>
-            <p className="mt-1 text-sm text-text-secondary">
-              You're all caught up! Notifications about your learning
-              goals will appear here.
+            <h3 className="text-text-primary text-base font-medium">No notifications</h3>
+            <p className="text-text-secondary mt-1 text-sm">
+              You're all caught up! Notifications about your learning goals will appear here.
             </p>
           </div>
         </div>

@@ -6,7 +6,7 @@ Each certificate gets a unique shareable UID (e.g. LV-2026-A1B2C3D4).
 
 import secrets
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import HTTPException, status
 from sqlalchemy import select
@@ -70,7 +70,7 @@ class CertificateService:
             course_title=course_title,
             sections_count=len(progress.sections),
             lessons_count=progress.total_lessons,
-            completed_at=datetime.now(timezone.utc),
+            completed_at=datetime.now(UTC),
         )
 
         certificate = await self.repo.create(certificate)
@@ -80,9 +80,7 @@ class CertificateService:
 
     # ── Lookups ──────────────────────────────────────────────
 
-    async def get_by_id(
-        self, cert_id: uuid.UUID, user_id: uuid.UUID
-    ) -> Certificate:
+    async def get_by_id(self, cert_id: uuid.UUID, user_id: uuid.UUID) -> Certificate:
         """Fetch a certificate by ID. Raises 404 if not found."""
         cert = await self.repo.get_by_id(cert_id, user_id)
         if not cert:
@@ -96,9 +94,7 @@ class CertificateService:
         """Return all certificates earned by a user."""
         return await self.repo.list_by_user(user_id)
 
-    async def get_by_course(
-        self, course_id: uuid.UUID, user_id: uuid.UUID
-    ) -> Certificate | None:
+    async def get_by_course(self, course_id: uuid.UUID, user_id: uuid.UUID) -> Certificate | None:
         """Fetch the certificate for a specific course (if it exists)."""
         return await self.repo.get_by_user_and_course(user_id, course_id)
 
@@ -111,14 +107,12 @@ class CertificateService:
     @staticmethod
     def _generate_uid() -> str:
         """Generate a unique certificate UID like ``LV-2026-A1B2C3D4``."""
-        year = datetime.now(timezone.utc).year
+        year = datetime.now(UTC).year
         random_part = secrets.token_hex(4).upper()
         return f"LV-{year}-{random_part}"
 
     async def _get_course_title(self, course_id: uuid.UUID) -> str:
         """Fetch the course title for embedding in the certificate snapshot."""
-        result = await self.db.execute(
-            select(Course).where(Course.id == course_id)
-        )
+        result = await self.db.execute(select(Course).where(Course.id == course_id))
         course = result.scalar_one_or_none()
         return course.title if course else "Unknown Course"

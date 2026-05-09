@@ -33,20 +33,18 @@ export function Footer() {
           <div className="sm:col-span-2 md:col-span-1">
             <div className="flex items-center gap-2.5">
               <img src="/logo.svg" alt="LearnerVerse" className="size-7" />
-              <span className="text-base font-semibold text-white">
-                LearnerVerse
-              </span>
+              <span className="text-base font-semibold text-white">LearnerVerse</span>
             </div>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-white/40">
-              Turn any YouTube playlist into a complete, AI-powered learning
-              experience. Built for creators and learners.
+              Turn any YouTube playlist into a complete, AI-powered learning experience. Built for
+              creators and learners.
             </p>
           </div>
 
           {/* Link columns */}
           {Object.entries(FOOTER_LINKS).map(([title, links]) => (
             <div key={title}>
-              <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-white/50">
+              <h3 className="mb-4 text-xs font-semibold tracking-wider text-white/50 uppercase">
                 {title}
               </h3>
               <ul className="flex flex-col gap-2.5">
@@ -54,13 +52,13 @@ export function Footer() {
                   <li key={link.label}>
                     <a
                       href={link.href}
-                      {...(link.href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                      {...(link.href.startsWith("http")
+                        ? { target: "_blank", rel: "noopener noreferrer" }
+                        : {})}
                       onClick={(e) => {
                         if (link.href.startsWith("#") && link.href !== "#") {
                           e.preventDefault();
-                          document
-                            .querySelector(link.href)
-                            ?.scrollIntoView({ behavior: "smooth" });
+                          document.querySelector(link.href)?.scrollIntoView({ behavior: "smooth" });
                         }
                       }}
                       className="flex items-center gap-2 text-sm text-white/40 transition-colors hover:text-white/70"
@@ -90,9 +88,7 @@ export function Footer() {
               <Github className="size-3.5" />
               Star on GitHub
             </a>
-            <p className="text-xs text-white/20">
-              Made with ♥ for curious minds.
-            </p>
+            <p className="text-xs text-white/20">Made with ♥ for curious minds.</p>
           </div>
         </div>
       </div>

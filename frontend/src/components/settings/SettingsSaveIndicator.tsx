@@ -12,7 +12,7 @@ interface SettingsSaveIndicatorProps {
 export function SettingsSaveIndicator({ visible }: SettingsSaveIndicatorProps) {
   if (!visible) return null;
   return (
-    <span className="flex items-center gap-1 text-[11px] text-accent-green animate-in fade-in duration-200">
+    <span className="text-accent-green animate-in fade-in flex items-center gap-1 text-[11px] duration-200">
       <Check className="size-3" />
       Saved
     </span>

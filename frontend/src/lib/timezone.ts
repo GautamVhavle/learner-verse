@@ -21,7 +21,7 @@ export function detectTimezone(): string {
  */
 export function getSortedTimezones(): string[] {
   const allTimezones = Intl.supportedValuesOf("timeZone");
-  
+
   // Common timezones to prioritize
   const commonTimezones = [
     "America/New_York",
@@ -97,10 +97,10 @@ export function getTimezoneInfo(tz: string): { name: string; offset: string } {
       timeZone: tz,
       timeZoneName: "longOffset",
     });
-    
+
     const parts = formatter.formatToParts(new Date());
     const offset = parts.find((p) => p.type === "timeZoneName")?.value ?? "";
-    
+
     return {
       name: formatTimezoneDisplay(tz),
       offset,

@@ -14,19 +14,19 @@ export function SaveIndicator({ status }: SaveIndicatorProps) {
     <span className="flex items-center gap-1.5 text-xs">
       {status === "saving" && (
         <>
-          <Loader2 className="size-3 animate-spin text-text-tertiary" />
+          <Loader2 className="text-text-tertiary size-3 animate-spin" />
           <span className="text-text-tertiary">Saving…</span>
         </>
       )}
       {status === "saved" && (
         <>
-          <Check className="size-3 text-accent-green" />
+          <Check className="text-accent-green size-3" />
           <span className="text-accent-green">Saved</span>
         </>
       )}
       {status === "error" && (
         <>
-          <AlertCircle className="size-3 text-accent-red" />
+          <AlertCircle className="text-accent-red size-3" />
           <span className="text-accent-red">Save failed</span>
         </>
       )}

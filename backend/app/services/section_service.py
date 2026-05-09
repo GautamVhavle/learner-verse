@@ -54,7 +54,9 @@ class SectionService:
                 detail=f"Maximum of {MAX_SECTIONS_PER_COURSE} sections per course.",
             )
         section = await self.repo.create(
-            course_id=course_id, title=data.title, description=data.description,
+            course_id=course_id,
+            title=data.title,
+            description=data.description,
             position=next_pos,
         )
         await self.db.commit()
@@ -77,7 +79,9 @@ class SectionService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Section not found.")
         return SectionResponse.model_validate(section)
 
-    async def list_sections(self, course_id: uuid.UUID, user_id: uuid.UUID) -> list[SectionResponse]:
+    async def list_sections(
+        self, course_id: uuid.UUID, user_id: uuid.UUID
+    ) -> list[SectionResponse]:
         """List all sections in a course, ordered by position."""
         await self._verify_course(course_id, user_id)
         sections = await self.repo.list_by_course(course_id)
@@ -117,9 +121,7 @@ class SectionService:
         await self.db.commit()
         return [SectionBriefResponse.model_validate(s) for s in sections]
 
-    async def duplicate_section(
-        self, section_id: uuid.UUID, user_id: uuid.UUID
-    ) -> SectionResponse:
+    async def duplicate_section(self, section_id: uuid.UUID, user_id: uuid.UUID) -> SectionResponse:
         """Deep-copy a section (with all lessons and reference links)."""
         section = await self.repo.get_by_id(section_id)
         if not section:

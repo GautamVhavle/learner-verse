@@ -99,8 +99,7 @@ export function useRatingsQuery(courseId: string) {
 export function useCreateRatingMutation(courseId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: RatingCreate) =>
-      api.post<Rating>(`/hub/courses/${courseId}/ratings`, data),
+    mutationFn: (data: RatingCreate) => api.post<Rating>(`/hub/courses/${courseId}/ratings`, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["ratings", courseId] });
       qc.invalidateQueries({ queryKey: ["hub-courses"] });
@@ -114,8 +113,7 @@ export function useCreateRatingMutation(courseId: string) {
 export function useUpdateRatingMutation(courseId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: RatingUpdate) =>
-      api.put<Rating>(`/hub/courses/${courseId}/ratings`, data),
+    mutationFn: (data: RatingUpdate) => api.put<Rating>(`/hub/courses/${courseId}/ratings`, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["ratings", courseId] });
       qc.invalidateQueries({ queryKey: ["hub-courses"] });

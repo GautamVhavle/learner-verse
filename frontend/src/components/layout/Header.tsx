@@ -31,10 +31,8 @@ function getPageTitle(pathname: string): string {
   const path = pathname.replace(/^\/(creator|learner)/, "");
   if (PAGE_TITLES[path]) return PAGE_TITLES[path];
   if (path === "" || path === "/") return PAGE_TITLES["/"];
-  if (path.startsWith("/courses/") && path.endsWith("/edit"))
-    return "Course Builder";
-  if (path.startsWith("/courses/") && path.endsWith("/preview"))
-    return "Preview";
+  if (path.startsWith("/courses/") && path.endsWith("/edit")) return "Course Builder";
+  if (path.startsWith("/courses/") && path.endsWith("/preview")) return "Preview";
   if (path.match(/^\/study\/[^/]+\/lessons\//)) return "Studying";
   if (path.startsWith("/study/")) return "Study";
   return "Dashboard";
@@ -54,20 +52,15 @@ export function Header({ onSearchClick }: HeaderProps) {
 
   return (
     <header
-      className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-2 border-b border-sidebar-border bg-background px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12"
+      className="border-sidebar-border bg-background sticky top-0 z-30 flex h-14 shrink-0 items-center gap-2 border-b px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12"
       data-testid="app-header"
     >
       <SidebarTrigger className="-ml-1" />
-      <Separator
-        orientation="vertical"
-        className="mr-2 data-[orientation=vertical]:h-4"
-      />
+      <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem className="hidden md:block">
-            <span className="text-xs font-medium text-muted-foreground">
-              {modeLabel}
-            </span>
+            <span className="text-muted-foreground text-xs font-medium">{modeLabel}</span>
           </BreadcrumbItem>
           <BreadcrumbItem className="hidden md:block">
             <span className="text-muted-foreground">/</span>
@@ -86,13 +79,13 @@ export function Header({ onSearchClick }: HeaderProps) {
       {/* Search trigger */}
       <button
         onClick={onSearchClick}
-        className="ml-auto flex h-8 items-center gap-2 rounded-lg border border-border-default bg-bg-secondary px-3 text-sm text-text-tertiary transition-colors hover:border-border-hover hover:text-text-secondary sm:ml-0 sm:w-56"
+        className="border-border-default bg-bg-secondary text-text-tertiary hover:border-border-hover hover:text-text-secondary ml-auto flex h-8 items-center gap-2 rounded-lg border px-3 text-sm transition-colors sm:ml-0 sm:w-56"
         aria-label="Search"
         data-testid="search-trigger"
       >
         <Search className="size-3.5" />
         <span className="hidden flex-1 text-left sm:inline">Search...</span>
-        <kbd className="hidden rounded border border-border-default bg-bg-tertiary px-1 py-px text-[10px] font-medium sm:inline-block">
+        <kbd className="border-border-default bg-bg-tertiary hidden rounded border px-1 py-px text-[10px] font-medium sm:inline-block">
           ⌘K
         </kbd>
       </button>
@@ -100,10 +93,10 @@ export function Header({ onSearchClick }: HeaderProps) {
       {/* Ask LiVi */}
       <button
         onClick={toggleChat}
-        className="flex h-8 items-center gap-2 rounded-lg border border-border-default bg-bg-secondary px-3 text-sm text-text-tertiary transition-colors hover:border-accent-purple/40 hover:text-accent-purple"
+        className="border-border-default bg-bg-secondary text-text-tertiary hover:border-accent-purple/40 hover:text-accent-purple flex h-8 items-center gap-2 rounded-lg border px-3 text-sm transition-colors"
         aria-label="Ask LiVi"
       >
-        <Sparkles className="size-3.5 text-accent-purple" />
+        <Sparkles className="text-accent-purple size-3.5" />
         <span className="hidden sm:inline">Ask LiVi</span>
       </button>
     </header>

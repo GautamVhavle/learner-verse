@@ -2,7 +2,7 @@
 
 import uuid
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_current_user
@@ -43,9 +43,7 @@ async def get_course_analytics(
     db: AsyncSession = Depends(get_db),
 ):
     """Get per-course analytics breakdown for the creator."""
-    return await _service(db).get_course_analytics(
-        user.id, sort=sort, page=page, per_page=per_page
-    )
+    return await _service(db).get_course_analytics(user.id, sort=sort, page=page, per_page=per_page)
 
 
 @router.get("/courses/{course_id}/ratings", response_model=CourseRatingsDetail)
@@ -67,9 +65,7 @@ async def get_course_learners(
     db: AsyncSession = Depends(get_db),
 ):
     """Get list of enrolled learners and their progress for a course."""
-    return await _service(db).get_course_learners(
-        user.id, course_id, page=page, per_page=per_page
-    )
+    return await _service(db).get_course_learners(user.id, course_id, page=page, per_page=per_page)
 
 
 @router.get("/top-courses", response_model=list[TopCourse])

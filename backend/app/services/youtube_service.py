@@ -55,6 +55,8 @@ async def fetch_youtube_metadata(url: str) -> YouTubeMetadata:
     return YouTubeMetadata(
         video_id=video_id,
         title=data.get("title", "Untitled"),
-        thumbnail_url=data.get("thumbnail_url", f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg"),
+        thumbnail_url=data.get(
+            "thumbnail_url", f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg"
+        ),
         channel_name=data.get("author_name", "Unknown"),
     )

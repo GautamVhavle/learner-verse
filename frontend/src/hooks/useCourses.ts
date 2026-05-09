@@ -16,10 +16,7 @@ import type {
 const COURSES_KEY = ["courses"] as const;
 const TRASH_KEY = ["courses", "trash"] as const;
 
-export function useCoursesQuery(params?: {
-  status?: string;
-  search?: string;
-}) {
+export function useCoursesQuery(params?: { status?: string; search?: string }) {
   const searchParams = new URLSearchParams();
   if (params?.status) searchParams.set("status", params.status);
   if (params?.search) searchParams.set("search", params.search);
@@ -49,8 +46,7 @@ export function useTrashQuery() {
 export function useCreateCourseMutation() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: CourseCreate) =>
-      api.post<Course>("/courses", data),
+    mutationFn: (data: CourseCreate) => api.post<Course>("/courses", data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: COURSES_KEY });
       toast.success("Course created!");
@@ -126,9 +122,7 @@ export function useUpdateCourseStatusMutation() {
     onSuccess: (data, variables) => {
       qc.invalidateQueries({ queryKey: COURSES_KEY });
       if (data.valid !== false) {
-        toast.success(
-          variables.status === "ready" ? "Course published!" : "Course unpublished",
-        );
+        toast.success(variables.status === "ready" ? "Course published!" : "Course unpublished");
       }
     },
     onError: () => toast.error("Failed to update course status"),
@@ -137,8 +131,7 @@ export function useUpdateCourseStatusMutation() {
 
 export function useUploadThumbnailMutation() {
   return useMutation({
-    mutationFn: (file: File) =>
-      api.upload<{ url: string }>("/uploads/thumbnail", file),
+    mutationFn: (file: File) => api.upload<{ url: string }>("/uploads/thumbnail", file),
   });
 }
 

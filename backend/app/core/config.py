@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     Values are read from environment variables (or a ``.env`` file).
     Defaults are provided for local development.
     """
+
     model_config = SettingsConfigDict(
         env_file=str(_ENV_FILE),
         env_file_encoding="utf-8",
@@ -66,8 +67,8 @@ class Settings(BaseSettings):
     # Razorpay (only used when PAYMENT_GATEWAY_ENABLED=true)
     RAZORPAY_KEY_ID: str = ""
     RAZORPAY_KEY_SECRET: str = ""
-    RAZORPAY_MONTHLY_AMOUNT: int = 9900   # ₹99 in paise
-    RAZORPAY_YEARLY_AMOUNT: int = 99900   # ₹999 in paise
+    RAZORPAY_MONTHLY_AMOUNT: int = 9900  # ₹99 in paise
+    RAZORPAY_YEARLY_AMOUNT: int = 99900  # ₹999 in paise
 
     # Observability
     # Set this in production to enable Sentry error tracking.

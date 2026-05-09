@@ -21,9 +21,7 @@ class Lesson(Base):
     __tablename__ = "lessons"
     __table_args__ = (Index("idx_lessons_section_id", "section_id"),)
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     section_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("sections.id", ondelete="CASCADE"), nullable=False
     )
@@ -48,7 +46,10 @@ class Lesson(Base):
     # Relationships
     section: Mapped["Section"] = relationship(back_populates="lessons")
     reference_links: Mapped[list["ReferenceLink"]] = relationship(
-        back_populates="lesson", cascade="all, delete-orphan", passive_deletes=True, order_by="ReferenceLink.position"
+        back_populates="lesson",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        order_by="ReferenceLink.position",
     )
     quiz_questions: Mapped[list["QuizQuestion"]] = relationship(
         cascade="all, delete-orphan", passive_deletes=True, order_by="QuizQuestion.position"

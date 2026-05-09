@@ -17,7 +17,6 @@ import {
 } from "@/hooks/useCourses";
 import type { Course, CourseCreate, CourseUpdate } from "@/types/course";
 
-
 export function CreatorDashboard() {
   const navigate = useModeAwareNavigate();
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
@@ -82,10 +81,8 @@ export function CreatorDashboard() {
       {/* Header */}
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-text-primary">
-            My Courses
-          </h1>
-          <p className="mt-1 text-sm text-text-secondary">
+          <h1 className="text-text-primary text-2xl font-bold tracking-tight">My Courses</h1>
+          <p className="text-text-secondary mt-1 text-sm">
             Build and manage your learning content.
           </p>
         </div>

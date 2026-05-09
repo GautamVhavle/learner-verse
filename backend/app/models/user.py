@@ -19,12 +19,8 @@ class User(Base):
 
     __tablename__ = "users"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
-    clerk_id: Mapped[str | None] = mapped_column(
-        String(255), unique=True, nullable=True
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    clerk_id: Mapped[str | None] = mapped_column(String(255), unique=True, nullable=True)
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     display_name: Mapped[str] = mapped_column(String(255), nullable=False)
     avatar_url: Mapped[str | None] = mapped_column(String, nullable=True)
@@ -41,19 +37,11 @@ class User(Base):
 
     # Subscription / Pro
     is_pro: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    pro_since: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
-    pro_expires_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
+    pro_since: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    pro_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     pro_plan: Mapped[str | None] = mapped_column(String(20), nullable=True)
-    razorpay_payment_id: Mapped[str | None] = mapped_column(
-        String(255), nullable=True
-    )
-    razorpay_order_id: Mapped[str | None] = mapped_column(
-        String(255), nullable=True
-    )
+    razorpay_payment_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    razorpay_order_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False

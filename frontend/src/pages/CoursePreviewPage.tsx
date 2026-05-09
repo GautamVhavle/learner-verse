@@ -7,12 +7,7 @@
 import { useState } from "react";
 import { useParams } from "react-router";
 import { useModeAwareNavigate } from "@/hooks/useModeAwareNavigate";
-import {
-  ArrowLeft,
-  ChevronDown,
-  ChevronRight,
-  Loader2,
-} from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CourseStatusBadge } from "@/components/course/CourseStatusBadge";
 import { ContentIndicator } from "@/components/preview/ContentIndicator";
@@ -26,20 +21,17 @@ export default function CoursePreviewPage() {
   const navigate = useModeAwareNavigate();
 
   const { data: course, isLoading: courseLoading } = useCourseQuery(courseId);
-  const { data: sections, isLoading: sectionsLoading } =
-    useSectionsQuery(courseId);
+  const { data: sections, isLoading: sectionsLoading } = useSectionsQuery(courseId);
 
   const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(
-    new Set()
-  );
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
 
   const isLoading = courseLoading || sectionsLoading;
 
   if (isLoading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
-        <Loader2 className="size-6 animate-spin text-text-tertiary" />
+        <Loader2 className="text-text-tertiary size-6 animate-spin" />
       </div>
     );
   }
@@ -47,7 +39,7 @@ export default function CoursePreviewPage() {
   if (!course) {
     return (
       <div className="flex h-[60vh] flex-col items-center justify-center gap-4">
-        <p className="text-sm text-text-secondary">Course not found.</p>
+        <p className="text-text-secondary text-sm">Course not found.</p>
         <Button variant="outline" onClick={() => navigate("/")}>
           <ArrowLeft className="size-4" />
           Back to Dashboard
@@ -58,7 +50,7 @@ export default function CoursePreviewPage() {
 
   const allLessons = sections?.flatMap((s) => s.lessons) ?? [];
   const selectedLesson = selectedLessonId
-    ? allLessons.find((l) => l.id === selectedLessonId) ?? null
+    ? (allLessons.find((l) => l.id === selectedLessonId) ?? null)
     : null;
 
   const currentIndex = selectedLesson
@@ -66,9 +58,7 @@ export default function CoursePreviewPage() {
     : -1;
   const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null;
   const nextLesson =
-    currentIndex >= 0 && currentIndex < allLessons.length - 1
-      ? allLessons[currentIndex + 1]
-      : null;
+    currentIndex >= 0 && currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null;
 
   const toggleSection = (sectionId: string) => {
     setExpandedSections((prev) => {
@@ -81,9 +71,7 @@ export default function CoursePreviewPage() {
 
   // Find which section a lesson belongs to (for breadcrumb)
   const currentSection = selectedLesson
-    ? sections?.find((s) =>
-        s.lessons.some((l) => l.id === selectedLesson.id)
-      )
+    ? sections?.find((s) => s.lessons.some((l) => l.id === selectedLesson.id))
     : null;
 
   return (
@@ -100,17 +88,15 @@ export default function CoursePreviewPage() {
         </Button>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h1 className="truncate text-lg font-semibold text-text-primary">
-              {course.title}
-            </h1>
+            <h1 className="text-text-primary truncate text-lg font-semibold">{course.title}</h1>
             <CourseStatusBadge status={course.status} />
-            <span className="rounded-full bg-accent-purple/15 px-2 py-0.5 text-[10px] font-medium text-accent-purple">
+            <span className="bg-accent-purple/15 text-accent-purple rounded-full px-2 py-0.5 text-[10px] font-medium">
               Preview
             </span>
           </div>
           {/* Breadcrumb when viewing a lesson */}
           {currentSection && selectedLesson && (
-            <p className="mt-0.5 text-xs text-text-tertiary">
+            <p className="text-text-tertiary mt-0.5 text-xs">
               <button
                 className="hover:text-text-secondary"
                 onClick={() => setSelectedLessonId(null)}
@@ -120,9 +106,7 @@ export default function CoursePreviewPage() {
               {" › "}
               <span>{currentSection.title}</span>
               {" › "}
-              <span className="text-text-secondary">
-                {selectedLesson.title}
-              </span>
+              <span className="text-text-secondary">{selectedLesson.title}</span>
             </p>
           )}
         </div>
@@ -132,7 +116,7 @@ export default function CoursePreviewPage() {
       <div className="flex flex-col gap-6 lg:flex-row">
         {/* Sidebar — section/lesson tree */}
         <aside className="w-full shrink-0 lg:w-64">
-          <div className="sticky top-4 space-y-1 rounded-xl border border-border-default bg-bg-secondary p-2">
+          <div className="border-border-default bg-bg-secondary sticky top-4 space-y-1 rounded-xl border p-2">
             {sections?.map((section) => {
               const isExpanded =
                 expandedSections.has(section.id) ||
@@ -141,15 +125,15 @@ export default function CoursePreviewPage() {
                 <div key={section.id}>
                   <button
                     onClick={() => toggleSection(section.id)}
-                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm font-medium text-text-primary transition-colors hover:bg-bg-tertiary"
+                    className="text-text-primary hover:bg-bg-tertiary flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm font-medium transition-colors"
                   >
                     {isExpanded ? (
-                      <ChevronDown className="size-3.5 shrink-0 text-text-tertiary" />
+                      <ChevronDown className="text-text-tertiary size-3.5 shrink-0" />
                     ) : (
-                      <ChevronRight className="size-3.5 shrink-0 text-text-tertiary" />
+                      <ChevronRight className="text-text-tertiary size-3.5 shrink-0" />
                     )}
                     <span className="truncate">{section.title}</span>
-                    <span className="ml-auto text-xs tabular-nums text-text-tertiary">
+                    <span className="text-text-tertiary ml-auto text-xs tabular-nums">
                       {section.lessons.length}
                     </span>
                   </button>

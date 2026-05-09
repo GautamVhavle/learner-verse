@@ -74,7 +74,7 @@ export function LinkInput({ onAdd, disabled }: LinkInputProps) {
           }}
           onKeyDown={handleKeyDown}
           placeholder="Paste a URL and press Enter..."
-          className="h-9 bg-bg-secondary text-sm"
+          className="bg-bg-secondary h-9 text-sm"
           disabled={disabled || fetchOG.isPending}
         />
         <Button
@@ -93,7 +93,7 @@ export function LinkInput({ onAdd, disabled }: LinkInputProps) {
         </Button>
       </div>
       {error && (
-        <p className="flex items-center gap-1.5 text-xs text-accent-red">
+        <p className="text-accent-red flex items-center gap-1.5 text-xs">
           <AlertCircle className="size-3" />
           {error}
         </p>

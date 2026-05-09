@@ -7,7 +7,7 @@ duplication, content validation, and draft/ready status transitions.
 import uuid
 
 from fastapi import HTTPException, status
-from sqlalchemy import case, distinct, func, select
+from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.lesson import Lesson
@@ -89,9 +89,7 @@ class CourseService:
             select(
                 func.count(section_lesson_counts.c.sid),
                 func.coalesce(func.sum(section_lesson_counts.c.lcnt), 0),
-                func.sum(
-                    case((section_lesson_counts.c.lcnt == 0, 1), else_=0)
-                ),
+                func.sum(case((section_lesson_counts.c.lcnt == 0, 1), else_=0)),
             )
         )
         section_count, lesson_count, empty_sections = result.one()
@@ -321,9 +319,7 @@ class CourseService:
                         )
                 else:
                     has_content = bool(
-                        lesson.youtube_url
-                        or lesson.notes_markdown
-                        or lesson.reference_links
+                        lesson.youtube_url or lesson.notes_markdown or lesson.reference_links
                     )
                     if not has_content:
                         errors.append(
@@ -344,9 +340,7 @@ class CourseService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found.")
         sections = await self.section_repo.list_by_course(course_id)
         if not sections:
-            return [
-                ValidationError(section="(none)", message="Course has no sections.")
-            ]
+            return [ValidationError(section="(none)", message="Course has no sections.")]
         return self._validate_sections(sections)
 
     async def update_status(

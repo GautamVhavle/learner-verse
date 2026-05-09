@@ -58,16 +58,14 @@ class DiscussionService:
         """Paginated message list. Verifies enrollment or ownership."""
         await self._check_access(course_id, user)
 
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         before_dt = None
         if before:
             before_dt = datetime.fromisoformat(before)
 
         limit = min(limit, 100)
-        messages = await self.repo.list_messages(
-            course_id, before=before_dt, limit=limit + 1
-        )
+        messages = await self.repo.list_messages(course_id, before=before_dt, limit=limit + 1)
         has_more = len(messages) > limit
         if has_more:
             messages = messages[:limit]
@@ -110,9 +108,7 @@ class DiscussionService:
         # Determine role
         from sqlalchemy import select
 
-        result = await self.db.execute(
-            select(Course.user_id).where(Course.id == course_id)
-        )
+        result = await self.db.execute(select(Course.user_id).where(Course.id == course_id))
         course_owner_id = result.scalar_one_or_none()
         role = "creator" if course_owner_id == user.id else "learner"
 
@@ -131,9 +127,7 @@ class DiscussionService:
 
         # Check for @MiVi tag
         if MIVI_TAG_PATTERN.search(payload.content):
-            ai_resp = await self._generate_mivi_response(
-                course_id, payload.content
-            )
+            ai_resp = await self._generate_mivi_response(course_id, payload.content)
             if ai_resp:
                 ai_msg = DiscussionMessage(
                     course_id=course_id,
@@ -148,9 +142,7 @@ class DiscussionService:
 
         return resp
 
-    async def _check_access(
-        self, course_id: uuid.UUID, user: User
-    ) -> None:
+    async def _check_access(self, course_id: uuid.UUID, user: User) -> None:
         """Ensure course is public and user is enrolled or is the course creator."""
         from sqlalchemy import select
 
@@ -169,33 +161,21 @@ class DiscussionService:
                 status_code=403,
                 detail="Discussions are only available for published courses.",
             )
-        enrolled = await EnrollmentRepository(self.db).is_enrolled(
-            user.id, course_id
-        )
+        enrolled = await EnrollmentRepository(self.db).is_enrolled(user.id, course_id)
         if not enrolled:
-            raise HTTPException(
-                status_code=403, detail="Enroll in the course to join discussions."
-            )
+            raise HTTPException(status_code=403, detail="Enroll in the course to join discussions.")
 
-    async def _generate_mivi_response(
-        self, course_id: uuid.UUID, user_question: str
-    ) -> str | None:
+    async def _generate_mivi_response(self, course_id: uuid.UUID, user_question: str) -> str | None:
         """Call OpenRouter to generate a MiVi reply."""
         # Get last few messages for context
         recent = await self.repo.list_messages(course_id, limit=10)
-        context_messages = [
-            {"role": "system", "content": MIVI_SYSTEM_PROMPT}
-        ]
+        context_messages = [{"role": "system", "content": MIVI_SYSTEM_PROMPT}]
         for m in reversed(recent):
             r = "assistant" if m.role == "ai" else "user"
             prefix = f"[{m.display_name}] " if m.role != "ai" else ""
-            context_messages.append(
-                {"role": r, "content": f"{prefix}{m.content}"}
-            )
+            context_messages.append({"role": r, "content": f"{prefix}{m.content}"})
 
-        content = await call_chat_completion(
-            context_messages, extra_payload={"max_tokens": 800}
-        )
+        content = await call_chat_completion(context_messages, extra_payload={"max_tokens": 800})
         if content is None:
             return "Sorry, I'm having trouble responding right now. Please try again!"
         return content

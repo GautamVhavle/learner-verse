@@ -32,8 +32,8 @@ export default function ModeRedirectPage() {
 
   if (!SINGLE_USER_MODE && !isLoaded) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-bg-root">
-        <Loader2 className="size-6 animate-spin text-text-tertiary" />
+      <div className="bg-bg-root flex min-h-screen items-center justify-center">
+        <Loader2 className="text-text-tertiary size-6 animate-spin" />
       </div>
     );
   }

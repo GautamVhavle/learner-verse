@@ -27,8 +27,7 @@ export function useDiscussionMessages(courseId: string, before?: string) {
 export function useSendDiscussionMessage(courseId: string) {
   const qc = useQueryClient();
   return useMutation<DiscussionMessage, Error, DiscussionMessageCreate>({
-    mutationFn: (payload) =>
-      api.post<DiscussionMessage>(`/discussions/${courseId}`, payload),
+    mutationFn: (payload) => api.post<DiscussionMessage>(`/discussions/${courseId}`, payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [KEY, courseId] });
     },

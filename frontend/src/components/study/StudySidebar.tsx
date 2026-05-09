@@ -2,13 +2,7 @@
  * Study page sidebar with expandable section/lesson navigation tree.
  */
 import { useState, useEffect } from "react";
-import {
-  ChevronDown,
-  ChevronRight,
-  Check,
-  Circle,
-  CircleDot,
-} from "lucide-react";
+import { ChevronDown, ChevronRight, Check, Circle, CircleDot } from "lucide-react";
 import type { Section } from "@/types/section";
 
 interface StudySidebarProps {
@@ -29,9 +23,7 @@ export function StudySidebar({
   // Auto-expand section containing selected lesson
   useEffect(() => {
     if (!selectedLessonId) return;
-    const section = sections.find((s) =>
-      s.lessons.some((l) => l.id === selectedLessonId)
-    );
+    const section = sections.find((s) => s.lessons.some((l) => l.id === selectedLessonId));
     if (section && !expanded.has(section.id)) {
       setExpanded((prev) => new Set([...prev, section.id]));
     }
@@ -50,30 +42,25 @@ export function StudySidebar({
     <div className="space-y-1">
       {sections.map((section) => {
         const isExpanded =
-          expanded.has(section.id) ||
-          section.lessons.some((l) => l.id === selectedLessonId);
+          expanded.has(section.id) || section.lessons.some((l) => l.id === selectedLessonId);
 
-        const sectionCompleted = section.lessons.filter(
-          (l) => lessonProgress[l.id]
-        ).length;
+        const sectionCompleted = section.lessons.filter((l) => lessonProgress[l.id]).length;
         const sectionTotal = section.lessons.length;
 
         return (
           <div key={section.id}>
             <button
               onClick={() => toggle(section.id)}
-              className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm font-medium text-text-primary transition-colors hover:bg-bg-tertiary"
+              className="text-text-primary hover:bg-bg-tertiary flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm font-medium transition-colors"
             >
               {isExpanded ? (
-                <ChevronDown className="size-3.5 shrink-0 text-text-tertiary" />
+                <ChevronDown className="text-text-tertiary size-3.5 shrink-0" />
               ) : (
-                <ChevronRight className="size-3.5 shrink-0 text-text-tertiary" />
+                <ChevronRight className="text-text-tertiary size-3.5 shrink-0" />
               )}
               <span className="min-w-0 flex-1 truncate">{section.title}</span>
-              <span className="ml-auto text-xs tabular-nums text-text-tertiary">
-                {sectionTotal > 0
-                  ? `${sectionCompleted}/${sectionTotal}`
-                  : "0"}
+              <span className="text-text-tertiary ml-auto text-xs tabular-nums">
+                {sectionTotal > 0 ? `${sectionCompleted}/${sectionTotal}` : "0"}
               </span>
             </button>
             {isExpanded && (
@@ -92,11 +79,10 @@ export function StudySidebar({
                           : "text-text-secondary hover:bg-bg-tertiary hover:text-text-primary"
                       }`}
                     >
-                      <LessonStatusIcon
-                        completed={isCompleted}
-                        selected={isSelected}
-                      />
-                      <span className={`min-w-0 flex-1 truncate ${isCompleted && !isSelected ? "line-through opacity-60" : ""}`}>
+                      <LessonStatusIcon completed={isCompleted} selected={isSelected} />
+                      <span
+                        className={`min-w-0 flex-1 truncate ${isCompleted && !isSelected ? "line-through opacity-60" : ""}`}
+                      >
                         {lesson.title}
                       </span>
                     </button>
@@ -111,24 +97,12 @@ export function StudySidebar({
   );
 }
 
-function LessonStatusIcon({
-  completed,
-  selected,
-}: {
-  completed: boolean;
-  selected: boolean;
-}) {
+function LessonStatusIcon({ completed, selected }: { completed: boolean; selected: boolean }) {
   if (completed) {
-    return (
-      <Check className="size-3 shrink-0 text-accent-green" />
-    );
+    return <Check className="text-accent-green size-3 shrink-0" />;
   }
   if (selected) {
-    return (
-      <CircleDot className="size-3 shrink-0 text-accent-blue" />
-    );
+    return <CircleDot className="text-accent-blue size-3 shrink-0" />;
   }
-  return (
-    <Circle className="size-3 shrink-0 text-text-tertiary" />
-  );
+  return <Circle className="text-text-tertiary size-3 shrink-0" />;
 }

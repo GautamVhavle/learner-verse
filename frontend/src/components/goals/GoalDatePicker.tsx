@@ -34,9 +34,7 @@ export function GoalDatePicker({
   tomorrow.setDate(tomorrow.getDate() + 1);
   const minDate = tomorrow.toISOString().split("T")[0];
 
-  const [selectedDate, setSelectedDate] = useState<string>(
-    currentGoalDate ?? "",
-  );
+  const [selectedDate, setSelectedDate] = useState<string>(currentGoalDate ?? "");
 
   const handleSave = () => {
     setGoal.mutate(
@@ -62,21 +60,18 @@ export function GoalDatePicker({
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <CalendarDays className="size-5 text-accent-blue" />
+            <CalendarDays className="text-accent-blue size-5" />
             Set Learning Goal
           </DialogTitle>
           <DialogDescription>
             Set a target completion date for{" "}
-            <span className="font-medium text-text-primary">{courseTitle}</span>
+            <span className="text-text-primary font-medium">{courseTitle}</span>
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
           <div className="space-y-2">
-            <label
-              htmlFor="goal-date"
-              className="text-sm font-medium text-text-secondary"
-            >
+            <label htmlFor="goal-date" className="text-text-secondary text-sm font-medium">
               Target Date
             </label>
             <input
@@ -85,7 +80,7 @@ export function GoalDatePicker({
               min={minDate}
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="w-full rounded-lg border border-border-default bg-bg-quaternary px-3 py-2 text-sm text-text-primary outline-none transition-colors focus:border-accent-blue focus:ring-1 focus:ring-accent-blue [color-scheme:dark]"
+              className="border-border-default bg-bg-quaternary text-text-primary focus:border-accent-blue focus:ring-accent-blue w-full rounded-lg border px-3 py-2 text-sm [color-scheme:dark] transition-colors outline-none focus:ring-1"
             />
           </div>
 
@@ -125,17 +120,13 @@ export function GoalDatePicker({
               size="sm"
               onClick={handleRemove}
               disabled={setGoal.isPending}
-              className="mr-auto gap-1 text-text-tertiary hover:text-accent-red"
+              className="text-text-tertiary hover:text-accent-red mr-auto gap-1"
             >
               <X className="size-3.5" />
               Remove Goal
             </Button>
           )}
-          <Button
-            onClick={handleSave}
-            disabled={!selectedDate || setGoal.isPending}
-            size="sm"
-          >
+          <Button onClick={handleSave} disabled={!selectedDate || setGoal.isPending} size="sm">
             {setGoal.isPending ? "Saving..." : currentGoalDate ? "Update Goal" : "Set Goal"}
           </Button>
         </DialogFooter>

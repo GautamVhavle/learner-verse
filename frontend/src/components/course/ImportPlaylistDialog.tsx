@@ -20,8 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useImportPlaylistMutation } from "@/hooks/useLessons";
 
-const PLAYLIST_URL_RE =
-  /^https?:\/\/(www\.)?youtube\.com\/playlist\?.*list=[A-Za-z0-9_-]+/;
+const PLAYLIST_URL_RE = /^https?:\/\/(www\.)?youtube\.com\/playlist\?.*list=[A-Za-z0-9_-]+/;
 
 interface ImportPlaylistDialogProps {
   open: boolean;
@@ -48,18 +47,12 @@ export function ImportPlaylistDialog({
       { sectionId, playlistUrl: url.trim() },
       {
         onSuccess: (result) => {
-          toast.success(
-            `Imported ${result.imported_count} videos from "${result.playlist_title}"`,
-          );
+          toast.success(`Imported ${result.imported_count} videos from "${result.playlist_title}"`);
           setUrl("");
           onOpenChange(false);
         },
         onError: (error) => {
-          toast.error(
-            error instanceof Error
-              ? error.message
-              : "Failed to import playlist",
-          );
+          toast.error(error instanceof Error ? error.message : "Failed to import playlist");
         },
       },
     );
@@ -77,7 +70,7 @@ export function ImportPlaylistDialog({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <div className="flex items-center gap-2">
-            <div className="flex size-9 items-center justify-center rounded-lg bg-accent-purple/10 text-accent-purple">
+            <div className="bg-accent-purple/10 text-accent-purple flex size-9 items-center justify-center rounded-lg">
               <ListVideo className="size-5" />
             </div>
             <div>
@@ -91,7 +84,7 @@ export function ImportPlaylistDialog({
 
         <div className="flex flex-col gap-3 py-2">
           <div className="relative">
-            <LinkIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-tertiary" />
+            <LinkIcon className="text-text-tertiary absolute top-1/2 left-3 size-4 -translate-y-1/2" />
             <Input
               placeholder="https://www.youtube.com/playlist?list=..."
               value={url}
@@ -106,15 +99,13 @@ export function ImportPlaylistDialog({
           </div>
 
           {url.trim() && !isValidUrl && (
-            <p className="text-xs text-red-500">
-              Please enter a valid YouTube playlist URL
-            </p>
+            <p className="text-xs text-red-500">Please enter a valid YouTube playlist URL</p>
           )}
 
           {importMutation.isPending && (
-            <div className="flex items-center gap-2 rounded-lg border border-border-default bg-bg-secondary px-3 py-2.5">
-              <Loader2 className="size-4 animate-spin text-accent-purple" />
-              <span className="text-sm text-text-secondary">
+            <div className="border-border-default bg-bg-secondary flex items-center gap-2 rounded-lg border px-3 py-2.5">
+              <Loader2 className="text-accent-purple size-4 animate-spin" />
+              <span className="text-text-secondary text-sm">
                 Extracting videos from playlist...
               </span>
             </div>
@@ -129,10 +120,7 @@ export function ImportPlaylistDialog({
           >
             Cancel
           </Button>
-          <Button
-            onClick={handleImport}
-            disabled={!isValidUrl || importMutation.isPending}
-          >
+          <Button onClick={handleImport} disabled={!isValidUrl || importMutation.isPending}>
             {importMutation.isPending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />

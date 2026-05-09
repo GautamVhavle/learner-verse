@@ -6,18 +6,8 @@
  * links are defined in `sidebarNavConfig.ts`.
  */
 import { useLocation, useNavigate } from "react-router";
-import {
-  BookOpen,
-  ChevronRight,
-  Crown,
-  Pen,
-  Sparkles,
-} from "lucide-react";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { BookOpen, ChevronRight, Crown, Pen, Sparkles } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Sidebar,
   SidebarContent,
@@ -100,7 +90,7 @@ export function AppSidebar({
           <item.icon />
           <span>{item.title}</span>
           {item.comingSoon && (
-            <span className="ml-auto rounded-sm bg-bg-tertiary px-1.5 py-0.5 text-[9px] font-medium text-text-tertiary">
+            <span className="bg-bg-tertiary text-text-tertiary ml-auto rounded-sm px-1.5 py-0.5 text-[9px] font-medium">
               Soon
             </span>
           )}
@@ -116,24 +106,21 @@ export function AppSidebar({
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              size="lg"
-              className="pointer-events-none"
-            >
+            <SidebarMenuButton size="lg" className="pointer-events-none">
               <div className="flex size-8 shrink-0 items-center justify-center rounded-lg">
                 <img src="/logo.svg" alt="Learner Verse Logo" className="h-6 w-6" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="flex items-center gap-1.5 font-semibold overflow-visible">
+                <span className="flex items-center gap-1.5 overflow-visible font-semibold">
                   <span className="truncate">Learner Verse</span>
                   {profile?.is_pro && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-accent-purple/20 to-amber-500/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-500 ring-1 ring-amber-500/30">
+                    <span className="from-accent-purple/20 inline-flex items-center gap-1 rounded-full bg-gradient-to-r to-amber-500/20 px-2 py-0.5 text-[9px] font-bold tracking-wider text-amber-500 uppercase ring-1 ring-amber-500/30">
                       <Crown className="size-2.5 fill-amber-500/40" />
                       Pro
                     </span>
                   )}
                 </span>
-                <span className="truncate text-xs text-muted-foreground">
+                <span className="text-muted-foreground truncate text-xs">
                   {isCreator ? "Creator Mode" : "Learner Mode"}
                 </span>
               </div>
@@ -145,9 +132,7 @@ export function AppSidebar({
       <SidebarContent>
         {/* Primary navigation */}
         <SidebarGroup>
-          <SidebarGroupLabel>
-            {isCreator ? "Creator" : "Learner"}
-          </SidebarGroupLabel>
+          <SidebarGroupLabel>{isCreator ? "Creator" : "Learner"}</SidebarGroupLabel>
           <SidebarMenu>
             {primaryLinks.map(renderNavItem)}
 
@@ -192,7 +177,10 @@ export function AppSidebar({
                       <SidebarMenuSubItem key={course.path}>
                         <SidebarMenuSubButton
                           size="sm"
-                          isActive={location.pathname === course.path || location.pathname.startsWith(course.path + "/")}
+                          isActive={
+                            location.pathname === course.path ||
+                            location.pathname.startsWith(course.path + "/")
+                          }
                           onClick={() => navigate(course.path)}
                           className="cursor-pointer"
                         >
@@ -203,10 +191,8 @@ export function AppSidebar({
 
                     {courseSubItems.length === 0 && (
                       <SidebarMenuSubItem>
-                        <span className="px-2 py-1 text-xs text-muted-foreground">
-                          {isCreator
-                            ? "No courses yet"
-                            : "No enrolled courses"}
+                        <span className="text-muted-foreground px-2 py-1 text-xs">
+                          {isCreator ? "No courses yet" : "No enrolled courses"}
                         </span>
                       </SidebarMenuSubItem>
                     )}
@@ -221,9 +207,7 @@ export function AppSidebar({
         {extraLinks.length > 0 && (
           <SidebarGroup>
             <SidebarGroupLabel>More</SidebarGroupLabel>
-            <SidebarMenu>
-              {extraLinks.map(renderNavItem)}
-            </SidebarMenu>
+            <SidebarMenu>{extraLinks.map(renderNavItem)}</SidebarMenu>
           </SidebarGroup>
         )}
 
@@ -250,7 +234,7 @@ export function AppSidebar({
               >
                 <Sparkles className="text-accent-purple" />
                 <span>LiVi</span>
-                <span className="ml-auto rounded-sm bg-accent-purple/10 px-1.5 py-0.5 text-[9px] font-medium text-accent-purple">
+                <span className="bg-accent-purple/10 text-accent-purple ml-auto rounded-sm px-1.5 py-0.5 text-[9px] font-medium">
                   AI
                 </span>
               </SidebarMenuButton>
@@ -275,7 +259,7 @@ export function AppSidebar({
                     <item.icon />
                     <span>{item.title}</span>
                     {item.comingSoon && (
-                      <span className="ml-auto rounded-sm bg-bg-tertiary px-1.5 py-0.5 text-[9px] font-medium text-text-tertiary">
+                      <span className="bg-bg-tertiary text-text-tertiary ml-auto rounded-sm px-1.5 py-0.5 text-[9px] font-medium">
                         Soon
                       </span>
                     )}

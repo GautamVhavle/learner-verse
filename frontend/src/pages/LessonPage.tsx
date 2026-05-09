@@ -38,8 +38,7 @@ export default function LessonPage() {
   const navigate = useModeAwareNavigate();
 
   const { data: course, isLoading: courseLoading } = useHubCourseQuery(courseId ?? "");
-  const { data: sections, isLoading: sectionsLoading } =
-    useHubSectionsQuery(courseId);
+  const { data: sections, isLoading: sectionsLoading } = useHubSectionsQuery(courseId);
   const { data: user } = useUserQuery();
   const updateState = useUpdateStudyStateMutation();
   const { data: progress } = useCourseProgressQuery(courseId);
@@ -49,8 +48,10 @@ export default function LessonPage() {
 
   const isLoading = courseLoading || sectionsLoading;
 
-  const { currentLesson, currentSection, prevLesson, nextLesson } =
-    useLessonNavigation(sections, lessonId);
+  const { currentLesson, currentSection, prevLesson, nextLesson } = useLessonNavigation(
+    sections,
+    lessonId,
+  );
 
   // Calculate lesson position (X of Y)
   const currentLessonNumber = useMemo(() => {
@@ -75,7 +76,7 @@ export default function LessonPage() {
 
   const goToLesson = useCallback(
     (id: string) => navigate(`/study/${courseId}/lessons/${id}`),
-    [courseId, navigate]
+    [courseId, navigate],
   );
 
   const { focusMode, toggleFocusMode, setFocusMode } = useFocusMode();
@@ -167,7 +168,15 @@ export default function LessonPage() {
     } else {
       advanceToNext();
     }
-  }, [currentLesson, user, progress, nextLesson, toggleProgress, handleCompletionToggled, goToLesson]);
+  }, [
+    currentLesson,
+    user,
+    progress,
+    nextLesson,
+    toggleProgress,
+    handleCompletionToggled,
+    goToLesson,
+  ]);
 
   /** Mark complete from bottom button */
   const handleMarkCompleteFromBottom = useCallback(() => {
@@ -182,7 +191,7 @@ export default function LessonPage() {
   if (isLoading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
-        <Loader2 className="size-6 animate-spin text-text-tertiary" />
+        <Loader2 className="text-text-tertiary size-6 animate-spin" />
       </div>
     );
   }
@@ -190,7 +199,7 @@ export default function LessonPage() {
   if (!course || !currentLesson) {
     return (
       <div className="flex h-[60vh] flex-col items-center justify-center gap-4">
-        <p className="text-sm text-text-secondary">Lesson not found.</p>
+        <p className="text-text-secondary text-sm">Lesson not found.</p>
         <Button variant="outline" onClick={() => navigate("/")}>
           <ArrowLeft className="size-4" />
           Dashboard
@@ -218,32 +227,28 @@ export default function LessonPage() {
             <div className="sticky top-4 space-y-3">
               {/* Mini progress */}
               {progress && progress.total_lessons > 0 && (
-                <div className="rounded-xl border border-border-default bg-bg-secondary p-3">
-                  <ProgressBar
-                    value={progress.percentage}
-                    size="sm"
-                    showLabel
-                  />
+                <div className="border-border-default bg-bg-secondary rounded-xl border p-3">
+                  <ProgressBar value={progress.percentage} size="sm" showLabel />
                 </div>
               )}
-              <div className="rounded-xl border border-border-default bg-bg-secondary p-2">
+              <div className="border-border-default bg-bg-secondary rounded-xl border p-2">
                 <div className="mb-2 px-2.5 py-1.5">
-                <button
-                  onClick={() => navigate(`/study/${courseId}`)}
-                  className="text-xs font-medium text-text-tertiary transition-colors hover:text-text-secondary"
-                >
-                  ← Course Overview
-                </button>
+                  <button
+                    onClick={() => navigate(`/study/${courseId}`)}
+                    className="text-text-tertiary hover:text-text-secondary text-xs font-medium transition-colors"
+                  >
+                    ← Course Overview
+                  </button>
+                </div>
+                <StudySidebar
+                  sections={sections ?? []}
+                  selectedLessonId={lessonId ?? null}
+                  onSelectLesson={goToLesson}
+                  lessonProgress={progress?.lesson_progress}
+                />
               </div>
-              <StudySidebar
-                sections={sections ?? []}
-                selectedLessonId={lessonId ?? null}
-                onSelectLesson={goToLesson}
-                lessonProgress={progress?.lesson_progress}
-              />
             </div>
-          </div>
-        </aside>
+          </aside>
         )}
 
         {/* Main content */}
@@ -251,9 +256,7 @@ export default function LessonPage() {
           <div className="space-y-6">
             {/* Lesson title + Completion + Focus toggle */}
             <div className="flex items-start justify-between gap-3">
-              <h1 className="text-xl font-semibold text-text-primary">
-                {currentLesson.title}
-              </h1>
+              <h1 className="text-text-primary text-xl font-semibold">{currentLesson.title}</h1>
               <div className="flex items-center gap-2">
                 <Button
                   variant="ghost"

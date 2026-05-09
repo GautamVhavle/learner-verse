@@ -32,7 +32,8 @@ export { SINGLE_USER_MODE, SINGLE_USER };
  * queries from firing before the token is available.
  */
 function AuthTokenSync({ children }: { children: ReactNode }) {
-  const { getAccessTokenSilently, loginWithRedirect, isAuthenticated, isLoading, user } = useAuth0();
+  const { getAccessTokenSilently, loginWithRedirect, isAuthenticated, isLoading, user } =
+    useAuth0();
   const [tokenReady, setTokenReady] = useState(false);
   const profileSynced = useRef(false);
 
@@ -64,10 +65,13 @@ function AuthTokenSync({ children }: { children: ReactNode }) {
 
     (async () => {
       try {
-        const profile = await api.get<{ display_name: string; email: string; avatar_url: string | null }>("/auth/me");
+        const profile = await api.get<{
+          display_name: string;
+          email: string;
+          avatar_url: string | null;
+        }>("/auth/me");
         const needsSync =
-          profile.display_name === "New User" ||
-          profile.email.endsWith("@auth0.user");
+          profile.display_name === "New User" || profile.email.endsWith("@auth0.user");
 
         if (needsSync) {
           const updates: Record<string, string> = {};

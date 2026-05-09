@@ -25,9 +25,7 @@ class SearchService:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def search(
-        self, user_id: uuid.UUID, query: str, limit: int = 20
-    ) -> SearchResponse:
+    async def search(self, user_id: uuid.UUID, query: str, limit: int = 20) -> SearchResponse:
         q = query.strip()
         if not q:
             return SearchResponse(results=[], query=query, total=0)
@@ -103,7 +101,12 @@ class SearchService:
     ) -> list[SearchResultItem]:
         # JOIN course data directly to avoid N+1 parent lookups
         stmt = (
-            select(Section, Course.title.label("course_title"), Course.id.label("course_id"), Course.status.label("course_status"))
+            select(
+                Section,
+                Course.title.label("course_title"),
+                Course.id.label("course_id"),
+                Course.status.label("course_status"),
+            )
             .join(Course, Section.course_id == Course.id)
             .where(
                 Course.user_id == user_id,
@@ -146,9 +149,7 @@ class SearchService:
             )
             .join(Section, Lesson.section_id == Section.id)
             .join(Course, Section.course_id == Course.id)
-            .outerjoin(
-                ReferenceLink, ReferenceLink.lesson_id == Lesson.id
-            )
+            .outerjoin(ReferenceLink, ReferenceLink.lesson_id == Lesson.id)
             .where(
                 Course.user_id == user_id,
                 Course.is_deleted == False,  # noqa: E712

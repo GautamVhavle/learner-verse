@@ -195,7 +195,7 @@ function HubVisual() {
               className="mx-2 flex items-center gap-2.5 rounded-lg border border-white/5 bg-white/[0.02] px-4 py-2.5"
             >
               <Globe className="size-4 text-blue-400" />
-              <span className="whitespace-nowrap text-xs text-white/60">{c.name}</span>
+              <span className="text-xs whitespace-nowrap text-white/60">{c.name}</span>
               <ChevronRight className="size-3.5 text-white/20" />
             </div>
           ))}
@@ -207,7 +207,7 @@ function HubVisual() {
               className="mx-2 flex items-center gap-2.5 rounded-lg border border-white/5 bg-white/[0.02] px-4 py-2.5"
             >
               <Globe className="size-4 text-cyan-400" />
-              <span className="whitespace-nowrap text-xs text-white/60">{c.name}</span>
+              <span className="text-xs whitespace-nowrap text-white/60">{c.name}</span>
               <ChevronRight className="size-3.5 text-white/20" />
             </div>
           ))}
@@ -246,7 +246,7 @@ function HubVisual() {
 function CertVisual() {
   return (
     <div className="relative mt-4 overflow-hidden rounded-xl border border-white/5 bg-white/[0.02] p-5 text-center">
-      <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-white/30">
+      <div className="mb-2 text-[11px] font-medium tracking-wider text-white/30 uppercase">
         Certificate of Completion
       </div>
       <Award className="mx-auto size-10 text-amber-400" />
@@ -353,7 +353,7 @@ export function FeaturesBento() {
             trigger: gridRef.current,
             start: "top 80%",
           },
-        }
+        },
       );
     }, gridRef);
 
@@ -377,8 +377,8 @@ export function FeaturesBento() {
               </span>
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-base text-white/50 sm:text-lg">
-              From building courses to earning certificates — every tool
-              is designed to maximize your learning from YouTube content.
+              From building courses to earning certificates — every tool is designed to maximize
+              your learning from YouTube content.
             </p>
           </div>
         </BlurFade>
@@ -391,14 +391,14 @@ export function FeaturesBento() {
               className={`bento-card group rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 opacity-0 transition-all duration-300 hover:-translate-y-1 hover:border-white/10 hover:bg-white/[0.04] ${feat.className}`}
             >
               <div className="flex items-center gap-3">
-                <div className={`flex size-9 items-center justify-center rounded-xl ${feat.iconBg}`}>
+                <div
+                  className={`flex size-9 items-center justify-center rounded-xl ${feat.iconBg}`}
+                >
                   <feat.icon className={`size-4.5 ${feat.iconColor}`} />
                 </div>
                 <h3 className="text-base font-semibold text-white">{feat.title}</h3>
               </div>
-              <p className="mt-2 text-sm leading-relaxed text-white/45">
-                {feat.description}
-              </p>
+              <p className="mt-2 text-sm leading-relaxed text-white/45">{feat.description}</p>
               {feat.visual}
             </div>
           ))}

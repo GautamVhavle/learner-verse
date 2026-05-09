@@ -2,14 +2,7 @@
  * Danger Zone section — destructive account actions with confirmation dialogs.
  */
 import { useState } from "react";
-import {
-  AlertTriangle,
-  Trash2,
-  BookX,
-  BarChart3,
-  UserX,
-  Loader2,
-} from "lucide-react";
+import { AlertTriangle, Trash2, BookX, BarChart3, UserX, Loader2 } from "lucide-react";
 import { useAuth0 } from "@auth0/auth0-react";
 import {
   AlertDialog,
@@ -57,8 +50,7 @@ const DANGER_ACTIONS: DangerAction[] = [
   {
     id: "stats",
     title: "Clear Learning Stats",
-    description:
-      "Reset all progress, streaks, quiz attempts, study notes, and certificates.",
+    description: "Reset all progress, streaks, quiz attempts, study notes, and certificates.",
     icon: BarChart3,
     confirmTitle: "Clear all learning stats?",
     confirmDescription:
@@ -69,8 +61,7 @@ const DANGER_ACTIONS: DangerAction[] = [
   {
     id: "data",
     title: "Delete All My Data",
-    description:
-      "Wipe everything — courses, progress, chats, stats — while keeping your account.",
+    description: "Wipe everything — courses, progress, chats, stats — while keeping your account.",
     icon: Trash2,
     confirmTitle: "Delete all your data?",
     confirmDescription:
@@ -145,16 +136,14 @@ export function DangerZoneSection() {
   };
 
   return (
-    <section className="space-y-4 rounded-xl border border-accent-red/30 bg-accent-red/[0.02] p-5">
+    <section className="border-accent-red/30 bg-accent-red/[0.02] space-y-4 rounded-xl border p-5">
       <div className="flex items-center gap-2">
-        <div className="flex size-6 items-center justify-center rounded-md bg-accent-red/10">
-          <AlertTriangle className="size-3.5 text-accent-red" />
+        <div className="bg-accent-red/10 flex size-6 items-center justify-center rounded-md">
+          <AlertTriangle className="text-accent-red size-3.5" />
         </div>
         <div>
-          <h2 className="text-sm font-semibold text-accent-red">
-            Danger Zone
-          </h2>
-          <p className="text-[11px] text-text-tertiary">
+          <h2 className="text-accent-red text-sm font-semibold">Danger Zone</h2>
+          <p className="text-text-tertiary text-[11px]">
             Irreversible actions — proceed with caution
           </p>
         </div>
@@ -169,15 +158,13 @@ export function DangerZoneSection() {
           >
             <AlertDialogTrigger
               render={
-                <button className="flex w-full items-center gap-3 rounded-lg border border-border-default bg-bg-secondary p-3 text-left transition-all hover:border-accent-red/40 hover:bg-accent-red/[0.03]">
-                  <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-accent-red/8 text-accent-red">
+                <button className="border-border-default bg-bg-secondary hover:border-accent-red/40 hover:bg-accent-red/[0.03] flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-all">
+                  <div className="bg-accent-red/8 text-accent-red flex size-8 shrink-0 items-center justify-center rounded-md">
                     <action.icon className="size-4" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-text-primary">
-                      {action.title}
-                    </p>
-                    <p className="text-[11px] leading-relaxed text-text-tertiary">
+                    <p className="text-text-primary text-sm font-medium">{action.title}</p>
+                    <p className="text-text-tertiary text-[11px] leading-relaxed">
                       {action.description}
                     </p>
                   </div>
@@ -189,23 +176,17 @@ export function DangerZoneSection() {
                 <AlertDialogTitle className="text-accent-red">
                   {action.confirmTitle}
                 </AlertDialogTitle>
-                <AlertDialogDescription>
-                  {action.confirmDescription}
-                </AlertDialogDescription>
+                <AlertDialogDescription>{action.confirmDescription}</AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel disabled={isPending}>
-                  Cancel
-                </AlertDialogCancel>
+                <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
                 <AlertDialogAction
                   variant="destructive"
                   onClick={() => handleConfirm(action.id)}
                   disabled={isPending}
                   className="bg-accent-red hover:bg-accent-red/90"
                 >
-                  {isPending ? (
-                    <Loader2 className="mr-2 size-4 animate-spin" />
-                  ) : null}
+                  {isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
                   {action.confirmButton}
                 </AlertDialogAction>
               </AlertDialogFooter>

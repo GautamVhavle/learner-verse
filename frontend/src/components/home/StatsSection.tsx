@@ -14,7 +14,13 @@ const STATS = [
   { value: 98, suffix: "%", label: "Completion Rate", description: "vs 12% on raw YouTube" },
   { value: 3, suffix: "×", label: "Faster Learning", description: "with AI-powered structure" },
   { value: 10000, suffix: "+", label: "Study Hours Logged", description: "across all learners" },
-  { value: 4.9, suffix: "/5", label: "Learner Satisfaction", description: "average course rating", decimals: 1 },
+  {
+    value: 4.9,
+    suffix: "/5",
+    label: "Learner Satisfaction",
+    description: "average course rating",
+    decimals: 1,
+  },
 ] as const;
 
 export function StatsSection() {
@@ -61,18 +67,16 @@ export function StatsSection() {
                       className="text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl"
                     />
                   ) : (
-                    <span className="text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl">0</span>
+                    <span className="text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl">
+                      0
+                    </span>
                   )}
                   <span className="text-xl font-bold text-blue-400 sm:text-2xl md:text-3xl">
                     {stat.suffix}
                   </span>
                 </div>
-                <span className="mt-2 text-sm font-semibold text-white/70">
-                  {stat.label}
-                </span>
-                <span className="mt-0.5 text-xs text-white/30">
-                  {stat.description}
-                </span>
+                <span className="mt-2 text-sm font-semibold text-white/70">{stat.label}</span>
+                <span className="mt-0.5 text-xs text-white/30">{stat.description}</span>
               </div>
             </BlurFade>
           ))}

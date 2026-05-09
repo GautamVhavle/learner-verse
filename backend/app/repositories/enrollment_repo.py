@@ -1,7 +1,7 @@
 """Repository for course enrollment operations."""
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,9 +17,7 @@ class EnrollmentRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def enroll(
-        self, user_id: uuid.UUID, course_id: uuid.UUID
-    ) -> CourseEnrollment:
+    async def enroll(self, user_id: uuid.UUID, course_id: uuid.UUID) -> CourseEnrollment:
         """Enroll a user in a course. Returns existing enrollment if already enrolled."""
         result = await self.db.execute(
             select(CourseEnrollment).where(
@@ -34,15 +32,13 @@ class EnrollmentRepository:
         enrollment = CourseEnrollment(
             user_id=user_id,
             course_id=course_id,
-            enrolled_at=datetime.now(timezone.utc),
+            enrolled_at=datetime.now(UTC),
         )
         self.db.add(enrollment)
         await self.db.flush()
         return enrollment
 
-    async def unenroll(
-        self, user_id: uuid.UUID, course_id: uuid.UUID
-    ) -> bool:
+    async def unenroll(self, user_id: uuid.UUID, course_id: uuid.UUID) -> bool:
         """Remove a user's enrollment. Returns True if deleted, False if not found."""
         result = await self.db.execute(
             delete(CourseEnrollment)
@@ -54,9 +50,7 @@ class EnrollmentRepository:
         )
         return result.rowcount > 0
 
-    async def get_enrolled_courses(
-        self, user_id: uuid.UUID
-    ) -> list[Course]:
+    async def get_enrolled_courses(self, user_id: uuid.UUID) -> list[Course]:
         """Return all published, non-deleted courses the user is enrolled in, newest first."""
         result = await self.db.execute(
             select(Course)
@@ -71,9 +65,7 @@ class EnrollmentRepository:
         )
         return list(result.scalars().all())
 
-    async def get_enrollment_ids(
-        self, user_id: uuid.UUID
-    ) -> set[uuid.UUID]:
+    async def get_enrollment_ids(self, user_id: uuid.UUID) -> set[uuid.UUID]:
         """Return the set of course IDs the user is enrolled in."""
         result = await self.db.execute(
             select(CourseEnrollment.course_id).where(
@@ -82,9 +74,7 @@ class EnrollmentRepository:
         )
         return set(result.scalars().all())
 
-    async def is_enrolled(
-        self, user_id: uuid.UUID, course_id: uuid.UUID
-    ) -> bool:
+    async def is_enrolled(self, user_id: uuid.UUID, course_id: uuid.UUID) -> bool:
         """Check whether a user is enrolled in a given course."""
         result = await self.db.execute(
             select(CourseEnrollment.id).where(
@@ -94,9 +84,7 @@ class EnrollmentRepository:
         )
         return result.scalar_one_or_none() is not None
 
-    async def get_enrollment_count(
-        self, course_id: uuid.UUID
-    ) -> int:
+    async def get_enrollment_count(self, course_id: uuid.UUID) -> int:
         """Return the number of enrollments for a course."""
         result = await self.db.execute(
             select(func.count(CourseEnrollment.id)).where(

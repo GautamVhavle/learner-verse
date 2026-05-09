@@ -11,7 +11,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from app.models.lesson import Lesson
-from app.models.quiz_question import QuizQuestion
 
 
 class LessonRepository:

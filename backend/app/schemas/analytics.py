@@ -1,12 +1,12 @@
 """Pydantic schemas for creator analytics — overview, per-course, ratings, learners."""
 
 import uuid
-from datetime import date, datetime
+from datetime import datetime
 
 from pydantic import BaseModel
 
-
 # ── Overview (aggregate across all creator's courses) ─────────
+
 
 class AnalyticsOverview(BaseModel):
     total_courses: int
@@ -24,17 +24,20 @@ class AnalyticsOverview(BaseModel):
 
 class TrendPoint(BaseModel):
     """Single data point for a time-series trend."""
+
     date: str  # ISO date (YYYY-MM-DD)
     count: int
 
 
 class RatingBucket(BaseModel):
     """Count of ratings for a specific star value (1-5)."""
+
     stars: int
     count: int
 
 
 # ── Per-Course Analytics ──────────────────────────────────────
+
 
 class CourseAnalytics(BaseModel):
     course_id: uuid.UUID
@@ -62,6 +65,7 @@ class CourseAnalyticsList(BaseModel):
 
 # ── Course Ratings Detail ────────────────────────────────────
 
+
 class RatingDetail(BaseModel):
     id: uuid.UUID
     user_name: str
@@ -82,6 +86,7 @@ class CourseRatingsDetail(BaseModel):
 
 # ── Enrolled Learners ────────────────────────────────────────
 
+
 class LearnerInfo(BaseModel):
     user_id: uuid.UUID
     display_name: str
@@ -101,6 +106,7 @@ class CourseLearnersList(BaseModel):
 
 
 # ── Top Courses (for overview page) ──────────────────────────
+
 
 class TopCourse(BaseModel):
     course_id: uuid.UUID

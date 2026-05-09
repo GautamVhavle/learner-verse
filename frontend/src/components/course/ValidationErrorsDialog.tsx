@@ -29,7 +29,7 @@ export function ValidationErrorsDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <AlertTriangle className="size-4 text-accent-amber" />
+            <AlertTriangle className="text-accent-amber size-4" />
             Cannot Mark as Ready
           </DialogTitle>
           <DialogDescription>
@@ -41,13 +41,13 @@ export function ValidationErrorsDialog({
           {errors.map((err, i) => (
             <div
               key={i}
-              className="rounded-lg border border-border-default bg-bg-secondary px-3 py-2.5"
+              className="border-border-default bg-bg-secondary rounded-lg border px-3 py-2.5"
             >
               <div className="flex items-start gap-2">
-                <span className="mt-0.5 size-1.5 shrink-0 rounded-full bg-accent-amber" />
+                <span className="bg-accent-amber mt-0.5 size-1.5 shrink-0 rounded-full" />
                 <div className="min-w-0">
-                  <p className="text-sm text-text-primary">{err.message}</p>
-                  <p className="mt-0.5 text-xs text-text-tertiary">
+                  <p className="text-text-primary text-sm">{err.message}</p>
+                  <p className="text-text-tertiary mt-0.5 text-xs">
                     {err.section}
                     {err.lesson && ` → ${err.lesson}`}
                   </p>

@@ -19,9 +19,7 @@ class Certificate(Base):
 
     __tablename__ = "certificates"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="CASCADE"),
@@ -32,9 +30,7 @@ class Certificate(Base):
         ForeignKey("courses.id", ondelete="CASCADE"),
         nullable=False,
     )
-    certificate_uid: Mapped[str] = mapped_column(
-        String(50), unique=True, nullable=False
-    )
+    certificate_uid: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
     user_name: Mapped[str] = mapped_column(String(255), nullable=False)
     course_title: Mapped[str] = mapped_column(String(200), nullable=False)
     sections_count: Mapped[int] = mapped_column(Integer, nullable=False)

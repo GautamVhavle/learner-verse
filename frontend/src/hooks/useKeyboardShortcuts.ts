@@ -19,15 +19,11 @@ export function useKeyboardShortcuts(shortcuts: Shortcut[]) {
 
       const target = event.target as HTMLElement;
       const isTyping =
-        target.tagName === "INPUT" ||
-        target.tagName === "TEXTAREA" ||
-        target.isContentEditable;
+        target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable;
 
       for (const shortcut of shortcuts) {
         const ctrlOrMeta = shortcut.ctrlKey || shortcut.metaKey;
-        const matchesModifier = ctrlOrMeta
-          ? event.ctrlKey || event.metaKey
-          : true;
+        const matchesModifier = ctrlOrMeta ? event.ctrlKey || event.metaKey : true;
         const matchesShift = shortcut.shiftKey ? event.shiftKey : true;
 
         if (

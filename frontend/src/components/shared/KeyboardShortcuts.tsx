@@ -54,7 +54,7 @@ const SHORTCUT_GROUPS: ShortcutGroup[] = [
 
 function Kbd({ children }: { children: React.ReactNode }) {
   return (
-    <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-border-default bg-bg-tertiary px-1.5 text-[10px] font-medium text-text-secondary">
+    <kbd className="border-border-default bg-bg-tertiary text-text-secondary inline-flex h-5 min-w-5 items-center justify-center rounded border px-1.5 text-[10px] font-medium">
       {children}
     </kbd>
   );
@@ -87,31 +87,27 @@ export function KeyboardShortcuts({ open, onOpenChange }: KeyboardShortcutsProps
         </DialogHeader>
 
         {isMobile ? (
-          <p className="py-4 text-center text-sm text-text-tertiary">
+          <p className="text-text-tertiary py-4 text-center text-sm">
             Use a desktop or laptop to access keyboard shortcuts.
           </p>
         ) : (
           <div className="space-y-5 py-2">
             {SHORTCUT_GROUPS.map((group) => (
               <div key={group.title}>
-                <h4 className="mb-2.5 text-[11px] font-semibold uppercase tracking-wider text-text-tertiary">
+                <h4 className="text-text-tertiary mb-2.5 text-[11px] font-semibold tracking-wider uppercase">
                   {group.title}
                 </h4>
                 <div className="space-y-1.5">
                   {group.shortcuts.map((shortcut, idx) => (
                     <div
                       key={idx}
-                      className="flex items-center justify-between rounded-lg px-2 py-1.5 transition-colors hover:bg-bg-tertiary"
+                      className="hover:bg-bg-tertiary flex items-center justify-between rounded-lg px-2 py-1.5 transition-colors"
                     >
-                      <span className="text-sm text-text-primary">
-                        {shortcut.description}
-                      </span>
+                      <span className="text-text-primary text-sm">{shortcut.description}</span>
                       <div className="flex items-center gap-1">
                         {shortcut.keys.map((k, i) => (
                           <span key={i} className="flex items-center gap-1">
-                            {i > 0 && (
-                              <span className="text-[10px] text-text-tertiary">+</span>
-                            )}
+                            {i > 0 && <span className="text-text-tertiary text-[10px]">+</span>}
                             <Kbd>{resolveKey(k)}</Kbd>
                           </span>
                         ))}

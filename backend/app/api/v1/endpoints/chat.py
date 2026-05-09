@@ -157,7 +157,9 @@ async def stream_chat(
 
     message = _sanitize(data.message)
     if not message:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Message cannot be empty.")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Message cannot be empty."
+        )
 
     service = ChatService(db)
 
@@ -169,6 +171,7 @@ async def stream_chat(
                 yield chunk
         except Exception as exc:
             import logging
+
             logging.getLogger(__name__).error("Chat stream error: %s", exc, exc_info=True)
             yield "\n\nSorry, something went wrong. Please try again."
 
@@ -212,9 +215,8 @@ async def stream_inline_chat(
                 yield chunk
         except Exception as exc:
             import logging
-            logging.getLogger(__name__).error(
-                "Inline chat stream error: %s", exc, exc_info=True
-            )
+
+            logging.getLogger(__name__).error("Inline chat stream error: %s", exc, exc_info=True)
             yield "\n\nSorry, something went wrong. Please try again."
 
     return StreamingResponse(

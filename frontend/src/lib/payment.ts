@@ -7,5 +7,4 @@
  * When false (default), all users are treated as Pro and no payment UI
  * is rendered. This is the default for self-hosted deployments.
  */
-export const PAYMENT_GATEWAY_ENABLED =
-  import.meta.env.VITE_PAYMENT_GATEWAY_ENABLED === "true";
+export const PAYMENT_GATEWAY_ENABLED = import.meta.env.VITE_PAYMENT_GATEWAY_ENABLED === "true";

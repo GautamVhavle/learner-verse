@@ -41,9 +41,7 @@ class StatsService:
 
         # Total courses completed (certificates count)
         cert_result = await self.db.execute(
-            select(func.count(Certificate.id)).where(
-                Certificate.user_id == user_id
-            )
+            select(func.count(Certificate.id)).where(Certificate.user_id == user_id)
         )
         total_courses_completed = cert_result.scalar_one()
 
@@ -81,9 +79,7 @@ class StatsService:
             total_active_days=len(active_dates),
         )
 
-    async def get_streak(
-        self, user_id: uuid.UUID, today: date | None = None
-    ) -> StreakResponse:
+    async def get_streak(self, user_id: uuid.UUID, today: date | None = None) -> StreakResponse:
         """Return current and longest learning streaks."""
         if today is None:
             today = date.today()
@@ -113,18 +109,14 @@ class StatsService:
 
         total = sum(e.lessons_completed for e in entries)
         days = [
-            ActivityDayResponse(
-                date=e.activity_date.isoformat(), count=e.lessons_completed
-            )
+            ActivityDayResponse(date=e.activity_date.isoformat(), count=e.lessons_completed)
             for e in entries
         ]
 
         return ActivityResponse(days=days, total_lessons=total)
 
     @staticmethod
-    def _compute_streaks(
-        active_dates: list[date], today: date
-    ) -> tuple[int, int]:
+    def _compute_streaks(active_dates: list[date], today: date) -> tuple[int, int]:
         """Compute current and longest streaks with a grace period.
 
         A streak persists as long as the gap between consecutive active

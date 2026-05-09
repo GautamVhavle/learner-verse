@@ -50,11 +50,7 @@ interface NotificationCardProps {
   onDelete: (id: string) => void;
 }
 
-export function NotificationCard({
-  notification,
-  onMarkRead,
-  onDelete,
-}: NotificationCardProps) {
+export function NotificationCard({ notification, onMarkRead, onDelete }: NotificationCardProps) {
   const Icon = ICON_MAP[notification.type] ?? Bell;
   const isUnread = !notification.is_read;
 
@@ -86,16 +82,14 @@ export function NotificationCard({
           >
             {notification.title}
           </h3>
-          <div className="flex items-center gap-1 text-text-tertiary">
+          <div className="text-text-tertiary flex items-center gap-1">
             <Clock className="size-3" />
-            <span className="whitespace-nowrap text-xs">
+            <span className="text-xs whitespace-nowrap">
               {formatTimeAgo(notification.created_at)}
             </span>
           </div>
         </div>
-        <p className="mt-0.5 text-sm text-text-secondary">
-          {notification.message}
-        </p>
+        <p className="text-text-secondary mt-0.5 text-sm">{notification.message}</p>
 
         {/* Actions */}
         <div className="mt-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
@@ -123,9 +117,7 @@ export function NotificationCard({
       </div>
 
       {/* Unread dot */}
-      {isUnread && (
-        <div className="mt-2 size-2 shrink-0 rounded-full bg-accent-purple" />
-      )}
+      {isUnread && <div className="bg-accent-purple mt-2 size-2 shrink-0 rounded-full" />}
     </div>
   );
 }

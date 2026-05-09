@@ -5,13 +5,7 @@
 import { useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { BarChart3 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartContainer,
   ChartTooltip,
@@ -64,35 +58,25 @@ export default function StatsPage() {
   const { data: stats, isLoading: statsLoading } = useStatsOverviewQuery();
   const { data: activity, isLoading: activityLoading } = useActivityQuery(12);
 
-  const weeklyData = useMemo(
-    () => (activity ? aggregateWeekly(activity.days) : []),
-    [activity],
-  );
+  const weeklyData = useMemo(() => (activity ? aggregateWeekly(activity.days) : []), [activity]);
 
   if (statsLoading || activityLoading) {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-text-primary">
-            Learning Stats
-          </h1>
-          <p className="mt-1 text-sm text-text-secondary">
-            Loading your activity…
-          </p>
+          <h1 className="text-text-primary text-2xl font-bold tracking-tight">Learning Stats</h1>
+          <p className="text-text-secondary mt-1 text-sm">Loading your activity…</p>
         </div>
         {/* Skeleton cards */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-28 animate-pulse rounded-xl bg-muted"
-            />
+            <div key={i} className="bg-muted h-28 animate-pulse rounded-xl" />
           ))}
         </div>
         {/* Skeleton chart */}
-        <div className="h-72 animate-pulse rounded-xl bg-muted" />
+        <div className="bg-muted h-72 animate-pulse rounded-xl" />
         {/* Skeleton heatmap */}
-        <div className="h-48 animate-pulse rounded-xl bg-muted" />
+        <div className="bg-muted h-48 animate-pulse rounded-xl" />
       </div>
     );
   }
@@ -101,20 +85,16 @@ export default function StatsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-text-primary">
-            Learning Stats
-          </h1>
-          <p className="mt-1 text-sm text-text-secondary">
-            Your learning activity and streaks.
-          </p>
+          <h1 className="text-text-primary text-2xl font-bold tracking-tight">Learning Stats</h1>
+          <p className="text-text-secondary mt-1 text-sm">Your learning activity and streaks.</p>
         </div>
-        <div className="flex min-h-[40vh] items-center justify-center rounded-xl border border-dashed border-border-default py-16">
+        <div className="border-border-default flex min-h-[40vh] items-center justify-center rounded-xl border border-dashed py-16">
           <div className="flex max-w-sm flex-col items-center text-center">
-            <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-accent-amber/10">
-              <BarChart3 className="size-7 text-accent-amber/50" />
+            <div className="bg-accent-amber/10 mb-4 flex size-14 items-center justify-center rounded-full">
+              <BarChart3 className="text-accent-amber/50 size-7" />
             </div>
-            <h3 className="text-base font-medium text-text-primary">No stats yet</h3>
-            <p className="mt-1 text-sm text-text-secondary">
+            <h3 className="text-text-primary text-base font-medium">No stats yet</h3>
+            <p className="text-text-secondary mt-1 text-sm">
               Complete some lessons to see your learning stats and activity heatmap.
             </p>
           </div>
@@ -127,10 +107,8 @@ export default function StatsPage() {
     <div className="space-y-6">
       {/* Page header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-text-primary">
-          Learning Stats
-        </h1>
-        <p className="mt-1 text-sm text-text-secondary">
+        <h1 className="text-text-primary text-2xl font-bold tracking-tight">Learning Stats</h1>
+        <p className="text-text-secondary mt-1 text-sm">
           Track your progress and build consistency.
         </p>
       </div>
@@ -163,15 +141,8 @@ export default function StatsPage() {
                   width={28}
                   tick={{ fontSize: 11 }}
                 />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent hideLabel />}
-                />
-                <Bar
-                  dataKey="lessons"
-                  fill="var(--color-lessons)"
-                  radius={[6, 6, 0, 0]}
-                />
+                <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                <Bar dataKey="lessons" fill="var(--color-lessons)" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ChartContainer>
           </CardContent>
@@ -179,10 +150,7 @@ export default function StatsPage() {
       )}
 
       {/* Activity heatmap */}
-      <ActivityHeatmap
-        days={activity.days}
-        totalLessons={activity.total_lessons}
-      />
+      <ActivityHeatmap days={activity.days} totalLessons={activity.total_lessons} />
     </div>
   );
 }

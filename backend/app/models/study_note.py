@@ -18,13 +18,9 @@ class StudyNote(Base):
     """
 
     __tablename__ = "study_notes"
-    __table_args__ = (
-        Index("idx_study_notes_user_lesson", "user_id", "lesson_id", unique=True),
-    )
+    __table_args__ = (Index("idx_study_notes_user_lesson", "user_id", "lesson_id", unique=True),)
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )

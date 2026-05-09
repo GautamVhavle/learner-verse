@@ -18,9 +18,7 @@ async def get_youtube_metadata(data: YouTubeURLRequest):
     try:
         return await fetch_youtube_metadata(data.url)
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,

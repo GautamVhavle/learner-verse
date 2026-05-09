@@ -23,7 +23,6 @@ from app.core.database import async_session_maker
 from app.core.storage import ensure_bucket
 from app.models.user import User
 
-
 # ── Sentry error tracking ─────────────────────────────────────────────────────
 # Initialised unconditionally; when SENTRY_DSN is empty the SDK is a no-op.
 # Add SENTRY_DSN=https://...@sentry.io/... to your production environment.
@@ -53,8 +52,7 @@ async def lifespan(app: FastAPI):
         await ensure_bucket()
     except Exception as exc:
         logging.getLogger(__name__).warning(
-            "Supabase Storage unavailable at startup — thumbnail uploads will fail.\n"
-            "Reason: %s",
+            "Supabase Storage unavailable at startup — thumbnail uploads will fail.\nReason: %s",
             exc,
         )
     yield
@@ -83,7 +81,8 @@ async def _ensure_organize_tasks_table() -> None:
     from sqlalchemy import text
 
     async with async_session_maker() as session:
-        await session.execute(text("""
+        await session.execute(
+            text("""
             CREATE TABLE IF NOT EXISTS organize_tasks (
                 id VARCHAR(16) PRIMARY KEY,
                 course_id UUID NOT NULL,
@@ -91,11 +90,12 @@ async def _ensure_organize_tasks_table() -> None:
                 error TEXT,
                 created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
             )
-        """))
+        """)
+        )
         # Clean up old tasks (>10 min)
-        await session.execute(text(
-            "DELETE FROM organize_tasks WHERE created_at < NOW() - INTERVAL '10 minutes'"
-        ))
+        await session.execute(
+            text("DELETE FROM organize_tasks WHERE created_at < NOW() - INTERVAL '10 minutes'")
+        )
         await session.commit()
 
 
@@ -156,7 +156,9 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
     The full traceback is logged server-side only — exception details are
     never forwarded to the client to avoid leaking internal information.
     """
-    logger.error("Unhandled error on %s %s:\n%s", request.method, request.url, traceback.format_exc())
+    logger.error(
+        "Unhandled error on %s %s:\n%s", request.method, request.url, traceback.format_exc()
+    )
     origin = request.headers.get("origin", "")
     allowed = settings.cors_origins_list
     headers = {}

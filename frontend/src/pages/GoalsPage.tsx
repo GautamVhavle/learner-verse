@@ -34,20 +34,12 @@ export default function GoalsPage() {
 
   // Courses without goals — for "Add Goal" flow
   const goalCourseIds = new Set((goals ?? []).map((g) => g.course_id));
-  const coursesWithoutGoals = (courses?.items ?? []).filter(
-    (c) => !goalCourseIds.has(c.id),
-  );
+  const coursesWithoutGoals = (courses?.items ?? []).filter((c) => !goalCourseIds.has(c.id));
 
-  const activeGoals =
-    goals?.filter((g) => g.pace_status !== "completed") ?? [];
-  const completedGoals =
-    goals?.filter((g) => g.pace_status === "completed") ?? [];
+  const activeGoals = goals?.filter((g) => g.pace_status !== "completed") ?? [];
+  const completedGoals = goals?.filter((g) => g.pace_status === "completed") ?? [];
 
-  const openPicker = (
-    courseId: string,
-    courseTitle: string,
-    goalDate: string | null,
-  ) => {
+  const openPicker = (courseId: string, courseTitle: string, goalDate: string | null) => {
     setPickerState({ open: true, courseId, courseTitle, goalDate });
   };
 
@@ -56,10 +48,8 @@ export default function GoalsPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-text-primary">
-            Learning Goals
-          </h1>
-          <p className="mt-1 text-sm text-text-secondary">
+          <h1 className="text-text-primary text-2xl font-bold tracking-tight">Learning Goals</h1>
+          <p className="text-text-secondary mt-1 text-sm">
             Set target dates for your courses and track your pace.
           </p>
         </div>
@@ -68,11 +58,7 @@ export default function GoalsPage() {
             size="sm"
             className="gap-1.5"
             onClick={() =>
-              openPicker(
-                coursesWithoutGoals[0].id,
-                coursesWithoutGoals[0].title,
-                null,
-              )
+              openPicker(coursesWithoutGoals[0].id, coursesWithoutGoals[0].title, null)
             }
           >
             <Plus className="size-3.5" />
@@ -99,9 +85,8 @@ export default function GoalsPage() {
           <StatCard
             label="On Track"
             value={
-              activeGoals.filter(
-                (g) => g.pace_status === "on_track" || g.pace_status === "ahead",
-              ).length
+              activeGoals.filter((g) => g.pace_status === "on_track" || g.pace_status === "ahead")
+                .length
             }
             icon={TrendingUp}
             color="text-accent-green"
@@ -109,10 +94,8 @@ export default function GoalsPage() {
           <StatCard
             label="Need Attention"
             value={
-              activeGoals.filter(
-                (g) =>
-                  g.pace_status === "behind" || g.pace_status === "overdue",
-              ).length
+              activeGoals.filter((g) => g.pace_status === "behind" || g.pace_status === "overdue")
+                .length
             }
             icon={AlertTriangle}
             color="text-amber-400"
@@ -123,17 +106,13 @@ export default function GoalsPage() {
       {/* Active goals */}
       {activeGoals.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-sm font-medium text-text-primary">
-            Active Goals
-          </h2>
+          <h2 className="text-text-primary text-sm font-medium">Active Goals</h2>
           <div className="space-y-3">
             {activeGoals.map((goal) => (
               <GoalCard
                 key={goal.course_id}
                 goal={goal}
-                onEdit={() =>
-                  openPicker(goal.course_id, goal.course_title, goal.goal_date)
-                }
+                onEdit={() => openPicker(goal.course_id, goal.course_title, goal.goal_date)}
                 onNavigate={() => navigate(`/study/${goal.course_id}`)}
               />
             ))}
@@ -144,17 +123,13 @@ export default function GoalsPage() {
       {/* Completed goals */}
       {completedGoals.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-sm font-medium text-text-primary">
-            Completed
-          </h2>
+          <h2 className="text-text-primary text-sm font-medium">Completed</h2>
           <div className="space-y-3">
             {completedGoals.map((goal) => (
               <GoalCard
                 key={goal.course_id}
                 goal={goal}
-                onEdit={() =>
-                  openPicker(goal.course_id, goal.course_title, goal.goal_date)
-                }
+                onEdit={() => openPicker(goal.course_id, goal.course_title, goal.goal_date)}
                 onNavigate={() => navigate(`/study/${goal.course_id}`)}
               />
             ))}
@@ -165,25 +140,22 @@ export default function GoalsPage() {
       {/* Courses without goals */}
       {coursesWithoutGoals.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-sm font-medium text-text-tertiary">
-            Courses Without Goals
-          </h2>
+          <h2 className="text-text-tertiary text-sm font-medium">Courses Without Goals</h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {coursesWithoutGoals.map((course) => (
               <button
                 key={course.id}
                 onClick={() => openPicker(course.id, course.title, null)}
-                className="group flex items-center gap-3 rounded-xl border border-dashed border-border-default bg-bg-secondary p-4 text-left transition-colors hover:border-accent-blue/40 hover:bg-accent-blue/5"
+                className="group border-border-default bg-bg-secondary hover:border-accent-blue/40 hover:bg-accent-blue/5 flex items-center gap-3 rounded-xl border border-dashed p-4 text-left transition-colors"
               >
-                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-bg-tertiary transition-colors group-hover:bg-accent-blue/10">
-                  <Plus className="size-4 text-text-tertiary transition-colors group-hover:text-accent-blue" />
+                <div className="bg-bg-tertiary group-hover:bg-accent-blue/10 flex size-9 shrink-0 items-center justify-center rounded-lg transition-colors">
+                  <Plus className="text-text-tertiary group-hover:text-accent-blue size-4 transition-colors" />
                 </div>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-text-primary">
-                    {course.title}
-                  </p>
-                  <p className="text-xs text-text-tertiary">
-                    {course.lesson_count} lesson{course.lesson_count !== 1 ? "s" : ""} &middot; Set a goal
+                  <p className="text-text-primary truncate text-sm font-medium">{course.title}</p>
+                  <p className="text-text-tertiary text-xs">
+                    {course.lesson_count} lesson{course.lesson_count !== 1 ? "s" : ""} &middot; Set
+                    a goal
                   </p>
                 </div>
               </button>
@@ -194,13 +166,13 @@ export default function GoalsPage() {
 
       {/* Empty state */}
       {!isLoading && (!goals || goals.length === 0) && coursesWithoutGoals.length === 0 && (
-        <div className="flex min-h-[40vh] items-center justify-center rounded-xl border border-dashed border-border-default py-16">
+        <div className="border-border-default flex min-h-[40vh] items-center justify-center rounded-xl border border-dashed py-16">
           <div className="flex max-w-sm flex-col items-center text-center">
-            <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-accent-blue/10">
-              <Target className="size-7 text-accent-blue/50" />
+            <div className="bg-accent-blue/10 mb-4 flex size-14 items-center justify-center rounded-full">
+              <Target className="text-accent-blue/50 size-7" />
             </div>
-            <h3 className="text-base font-medium text-text-primary">No courses available</h3>
-            <p className="mt-1 text-sm text-text-secondary">
+            <h3 className="text-text-primary text-base font-medium">No courses available</h3>
+            <p className="text-text-secondary mt-1 text-sm">
               Publish some courses in Creator mode, then set learning goals to stay on track.
             </p>
           </div>
@@ -213,9 +185,7 @@ export default function GoalsPage() {
         courseTitle={pickerState.courseTitle}
         currentGoalDate={pickerState.goalDate}
         open={pickerState.open}
-        onOpenChange={(open) =>
-          setPickerState((prev) => ({ ...prev, open }))
-        }
+        onOpenChange={(open) => setPickerState((prev) => ({ ...prev, open }))}
       />
     </div>
   );
@@ -233,12 +203,12 @@ function StatCard({
   color: string;
 }) {
   return (
-    <div className="rounded-xl border border-border-default bg-bg-secondary p-4">
+    <div className="border-border-default bg-bg-secondary rounded-xl border p-4">
       <div className="flex items-center gap-2">
         <Icon className={`size-4 ${color}`} />
-        <span className="text-xs text-text-tertiary">{label}</span>
+        <span className="text-text-tertiary text-xs">{label}</span>
       </div>
-      <p className="mt-2 text-2xl font-bold text-text-primary">{value}</p>
+      <p className="text-text-primary mt-2 text-2xl font-bold">{value}</p>
     </div>
   );
 }
@@ -267,13 +237,11 @@ function GoalCard({
 
   return (
     <div
-      className={`rounded-xl border ${style.border} bg-bg-secondary p-4 transition-colors hover:border-border-hover`}
+      className={`rounded-xl border ${style.border} bg-bg-secondary hover:border-border-hover p-4 transition-colors`}
     >
       <div className="flex items-start gap-3">
         {/* Status icon */}
-        <div
-          className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${style.bg}`}
-        >
+        <div className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${style.bg}`}>
           <Icon className={`size-5 ${style.color}`} />
         </div>
 
@@ -283,11 +251,11 @@ function GoalCard({
             <div className="min-w-0">
               <button
                 onClick={onNavigate}
-                className="truncate text-sm font-semibold text-text-primary transition-colors hover:text-accent-blue"
+                className="text-text-primary hover:text-accent-blue truncate text-sm font-semibold transition-colors"
               >
                 {goal.course_title}
               </button>
-              <div className="mt-0.5 flex flex-wrap items-center gap-3 text-xs text-text-tertiary">
+              <div className="text-text-tertiary mt-0.5 flex flex-wrap items-center gap-3 text-xs">
                 {formattedDate && (
                   <span className="flex items-center gap-1">
                     <CalendarDays className="size-3" />
@@ -300,12 +268,9 @@ function GoalCard({
                     {goal.days_remaining}d remaining
                   </span>
                 )}
-                {goal.lessons_per_week_needed != null &&
-                  goal.pace_status !== "completed" && (
-                    <span>
-                      {goal.lessons_per_week_needed} lessons/week needed
-                    </span>
-                  )}
+                {goal.lessons_per_week_needed != null && goal.pace_status !== "completed" && (
+                  <span>{goal.lessons_per_week_needed} lessons/week needed</span>
+                )}
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-2">
@@ -323,7 +288,7 @@ function GoalCard({
           {/* Progress */}
           <div className="space-y-1.5">
             <ProgressBar value={goal.percentage} size="sm" />
-            <div className="flex items-center justify-between text-xs text-text-tertiary">
+            <div className="text-text-tertiary flex items-center justify-between text-xs">
               <span className="flex items-center gap-1">
                 <BookOpen className="size-3" />
                 {goal.completed_lessons}/{goal.total_lessons} lessons
@@ -336,7 +301,7 @@ function GoalCard({
           {goal.pace_status === "completed" &&
             goal.completed_early_by_days != null &&
             goal.completed_early_by_days > 0 && (
-              <p className="text-xs font-medium text-accent-purple">
+              <p className="text-accent-purple text-xs font-medium">
                 🎉 Finished {goal.completed_early_by_days} day
                 {goal.completed_early_by_days === 1 ? "" : "s"} early!
               </p>

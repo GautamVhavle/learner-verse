@@ -41,10 +41,8 @@ export default function BrowseCoursesPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-text-primary">
-          Browse Courses
-        </h1>
-        <p className="mt-1 text-sm text-text-secondary">
+        <h1 className="text-text-primary text-2xl font-bold tracking-tight">Browse Courses</h1>
+        <p className="text-text-secondary mt-1 text-sm">
           Discover and enroll in courses to add them to your learning dashboard.
         </p>
       </div>
@@ -52,7 +50,7 @@ export default function BrowseCoursesPage() {
       {/* Search */}
       {allCourses.length > 0 && (
         <div className="relative max-w-sm">
-          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-tertiary" />
+          <Search className="text-text-tertiary absolute top-1/2 left-3 size-4 -translate-y-1/2" />
           <Input
             className="pl-9"
             placeholder="Search courses…"
@@ -64,9 +62,9 @@ export default function BrowseCoursesPage() {
 
       {/* Summary badge */}
       {enrolledIds.size > 0 && (
-        <p className="text-xs text-text-tertiary">
+        <p className="text-text-tertiary text-xs">
           You are enrolled in{" "}
-          <span className="font-medium text-text-primary">{enrolledIds.size}</span>{" "}
+          <span className="text-text-primary font-medium">{enrolledIds.size}</span>{" "}
           {enrolledIds.size === 1 ? "course" : "courses"}.
         </p>
       )}
@@ -75,8 +73,8 @@ export default function BrowseCoursesPage() {
       {!isLoading && allCourses.length === 0 && (
         <EmptyState
           icon={
-            <div className="flex size-14 items-center justify-center rounded-full bg-accent-blue/10">
-              <Compass className="size-7 text-accent-blue/50" />
+            <div className="bg-accent-blue/10 flex size-14 items-center justify-center rounded-full">
+              <Compass className="text-accent-blue/50 size-7" />
             </div>
           }
           title="No courses published yet"
@@ -86,7 +84,7 @@ export default function BrowseCoursesPage() {
 
       {/* Empty filtered results */}
       {!isLoading && allCourses.length > 0 && filtered.length === 0 && (
-        <p className="text-sm text-text-tertiary">No courses match your search.</p>
+        <p className="text-text-tertiary text-sm">No courses match your search.</p>
       )}
 
       {/* Course grid */}
@@ -98,10 +96,8 @@ export default function BrowseCoursesPage() {
               course={course}
               isEnrolled={enrolledIds.has(course.id)}
               isPending={
-                (enrollMutation.isPending &&
-                  enrollMutation.variables === course.id) ||
-                (unenrollMutation.isPending &&
-                  unenrollMutation.variables === course.id)
+                (enrollMutation.isPending && enrollMutation.variables === course.id) ||
+                (unenrollMutation.isPending && unenrollMutation.variables === course.id)
               }
               onEnroll={() => enrollMutation.mutate(course.id)}
               onUnenroll={() => unenrollMutation.mutate(course.id)}

@@ -39,12 +39,9 @@ export function QuizPlayer({ lessonId, lessonTitle, onQuizCompleted }: QuizPlaye
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [result, setResult] = useState<QuizAttempt | null>(null);
 
-  const handleSelectOption = useCallback(
-    (questionId: string, optionIndex: number) => {
-      setAnswers((prev) => ({ ...prev, [questionId]: optionIndex }));
-    },
-    [],
-  );
+  const handleSelectOption = useCallback((questionId: string, optionIndex: number) => {
+    setAnswers((prev) => ({ ...prev, [questionId]: optionIndex }));
+  }, []);
 
   const handleSubmit = useCallback(() => {
     submitMutation.mutate(
@@ -71,18 +68,16 @@ export function QuizPlayer({ lessonId, lessonTitle, onQuizCompleted }: QuizPlaye
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="size-5 animate-spin text-text-tertiary" />
+        <Loader2 className="text-text-tertiary size-5 animate-spin" />
       </div>
     );
   }
 
   if (questions.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border-default py-12">
-        <ClipboardCheck className="size-8 text-text-tertiary" />
-        <p className="mt-3 text-sm text-text-tertiary">
-          This quiz has no questions yet.
-        </p>
+      <div className="border-border-default flex flex-col items-center justify-center rounded-xl border border-dashed py-12">
+        <ClipboardCheck className="text-text-tertiary size-8" />
+        <p className="text-text-tertiary mt-3 text-sm">This quiz has no questions yet.</p>
       </div>
     );
   }
@@ -90,28 +85,28 @@ export function QuizPlayer({ lessonId, lessonTitle, onQuizCompleted }: QuizPlaye
   // ── Intro Screen ─────────────────────────────────────────
   if (state === "intro") {
     return (
-      <div className="rounded-xl border border-border-default bg-bg-secondary p-6">
+      <div className="border-border-default bg-bg-secondary rounded-xl border p-6">
         <div className="flex flex-col items-center text-center">
-          <div className="flex size-14 items-center justify-center rounded-full bg-accent-blue/10">
-            <ClipboardCheck className="size-7 text-accent-blue" />
+          <div className="bg-accent-blue/10 flex size-14 items-center justify-center rounded-full">
+            <ClipboardCheck className="text-accent-blue size-7" />
           </div>
-          <h3 className="mt-4 text-lg font-semibold text-text-primary">
-            Ready to take the quiz?
-          </h3>
-          <p className="mt-2 text-sm text-text-secondary">
+          <h3 className="text-text-primary mt-4 text-lg font-semibold">Ready to take the quiz?</h3>
+          <p className="text-text-secondary mt-2 text-sm">
             {questions.length} question{questions.length !== 1 ? "s" : ""} — Multiple choice
           </p>
-          <p className="mt-1 text-xs text-text-tertiary">
+          <p className="text-text-tertiary mt-1 text-xs">
             Score 60% or more to pass. You can retake as many times as you'd like.
           </p>
 
           {bestScore && (
-            <div className="mt-4 rounded-lg border border-border-default bg-bg-primary px-4 py-3">
-              <p className="text-xs text-text-tertiary">Your best score</p>
-              <p className={`text-lg font-bold ${bestScore.passed ? "text-accent-green" : "text-amber-500"}`}>
+            <div className="border-border-default bg-bg-primary mt-4 rounded-lg border px-4 py-3">
+              <p className="text-text-tertiary text-xs">Your best score</p>
+              <p
+                className={`text-lg font-bold ${bestScore.passed ? "text-accent-green" : "text-amber-500"}`}
+              >
                 {bestScore.best_score}/{bestScore.total} ({bestScore.best_percentage}%)
               </p>
-              <p className="text-xs text-text-tertiary">
+              <p className="text-text-tertiary text-xs">
                 {bestScore.attempts_count} attempt{bestScore.attempts_count !== 1 ? "s" : ""}
               </p>
             </div>
@@ -134,10 +129,10 @@ export function QuizPlayer({ lessonId, lessonTitle, onQuizCompleted }: QuizPlaye
     const allAnswered = answeredCount === totalQuestions;
 
     return (
-      <div className="rounded-xl border border-border-default bg-bg-secondary p-6">
+      <div className="border-border-default bg-bg-secondary rounded-xl border p-6">
         {/* Progress bar */}
         <div className="mb-6">
-          <div className="flex items-center justify-between text-xs text-text-tertiary">
+          <div className="text-text-tertiary flex items-center justify-between text-xs">
             <span>
               Question {currentIndex + 1} of {totalQuestions}
             </span>
@@ -145,18 +140,16 @@ export function QuizPlayer({ lessonId, lessonTitle, onQuizCompleted }: QuizPlaye
               {answeredCount}/{totalQuestions} answered
             </span>
           </div>
-          <div className="mt-2 h-1.5 w-full rounded-full bg-bg-tertiary">
+          <div className="bg-bg-tertiary mt-2 h-1.5 w-full rounded-full">
             <div
-              className="h-1.5 rounded-full bg-accent-blue transition-all"
+              className="bg-accent-blue h-1.5 rounded-full transition-all"
               style={{ width: `${((currentIndex + 1) / totalQuestions) * 100}%` }}
             />
           </div>
         </div>
 
         {/* Question */}
-        <h3 className="text-base font-medium text-text-primary">
-          {current.question}
-        </h3>
+        <h3 className="text-text-primary text-base font-medium">{current.question}</h3>
 
         {/* Options */}
         <div className="mt-4 space-y-2">
@@ -213,10 +206,7 @@ export function QuizPlayer({ lessonId, lessonTitle, onQuizCompleted }: QuizPlaye
           </Button>
 
           {currentIndex < totalQuestions - 1 ? (
-            <Button
-              size="sm"
-              onClick={() => setCurrentIndex((i) => i + 1)}
-            >
+            <Button size="sm" onClick={() => setCurrentIndex((i) => i + 1)}>
               Next
               <ChevronRight className="size-4" />
             </Button>
@@ -272,31 +262,28 @@ export function QuizPlayer({ lessonId, lessonTitle, onQuizCompleted }: QuizPlaye
     return (
       <div className="space-y-6">
         {/* Score summary */}
-        <div className="rounded-xl border border-border-default bg-bg-secondary p-6 text-center">
+        <div className="border-border-default bg-bg-secondary rounded-xl border p-6 text-center">
           <div
             className={`mx-auto flex size-16 items-center justify-center rounded-full ${
               passed ? "bg-accent-green/10" : "bg-amber-100 dark:bg-amber-900/20"
             }`}
           >
             {passed ? (
-              <Trophy className="size-8 text-accent-green" />
+              <Trophy className="text-accent-green size-8" />
             ) : (
               <RotateCcw className="size-8 text-amber-500" />
             )}
           </div>
-          <h3 className="mt-4 text-lg font-semibold text-text-primary">
+          <h3 className="text-text-primary mt-4 text-lg font-semibold">
             {passed ? "Great job!" : "Keep practicing!"}
           </h3>
           <p
-            className={`mt-1 text-3xl font-bold ${
-              passed ? "text-accent-green" : "text-amber-500"
-            }`}
+            className={`mt-1 text-3xl font-bold ${passed ? "text-accent-green" : "text-amber-500"}`}
           >
             {result.score}/{result.total}
           </p>
-          <p className="text-sm text-text-secondary">
-            {result.percentage}% —{" "}
-            {passed ? "Passed" : "60% needed to pass"}
+          <p className="text-text-secondary text-sm">
+            {result.percentage}% — {passed ? "Passed" : "60% needed to pass"}
           </p>
           <div className="mt-4 flex justify-center gap-3">
             <Button variant="outline" size="sm" onClick={handleRetake}>
@@ -309,14 +296,9 @@ export function QuizPlayer({ lessonId, lessonTitle, onQuizCompleted }: QuizPlaye
         {/* Detailed results */}
         {result.results && (
           <div className="space-y-3">
-            <h4 className="text-sm font-medium text-text-primary">
-              Answer Review
-            </h4>
+            <h4 className="text-text-primary text-sm font-medium">Answer Review</h4>
             {result.results.map((r: QuizAttemptResult, idx: number) => (
-              <div
-                key={r.question_id}
-                className="space-y-2"
-              >
+              <div key={r.question_id} className="space-y-2">
                 <div
                   className={`rounded-lg border p-4 ${
                     r.is_correct
@@ -326,12 +308,12 @@ export function QuizPlayer({ lessonId, lessonTitle, onQuizCompleted }: QuizPlaye
                 >
                   <div className="flex items-start gap-2">
                     {r.is_correct ? (
-                      <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-accent-green" />
+                      <CheckCircle2 className="text-accent-green mt-0.5 size-4 shrink-0" />
                     ) : (
                       <XCircle className="mt-0.5 size-4 shrink-0 text-red-500" />
                     )}
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-text-primary">
+                      <p className="text-text-primary text-sm font-medium">
                         Q{idx + 1}. {r.question}
                       </p>
                       <div className="mt-2 grid grid-cols-1 gap-1.5 sm:grid-cols-2">
@@ -343,7 +325,7 @@ export function QuizPlayer({ lessonId, lessonTitle, onQuizCompleted }: QuizPlaye
                               key={i}
                               className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-xs ${
                                 isCorrect
-                                  ? "bg-accent-green/15 font-medium text-accent-green"
+                                  ? "bg-accent-green/15 text-accent-green font-medium"
                                   : isSelected && !isCorrect
                                     ? "bg-red-100 text-red-600 line-through dark:bg-red-900/20 dark:text-red-400"
                                     : "text-text-tertiary"
@@ -353,9 +335,7 @@ export function QuizPlayer({ lessonId, lessonTitle, onQuizCompleted }: QuizPlaye
                                 {String.fromCharCode(65 + i)}.
                               </span>
                               {opt}
-                              {isCorrect && (
-                                <CheckCircle2 className="ml-auto size-3.5 shrink-0" />
-                              )}
+                              {isCorrect && <CheckCircle2 className="ml-auto size-3.5 shrink-0" />}
                             </div>
                           );
                         })}

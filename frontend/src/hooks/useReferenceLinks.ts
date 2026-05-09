@@ -24,13 +24,8 @@ export function useAddReferenceLinkMutation(courseId: string) {
       sectionId: string;
       lessonId: string;
       data: ReferenceLinkCreate;
-    }) =>
-      api.post<ReferenceLink>(
-        `/sections/${sectionId}/lessons/${lessonId}/references`,
-        data
-      ),
-    onSuccess: () =>
-      qc.invalidateQueries({ queryKey: sectionKeys.all(courseId) }),
+    }) => api.post<ReferenceLink>(`/sections/${sectionId}/lessons/${lessonId}/references`, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: sectionKeys.all(courseId) }),
   });
 }
 
@@ -45,11 +40,7 @@ export function useDeleteReferenceLinkMutation(courseId: string) {
       sectionId: string;
       lessonId: string;
       linkId: string;
-    }) =>
-      api.delete<void>(
-        `/sections/${sectionId}/lessons/${lessonId}/references/${linkId}`
-      ),
-    onSuccess: () =>
-      qc.invalidateQueries({ queryKey: sectionKeys.all(courseId) }),
+    }) => api.delete<void>(`/sections/${sectionId}/lessons/${lessonId}/references/${linkId}`),
+    onSuccess: () => qc.invalidateQueries({ queryKey: sectionKeys.all(courseId) }),
   });
 }

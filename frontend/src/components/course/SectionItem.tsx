@@ -31,11 +31,7 @@ import {
   ClipboardCheck,
   ListVideo,
 } from "lucide-react";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -81,14 +77,9 @@ export function SectionItem({
   const [editTitle, setEditTitle] = useState(section.title);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: section.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: section.id,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -97,7 +88,7 @@ export function SectionItem({
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
   useEffect(() => {
@@ -131,15 +122,13 @@ export function SectionItem({
     onReorderLessons(reordered.map((l, i) => ({ id: l.id, position: i })));
   };
 
-  const sortedLessons = [...section.lessons].sort(
-    (a, b) => a.position - b.position
-  );
+  const sortedLessons = [...section.lessons].sort((a, b) => a.position - b.position);
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`rounded-xl border border-border-default bg-bg-secondary transition-colors ${isDragging ? "z-50 opacity-50 shadow-xl" : ""}`}
+      className={`border-border-default bg-bg-secondary rounded-xl border transition-colors ${isDragging ? "z-50 opacity-50 shadow-xl" : ""}`}
     >
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         {/* Section Header */}
@@ -148,7 +137,7 @@ export function SectionItem({
           <button
             {...attributes}
             {...listeners}
-            className="cursor-grab touch-none text-text-tertiary hover:text-text-secondary"
+            className="text-text-tertiary hover:text-text-secondary cursor-grab touch-none"
             tabIndex={-1}
           >
             <GripVertical className="size-4" />
@@ -156,13 +145,9 @@ export function SectionItem({
 
           {/* Collapse trigger */}
           <CollapsibleTrigger
-            render={
-              <Button variant="ghost" size="icon-xs" className="shrink-0" />
-            }
+            render={<Button variant="ghost" size="icon-xs" className="shrink-0" />}
           >
-            <ChevronDown
-              className={`size-4 transition-transform ${isOpen ? "" : "-rotate-90"}`}
-            />
+            <ChevronDown className={`size-4 transition-transform ${isOpen ? "" : "-rotate-90"}`} />
           </CollapsibleTrigger>
 
           {/* Title */}
@@ -183,7 +168,7 @@ export function SectionItem({
             />
           ) : (
             <span
-              className="flex-1 truncate text-sm font-medium text-text-primary cursor-pointer"
+              className="text-text-primary flex-1 cursor-pointer truncate text-sm font-medium"
               onDoubleClick={() => setIsEditing(true)}
             >
               {section.title}
@@ -191,17 +176,14 @@ export function SectionItem({
           )}
 
           {/* Lesson count */}
-          <span className="shrink-0 text-xs text-text-tertiary">
-            {section.lessons.length}{" "}
-            {section.lessons.length === 1 ? "lesson" : "lessons"}
+          <span className="text-text-tertiary shrink-0 text-xs">
+            {section.lessons.length} {section.lessons.length === 1 ? "lesson" : "lessons"}
           </span>
 
           {/* Actions */}
           <DropdownMenu>
             <DropdownMenuTrigger
-              render={
-                <Button variant="ghost" size="icon-xs" className="shrink-0" />
-              }
+              render={<Button variant="ghost" size="icon-xs" className="shrink-0" />}
             >
               <MoreHorizontal className="size-4" />
             </DropdownMenuTrigger>
@@ -264,7 +246,7 @@ export function SectionItem({
                 </SortableContext>
               </DndContext>
             ) : (
-              <div className="flex items-center justify-center rounded-lg border border-dashed border-border-default py-6 text-xs text-text-tertiary">
+              <div className="border-border-default text-text-tertiary flex items-center justify-center rounded-lg border border-dashed py-6 text-xs">
                 No lessons yet
               </div>
             )}
@@ -276,7 +258,7 @@ export function SectionItem({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="mt-1 w-full justify-start text-text-secondary hover:text-text-primary"
+                    className="text-text-secondary hover:text-text-primary mt-1 w-full justify-start"
                   />
                 }
               >

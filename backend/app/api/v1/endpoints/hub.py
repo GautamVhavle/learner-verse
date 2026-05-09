@@ -8,18 +8,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.dependencies import get_current_user
 from app.core.database import get_db
 from app.models.user import User
-from app.repositories.enrollment_repo import EnrollmentRepository
 from app.repositories.course_repo import CourseRepository
+from app.repositories.enrollment_repo import EnrollmentRepository
 from app.repositories.rating_repo import RatingRepository
 from app.repositories.section_repo import SectionRepository
 from app.schemas.course import CourseListResponse, CourseResponse
 from app.schemas.rating import RatingCreate, RatingListResponse, RatingResponse, RatingUpdate
 
-
 router = APIRouter(prefix="/hub", tags=["hub"])
 
 
 # ── Public Course Listing ──────────────────────────────────────
+
 
 @router.get("/courses", response_model=CourseListResponse)
 async def list_hub_courses(
@@ -39,7 +39,11 @@ async def list_hub_courses(
 
     tag_list = [t.strip() for t in tags.split(",") if t.strip()] if tags else None
     courses, total = await repo.list_public_courses(
-        search=search, tags=tag_list, sort_by=sort, page=page, per_page=per_page,
+        search=search,
+        tags=tag_list,
+        sort_by=sort,
+        page=page,
+        per_page=per_page,
     )
 
     if not courses:
@@ -55,7 +59,9 @@ async def list_hub_courses(
 
     # Batch load creator names
     from sqlalchemy import select
+
     from app.models.user import User as UserModel
+
     result = await db.execute(
         select(UserModel.id, UserModel.display_name).where(UserModel.id.in_(user_ids))
     )
@@ -69,33 +75,36 @@ async def list_hub_courses(
         avg, r_count = rating_stats.get(c.id, (0.0, 0))
         e_count = enrollment_counts.get(c.id, 0)
 
-        items.append(CourseResponse(
-            id=c.id,
-            user_id=c.user_id,
-            title=c.title,
-            description=c.description,
-            thumbnail_url=c.thumbnail_url,
-            status=c.status,
-            is_public=c.is_public,
-            is_deleted=c.is_deleted,
-            deleted_at=c.deleted_at,
-            goal_date=c.goal_date,
-            tags=[{"id": t.id, "name": t.name} for t in (c.tags or [])],
-            section_count=section_count,
-            lesson_count=lesson_count,
-            has_issues=False,
-            enrollment_count=e_count,
-            average_rating=avg,
-            rating_count=r_count,
-            creator_name=creator_names.get(c.user_id, ""),
-            created_at=c.created_at,
-            updated_at=c.updated_at,
-        ))
+        items.append(
+            CourseResponse(
+                id=c.id,
+                user_id=c.user_id,
+                title=c.title,
+                description=c.description,
+                thumbnail_url=c.thumbnail_url,
+                status=c.status,
+                is_public=c.is_public,
+                is_deleted=c.is_deleted,
+                deleted_at=c.deleted_at,
+                goal_date=c.goal_date,
+                tags=[{"id": t.id, "name": t.name} for t in (c.tags or [])],
+                section_count=section_count,
+                lesson_count=lesson_count,
+                has_issues=False,
+                enrollment_count=e_count,
+                average_rating=avg,
+                rating_count=r_count,
+                creator_name=creator_names.get(c.user_id, ""),
+                created_at=c.created_at,
+                updated_at=c.updated_at,
+            )
+        )
 
     return CourseListResponse(items=items, total=total)
 
 
 # ── My Courses (Private View) ─────────────────────────────────
+
 
 @router.get("/my-courses", response_model=CourseListResponse)
 async def list_my_courses(
@@ -142,28 +151,30 @@ async def list_my_courses(
         avg, r_count = rating_stats.get(c.id, (0.0, 0))
         e_count = enrollment_counts.get(c.id, 0)
 
-        items.append(CourseResponse(
-            id=c.id,
-            user_id=c.user_id,
-            title=c.title,
-            description=c.description,
-            thumbnail_url=c.thumbnail_url,
-            status=c.status,
-            is_public=c.is_public,
-            is_deleted=c.is_deleted,
-            deleted_at=c.deleted_at,
-            goal_date=c.goal_date,
-            tags=[{"id": t.id, "name": t.name} for t in (c.tags or [])],
-            section_count=section_count,
-            lesson_count=lesson_count,
-            has_issues=False,
-            enrollment_count=e_count,
-            average_rating=avg,
-            rating_count=r_count,
-            creator_name=user.display_name,
-            created_at=c.created_at,
-            updated_at=c.updated_at,
-        ))
+        items.append(
+            CourseResponse(
+                id=c.id,
+                user_id=c.user_id,
+                title=c.title,
+                description=c.description,
+                thumbnail_url=c.thumbnail_url,
+                status=c.status,
+                is_public=c.is_public,
+                is_deleted=c.is_deleted,
+                deleted_at=c.deleted_at,
+                goal_date=c.goal_date,
+                tags=[{"id": t.id, "name": t.name} for t in (c.tags or [])],
+                section_count=section_count,
+                lesson_count=lesson_count,
+                has_issues=False,
+                enrollment_count=e_count,
+                average_rating=avg,
+                rating_count=r_count,
+                creator_name=user.display_name,
+                created_at=c.created_at,
+                updated_at=c.updated_at,
+            )
+        )
 
     return CourseListResponse(items=items, total=total)
 
@@ -202,10 +213,10 @@ async def get_hub_course(
 
     # Creator name
     from sqlalchemy import select
+
     from app.models.user import User as UserModel
-    result = await db.execute(
-        select(UserModel.display_name).where(UserModel.id == course.user_id)
-    )
+
+    result = await db.execute(select(UserModel.display_name).where(UserModel.id == course.user_id))
     creator_name = result.scalar_one_or_none() or ""
 
     return CourseResponse(
@@ -234,6 +245,7 @@ async def get_hub_course(
 
 # ── Public (Unauthenticated) Course Access ───────────────────
 
+
 @router.get("/public/courses/{course_id}", response_model=CourseResponse)
 async def get_public_course(
     course_id: uuid.UUID,
@@ -256,10 +268,10 @@ async def get_public_course(
     e_count = await enrollment_repo.get_enrollment_count(course_id)
 
     from sqlalchemy import select
+
     from app.models.user import User as UserModel
-    result = await db.execute(
-        select(UserModel.display_name).where(UserModel.id == course.user_id)
-    )
+
+    result = await db.execute(select(UserModel.display_name).where(UserModel.id == course.user_id))
     creator_name = result.scalar_one_or_none() or ""
 
     return CourseResponse(
@@ -301,10 +313,12 @@ async def list_public_sections(
 
     sections = await section_repo.list_by_course(course_id)
     from app.schemas.section import SectionResponse
+
     return [SectionResponse.model_validate(s) for s in sections]
 
 
 # ── Accessible Sections ───────────────────────────────────────
+
 
 @router.get("/courses/{course_id}/sections")
 async def list_hub_sections(
@@ -332,12 +346,18 @@ async def list_hub_sections(
 
     sections = await section_repo.list_by_course(course_id)
     from app.schemas.section import SectionResponse
+
     return [SectionResponse.model_validate(s) for s in sections]
 
 
 # ── Ratings ────────────────────────────────────────────────────
 
-@router.post("/courses/{course_id}/ratings", response_model=RatingResponse, status_code=status.HTTP_201_CREATED)
+
+@router.post(
+    "/courses/{course_id}/ratings",
+    response_model=RatingResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_rating(
     course_id: uuid.UUID,
     data: RatingCreate,

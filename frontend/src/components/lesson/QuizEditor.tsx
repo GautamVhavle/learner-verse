@@ -82,10 +82,7 @@ export function QuizEditor({ lessonId, courseId }: QuizEditorProps) {
   const handleSaveEdit = (questionId: string) => {
     if (!editData.question.trim()) return;
     if (editData.options.some((o) => !o.trim())) return;
-    updateMutation.mutate(
-      { questionId, data: editData },
-      { onSuccess: () => setEditingId(null) },
-    );
+    updateMutation.mutate({ questionId, data: editData }, { onSuccess: () => setEditingId(null) });
   };
 
   const handleDelete = (questionId: string) => {
@@ -112,7 +109,7 @@ export function QuizEditor({ lessonId, courseId }: QuizEditorProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-8 text-sm text-text-tertiary">
+      <div className="text-text-tertiary flex items-center justify-center py-8 text-sm">
         Loading questions…
       </div>
     );
@@ -121,7 +118,7 @@ export function QuizEditor({ lessonId, courseId }: QuizEditorProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-text-primary">
+        <h3 className="text-text-primary text-sm font-medium">
           Quiz Questions ({questions.length})
         </h3>
         <ProGate />
@@ -130,7 +127,7 @@ export function QuizEditor({ lessonId, courseId }: QuizEditorProps) {
             variant="ghost"
             size="sm"
             onClick={gatedAction(() => setShowAiPanel(true))}
-            className="gap-1.5 text-accent-purple hover:text-accent-purple"
+            className="text-accent-purple hover:text-accent-purple gap-1.5"
           >
             <Sparkles className="size-3.5" />
             Generate with LiVi
@@ -140,22 +137,22 @@ export function QuizEditor({ lessonId, courseId }: QuizEditorProps) {
 
       {/* ── AI Generation Panel ── */}
       {showAiPanel && (
-        <div className="relative overflow-hidden rounded-xl border border-accent-purple/20 bg-gradient-to-br from-accent-purple/[0.04] to-accent-purple/[0.02]">
+        <div className="border-accent-purple/20 from-accent-purple/[0.04] to-accent-purple/[0.02] relative overflow-hidden rounded-xl border bg-gradient-to-br">
           {/* Header */}
-          <div className="flex items-center gap-2.5 border-b border-accent-purple/10 px-4 py-3">
-            <div className="flex size-7 items-center justify-center rounded-lg bg-accent-purple/10">
-              <Sparkles className="size-3.5 text-accent-purple" />
+          <div className="border-accent-purple/10 flex items-center gap-2.5 border-b px-4 py-3">
+            <div className="bg-accent-purple/10 flex size-7 items-center justify-center rounded-lg">
+              <Sparkles className="text-accent-purple size-3.5" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-text-primary">Generate with LiVi</p>
-              <p className="text-[11px] text-text-tertiary">AI-powered quiz generation</p>
+              <p className="text-text-primary text-sm font-semibold">Generate with LiVi</p>
+              <p className="text-text-tertiary text-[11px]">AI-powered quiz generation</p>
             </div>
           </div>
 
           <div className="space-y-3 p-4">
             {/* Topic */}
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-text-secondary">Topic</label>
+              <label className="text-text-secondary text-xs font-medium">Topic</label>
               <Input
                 value={aiTopic}
                 onChange={(e) => setAiTopic(e.target.value)}
@@ -169,7 +166,7 @@ export function QuizEditor({ lessonId, courseId }: QuizEditorProps) {
             <div className="flex gap-3">
               {/* Difficulty */}
               <div className="flex-1 space-y-1.5">
-                <label className="text-xs font-medium text-text-secondary">Difficulty</label>
+                <label className="text-text-secondary text-xs font-medium">Difficulty</label>
                 <div className="flex gap-1.5">
                   {(["easy", "medium", "hard"] as const).map((d) => {
                     const active = aiDifficulty === d;
@@ -196,7 +193,7 @@ export function QuizEditor({ lessonId, courseId }: QuizEditorProps) {
 
               {/* Number of questions */}
               <div className="w-28 space-y-1.5">
-                <label className="text-xs font-medium text-text-secondary">Questions</label>
+                <label className="text-text-secondary text-xs font-medium">Questions</label>
                 <div className="flex items-center gap-1.5">
                   <Input
                     type="number"
@@ -213,7 +210,7 @@ export function QuizEditor({ lessonId, courseId }: QuizEditorProps) {
 
             {/* Actions */}
             <div className="flex items-center justify-between pt-1">
-              <p className="text-[11px] text-text-tertiary">Max 25 questions per generation</p>
+              <p className="text-text-tertiary text-[11px]">Max 25 questions per generation</p>
               <div className="flex gap-2">
                 <Button
                   variant="ghost"
@@ -227,7 +224,7 @@ export function QuizEditor({ lessonId, courseId }: QuizEditorProps) {
                   size="sm"
                   onClick={handleAiGenerate}
                   disabled={!aiTopic.trim() || generateMutation.isPending}
-                  className="gap-1.5 bg-accent-purple text-white hover:bg-accent-purple/90"
+                  className="bg-accent-purple hover:bg-accent-purple/90 gap-1.5 text-white"
                 >
                   {generateMutation.isPending ? (
                     <>
@@ -253,28 +250,28 @@ export function QuizEditor({ lessonId, courseId }: QuizEditorProps) {
           {Array.from({ length: Math.min(aiCount, 5) }).map((_, i) => (
             <div
               key={i}
-              className="animate-pulse rounded-lg border border-accent-purple/10 bg-accent-purple/[0.02] p-4"
+              className="border-accent-purple/10 bg-accent-purple/[0.02] animate-pulse rounded-lg border p-4"
               style={{ animationDelay: `${i * 150}ms` }}
             >
               <div className="mb-3 flex items-center gap-2">
-                <div className="flex size-5 items-center justify-center rounded bg-accent-purple/10">
-                  <Sparkles className="size-3 animate-pulse text-accent-purple/40" />
+                <div className="bg-accent-purple/10 flex size-5 items-center justify-center rounded">
+                  <Sparkles className="text-accent-purple/40 size-3 animate-pulse" />
                 </div>
-                <div className="h-3.5 flex-1 rounded-full bg-accent-purple/10" />
-                <div className="h-3.5 w-16 rounded-full bg-accent-purple/10" />
+                <div className="bg-accent-purple/10 h-3.5 flex-1 rounded-full" />
+                <div className="bg-accent-purple/10 h-3.5 w-16 rounded-full" />
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {Array.from({ length: 4 }).map((_, j) => (
                   <div
                     key={j}
-                    className="h-9 rounded-md bg-accent-purple/[0.06]"
+                    className="bg-accent-purple/[0.06] h-9 rounded-md"
                     style={{ animationDelay: `${(i * 4 + j) * 80}ms` }}
                   />
                 ))}
               </div>
             </div>
           ))}
-          <p className="text-center text-xs text-accent-purple/60">
+          <p className="text-accent-purple/60 text-center text-xs">
             LiVi is generating your quiz questions…
           </p>
         </div>
@@ -282,18 +279,15 @@ export function QuizEditor({ lessonId, courseId }: QuizEditorProps) {
 
       {/* Existing questions */}
       {questions.length === 0 && !showNewForm && !generateMutation.isPending && (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border-default py-8 text-center">
-          <p className="text-sm text-text-tertiary">No questions yet</p>
-          <p className="mt-1 text-xs text-text-tertiary">Add your first question to get started</p>
+        <div className="border-border-default flex flex-col items-center justify-center rounded-lg border border-dashed py-8 text-center">
+          <p className="text-text-tertiary text-sm">No questions yet</p>
+          <p className="text-text-tertiary mt-1 text-xs">Add your first question to get started</p>
         </div>
       )}
 
       <div className="space-y-3">
         {questions.map((q, idx) => (
-          <div
-            key={q.id}
-            className="rounded-lg border border-border-default bg-bg-secondary p-4"
-          >
+          <div key={q.id} className="border-border-default bg-bg-secondary rounded-lg border p-4">
             {editingId === q.id ? (
               /* Edit mode */
               <QuestionForm
@@ -308,8 +302,8 @@ export function QuizEditor({ lessonId, courseId }: QuizEditorProps) {
               /* View mode */
               <div className="space-y-3">
                 <div className="flex items-start justify-between gap-2">
-                  <p className="text-sm font-medium text-text-primary">
-                    <span className="mr-2 text-text-tertiary">Q{idx + 1}.</span>
+                  <p className="text-text-primary text-sm font-medium">
+                    <span className="text-text-tertiary mr-2">Q{idx + 1}.</span>
                     {q.question}
                   </p>
                   <div className="flex shrink-0 gap-1">
@@ -345,7 +339,7 @@ export function QuizEditor({ lessonId, courseId }: QuizEditorProps) {
                       {i === q.correct_option ? (
                         <CheckCircle2 className="size-4 shrink-0" />
                       ) : (
-                        <Circle className="size-4 shrink-0 text-text-tertiary" />
+                        <Circle className="text-text-tertiary size-4 shrink-0" />
                       )}
                       <span className="truncate">{opt}</span>
                     </div>
@@ -359,7 +353,7 @@ export function QuizEditor({ lessonId, courseId }: QuizEditorProps) {
 
       {/* Add new question form */}
       {showNewForm ? (
-        <div className="rounded-lg border border-accent-blue/30 bg-accent-blue/5 p-4">
+        <div className="border-accent-blue/30 bg-accent-blue/5 rounded-lg border p-4">
           <QuestionForm
             data={newQuestion}
             onChange={setNewQuestion}
@@ -376,7 +370,7 @@ export function QuizEditor({ lessonId, courseId }: QuizEditorProps) {
         <Button
           variant="ghost"
           size="sm"
-          className="w-full justify-start text-text-secondary hover:text-text-primary"
+          className="text-text-secondary hover:text-text-primary w-full justify-start"
           onClick={() => setShowNewForm(true)}
         >
           <Plus className="size-3.5" />
@@ -405,17 +399,13 @@ function QuestionForm({ data, onChange, onSave, onCancel, saving, index }: Quest
     onChange({ ...data, options });
   };
 
-  const isValid =
-    data.question.trim().length > 0 &&
-    data.options.every((o) => o.trim().length > 0);
+  const isValid = data.question.trim().length > 0 && data.options.every((o) => o.trim().length > 0);
 
   return (
     <div className="space-y-4">
       {/* Question text */}
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-text-secondary">
-          Question {index + 1}
-        </label>
+        <label className="text-text-secondary text-xs font-medium">Question {index + 1}</label>
         <Input
           value={data.question}
           onChange={(e) => onChange({ ...data, question: e.target.value })}
@@ -426,7 +416,7 @@ function QuestionForm({ data, onChange, onSave, onCancel, saving, index }: Quest
 
       {/* Options */}
       <div className="space-y-2">
-        <label className="text-xs font-medium text-text-secondary">
+        <label className="text-text-secondary text-xs font-medium">
           Options (click to mark correct answer)
         </label>
         {data.options.map((opt, i) => (
@@ -462,11 +452,7 @@ function QuestionForm({ data, onChange, onSave, onCancel, saving, index }: Quest
         <Button variant="ghost" size="sm" onClick={onCancel}>
           Cancel
         </Button>
-        <Button
-          size="sm"
-          onClick={onSave}
-          disabled={!isValid || saving}
-        >
+        <Button size="sm" onClick={onSave} disabled={!isValid || saving}>
           <Save className="size-3.5" />
           {saving ? "Saving…" : "Save Question"}
         </Button>

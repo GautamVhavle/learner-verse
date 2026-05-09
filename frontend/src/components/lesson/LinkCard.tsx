@@ -13,7 +13,7 @@ interface LinkCardProps {
 
 export function LinkCard({ link, onRemove, readonly }: LinkCardProps) {
   return (
-    <div className="group relative flex gap-3 rounded-lg border border-border-default bg-bg-secondary p-3 transition-colors hover:border-border-hover">
+    <div className="group border-border-default bg-bg-secondary hover:border-border-hover relative flex gap-3 rounded-lg border p-3 transition-colors">
       {/* OG Image */}
       {link.image && (
         <div className="hidden shrink-0 sm:block">
@@ -37,16 +37,14 @@ export function LinkCard({ link, onRemove, readonly }: LinkCardProps) {
           rel="noopener noreferrer"
           className="group/link flex items-start gap-1.5"
         >
-          <span className="line-clamp-1 text-sm font-medium text-text-primary group-hover/link:text-accent-blue">
+          <span className="text-text-primary group-hover/link:text-accent-blue line-clamp-1 text-sm font-medium">
             {link.title || link.url}
           </span>
-          <ExternalLink className="mt-0.5 size-3 shrink-0 text-text-tertiary" />
+          <ExternalLink className="text-text-tertiary mt-0.5 size-3 shrink-0" />
         </a>
 
         {link.description && (
-          <p className="mt-0.5 line-clamp-2 text-xs text-text-secondary">
-            {link.description}
-          </p>
+          <p className="text-text-secondary mt-0.5 line-clamp-2 text-xs">{link.description}</p>
         )}
 
         {/* Domain + Favicon */}
@@ -62,7 +60,7 @@ export function LinkCard({ link, onRemove, readonly }: LinkCardProps) {
               }}
             />
           )}
-          <span className="text-xs text-text-tertiary">
+          <span className="text-text-tertiary text-xs">
             {link.domain || new URL(link.url).hostname}
           </span>
         </div>
@@ -74,7 +72,7 @@ export function LinkCard({ link, onRemove, readonly }: LinkCardProps) {
           variant="ghost"
           size="icon"
           onClick={onRemove}
-          className="absolute -right-1.5 -top-1.5 size-6 rounded-full border border-border-default bg-bg-tertiary opacity-0 transition-opacity group-hover:opacity-100"
+          className="border-border-default bg-bg-tertiary absolute -top-1.5 -right-1.5 size-6 rounded-full border opacity-0 transition-opacity group-hover:opacity-100"
         >
           <X className="size-3" />
         </Button>

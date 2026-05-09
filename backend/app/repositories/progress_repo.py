@@ -1,7 +1,7 @@
 """Repository for LessonProgress toggle and batch lookup."""
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,9 +15,7 @@ class ProgressRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def get(
-        self, user_id: uuid.UUID, lesson_id: uuid.UUID
-    ) -> LessonProgress | None:
+    async def get(self, user_id: uuid.UUID, lesson_id: uuid.UUID) -> LessonProgress | None:
         """Fetch a single progress record for a (user, lesson) pair."""
         result = await self.db.execute(
             select(LessonProgress).where(
@@ -38,15 +36,13 @@ class ProgressRepository:
         existing = await self.get(user_id, lesson_id)
         if existing:
             existing.completed = completed
-            existing.completed_at = (
-                datetime.now(timezone.utc) if completed else None
-            )
+            existing.completed_at = datetime.now(UTC) if completed else None
         else:
             existing = LessonProgress(
                 user_id=user_id,
                 lesson_id=lesson_id,
                 completed=completed,
-                completed_at=datetime.now(timezone.utc) if completed else None,
+                completed_at=datetime.now(UTC) if completed else None,
             )
             self.db.add(existing)
         return existing

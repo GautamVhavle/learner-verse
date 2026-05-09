@@ -21,17 +21,11 @@ export function CourseOverview({
   onStartLesson,
 }: CourseOverviewProps) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-border-default bg-bg-secondary p-8 text-center">
-      <BookOpen className="mb-4 size-10 text-text-tertiary" />
-      <h2 className="text-lg font-semibold text-text-primary">
-        Course Preview
-      </h2>
-      {description && (
-        <p className="mt-2 max-w-md text-sm text-text-secondary">
-          {description}
-        </p>
-      )}
-      <p className="mt-3 text-xs text-text-tertiary">
+    <div className="border-border-default bg-bg-secondary flex flex-col items-center justify-center rounded-xl border p-8 text-center">
+      <BookOpen className="text-text-tertiary mb-4 size-10" />
+      <h2 className="text-text-primary text-lg font-semibold">Course Preview</h2>
+      {description && <p className="text-text-secondary mt-2 max-w-md text-sm">{description}</p>}
+      <p className="text-text-tertiary mt-3 text-xs">
         {sectionCount} sections &middot; {lessonCount} lessons
       </p>
       {lessonCount > 0 && (

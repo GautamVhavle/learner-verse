@@ -11,9 +11,9 @@ from app.models.certificate import Certificate
 from app.models.chat_message import ChatMessage
 from app.models.chat_thread import ChatThread
 from app.models.course import Course
+from app.models.course_study_state import CourseStudyState
 from app.models.discussion_message import DiscussionMessage
 from app.models.enrollment import CourseEnrollment
-from app.models.course_study_state import CourseStudyState
 from app.models.lesson import Lesson
 from app.models.lesson_progress import LessonProgress
 from app.models.notification import Notification

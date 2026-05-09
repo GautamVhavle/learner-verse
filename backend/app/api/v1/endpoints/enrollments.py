@@ -72,9 +72,7 @@ async def enroll_in_course(
             detail="Course is not public.",
         )
 
-    enrollment = await EnrollmentRepository(db).enroll(
-        user_id=current_user.id, course_id=course_id
-    )
+    enrollment = await EnrollmentRepository(db).enroll(user_id=current_user.id, course_id=course_id)
     await db.commit()
 
     # Send enrollment notification
@@ -94,7 +92,5 @@ async def unenroll_from_course(
     current_user: User = Depends(get_current_user),
 ):
     """Remove the current user's enrollment from a course."""
-    await EnrollmentRepository(db).unenroll(
-        user_id=current_user.id, course_id=course_id
-    )
+    await EnrollmentRepository(db).unenroll(user_id=current_user.id, course_id=course_id)
     await db.commit()

@@ -43,7 +43,10 @@ select = [
     "B",   # flake8-bugbear
     "UP",  # pyupgrade
 ]
-ignore = ["E501"]
+ignore = ["E501", "B008", "B904"]
+
+[tool.ruff.lint.per-file-ignores]
+"app/models/*.py" = ["F821"]  # SQLAlchemy forward references in relationship strings
 
 [tool.ruff.format]
 quote-style = "double"

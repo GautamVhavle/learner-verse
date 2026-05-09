@@ -4,12 +4,7 @@
  * Displays the course title, description, section/lesson counts,
  * progress bar, goal/pace indicator, and the Continue/Start button.
  */
-import {
-  FileText,
-  Layers,
-  Play,
-  Target,
-} from "lucide-react";
+import { FileText, Layers, Play, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CourseStatusBadge } from "@/components/course/CourseStatusBadge";
 import { ProgressBar } from "@/components/study/ProgressBar";
@@ -32,46 +27,39 @@ export function StudyHero({
   onContinue,
   onEditGoal,
 }: StudyHeroProps) {
-  const totalLessons =
-    (course.lesson_count ?? 0);
+  const totalLessons = course.lesson_count ?? 0;
 
   return (
-    <div className="rounded-xl border border-border-default bg-bg-secondary p-6">
+    <div className="border-border-default bg-bg-secondary rounded-xl border p-6">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-2.5">
-            <h1 className="text-xl font-semibold text-text-primary">
-              {course.title}
-            </h1>
+            <h1 className="text-text-primary text-xl font-semibold">{course.title}</h1>
             <CourseStatusBadge status={course.status} />
           </div>
           {course.description && (
-            <p className="mt-2 text-sm leading-relaxed text-text-secondary">
-              {course.description}
-            </p>
+            <p className="text-text-secondary mt-2 text-sm leading-relaxed">{course.description}</p>
           )}
         </div>
       </div>
 
       {/* Stats row */}
-      <div className="mt-5 flex flex-wrap items-center gap-4 text-sm text-text-tertiary">
+      <div className="text-text-tertiary mt-5 flex flex-wrap items-center gap-4 text-sm">
         <div className="flex items-center gap-1.5">
           <Layers className="size-4" />
           <span>
-            {course.section_count}{" "}
-            {course.section_count === 1 ? "section" : "sections"}
+            {course.section_count} {course.section_count === 1 ? "section" : "sections"}
           </span>
         </div>
         <div className="flex items-center gap-1.5">
           <FileText className="size-4" />
           <span>
-            {course.lesson_count}{" "}
-            {course.lesson_count === 1 ? "lesson" : "lessons"}
+            {course.lesson_count} {course.lesson_count === 1 ? "lesson" : "lessons"}
           </span>
         </div>
         {progress && progress.total_lessons > 0 && (
           <div className="flex items-center gap-1.5">
-            <span className="font-medium text-text-secondary">
+            <span className="text-text-secondary font-medium">
               {progress.completed_lessons}/{progress.total_lessons} done
             </span>
           </div>
@@ -81,11 +69,7 @@ export function StudyHero({
       {/* Course progress bar */}
       {progress && progress.total_lessons > 0 && (
         <div className="mt-4">
-          <ProgressBar
-            value={progress.percentage}
-            size="md"
-            showLabel
-          />
+          <ProgressBar value={progress.percentage} size="md" showLabel />
         </div>
       )}
 
@@ -95,7 +79,7 @@ export function StudyHero({
           <PaceIndicator goal={progress.goal} />
           <button
             onClick={onEditGoal}
-            className="mt-1.5 text-xs text-text-tertiary transition-colors hover:text-accent-blue"
+            className="text-text-tertiary hover:text-accent-blue mt-1.5 text-xs transition-colors"
           >
             Edit goal
           </button>
@@ -106,7 +90,7 @@ export function StudyHero({
             variant="ghost"
             size="sm"
             onClick={onEditGoal}
-            className="mt-3 gap-1.5 text-text-tertiary hover:text-accent-blue"
+            className="text-text-tertiary hover:text-accent-blue mt-3 gap-1.5"
           >
             <Target className="size-3.5" />
             Set a learning goal
@@ -116,10 +100,7 @@ export function StudyHero({
 
       {/* Continue / Start button */}
       {totalLessons > 0 && (
-        <Button
-          onClick={onContinue}
-          className="mt-5 gap-2"
-        >
+        <Button onClick={onContinue} className="mt-5 gap-2">
           <Play className="size-4" />
           {hasStudyState ? "Continue Learning" : "Start Course"}
         </Button>

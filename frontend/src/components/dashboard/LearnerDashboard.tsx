@@ -6,13 +6,7 @@
  * The "Continue Learning" hero highlights the most recently studied course.
  * An empty state directs the user to Browse Courses to enrol in their first course.
  */
-import {
-  Award,
-  Compass,
-  Flame,
-  GraduationCap,
-  Target,
-} from "lucide-react";
+import { Award, Compass, Flame, GraduationCap, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ContinueLearning } from "@/components/dashboard/ContinueLearning";
@@ -48,26 +42,24 @@ export function LearnerDashboard() {
     <div className="space-y-8">
       {/* Hero header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-text-primary">
-          My Learning
-        </h1>
-        <p className="mt-1 text-sm text-text-secondary">
+        <h1 className="text-text-primary text-2xl font-bold tracking-tight">My Learning</h1>
+        <p className="text-text-secondary mt-1 text-sm">
           Track your progress and pick up where you left off.
         </p>
       </div>
 
       {/* Certificates earned banner */}
       {certs.length > 0 && (
-        <div className="flex flex-col gap-3 rounded-xl border border-accent-purple/20 bg-accent-purple/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+        <div className="border-accent-purple/20 bg-accent-purple/5 flex flex-col gap-3 rounded-xl border px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
           <div className="flex items-center gap-3">
-            <div className="flex size-9 items-center justify-center rounded-lg bg-accent-purple/15">
-              <Award className="size-5 text-accent-purple" />
+            <div className="bg-accent-purple/15 flex size-9 items-center justify-center rounded-lg">
+              <Award className="text-accent-purple size-5" />
             </div>
             <div>
-              <p className="text-sm font-medium text-text-primary">
+              <p className="text-text-primary text-sm font-medium">
                 {certs.length} {certs.length === 1 ? "Certificate" : "Certificates"} Earned
               </p>
-              <p className="text-xs text-text-secondary">Keep going to earn more!</p>
+              <p className="text-text-secondary text-xs">Keep going to earn more!</p>
             </div>
           </div>
           <Button
@@ -83,19 +75,17 @@ export function LearnerDashboard() {
 
       {/* Active goals banner */}
       {activeGoals.length > 0 && (
-        <div className="flex flex-col gap-3 rounded-xl border border-accent-blue/20 bg-accent-blue/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+        <div className="border-accent-blue/20 bg-accent-blue/5 flex flex-col gap-3 rounded-xl border px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
           <div className="flex items-center gap-3">
-            <div className="flex size-9 items-center justify-center rounded-lg bg-accent-blue/15">
-              <Target className="size-5 text-accent-blue" />
+            <div className="bg-accent-blue/15 flex size-9 items-center justify-center rounded-lg">
+              <Target className="text-accent-blue size-5" />
             </div>
             <div>
-              <p className="text-sm font-medium text-text-primary">
+              <p className="text-text-primary text-sm font-medium">
                 {activeGoals.length} Active {activeGoals.length === 1 ? "Goal" : "Goals"}
               </p>
-              <p className="text-xs text-text-secondary">
-                {activeGoals.some(
-                  (g) => g.pace_status === "behind" || g.pace_status === "overdue",
-                )
+              <p className="text-text-secondary text-xs">
+                {activeGoals.some((g) => g.pace_status === "behind" || g.pace_status === "overdue")
                   ? "Some goals need attention"
                   : "You're making great progress!"}
               </p>
@@ -120,11 +110,10 @@ export function LearnerDashboard() {
               <Flame className="size-5 text-orange-400" />
             </div>
             <div>
-              <p className="text-sm font-medium text-text-primary">
-                {streak.current_streak} Day Streak{" "}
-                <span className="text-orange-400">🔥</span>
+              <p className="text-text-primary text-sm font-medium">
+                {streak.current_streak} Day Streak <span className="text-orange-400">🔥</span>
               </p>
-              <p className="text-xs text-text-secondary">
+              <p className="text-text-secondary text-xs">
                 {streak.current_streak >= streak.longest_streak
                   ? "You're on your best streak!"
                   : `Best: ${streak.longest_streak} days`}
@@ -143,16 +132,14 @@ export function LearnerDashboard() {
       )}
 
       {/* Continue Learning hero — only shown once the user has started a course */}
-      {mostRecentCourse && (
-        <ContinueLearningWrapper course={mostRecentCourse} />
-      )}
+      {mostRecentCourse && <ContinueLearningWrapper course={mostRecentCourse} />}
 
       {/* Empty state — no enrolled courses yet */}
       {!isLoading && items.length === 0 && (
         <EmptyState
           icon={
-            <div className="flex size-14 items-center justify-center rounded-full bg-accent-blue/10">
-              <GraduationCap className="size-7 text-accent-blue/50" />
+            <div className="bg-accent-blue/10 flex size-14 items-center justify-center rounded-full">
+              <GraduationCap className="text-accent-blue/50 size-7" />
             </div>
           }
           title="No courses enrolled yet"
@@ -166,9 +153,9 @@ export function LearnerDashboard() {
       {items.length > 0 && (
         <div>
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-medium text-text-primary">
+            <h2 className="text-text-primary text-sm font-medium">
               My Courses
-              <span className="ml-2 rounded-full bg-bg-tertiary px-2 py-0.5 text-xs text-text-tertiary">
+              <span className="bg-bg-tertiary text-text-tertiary ml-2 rounded-full px-2 py-0.5 text-xs">
                 {items.length}
               </span>
             </h2>
@@ -176,7 +163,7 @@ export function LearnerDashboard() {
               variant="ghost"
               size="sm"
               onClick={() => navigate("/hub")}
-              className="gap-1 text-xs text-text-secondary hover:text-text-primary"
+              className="text-text-secondary hover:text-text-primary gap-1 text-xs"
             >
               <Compass className="size-3.5" />
               Browse more
@@ -206,12 +193,5 @@ function ContinueLearningWrapper({ course }: { course: Course }) {
   // Only show if the user has started (has some progress or a saved study position)
   if (progress.completed_lessons === 0 && !studyState) return null;
 
-  return (
-    <ContinueLearning
-      course={course}
-      progress={progress}
-      studyState={studyState ?? null}
-    />
-  );
+  return <ContinueLearning course={course} progress={progress} studyState={studyState ?? null} />;
 }
-

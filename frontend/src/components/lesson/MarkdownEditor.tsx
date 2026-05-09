@@ -27,25 +27,23 @@ export function MarkdownEditor({ value, onChange, onBlur }: MarkdownEditorProps)
         onChange(text);
       }
     },
-    [onChange]
+    [onChange],
   );
 
   const charCount = value.length;
   const isNearLimit = charCount > MAX_LENGTH * 0.9;
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border-default bg-bg-primary">
+    <div className="border-border-default bg-bg-primary overflow-hidden rounded-lg border">
       {/* Toolbar */}
-      <div className="flex items-center justify-between border-b border-border-default px-3 py-1.5">
+      <div className="border-border-default flex items-center justify-between border-b px-3 py-1.5">
         <div className="flex items-center gap-1">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setMode("write")}
             className={`h-7 gap-1.5 px-2 text-xs ${
-              mode === "write"
-                ? "bg-bg-tertiary text-text-primary"
-                : "text-text-secondary"
+              mode === "write" ? "bg-bg-tertiary text-text-primary" : "text-text-secondary"
             }`}
           >
             <Pencil className="size-3" />
@@ -56,9 +54,7 @@ export function MarkdownEditor({ value, onChange, onBlur }: MarkdownEditorProps)
             size="sm"
             onClick={() => setMode("preview")}
             className={`h-7 gap-1.5 px-2 text-xs ${
-              mode === "preview"
-                ? "bg-bg-tertiary text-text-primary"
-                : "text-text-secondary"
+              mode === "preview" ? "bg-bg-tertiary text-text-primary" : "text-text-secondary"
             }`}
           >
             <Eye className="size-3" />
@@ -69,9 +65,7 @@ export function MarkdownEditor({ value, onChange, onBlur }: MarkdownEditorProps)
             size="sm"
             onClick={() => setMode("split")}
             className={`hidden h-7 gap-1.5 px-2 text-xs md:inline-flex ${
-              mode === "split"
-                ? "bg-bg-tertiary text-text-primary"
-                : "text-text-secondary"
+              mode === "split" ? "bg-bg-tertiary text-text-primary" : "text-text-secondary"
             }`}
           >
             <Columns2 className="size-3" />
@@ -88,11 +82,7 @@ export function MarkdownEditor({ value, onChange, onBlur }: MarkdownEditorProps)
       </div>
 
       {/* Content area */}
-      <div
-        className={
-          mode === "split" ? "grid grid-cols-2 divide-x divide-border-default" : ""
-        }
-      >
+      <div className={mode === "split" ? "divide-border-default grid grid-cols-2 divide-x" : ""}>
         {/* Editor */}
         {(mode === "write" || mode === "split") && (
           <TextareaAutosize
@@ -102,7 +92,7 @@ export function MarkdownEditor({ value, onChange, onBlur }: MarkdownEditorProps)
             minRows={6}
             maxRows={24}
             placeholder="Write your notes in markdown..."
-            className="w-full resize-none bg-transparent px-3 py-3 font-mono text-sm text-text-primary outline-none placeholder:text-text-tertiary"
+            className="text-text-primary placeholder:text-text-tertiary w-full resize-none bg-transparent px-3 py-3 font-mono text-sm outline-none"
             spellCheck={false}
           />
         )}
@@ -113,9 +103,7 @@ export function MarkdownEditor({ value, onChange, onBlur }: MarkdownEditorProps)
             {value ? (
               <MarkdownRenderer content={value} />
             ) : (
-              <p className="text-sm italic text-text-tertiary">
-                Nothing to preview
-              </p>
+              <p className="text-text-tertiary text-sm italic">Nothing to preview</p>
             )}
           </div>
         )}

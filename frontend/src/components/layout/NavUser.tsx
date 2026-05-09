@@ -12,11 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  SidebarMenu,
-  SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/sidebar";
+import { SidebarMenu, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 import { ChevronsUpDown } from "lucide-react";
 import { useModeAwareNavigate } from "@/hooks/useModeAwareNavigate";
 import { useUserQuery } from "@/hooks/useUser";
@@ -60,22 +56,18 @@ export function NavUser({ name, email, avatar }: NavUserProps) {
           >
             <Avatar className="h-8 w-8 shrink-0 rounded-lg">
               {avatar && <AvatarImage src={avatar} alt={name} />}
-              <AvatarFallback className="rounded-lg">
-                {getInitials(name)}
-              </AvatarFallback>
+              <AvatarFallback className="rounded-lg">{getInitials(name)}</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="flex items-center gap-1.5 truncate font-medium">
                 {name}
                 {profile?.is_pro && (
-                  <span className="rounded-sm bg-accent-purple/10 px-1.5 py-0.5 text-[9px] font-semibold text-accent-purple">
+                  <span className="bg-accent-purple/10 text-accent-purple rounded-sm px-1.5 py-0.5 text-[9px] font-semibold">
                     PRO
                   </span>
                 )}
               </span>
-              <span className="truncate text-xs text-muted-foreground">
-                {email}
-              </span>
+              <span className="text-muted-foreground truncate text-xs">{email}</span>
             </div>
           </button>
 
@@ -83,7 +75,7 @@ export function NavUser({ name, email, avatar }: NavUserProps) {
           {!SINGLE_USER_MODE && (
             <DropdownMenu>
               <DropdownMenuTrigger
-                className="flex shrink-0 items-center justify-center rounded-md p-1 text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
+                className="text-muted-foreground hover:bg-sidebar-accent hover:text-foreground flex shrink-0 items-center justify-center rounded-md p-1 transition-colors"
                 data-testid="user-menu-trigger"
               >
                 <ChevronsUpDown className="size-4" />

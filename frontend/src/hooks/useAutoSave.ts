@@ -35,7 +35,7 @@ export function useAutoSave<T>({
         setStatus("error");
       }
     },
-    [onSave]
+    [onSave],
   );
 
   useEffect(() => {

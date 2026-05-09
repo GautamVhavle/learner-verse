@@ -28,9 +28,7 @@ export function useCreateLessonMutation(courseId: string) {
       api.post<Lesson>(`/sections/${sectionId}/lessons`, data),
     onSuccess: (newLesson, { sectionId }) => {
       qc.setQueryData<Section[]>(sectionKeys.all(courseId), (old) =>
-        old?.map((s) =>
-          s.id === sectionId ? { ...s, lessons: [...s.lessons, newLesson] } : s
-        )
+        old?.map((s) => (s.id === sectionId ? { ...s, lessons: [...s.lessons, newLesson] } : s)),
       );
       qc.invalidateQueries({ queryKey: sectionKeys.all(courseId) });
     },
@@ -40,15 +38,22 @@ export function useCreateLessonMutation(courseId: string) {
 export function useUpdateLessonMutation(courseId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ sectionId, lessonId, data }: { sectionId: string; lessonId: string; data: LessonUpdate }) =>
-      api.put<Lesson>(`/sections/${sectionId}/lessons/${lessonId}`, data),
+    mutationFn: ({
+      sectionId,
+      lessonId,
+      data,
+    }: {
+      sectionId: string;
+      lessonId: string;
+      data: LessonUpdate;
+    }) => api.put<Lesson>(`/sections/${sectionId}/lessons/${lessonId}`, data),
     onSuccess: (updated, { sectionId }) => {
       qc.setQueryData<Section[]>(sectionKeys.all(courseId), (old) =>
         old?.map((s) =>
           s.id === sectionId
             ? { ...s, lessons: s.lessons.map((l) => (l.id === updated.id ? updated : l)) }
-            : s
-        )
+            : s,
+        ),
       );
       qc.invalidateQueries({ queryKey: sectionKeys.all(courseId) });
     },
@@ -63,10 +68,8 @@ export function useDeleteLessonMutation(courseId: string) {
     onSuccess: (_data, { sectionId, lessonId }) => {
       qc.setQueryData<Section[]>(sectionKeys.all(courseId), (old) =>
         old?.map((s) =>
-          s.id === sectionId
-            ? { ...s, lessons: s.lessons.filter((l) => l.id !== lessonId) }
-            : s
-        )
+          s.id === sectionId ? { ...s, lessons: s.lessons.filter((l) => l.id !== lessonId) } : s,
+        ),
       );
       qc.invalidateQueries({ queryKey: sectionKeys.all(courseId) });
     },
@@ -89,9 +92,7 @@ export function useDuplicateLessonMutation(courseId: string) {
       api.post<Lesson>(`/sections/${sectionId}/lessons/${lessonId}/duplicate`),
     onSuccess: (newLesson, { sectionId }) => {
       qc.setQueryData<Section[]>(sectionKeys.all(courseId), (old) =>
-        old?.map((s) =>
-          s.id === sectionId ? { ...s, lessons: [...s.lessons, newLesson] } : s
-        )
+        old?.map((s) => (s.id === sectionId ? { ...s, lessons: [...s.lessons, newLesson] } : s)),
       );
       qc.invalidateQueries({ queryKey: sectionKeys.all(courseId) });
     },
@@ -101,8 +102,15 @@ export function useDuplicateLessonMutation(courseId: string) {
 export function useMoveLessonMutation(courseId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ sectionId, lessonId, data }: { sectionId: string; lessonId: string; data: LessonMove }) =>
-      api.post<Lesson>(`/sections/${sectionId}/lessons/${lessonId}/move`, data),
+    mutationFn: ({
+      sectionId,
+      lessonId,
+      data,
+    }: {
+      sectionId: string;
+      lessonId: string;
+      data: LessonMove;
+    }) => api.post<Lesson>(`/sections/${sectionId}/lessons/${lessonId}/move`, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: sectionKeys.all(courseId) }),
   });
 }
@@ -117,17 +125,14 @@ export function useImportPlaylistMutation(courseId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ sectionId, playlistUrl }: { sectionId: string; playlistUrl: string }) =>
-      api.post<PlaylistImportResponse>(
-        `/sections/${sectionId}/lessons/import-playlist`,
-        { playlist_url: playlistUrl }
-      ),
+      api.post<PlaylistImportResponse>(`/sections/${sectionId}/lessons/import-playlist`, {
+        playlist_url: playlistUrl,
+      }),
     onSuccess: (result, { sectionId }) => {
       qc.setQueryData<Section[]>(sectionKeys.all(courseId), (old) =>
         old?.map((s) =>
-          s.id === sectionId
-            ? { ...s, lessons: [...s.lessons, ...result.lessons] }
-            : s
-        )
+          s.id === sectionId ? { ...s, lessons: [...s.lessons, ...result.lessons] } : s,
+        ),
       );
       qc.invalidateQueries({ queryKey: sectionKeys.all(courseId) });
     },

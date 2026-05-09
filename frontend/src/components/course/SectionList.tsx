@@ -53,7 +53,7 @@ export function SectionList({
 }: SectionListProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
   const sorted = [...sections].sort((a, b) => a.position - b.position);
@@ -76,16 +76,14 @@ export function SectionList({
   if (sorted.length === 0) {
     return (
       <div
-        className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border-default py-16"
+        className="border-border-default flex flex-col items-center justify-center rounded-xl border border-dashed py-16"
         data-testid="empty-state"
       >
-        <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-accent-blue/10">
-          <Plus className="size-7 text-accent-blue/50" />
+        <div className="bg-accent-blue/10 mb-4 flex size-14 items-center justify-center rounded-full">
+          <Plus className="text-accent-blue/50 size-7" />
         </div>
-        <p className="text-sm font-medium text-text-primary">
-          No sections yet
-        </p>
-        <p className="mb-4 mt-1 text-xs text-text-secondary">
+        <p className="text-text-primary text-sm font-medium">No sections yet</p>
+        <p className="text-text-secondary mt-1 mb-4 text-xs">
           Add your first section to start building the course.
         </p>
         <Button onClick={onAddSection} size="sm">
@@ -103,10 +101,7 @@ export function SectionList({
         collisionDetection={closestCenter}
         onDragEnd={handleSectionDragEnd}
       >
-        <SortableContext
-          items={sorted.map((s) => s.id)}
-          strategy={verticalListSortingStrategy}
-        >
+        <SortableContext items={sorted.map((s) => s.id)} strategy={verticalListSortingStrategy}>
           {sorted.map((section) => (
             <SectionItem
               key={section.id}
@@ -116,29 +111,17 @@ export function SectionList({
               onDeleteSection={() => onDeleteSection(section.id)}
               onDuplicateSection={() => onDuplicateSection(section.id)}
               onAddLesson={(type) => onAddLesson(section.id, type)}
-              onUpdateLesson={(lessonId, title) =>
-                onUpdateLesson(section.id, lessonId, title)
-              }
-              onDeleteLesson={(lessonId) =>
-                onDeleteLesson(section.id, lessonId)
-              }
-              onDuplicateLesson={(lessonId) =>
-                onDuplicateLesson(section.id, lessonId)
-              }
-              onReorderLessons={(items) =>
-                onReorderLessons(section.id, items)
-              }
+              onUpdateLesson={(lessonId, title) => onUpdateLesson(section.id, lessonId, title)}
+              onDeleteLesson={(lessonId) => onDeleteLesson(section.id, lessonId)}
+              onDuplicateLesson={(lessonId) => onDuplicateLesson(section.id, lessonId)}
+              onReorderLessons={(items) => onReorderLessons(section.id, items)}
               onLessonClick={onLessonClick}
             />
           ))}
         </SortableContext>
       </DndContext>
 
-      <Button
-        variant="outline"
-        className="w-full border-dashed"
-        onClick={onAddSection}
-      >
+      <Button variant="outline" className="w-full border-dashed" onClick={onAddSection}>
         <Plus className="size-4" />
         Add Section
       </Button>

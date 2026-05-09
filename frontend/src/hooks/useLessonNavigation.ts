@@ -35,7 +35,7 @@ export function useLessonNavigation(
       allLessons,
       currentLesson,
       currentSection: currentLesson
-        ? sections?.find((s) => s.lessons.some((l) => l.id === currentLesson.id)) ?? null
+        ? (sections?.find((s) => s.lessons.some((l) => l.id === currentLesson.id)) ?? null)
         : null,
       prevLesson: currentIndex > 0 ? allLessons[currentIndex - 1] : null,
       nextLesson:

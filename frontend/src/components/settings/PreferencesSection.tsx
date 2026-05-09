@@ -8,11 +8,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Globe, Gauge, Type, Check, Zap, Play, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { SettingsSaveIndicator } from "./SettingsSaveIndicator";
 import {
   detectTimezone,
@@ -26,7 +22,11 @@ import type { UserSettings } from "@/types/user";
 const SORTED_TIMEZONES = getSortedTimezones();
 const PLAYBACK_SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
 
-const FONT_SIZE_OPTIONS: { value: UserSettings["font_size"]; label: string; description: string }[] = [
+const FONT_SIZE_OPTIONS: {
+  value: UserSettings["font_size"];
+  label: string;
+  description: string;
+}[] = [
   { value: "normal", label: "Normal", description: "Default size (16px)" },
   { value: "large", label: "Large", description: "Comfortable reading (18px)" },
   { value: "xl", label: "Extra Large", description: "Maximum readability (20px)" },
@@ -159,33 +159,45 @@ export function PreferencesSection({
   const displayedTimezones = tzSearch ? filteredTimezones : SORTED_TIMEZONES;
 
   return (
-    <section className="space-y-5 rounded-xl border border-border-default bg-bg-secondary p-5">
+    <section className="border-border-default bg-bg-secondary space-y-5 rounded-xl border p-5">
       <div>
         <div className="flex items-center gap-2">
-          <Gauge className="size-4 text-accent-purple" />
-          <h2 className="text-sm font-semibold text-text-primary">Learning Preferences</h2>
+          <Gauge className="text-accent-purple size-4" />
+          <h2 className="text-text-primary text-sm font-semibold">Learning Preferences</h2>
         </div>
-        <p className="mt-1 text-[11px] leading-relaxed text-text-tertiary">
-          Customize how you learn — set your timezone, video speed, text size, and auto-advance behavior.
+        <p className="text-text-tertiary mt-1 text-[11px] leading-relaxed">
+          Customize how you learn — set your timezone, video speed, text size, and auto-advance
+          behavior.
         </p>
       </div>
 
       {/* Timezone */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <label className="flex items-center gap-1.5 text-xs font-medium text-text-secondary">
+          <label className="text-text-secondary flex items-center gap-1.5 text-xs font-medium">
             <Globe className="size-3" />
             Timezone
             <Tooltip>
-              <TooltipTrigger render={<button type="button" className="inline-flex text-text-tertiary hover:text-text-secondary transition-colors"><HelpCircle className="size-3" /></button>} />
-              <TooltipContent side="top">Used for streak calculations and activity timestamps.</TooltipContent>
+              <TooltipTrigger
+                render={
+                  <button
+                    type="button"
+                    className="text-text-tertiary hover:text-text-secondary inline-flex transition-colors"
+                  >
+                    <HelpCircle className="size-3" />
+                  </button>
+                }
+              />
+              <TooltipContent side="top">
+                Used for streak calculations and activity timestamps.
+              </TooltipContent>
             </Tooltip>
           </label>
           <div className="flex items-center gap-2">
             {isAutoDetected && (
-              <div className="flex items-center gap-1 rounded-full bg-accent-green/10 px-2 py-0.5">
-                <Zap className="size-2.5 text-accent-green" />
-                <span className="text-[11px] font-medium text-accent-green">Auto-detected</span>
+              <div className="bg-accent-green/10 flex items-center gap-1 rounded-full px-2 py-0.5">
+                <Zap className="text-accent-green size-2.5" />
+                <span className="text-accent-green text-[11px] font-medium">Auto-detected</span>
               </div>
             )}
             <SettingsSaveIndicator visible={savedField === "timezone"} />
@@ -194,15 +206,15 @@ export function PreferencesSection({
 
         {/* Auto-detect prompt */}
         {showAutoDetectPrompt && (
-          <div className="flex items-center gap-2 rounded-lg bg-accent-blue/5 border border-accent-blue/20 px-3 py-2">
-            <Zap className="size-3.5 text-accent-blue flex-shrink-0" />
+          <div className="bg-accent-blue/5 border-accent-blue/20 flex items-center gap-2 rounded-lg border px-3 py-2">
+            <Zap className="text-accent-blue size-3.5 flex-shrink-0" />
             <div className="flex-1">
-              <p className="text-xs text-text-primary font-medium">
+              <p className="text-text-primary text-xs font-medium">
                 Detected: {formatTimezoneDisplay(detectTimezone())}
               </p>
-              <p className="text-xs text-text-tertiary">Use your device timezone?</p>
+              <p className="text-text-tertiary text-xs">Use your device timezone?</p>
             </div>
-            <div className="flex gap-1.5 flex-shrink-0">
+            <div className="flex flex-shrink-0 gap-1.5">
               <Button
                 size="sm"
                 variant="outline"
@@ -214,7 +226,7 @@ export function PreferencesSection({
               <Button
                 size="sm"
                 onClick={handleAutoDetect}
-                className="h-6 text-xs bg-accent-blue hover:bg-accent-blue/90"
+                className="bg-accent-blue hover:bg-accent-blue/90 h-6 text-xs"
               >
                 Use
               </Button>
@@ -226,31 +238,41 @@ export function PreferencesSection({
           <button
             type="button"
             onClick={() => setTzOpen(!tzOpen)}
-            className="flex h-9 w-full items-center justify-between rounded-lg border border-input bg-transparent px-3 text-sm text-text-primary transition-colors hover:border-border-hover focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+            className="border-input text-text-primary hover:border-border-hover focus-visible:border-ring focus-visible:ring-ring/50 flex h-9 w-full items-center justify-between rounded-lg border bg-transparent px-3 text-sm transition-colors focus-visible:ring-3"
             data-testid="settings-timezone-trigger"
           >
-            <span className="truncate flex-1 text-left">{formatTimezoneDisplay(timezone)}</span>
-            <svg className="size-4 text-text-tertiary flex-shrink-0 ml-2" viewBox="0 0 16 16" fill="none">
-              <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <span className="flex-1 truncate text-left">{formatTimezoneDisplay(timezone)}</span>
+            <svg
+              className="text-text-tertiary ml-2 size-4 flex-shrink-0"
+              viewBox="0 0 16 16"
+              fill="none"
+            >
+              <path
+                d="M4 6l4 4 4-4"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </button>
           {tzOpen && (
-            <div className="absolute top-full z-50 mt-1 w-full rounded-lg border border-border-default bg-bg-primary shadow-lg">
-              <div className="sticky top-0 bg-bg-primary border-b border-border-default p-2 z-10">
+            <div className="border-border-default bg-bg-primary absolute top-full z-50 mt-1 w-full rounded-lg border shadow-lg">
+              <div className="bg-bg-primary border-border-default sticky top-0 z-10 border-b p-2">
                 <div className="relative">
                   <Input
                     value={tzSearch}
                     onChange={(e) => setTzSearch(e.target.value)}
                     placeholder="Search or type timezone..."
                     autoFocus
-                    className="h-8 text-xs pl-3 pr-3"
+                    className="h-8 pr-3 pl-3 text-xs"
                     data-testid="settings-timezone-search"
                   />
                   {tzSearch && (
                     <button
                       type="button"
                       onClick={() => setTzSearch("")}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text-secondary"
+                      className="text-text-tertiary hover:text-text-secondary absolute top-1/2 right-2 -translate-y-1/2"
                     >
                       ✕
                     </button>
@@ -260,7 +282,7 @@ export function PreferencesSection({
                   <button
                     type="button"
                     onClick={handleAutoDetect}
-                    className="mt-2 w-full flex items-center gap-2 rounded-md bg-accent-blue/10 hover:bg-accent-blue/20 px-2.5 py-2 text-left text-xs font-medium text-accent-blue transition-colors"
+                    className="bg-accent-blue/10 hover:bg-accent-blue/20 text-accent-blue mt-2 flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-xs font-medium transition-colors"
                   >
                     <Zap className="size-3" />
                     Use My Device Timezone
@@ -275,7 +297,7 @@ export function PreferencesSection({
                       <button
                         key={tz}
                         onClick={() => handleTimezoneSelect(tz)}
-                        className={`w-full flex items-center justify-between px-3 py-2 text-left text-xs transition-colors ${
+                        className={`flex w-full items-center justify-between px-3 py-2 text-left text-xs transition-colors ${
                           tz === timezone
                             ? "bg-accent-blue/10 text-accent-blue"
                             : "text-text-secondary hover:bg-bg-tertiary"
@@ -284,15 +306,15 @@ export function PreferencesSection({
                         <div className="flex-1 space-y-0.5">
                           <div className="font-medium">{info.name}</div>
                           {info.offset && (
-                            <div className="text-[10px] text-text-tertiary">{info.offset}</div>
+                            <div className="text-text-tertiary text-[10px]">{info.offset}</div>
                           )}
                         </div>
-                        {tz === timezone && <Check className="size-4 flex-shrink-0 ml-2" />}
+                        {tz === timezone && <Check className="ml-2 size-4 flex-shrink-0" />}
                       </button>
                     );
                   })
                 ) : (
-                  <p className="px-3 py-4 text-center text-xs text-text-tertiary">
+                  <p className="text-text-tertiary px-3 py-4 text-center text-xs">
                     No timezones found for "{tzSearch}"
                   </p>
                 )}
@@ -305,12 +327,23 @@ export function PreferencesSection({
       {/* Playback Speed */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-          <label className="flex items-center gap-1.5 text-xs font-medium text-text-secondary">
+          <label className="text-text-secondary flex items-center gap-1.5 text-xs font-medium">
             <Gauge className="size-3" />
             Default Playback Speed
             <Tooltip>
-              <TooltipTrigger render={<button type="button" className="inline-flex text-text-tertiary hover:text-text-secondary transition-colors"><HelpCircle className="size-3" /></button>} />
-              <TooltipContent side="top">This speed will be applied to all video lessons by default.</TooltipContent>
+              <TooltipTrigger
+                render={
+                  <button
+                    type="button"
+                    className="text-text-tertiary hover:text-text-secondary inline-flex transition-colors"
+                  >
+                    <HelpCircle className="size-3" />
+                  </button>
+                }
+              />
+              <TooltipContent side="top">
+                This speed will be applied to all video lessons by default.
+              </TooltipContent>
             </Tooltip>
           </label>
           <SettingsSaveIndicator visible={savedField === "speed"} />
@@ -323,9 +356,7 @@ export function PreferencesSection({
               size="sm"
               onClick={() => handleSpeedChange(speed)}
               className={`min-w-[3.5rem] text-xs ${
-                speed === playbackSpeed
-                  ? "bg-accent-blue text-white hover:bg-accent-blue/90"
-                  : ""
+                speed === playbackSpeed ? "bg-accent-blue hover:bg-accent-blue/90 text-white" : ""
               }`}
               data-testid={`speed-${speed}`}
             >
@@ -338,12 +369,23 @@ export function PreferencesSection({
       {/* Font Size */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-          <label className="flex items-center gap-1.5 text-xs font-medium text-text-secondary">
+          <label className="text-text-secondary flex items-center gap-1.5 text-xs font-medium">
             <Type className="size-3" />
             Font Size
             <Tooltip>
-              <TooltipTrigger render={<button type="button" className="inline-flex text-text-tertiary hover:text-text-secondary transition-colors"><HelpCircle className="size-3" /></button>} />
-              <TooltipContent side="top">Adjusts text size across the entire app for readability.</TooltipContent>
+              <TooltipTrigger
+                render={
+                  <button
+                    type="button"
+                    className="text-text-tertiary hover:text-text-secondary inline-flex transition-colors"
+                  >
+                    <HelpCircle className="size-3" />
+                  </button>
+                }
+              />
+              <TooltipContent side="top">
+                Adjusts text size across the entire app for readability.
+              </TooltipContent>
             </Tooltip>
           </label>
           <SettingsSaveIndicator visible={savedField === "fontSize"} />
@@ -356,7 +398,7 @@ export function PreferencesSection({
               data-testid={`font-${opt.value}`}
               className={`group relative rounded-lg border p-3 text-left transition-all ${
                 fontSize === opt.value
-                  ? "border-accent-blue bg-accent-blue/5 ring-1 ring-accent-blue/30"
+                  ? "border-accent-blue bg-accent-blue/5 ring-accent-blue/30 ring-1"
                   : "border-border-default bg-bg-tertiary hover:border-border-hover"
               }`}
             >
@@ -368,13 +410,9 @@ export function PreferencesSection({
                 >
                   {opt.label}
                 </span>
-                {fontSize === opt.value && (
-                  <Check className="size-3.5 text-accent-blue" />
-                )}
+                {fontSize === opt.value && <Check className="text-accent-blue size-3.5" />}
               </div>
-              <p className="mt-0.5 text-[11px] text-text-tertiary">
-                {opt.description}
-              </p>
+              <p className="text-text-tertiary mt-0.5 text-[11px]">{opt.description}</p>
             </button>
           ))}
         </div>
@@ -383,12 +421,23 @@ export function PreferencesSection({
       {/* Auto-Play Next */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-          <label className="flex items-center gap-1.5 text-xs font-medium text-text-secondary">
+          <label className="text-text-secondary flex items-center gap-1.5 text-xs font-medium">
             <Play className="size-3" />
             Auto-Play Next Lesson
             <Tooltip>
-              <TooltipTrigger render={<button type="button" className="inline-flex text-text-tertiary hover:text-text-secondary transition-colors"><HelpCircle className="size-3" /></button>} />
-              <TooltipContent side="top">When a video ends, automatically mark it complete and move to the next lesson.</TooltipContent>
+              <TooltipTrigger
+                render={
+                  <button
+                    type="button"
+                    className="text-text-tertiary hover:text-text-secondary inline-flex transition-colors"
+                  >
+                    <HelpCircle className="size-3" />
+                  </button>
+                }
+              />
+              <TooltipContent side="top">
+                When a video ends, automatically mark it complete and move to the next lesson.
+              </TooltipContent>
             </Tooltip>
           </label>
           <SettingsSaveIndicator visible={savedField === "autoPlay"} />
@@ -397,7 +446,7 @@ export function PreferencesSection({
           onClick={handleAutoPlayToggle}
           className={`flex w-full max-w-sm items-center justify-between rounded-lg border p-3 text-left transition-all ${
             autoPlayNext
-              ? "border-accent-blue bg-accent-blue/5 ring-1 ring-accent-blue/30"
+              ? "border-accent-blue bg-accent-blue/5 ring-accent-blue/30 ring-1"
               : "border-border-default bg-bg-tertiary hover:border-border-hover"
           }`}
         >
@@ -409,7 +458,7 @@ export function PreferencesSection({
             >
               {autoPlayNext ? "Enabled" : "Disabled"}
             </span>
-            <p className="mt-0.5 text-[11px] text-text-tertiary">
+            <p className="text-text-tertiary mt-0.5 text-[11px]">
               Auto-mark video lessons as complete and advance to the next lesson when the video ends
             </p>
           </div>

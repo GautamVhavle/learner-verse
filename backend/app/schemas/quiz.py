@@ -5,8 +5,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-
 # ── Quiz Questions (Creator) ─────────────────────────────────
+
 
 class QuizQuestionCreate(BaseModel):
     question: str = Field(..., min_length=1, max_length=2000)
@@ -21,16 +21,16 @@ class QuizQuestionUpdate(BaseModel):
 
 
 class QuizQuestionReorder(BaseModel):
-    items: list[dict] = Field(
-        ..., description="List of {id, position} objects"
-    )
+    items: list[dict] = Field(..., description="List of {id, position} objects")
 
 
 class AIQuizGenerateRequest(BaseModel):
     """Request payload for AI-powered quiz generation."""
+
     topic: str = Field(..., min_length=1, max_length=500)
     difficulty: str = Field(
-        ..., pattern="^(easy|medium|hard)$",
+        ...,
+        pattern="^(easy|medium|hard)$",
         description="Difficulty level: easy, medium, or hard",
     )
     num_questions: int = Field(..., ge=1, le=25)
@@ -50,8 +50,10 @@ class QuizQuestionResponse(BaseModel):
 
 # ── Quiz Attempts (Learner) ──────────────────────────────────
 
+
 class QuizSubmitRequest(BaseModel):
     """Learner submits answers: map of question_id -> selected option index."""
+
     answers: dict[str, int] = Field(
         ..., description="Map of question_id (str UUID) to selected option index (0-3)"
     )
@@ -74,6 +76,7 @@ class QuizAttemptResponse(BaseModel):
 
 class QuizBestScore(BaseModel):
     """Summary of the best attempt for a quiz lesson."""
+
     lesson_id: uuid.UUID
     best_score: int
     total: int

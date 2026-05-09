@@ -19,8 +19,7 @@ export function useUserQuery() {
 export function useUpdateUserMutation() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: Partial<UserSettings>) =>
-      api.put<UserProfile>("/auth/me", data),
+    mutationFn: (data: Partial<UserSettings>) => api.put<UserProfile>("/auth/me", data),
     onSuccess: (updated) => {
       qc.setQueryData(USER_KEY, updated);
     },

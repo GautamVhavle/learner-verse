@@ -5,8 +5,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-
 # ── Requests ───────────────────────────────────────────────────
+
 
 class ThreadCreate(BaseModel):
     title: str = Field(default="New Chat", max_length=200)
@@ -34,6 +34,7 @@ class InlineChatRequest(BaseModel):
 
 
 # ── Responses ──────────────────────────────────────────────────
+
 
 class MessageResponse(BaseModel):
     id: uuid.UUID

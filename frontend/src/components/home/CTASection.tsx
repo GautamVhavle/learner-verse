@@ -45,8 +45,8 @@ export function CTASection() {
             how you learn?
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-base text-white/50 sm:text-lg">
-            Start building AI-powered courses from YouTube videos
-            — completely free. No credit card required.
+            Start building AI-powered courses from YouTube videos — completely free. No credit card
+            required.
           </p>
         </BlurFade>
 

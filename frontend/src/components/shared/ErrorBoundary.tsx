@@ -37,18 +37,15 @@ export class ErrorBoundary extends Component<Props, State> {
           data-testid="error-boundary"
         >
           <div className="flex max-w-md flex-col items-center text-center">
-            <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-accent-red/10">
-              <AlertTriangle className="size-7 text-accent-red" />
+            <div className="bg-accent-red/10 mb-4 flex size-14 items-center justify-center rounded-full">
+              <AlertTriangle className="text-accent-red size-7" />
             </div>
-            <h2 className="text-lg font-semibold text-text-primary">
-              Something went wrong
-            </h2>
-            <p className="mt-2 text-sm text-text-secondary">
-              An unexpected error occurred. Try refreshing the page or going
-              back.
+            <h2 className="text-text-primary text-lg font-semibold">Something went wrong</h2>
+            <p className="text-text-secondary mt-2 text-sm">
+              An unexpected error occurred. Try refreshing the page or going back.
             </p>
             {this.state.error && (
-              <p className="mt-3 max-w-full truncate rounded-md bg-bg-tertiary px-3 py-1.5 font-mono text-xs text-text-tertiary">
+              <p className="bg-bg-tertiary text-text-tertiary mt-3 max-w-full truncate rounded-md px-3 py-1.5 font-mono text-xs">
                 {this.state.error.message}
               </p>
             )}
@@ -57,10 +54,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 <RotateCcw className="mr-1.5 size-3.5" />
                 Try again
               </Button>
-              <Button
-                size="sm"
-                onClick={() => (window.location.href = "/")}
-              >
+              <Button size="sm" onClick={() => (window.location.href = "/")}>
                 Go to Dashboard
               </Button>
             </div>

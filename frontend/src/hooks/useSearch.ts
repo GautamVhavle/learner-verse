@@ -11,10 +11,7 @@ export function useSearchQuery(query: string) {
   const trimmed = query.trim();
   return useQuery({
     queryKey: [...SEARCH_KEY, trimmed],
-    queryFn: () =>
-      api.get<SearchResponse>(
-        `/search?q=${encodeURIComponent(trimmed)}&limit=20`,
-      ),
+    queryFn: () => api.get<SearchResponse>(`/search?q=${encodeURIComponent(trimmed)}&limit=20`),
     enabled: trimmed.length >= 1,
     staleTime: 30_000,
   });

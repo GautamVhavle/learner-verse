@@ -5,13 +5,7 @@
  * border class, icon component, and short label.  Used by both
  * `PaceIndicator` and `GoalsPage` to avoid duplicating style definitions.
  */
-import {
-  TrendingUp,
-  TrendingDown,
-  CheckCircle2,
-  AlertTriangle,
-  Zap,
-} from "lucide-react";
+import { TrendingUp, TrendingDown, CheckCircle2, AlertTriangle, Zap } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { PaceStatus } from "@/types/progress";
 

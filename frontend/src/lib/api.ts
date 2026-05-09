@@ -6,8 +6,7 @@
  */
 
 /** Base URL for all API requests. Exported for streaming transport. */
-export const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
 export class ApiError extends Error {
   status: number;
@@ -55,10 +54,7 @@ export async function getAuthHeaders(): Promise<Record<string, string>> {
  * Core request function. Handles auth headers, JSON parsing, and errors.
  * Returns `void` (typed as `undefined`) for 204 No Content responses.
  */
-async function request<T>(
-  path: string,
-  options: RequestInit = {},
-): Promise<T> {
+async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const url = `${API_BASE_URL}${path}`;
   const authHeaders = await getAuthHeaders();
 

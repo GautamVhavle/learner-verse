@@ -50,6 +50,7 @@ _FALLBACK_MODELS = [
 
 # ── DB-backed task helpers ──────────────────────────────────
 
+
 async def create_task(db: AsyncSession, course_id: str) -> str:
     """Insert a new pending task row and return its ID."""
     task_id = uuid.uuid4().hex[:12]
@@ -98,6 +99,7 @@ async def _set_task_failed(task_id: str, error: str) -> None:
 
 # ── Background runner ───────────────────────────────────────
 
+
 async def run_organize_in_background(
     task_id: str,
     course_id: uuid.UUID,
@@ -117,6 +119,7 @@ async def run_organize_in_background(
 
 # ── Organize service ────────────────────────────────────────
 
+
 class OrganizeService:
     """Uses AI to organize course lessons into sections."""
 
@@ -124,9 +127,7 @@ class OrganizeService:
         self.section_repo = SectionRepository(db)
         self.db = db
 
-    async def organize_course(
-        self, course_id: uuid.UUID, user_id: uuid.UUID
-    ) -> None:
+    async def organize_course(self, course_id: uuid.UUID, user_id: uuid.UUID) -> None:
         """AI-organize all lessons into new sections."""
         sections = await self.section_repo.list_by_course(course_id)
 
@@ -143,14 +144,14 @@ class OrganizeService:
         lesson_titles = [lesson.title for lesson in all_lessons]
         logger.info(
             "Organizing %d lessons across %d sections for course %s",
-            len(all_lessons), len(sections), course_id,
+            len(all_lessons),
+            len(sections),
+            course_id,
         )
 
         plan = await self._get_ai_plan(lesson_titles)
         if not plan:
-            raise ValueError(
-                "LiVi could not generate an organization plan. Please try again."
-            )
+            raise ValueError("LiVi could not generate an organization plan. Please try again.")
 
         logger.info("AI plan: %s", json.dumps(plan, default=str))
         self._validate_plan(plan, len(all_lessons))
@@ -160,9 +161,7 @@ class OrganizeService:
         new_section_map: list[tuple[uuid.UUID, list[int]]] = []
         for pos, group in enumerate(plan):
             title = str(group["section_title"])[:200]
-            new_section = Section(
-                course_id=course_id, title=title, position=pos
-            )
+            new_section = Section(course_id=course_id, title=title, position=pos)
             self.db.add(new_section)
             await self.db.flush()
             new_section_map.append((new_section.id, group["lesson_indices"]))
@@ -177,9 +176,7 @@ class OrganizeService:
                 )
 
         if old_section_ids:
-            await self.db.execute(
-                delete(Section).where(Section.id.in_(old_section_ids))
-            )
+            await self.db.execute(delete(Section).where(Section.id.in_(old_section_ids)))
 
         await self.db.commit()
 
@@ -194,9 +191,7 @@ class OrganizeService:
                 raise ValueError("AI returned empty section. Please try again.")
             for idx in indices:
                 if not isinstance(idx, int) or idx < 0 or idx >= total_lessons:
-                    raise ValueError(
-                        f"AI returned invalid lesson index {idx}. Please try again."
-                    )
+                    raise ValueError(f"AI returned invalid lesson index {idx}. Please try again.")
                 if idx in all_indices:
                     raise ValueError(
                         f"AI assigned lesson {idx} to multiple sections. Please try again."

@@ -82,16 +82,14 @@ export function useLiviChat() {
       setThreadLoading(true);
       setError(null);
       try {
-        const data = await api.get<{ messages: ChatMessage[] }>(
-          `/chat/threads/${threadId}`
-        );
+        const data = await api.get<{ messages: ChatMessage[] }>(`/chat/threads/${threadId}`);
         setMessages(
           data.messages.map((m) => ({
             id: m.id,
             role: m.role as "user" | "assistant",
             content: m.content,
             createdAt: new Date(m.created_at),
-          }))
+          })),
         );
       } catch {
         setError("Failed to load messages.");
@@ -99,7 +97,7 @@ export function useLiviChat() {
         setThreadLoading(false);
       }
     },
-    [setActiveThread]
+    [setActiveThread],
   );
 
   const clearMessages = useCallback(() => {
@@ -163,15 +161,12 @@ export function useLiviChat() {
           const fileList = fileMeta.map((f) => f.name).join(", ");
           messageText += `\n\n[Attached files: ${fileList}]`;
         }
-        const res = await fetch(
-          `${API_BASE_URL}/chat/threads/${threadId}/stream`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json", ...headers },
-            body: JSON.stringify({ message: messageText, context: pageCtx }),
-            signal: controller.signal,
-          }
-        );
+        const res = await fetch(`${API_BASE_URL}/chat/threads/${threadId}/stream`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...headers },
+          body: JSON.stringify({ message: messageText, context: pageCtx }),
+          signal: controller.signal,
+        });
 
         if (!res.ok) {
           if (res.status === 429) {
@@ -200,9 +195,7 @@ export function useLiviChat() {
           // Update assistant message content
           const current = accumulated;
           setMessages((prev) =>
-            prev.map((m) =>
-              m.id === assistantMsg.id ? { ...m, content: current } : m
-            )
+            prev.map((m) => (m.id === assistantMsg.id ? { ...m, content: current } : m)),
           );
         }
 
@@ -221,11 +214,7 @@ export function useLiviChat() {
         setError(message);
         setStatus("error");
         // Remove empty assistant message on error
-        setMessages((prev) =>
-          prev.filter(
-            (m) => !(m.id === assistantMsg.id && !m.content.trim())
-          )
-        );
+        setMessages((prev) => prev.filter((m) => !(m.id === assistantMsg.id && !m.content.trim())));
       } finally {
         abortRef.current = null;
       }
@@ -238,7 +227,7 @@ export function useLiviChat() {
       invalidateThreads,
       invalidateMessages,
       getPageContext,
-    ]
+    ],
   );
 
   const stop = useCallback(() => {

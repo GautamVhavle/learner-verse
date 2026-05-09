@@ -57,7 +57,7 @@ export function CourseGrid({
           ))}
         </div>
         <div className="relative w-full sm:max-w-xs">
-          <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-text-tertiary" />
+          <Search className="text-text-tertiary absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2" />
           <Input
             placeholder="Search courses…"
             value={search}
@@ -71,10 +71,7 @@ export function CourseGrid({
       {isLoading ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="aspect-[4/3] animate-pulse rounded-xl bg-bg-tertiary"
-            />
+            <div key={i} className="bg-bg-tertiary aspect-[4/3] animate-pulse rounded-xl" />
           ))}
         </div>
       ) : (

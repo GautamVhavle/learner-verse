@@ -23,10 +23,7 @@ export default function TrashPage() {
     return (
       <div className="space-y-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div
-            key={i}
-            className="h-16 animate-pulse rounded-lg bg-bg-tertiary"
-          />
+          <div key={i} className="bg-bg-tertiary h-16 animate-pulse rounded-lg" />
         ))}
       </div>
     );
@@ -35,10 +32,8 @@ export default function TrashPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight text-text-primary">
-          Trash
-        </h1>
-        <p className="mt-1 text-sm text-text-secondary">
+        <h1 className="text-text-primary text-2xl font-bold tracking-tight">Trash</h1>
+        <p className="text-text-secondary mt-1 text-sm">
           Deleted courses can be restored or permanently removed.
         </p>
       </div>
@@ -54,19 +49,18 @@ export default function TrashPage() {
           {courses.map((course) => (
             <div
               key={course.id}
-              className="flex items-center justify-between gap-4 rounded-lg border border-border-default bg-bg-secondary p-4"
+              className="border-border-default bg-bg-secondary flex items-center justify-between gap-4 rounded-lg border p-4"
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="truncate text-sm font-medium text-text-primary">
+                  <span className="text-text-primary truncate text-sm font-medium">
                     {course.title}
                   </span>
                   <CourseStatusBadge status={course.status} />
                 </div>
                 {course.deleted_at && (
-                  <p className="mt-0.5 text-xs text-text-tertiary">
-                    Deleted{" "}
-                    {new Date(course.deleted_at).toLocaleDateString()}
+                  <p className="text-text-tertiary mt-0.5 text-xs">
+                    Deleted {new Date(course.deleted_at).toLocaleDateString()}
                   </p>
                 )}
               </div>

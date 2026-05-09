@@ -18,13 +18,7 @@ export function useGoalsQuery() {
 export function useSetGoalMutation() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      courseId,
-      goalDate,
-    }: {
-      courseId: string;
-      goalDate: string | null;
-    }) =>
+    mutationFn: ({ courseId, goalDate }: { courseId: string; goalDate: string | null }) =>
       api.put<CourseGoalResponse>(`/goals/courses/${courseId}`, {
         goal_date: goalDate,
       }),
@@ -34,9 +28,7 @@ export function useSetGoalMutation() {
       qc.invalidateQueries({ queryKey: ["courses"] });
       toast.success(
         variables.goalDate ? "Goal set!" : "Goal removed",
-        variables.goalDate
-          ? { description: `Target date: ${variables.goalDate}` }
-          : undefined,
+        variables.goalDate ? { description: `Target date: ${variables.goalDate}` } : undefined,
       );
     },
     onError: () => toast.error("Failed to update goal"),

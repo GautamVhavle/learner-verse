@@ -13,11 +13,7 @@ interface CompletionButtonProps {
   onToggled?: (newCompleted: boolean) => void;
 }
 
-export function CompletionButton({
-  lessonId,
-  completed,
-  onToggled,
-}: CompletionButtonProps) {
+export function CompletionButton({ lessonId, completed, onToggled }: CompletionButtonProps) {
   const toggle = useToggleProgressMutation();
 
   const handleToggle = useCallback(() => {
@@ -45,7 +41,7 @@ export function CompletionButton({
     return (
       <Button
         onClick={handleToggle}
-        className="gap-2 bg-accent-green/15 text-accent-green border border-accent-green/25 hover:bg-accent-green/25 cursor-pointer"
+        className="bg-accent-green/15 text-accent-green border-accent-green/25 hover:bg-accent-green/25 cursor-pointer gap-2 border"
         variant="ghost"
         title="Mark as incomplete (M)"
       >
@@ -59,7 +55,7 @@ export function CompletionButton({
     <Button
       onClick={handleToggle}
       variant="outline"
-      className="gap-2 cursor-pointer"
+      className="cursor-pointer gap-2"
       title="Mark as complete (M)"
     >
       <Circle className="size-4" />

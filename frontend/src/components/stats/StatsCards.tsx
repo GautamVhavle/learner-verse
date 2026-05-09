@@ -4,13 +4,7 @@
  * Uses shadcn Card for consistent styling. Responsive grid:
  * 1 col on mobile, 2 on sm, 3 on md, 5 on lg+.
  */
-import {
-  BookOpen,
-  CalendarDays,
-  Flame,
-  GraduationCap,
-  Trophy,
-} from "lucide-react";
+import { BookOpen, CalendarDays, Flame, GraduationCap, Trophy } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import type { StatsOverviewResponse } from "@/types/stats";
 
@@ -78,8 +72,7 @@ const cards: StatCardDef[] = [
     iconBg: "bg-violet-500/10",
     getValue: (s) => s.total_active_days.toString(),
     getSuffix: () => "",
-    getSub: (s) =>
-      s.most_active_day ? `Most active: ${s.most_active_day}` : "Start learning",
+    getSub: (s) => (s.most_active_day ? `Most active: ${s.most_active_day}` : "Start learning"),
   },
 ];
 
@@ -98,22 +91,18 @@ export function StatsCards({ stats }: StatsCardsProps) {
                 >
                   <Icon className={`size-4 ${card.accent}`} />
                 </div>
-                <span className="text-xs font-medium text-muted-foreground">
-                  {card.label}
-                </span>
+                <span className="text-muted-foreground text-xs font-medium">{card.label}</span>
               </div>
 
               {/* Value */}
               <div>
-                <p className="text-3xl font-bold tracking-tight text-foreground">
+                <p className="text-foreground text-3xl font-bold tracking-tight">
                   {card.getValue(stats)}
-                  <span className="text-base font-medium text-muted-foreground">
+                  <span className="text-muted-foreground text-base font-medium">
                     {card.getSuffix(stats)}
                   </span>
                 </p>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  {card.getSub(stats)}
-                </p>
+                <p className="text-muted-foreground mt-0.5 text-xs">{card.getSub(stats)}</p>
               </div>
             </CardContent>
           </Card>
@@ -122,4 +111,3 @@ export function StatsCards({ stats }: StatsCardsProps) {
     </div>
   );
 }
-

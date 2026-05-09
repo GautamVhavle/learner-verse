@@ -44,9 +44,7 @@ async def list_courses(
     db: AsyncSession = Depends(get_db),
 ):
     """List all active courses for the current user."""
-    return await _service(db).list_courses(
-        user.id, status_filter=status_filter, search=search
-    )
+    return await _service(db).list_courses(user.id, status_filter=status_filter, search=search)
 
 
 @router.get("/trash", response_model=CourseListResponse)
@@ -109,7 +107,9 @@ async def permanent_delete_course(
     await _service(db).permanent_delete(course_id, user.id)
 
 
-@router.post("/{course_id}/duplicate", response_model=CourseResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/{course_id}/duplicate", response_model=CourseResponse, status_code=status.HTTP_201_CREATED
+)
 async def duplicate_course(
     course_id: uuid.UUID,
     user: User = Depends(get_current_user),

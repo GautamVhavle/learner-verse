@@ -4,10 +4,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
-import type {
-  NotificationResponse,
-  UnreadCountResponse,
-} from "@/types/notification";
+import type { NotificationResponse, UnreadCountResponse } from "@/types/notification";
 
 const NOTIF_KEY = ["notifications"] as const;
 const UNREAD_KEY = ["notifications", "unread-count"] as const;
@@ -30,8 +27,7 @@ export function useUnreadCountQuery() {
 export function useEvaluateNotificationsMutation() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: () =>
-      api.post<NotificationResponse[]>("/notifications/evaluate"),
+    mutationFn: () => api.post<NotificationResponse[]>("/notifications/evaluate"),
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: [...NOTIF_KEY] });
       qc.invalidateQueries({ queryKey: [...UNREAD_KEY] });
@@ -47,8 +43,7 @@ export function useEvaluateNotificationsMutation() {
 export function useMarkReadMutation() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) =>
-      api.put<NotificationResponse>(`/notifications/${id}/read`, {}),
+    mutationFn: (id: string) => api.put<NotificationResponse>(`/notifications/${id}/read`, {}),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [...NOTIF_KEY] });
       qc.invalidateQueries({ queryKey: [...UNREAD_KEY] });
@@ -59,8 +54,7 @@ export function useMarkReadMutation() {
 export function useMarkAllReadMutation() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: () =>
-      api.put<{ updated: number }>("/notifications/read-all", {}),
+    mutationFn: () => api.put<{ updated: number }>("/notifications/read-all", {}),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [...NOTIF_KEY] });
       qc.invalidateQueries({ queryKey: [...UNREAD_KEY] });
@@ -72,8 +66,7 @@ export function useMarkAllReadMutation() {
 export function useDeleteNotificationMutation() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) =>
-      api.delete<void>(`/notifications/${id}`),
+    mutationFn: (id: string) => api.delete<void>(`/notifications/${id}`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [...NOTIF_KEY] });
       qc.invalidateQueries({ queryKey: [...UNREAD_KEY] });

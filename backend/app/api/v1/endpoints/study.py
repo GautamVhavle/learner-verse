@@ -21,6 +21,7 @@ def _service(db: AsyncSession) -> StudyService:
 
 # ── Study State ──────────────────────────────────────────────
 
+
 @router.get(
     "/courses/{course_id}/state",
     response_model=StudyStateResponse | None,
@@ -47,6 +48,7 @@ async def update_study_state(
 
 
 # ── Study Notes ──────────────────────────────────────────────
+
 
 @router.get(
     "/lessons/{lesson_id}/notes",

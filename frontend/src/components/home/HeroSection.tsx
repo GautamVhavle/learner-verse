@@ -33,10 +33,30 @@ gsap.registerPlugin(ScrollTrigger);
 
 /* ── Floating Feature Pills ── */
 const PILLS = [
-  { icon: Brain, label: "AI Quizzes", color: "text-purple-400", bg: "bg-purple-500/10 border-purple-500/20" },
-  { icon: BarChart3, label: "Progress Tracking", color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/20" },
-  { icon: Award, label: "Certificates", color: "text-amber-400", bg: "bg-amber-500/10 border-amber-500/20" },
-  { icon: Sparkles, label: "LiVi AI Tutor", color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20" },
+  {
+    icon: Brain,
+    label: "AI Quizzes",
+    color: "text-purple-400",
+    bg: "bg-purple-500/10 border-purple-500/20",
+  },
+  {
+    icon: BarChart3,
+    label: "Progress Tracking",
+    color: "text-blue-400",
+    bg: "bg-blue-500/10 border-blue-500/20",
+  },
+  {
+    icon: Award,
+    label: "Certificates",
+    color: "text-amber-400",
+    bg: "bg-amber-500/10 border-amber-500/20",
+  },
+  {
+    icon: Sparkles,
+    label: "LiVi AI Tutor",
+    color: "text-emerald-400",
+    bg: "bg-emerald-500/10 border-emerald-500/20",
+  },
 ];
 
 /* ── Animated Product Demo (replaces static dashboard) ── */
@@ -58,7 +78,9 @@ function ProductDemo() {
           <div className="demo-url flex items-center gap-2.5 rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5">
             <Youtube className="size-4 shrink-0 text-red-400" />
             <div className="min-w-0 flex-1 overflow-hidden">
-              <span className="block truncate text-xs text-white/40 sm:text-sm">youtube.com/playlist?list=PLexample-react-course</span>
+              <span className="block truncate text-xs text-white/40 sm:text-sm">
+                youtube.com/playlist?list=PLexample-react-course
+              </span>
             </div>
             <div className="shrink-0 rounded-lg bg-blue-500 px-2.5 py-1 text-[10px] font-semibold text-white sm:text-xs">
               Import
@@ -113,10 +135,24 @@ function ProductDemo() {
           <div className="demo-progress flex items-center gap-3 rounded-xl border border-white/[0.04] bg-gradient-to-r from-blue-500/5 to-purple-500/5 p-3">
             <div className="relative size-10 shrink-0 sm:size-12">
               <svg viewBox="0 0 36 36" className="size-full -rotate-90">
-                <circle cx="18" cy="18" r="15.5" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="3" />
                 <circle
-                  cx="18" cy="18" r="15.5" fill="none" stroke="url(#progressGrad)" strokeWidth="3"
-                  strokeLinecap="round" strokeDasharray="97.4" strokeDashoffset="24.4"
+                  cx="18"
+                  cy="18"
+                  r="15.5"
+                  fill="none"
+                  stroke="rgba(255,255,255,0.06)"
+                  strokeWidth="3"
+                />
+                <circle
+                  cx="18"
+                  cy="18"
+                  r="15.5"
+                  fill="none"
+                  stroke="url(#progressGrad)"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeDasharray="97.4"
+                  strokeDashoffset="24.4"
                 />
                 <defs>
                   <linearGradient id="progressGrad" x1="0" y1="0" x2="1" y2="1">
@@ -125,11 +161,17 @@ function ProductDemo() {
                   </linearGradient>
                 </defs>
               </svg>
-              <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white/70">75%</span>
+              <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white/70">
+                75%
+              </span>
             </div>
             <div className="min-w-0 flex-1">
-              <div className="truncate text-xs font-medium text-white/70 sm:text-sm">React & Next.js Mastery</div>
-              <div className="mt-0.5 text-[10px] text-white/30 sm:text-xs">13 of 18 lessons completed</div>
+              <div className="truncate text-xs font-medium text-white/70 sm:text-sm">
+                React & Next.js Mastery
+              </div>
+              <div className="mt-0.5 text-[10px] text-white/30 sm:text-xs">
+                13 of 18 lessons completed
+              </div>
             </div>
             <div className="hidden items-center gap-1 sm:flex">
               <div className="flex size-6 items-center justify-center rounded-md bg-orange-500/10">
@@ -155,7 +197,7 @@ function ProductDemo() {
       </div>
 
       {/* Floating accent card — Certificate */}
-      <div className="demo-float-card-2 absolute -right-3 -top-3 z-10 rounded-xl border border-white/[0.08] bg-[#0c0c18]/95 p-3 shadow-xl backdrop-blur-md sm:-right-6 sm:-top-4 sm:p-3.5">
+      <div className="demo-float-card-2 absolute -top-3 -right-3 z-10 rounded-xl border border-white/[0.08] bg-[#0c0c18]/95 p-3 shadow-xl backdrop-blur-md sm:-top-4 sm:-right-6 sm:p-3.5">
         <div className="flex items-center gap-2.5">
           <div className="flex size-8 items-center justify-center rounded-lg bg-amber-500/15">
             <Award className="size-4 text-amber-400" />
@@ -192,21 +234,65 @@ export function HeroSection() {
 
       // Left side entrance
       tl.fromTo(".hero-badge", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
-        .fromTo(".hero-headline", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.7 }, "-=0.2")
-        .fromTo(".hero-subtext", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 }, "-=0.3")
-        .fromTo(".hero-cta", { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.4, stagger: 0.1 }, "-=0.2")
-        .fromTo(".hero-pill", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.4, stagger: 0.08 }, "-=0.2")
-        .fromTo(".hero-social", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4 }, "-=0.3");
+        .fromTo(
+          ".hero-headline",
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0, duration: 0.7 },
+          "-=0.2",
+        )
+        .fromTo(
+          ".hero-subtext",
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.5 },
+          "-=0.3",
+        )
+        .fromTo(
+          ".hero-cta",
+          { opacity: 0, y: 15 },
+          { opacity: 1, y: 0, duration: 0.4, stagger: 0.1 },
+          "-=0.2",
+        )
+        .fromTo(
+          ".hero-pill",
+          { opacity: 0, scale: 0.8 },
+          { opacity: 1, scale: 1, duration: 0.4, stagger: 0.08 },
+          "-=0.2",
+        )
+        .fromTo(
+          ".hero-social",
+          { opacity: 0, y: 10 },
+          { opacity: 1, y: 0, duration: 0.4 },
+          "-=0.3",
+        );
 
       // Right side: product demo entrance
-      tl.fromTo(".hero-demo", { opacity: 0, x: 40, scale: 0.97 }, { opacity: 1, x: 0, scale: 1, duration: 0.8, ease: "power2.out" }, "-=0.8");
+      tl.fromTo(
+        ".hero-demo",
+        { opacity: 0, x: 40, scale: 0.97 },
+        { opacity: 1, x: 0, scale: 1, duration: 0.8, ease: "power2.out" },
+        "-=0.8",
+      );
 
       // Floating cards pop in
-      tl.fromTo(".demo-float-card", { opacity: 0, x: -20, y: 20 }, { opacity: 1, x: 0, y: 0, duration: 0.5 }, "-=0.3")
-        .fromTo(".demo-float-card-2", { opacity: 0, x: 20, y: -20 }, { opacity: 1, x: 0, y: 0, duration: 0.5 }, "-=0.3");
+      tl.fromTo(
+        ".demo-float-card",
+        { opacity: 0, x: -20, y: 20 },
+        { opacity: 1, x: 0, y: 0, duration: 0.5 },
+        "-=0.3",
+      ).fromTo(
+        ".demo-float-card-2",
+        { opacity: 0, x: 20, y: -20 },
+        { opacity: 1, x: 0, y: 0, duration: 0.5 },
+        "-=0.3",
+      );
 
       // Subtle sections stagger
-      tl.fromTo(".demo-section", { opacity: 0, x: -10 }, { opacity: 1, x: 0, duration: 0.3, stagger: 0.08 }, "-=0.5");
+      tl.fromTo(
+        ".demo-section",
+        { opacity: 0, x: -10 },
+        { opacity: 1, x: 0, duration: 0.3, stagger: 0.08 },
+        "-=0.5",
+      );
 
       // Sparkle pulse
       gsap.to(".demo-sparkle", {
@@ -272,7 +358,7 @@ export function HeroSection() {
 
           {/* Headline */}
           <div className="hero-headline mb-5 opacity-0 sm:mb-6">
-            <h1 className="text-3xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-4xl md:text-5xl lg:text-[3.4rem] xl:text-6xl">
+            <h1 className="text-3xl leading-[1.08] font-extrabold tracking-tight text-white sm:text-4xl md:text-5xl lg:text-[3.4rem] xl:text-6xl">
               YouTube to{" "}
               <SparklesText
                 className="inline-block text-white"
@@ -288,8 +374,8 @@ export function HeroSection() {
 
           {/* Subtext */}
           <p className="hero-subtext mb-8 max-w-lg text-sm leading-relaxed text-white/45 opacity-0 sm:text-base lg:text-lg">
-            Paste any playlist. AI builds your course with sections, quizzes,
-            progress tracking & certificates — instantly.
+            Paste any playlist. AI builds your course with sections, quizzes, progress tracking &
+            certificates — instantly.
           </p>
 
           {/* CTAs */}
@@ -351,7 +437,9 @@ export function HeroSection() {
               </div>
               <div className="flex items-center gap-0.5">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <span key={i} className="text-[10px] text-amber-400">★</span>
+                  <span key={i} className="text-[10px] text-amber-400">
+                    ★
+                  </span>
                 ))}
                 <span className="ml-1 text-[10px] text-white/30">4.9/5</span>
               </div>

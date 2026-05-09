@@ -20,11 +20,8 @@ export function LessonBreadcrumb({
   onCourseClick,
 }: LessonBreadcrumbProps) {
   return (
-    <div className="mb-4 flex items-center gap-1.5 text-xs text-text-tertiary">
-      <button
-        onClick={onCourseClick}
-        className="hover:text-text-secondary"
-      >
+    <div className="text-text-tertiary mb-4 flex items-center gap-1.5 text-xs">
+      <button onClick={onCourseClick} className="hover:text-text-secondary">
         {courseTitle}
       </button>
       <ChevronRight className="size-3" />

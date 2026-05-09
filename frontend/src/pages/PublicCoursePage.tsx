@@ -30,8 +30,8 @@ export default function PublicCoursePage() {
   const { data: sections } = usePublicCourseSectionsQuery(courseId);
 
   const publicBase = (
-    import.meta.env.VITE_PUBLIC_SITE_URL
-    ?? (typeof window !== "undefined" ? window.location.origin : "")
+    import.meta.env.VITE_PUBLIC_SITE_URL ??
+    (typeof window !== "undefined" ? window.location.origin : "")
   ).replace(/\/$/, "");
   const shareUrl = courseId ? `${publicBase}/courses/${courseId}` : "";
   const openUrl = SINGLE_USER_MODE ? `/learner/hub/${courseId}` : "/login";
@@ -40,7 +40,7 @@ export default function PublicCoursePage() {
   if (isLoading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
-        <Loader2 className="size-6 animate-spin text-text-tertiary" />
+        <Loader2 className="text-text-tertiary size-6 animate-spin" />
       </div>
     );
   }
@@ -48,7 +48,7 @@ export default function PublicCoursePage() {
   if (isError || !course) {
     return (
       <div className="flex h-[60vh] flex-col items-center justify-center gap-3">
-        <p className="text-sm text-text-secondary">Course not found.</p>
+        <p className="text-text-secondary text-sm">Course not found.</p>
         <Button variant="outline" size="sm" onClick={() => navigate("/")}>
           <ArrowLeft className="mr-1.5 size-4" />
           Go home
@@ -61,43 +61,41 @@ export default function PublicCoursePage() {
     <div className="mx-auto max-w-4xl space-y-6">
       <button
         onClick={() => navigate("/")}
-        className="flex items-center gap-1 text-sm text-text-secondary transition-colors hover:text-text-primary"
+        className="text-text-secondary hover:text-text-primary flex items-center gap-1 text-sm transition-colors"
       >
         <ArrowLeft className="size-4" />
         Back to home
       </button>
 
-      <div className="overflow-hidden rounded-xl border border-border-default bg-bg-secondary">
+      <div className="border-border-default bg-bg-secondary overflow-hidden rounded-xl border">
         {course.thumbnail_url ? (
           <div className="aspect-video w-full overflow-hidden">
-            <img
-              src={course.thumbnail_url}
-              alt={course.title}
-              className="size-full object-cover"
-            />
+            <img src={course.thumbnail_url} alt={course.title} className="size-full object-cover" />
           </div>
         ) : (
-          <div className="flex aspect-video w-full items-center justify-center bg-bg-tertiary">
-            <BookOpen className="size-16 text-text-tertiary" />
+          <div className="bg-bg-tertiary flex aspect-video w-full items-center justify-center">
+            <BookOpen className="text-text-tertiary size-16" />
           </div>
         )}
 
         <div className="space-y-4 p-6">
           <div>
-            <h1 className="text-2xl font-bold text-text-primary">{course.title}</h1>
+            <h1 className="text-text-primary text-2xl font-bold">{course.title}</h1>
             {course.creator_name && (
-              <p className="mt-1 text-sm text-text-secondary">by {course.creator_name}</p>
+              <p className="text-text-secondary mt-1 text-sm">by {course.creator_name}</p>
             )}
           </div>
 
-          <div className="flex flex-wrap items-center gap-4 text-sm text-text-secondary">
+          <div className="text-text-secondary flex flex-wrap items-center gap-4 text-sm">
             <div className="flex items-center gap-1.5">
               <StarRating value={course.average_rating} readOnly size="md" />
               <span className="font-medium">
                 {course.average_rating > 0 ? course.average_rating.toFixed(1) : "No ratings"}
               </span>
               {course.rating_count > 0 && (
-                <span className="text-text-tertiary">({course.rating_count} review{course.rating_count !== 1 ? "s" : ""})</span>
+                <span className="text-text-tertiary">
+                  ({course.rating_count} review{course.rating_count !== 1 ? "s" : ""})
+                </span>
               )}
             </div>
             <div className="flex items-center gap-1">
@@ -111,7 +109,7 @@ export default function PublicCoursePage() {
           </div>
 
           {course.description && (
-            <p className="text-sm leading-relaxed text-text-secondary">{course.description}</p>
+            <p className="text-text-secondary text-sm leading-relaxed">{course.description}</p>
           )}
 
           {course.tags.length > 0 && (
@@ -119,7 +117,7 @@ export default function PublicCoursePage() {
               {course.tags.map((tag) => (
                 <span
                   key={tag.id}
-                  className="rounded-full bg-bg-tertiary px-2.5 py-0.5 text-xs font-medium text-text-secondary"
+                  className="bg-bg-tertiary text-text-secondary rounded-full px-2.5 py-0.5 text-xs font-medium"
                 >
                   {tag.name}
                 </span>
@@ -145,12 +143,15 @@ export default function PublicCoursePage() {
       </div>
 
       {sections && sections.length > 0 && (
-        <div className="space-y-3 rounded-xl border border-border-default bg-bg-secondary p-5">
-          <h2 className="text-sm font-semibold text-text-primary">Course Outline</h2>
+        <div className="border-border-default bg-bg-secondary space-y-3 rounded-xl border p-5">
+          <h2 className="text-text-primary text-sm font-semibold">Course Outline</h2>
           <div className="space-y-2">
             {sections.map((section, idx) => (
-              <div key={section.id} className="rounded-lg border border-border-default bg-bg-tertiary p-3">
-                <p className="text-xs font-medium text-text-primary">
+              <div
+                key={section.id}
+                className="border-border-default bg-bg-tertiary rounded-lg border p-3"
+              >
+                <p className="text-text-primary text-xs font-medium">
                   {idx + 1}. {section.title}
                 </p>
                 {section.lessons.length > 0 && (
@@ -162,10 +163,13 @@ export default function PublicCoursePage() {
                         ) : lesson.lesson_type === "note" ? (
                           <StickyNote className="size-3 text-amber-500" />
                         ) : (
-                          <Video className="size-3 text-accent-blue" />
+                          <Video className="text-accent-blue size-3" />
                         );
                       return (
-                        <li key={lesson.id} className="flex items-center gap-1.5 text-xs text-text-secondary">
+                        <li
+                          key={lesson.id}
+                          className="text-text-secondary flex items-center gap-1.5 text-xs"
+                        >
                           {icon}
                           {lesson.title}
                         </li>

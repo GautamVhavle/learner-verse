@@ -165,7 +165,7 @@ export function YouTubeEmbed({ videoId, title, playbackSpeed = 1, onEnded }: You
   return (
     <div
       ref={containerRef}
-      className="relative w-full overflow-hidden rounded-lg bg-bg-tertiary"
+      className="bg-bg-tertiary relative w-full overflow-hidden rounded-lg"
       style={{ paddingBottom: "56.25%" }}
     >
       <div

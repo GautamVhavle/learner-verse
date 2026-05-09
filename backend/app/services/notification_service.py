@@ -11,7 +11,6 @@ from datetime import date
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from app.models.course import Course
 from app.models.lesson import Lesson
@@ -20,7 +19,6 @@ from app.models.section import Section
 from app.repositories.activity_repo import ActivityRepository
 from app.repositories.course_repo import CourseRepository
 from app.repositories.notification_repo import NotificationRepository
-from app.repositories.progress_repo import ProgressRepository
 from app.services.progress_service import ProgressService
 
 STREAK_MILESTONES = [3, 7, 14, 30, 60, 100]
@@ -35,9 +33,7 @@ class NotificationService:
 
     # ── Queries ──────────────────────────────────────────────
 
-    async def list_notifications(
-        self, user_id: uuid.UUID, limit: int = 50
-    ) -> list[Notification]:
+    async def list_notifications(self, user_id: uuid.UUID, limit: int = 50) -> list[Notification]:
         """Return notifications for a user."""
         return await self.repo.list_by_user(user_id, limit)
 
@@ -47,9 +43,7 @@ class NotificationService:
 
     # ── Mutations ────────────────────────────────────────────
 
-    async def mark_read(
-        self, notification_id: uuid.UUID, user_id: uuid.UUID
-    ) -> Notification:
+    async def mark_read(self, notification_id: uuid.UUID, user_id: uuid.UUID) -> Notification:
         """Mark a notification as read. Raises 404 if not found."""
         notification = await self.repo.mark_read(notification_id, user_id)
         if not notification:
@@ -66,9 +60,7 @@ class NotificationService:
         await self.db.commit()
         return count
 
-    async def delete_notification(
-        self, notification_id: uuid.UUID, user_id: uuid.UUID
-    ) -> None:
+    async def delete_notification(self, notification_id: uuid.UUID, user_id: uuid.UUID) -> None:
         """Delete a notification. Raises 404 if not found."""
         deleted = await self.repo.delete_one(notification_id, user_id)
         if not deleted:
@@ -113,9 +105,7 @@ class NotificationService:
                 )
                 created.append(notif)
             elif goal.pace_status == "overdue":
-                notif = await self._create_overdue_warning(
-                    user_id, course.title
-                )
+                notif = await self._create_overdue_warning(user_id, course.title)
                 created.append(notif)
 
         if created:
@@ -144,9 +134,7 @@ class NotificationService:
         )
         return await self.repo.create(notification)
 
-    async def _create_overdue_warning(
-        self, user_id: uuid.UUID, course_title: str
-    ) -> Notification:
+    async def _create_overdue_warning(self, user_id: uuid.UUID, course_title: str) -> Notification:
         """Create an overdue notification for a past-deadline course."""
         notification = Notification(
             user_id=user_id,
@@ -161,9 +149,7 @@ class NotificationService:
 
     # ── Event-Driven Notifications ───────────────────────────
 
-    async def notify_enrollment(
-        self, user_id: uuid.UUID, course_title: str
-    ) -> Notification:
+    async def notify_enrollment(self, user_id: uuid.UUID, course_title: str) -> Notification:
         """Create a notification when a user enrolls in a course."""
         notification = Notification(
             user_id=user_id,
@@ -175,13 +161,9 @@ class NotificationService:
         await self.db.commit()
         return notif
 
-    async def notify_course_completed(
-        self, user_id: uuid.UUID, course_title: str
-    ) -> Notification:
+    async def notify_course_completed(self, user_id: uuid.UUID, course_title: str) -> Notification:
         """Create a notification when a user completes all lessons in a course."""
-        already = await self.repo.has_recent_of_type(
-            user_id, "course_completed", course_title
-        )
+        already = await self.repo.has_recent_of_type(user_id, "course_completed", course_title)
         if already:
             return None  # type: ignore[return-value]
         notification = Notification(

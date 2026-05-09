@@ -23,8 +23,7 @@ export default function StudyPage() {
   const navigate = useModeAwareNavigate();
 
   const { data: course, isLoading: courseLoading } = useHubCourseQuery(courseId ?? "");
-  const { data: sections, isLoading: sectionsLoading } =
-    useHubSectionsQuery(courseId);
+  const { data: sections, isLoading: sectionsLoading } = useHubSectionsQuery(courseId);
   const { data: studyState } = useStudyStateQuery(courseId);
   const { data: progress } = useCourseProgressQuery(courseId);
   const [goalPickerOpen, setGoalPickerOpen] = useState(false);
@@ -35,7 +34,7 @@ export default function StudyPage() {
   if (isLoading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
-        <Loader2 className="size-6 animate-spin text-text-tertiary" />
+        <Loader2 className="text-text-tertiary size-6 animate-spin" />
       </div>
     );
   }
@@ -43,7 +42,7 @@ export default function StudyPage() {
   if (!course) {
     return (
       <div className="flex h-[60vh] flex-col items-center justify-center gap-4">
-        <p className="text-sm text-text-secondary">Course not found.</p>
+        <p className="text-text-secondary text-sm">Course not found.</p>
         <Button variant="outline" onClick={() => navigate("/")}>
           <ArrowLeft className="size-4" />
           Back to Dashboard
@@ -78,7 +77,7 @@ export default function StudyPage() {
           variant="ghost"
           size="sm"
           onClick={() => navigate("/")}
-          className="gap-1.5 text-text-secondary"
+          className="text-text-secondary gap-1.5"
         >
           <ArrowLeft className="size-3.5" />
           Back to Dashboard
@@ -99,13 +98,13 @@ export default function StudyPage() {
 
           {/* Tab bar — Discussion only for public/published courses */}
           {course.is_public && (
-            <div className="mb-4 mt-6 flex gap-1 border-b border-border-default">
+            <div className="border-border-default mt-6 mb-4 flex gap-1 border-b">
               <button
                 onClick={() => setTab("curriculum")}
                 className={`flex items-center gap-1.5 border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
                   tab === "curriculum"
                     ? "border-accent-purple text-accent-purple"
-                    : "border-transparent text-text-secondary hover:text-text-primary"
+                    : "text-text-secondary hover:text-text-primary border-transparent"
                 }`}
               >
                 <BookOpen className="size-3.5" />
@@ -116,7 +115,7 @@ export default function StudyPage() {
                 className={`flex items-center gap-1.5 border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
                   tab === "discussion"
                     ? "border-accent-purple text-accent-purple"
-                    : "border-transparent text-text-secondary hover:text-text-primary"
+                    : "text-text-secondary hover:text-text-primary border-transparent"
                 }`}
               >
                 <MessageSquare className="size-3.5" />
@@ -127,11 +126,12 @@ export default function StudyPage() {
 
           {/* Tab content */}
           {tab === "curriculum" || !course.is_public ? (
-            sections && (
-              <StudySectionList sections={sections} progress={progress} />
-            )
+            sections && <StudySectionList sections={sections} progress={progress} />
           ) : (
-            <div className="overflow-hidden rounded-xl border border-border-default bg-bg-primary" style={{ height: "calc(100vh - 320px)", minHeight: 400 }}>
+            <div
+              className="border-border-default bg-bg-primary overflow-hidden rounded-xl border"
+              style={{ height: "calc(100vh - 320px)", minHeight: 400 }}
+            >
               <DiscussionRoom courseId={courseId!} />
             </div>
           )}
@@ -139,11 +139,9 @@ export default function StudyPage() {
 
         {/* Sidebar — section tree */}
         <aside className="w-full shrink-0 lg:w-64">
-          <div className="sticky top-4 rounded-xl border border-border-default bg-bg-secondary p-2">
+          <div className="border-border-default bg-bg-secondary sticky top-4 rounded-xl border p-2">
             <div className="mb-2 px-2.5 py-1.5">
-              <span className="text-xs font-medium text-text-tertiary">
-                Contents
-              </span>
+              <span className="text-text-tertiary text-xs font-medium">Contents</span>
             </div>
             <StudySidebar
               sections={sections ?? []}

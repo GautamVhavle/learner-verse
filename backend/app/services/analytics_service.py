@@ -1,10 +1,9 @@
 """Service for creator analytics — aggregate stats, per-course breakdowns, learner info."""
 
 import uuid
-from collections import Counter
 from datetime import date, timedelta
 
-from sqlalchemy import func, select, and_
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.certificate import Certificate
@@ -37,9 +36,7 @@ class AnalyticsService:
 
     # ── Overview ──────────────────────────────────────────────
 
-    async def get_overview(
-        self, creator_id: uuid.UUID, trend_days: int = 30
-    ) -> AnalyticsOverview:
+    async def get_overview(self, creator_id: uuid.UUID, trend_days: int = 30) -> AnalyticsOverview:
         """Aggregate analytics across all of a creator's courses."""
         # Get creator's course IDs (non-deleted)
         course_rows = await self.db.execute(
@@ -55,10 +52,16 @@ class AnalyticsService:
 
         if not course_ids:
             return AnalyticsOverview(
-                total_courses=0, published_courses=0, draft_courses=0,
-                total_enrollments=0, total_completions=0, total_lessons=0,
-                total_ratings=0, average_rating=0.0,
-                enrollment_trend=[], completion_trend=[],
+                total_courses=0,
+                published_courses=0,
+                draft_courses=0,
+                total_enrollments=0,
+                total_completions=0,
+                total_lessons=0,
+                total_ratings=0,
+                average_rating=0.0,
+                enrollment_trend=[],
+                completion_trend=[],
                 rating_distribution=[RatingBucket(stars=s, count=0) for s in range(1, 6)],
             )
 
@@ -72,18 +75,14 @@ class AnalyticsService:
 
         # Total completions (certificates issued for creator's courses)
         cert_result = await self.db.execute(
-            select(func.count(Certificate.id)).where(
-                Certificate.course_id.in_(course_ids)
-            )
+            select(func.count(Certificate.id)).where(Certificate.course_id.in_(course_ids))
         )
         total_completions = cert_result.scalar_one()
 
         # Total lessons across all courses
         lesson_result = await self.db.execute(
             select(func.count(Lesson.id)).where(
-                Lesson.section_id.in_(
-                    select(Section.id).where(Section.course_id.in_(course_ids))
-                )
+                Lesson.section_id.in_(select(Section.id).where(Section.course_id.in_(course_ids)))
             )
         )
         total_lessons = lesson_result.scalar_one()
@@ -105,9 +104,7 @@ class AnalyticsService:
             .group_by(CourseRating.rating)
         )
         dist_map = {r[0]: r[1] for r in dist_result.all()}
-        rating_distribution = [
-            RatingBucket(stars=s, count=dist_map.get(s, 0)) for s in range(1, 6)
-        ]
+        rating_distribution = [RatingBucket(stars=s, count=dist_map.get(s, 0)) for s in range(1, 6)]
 
         # Enrollment trend (last N days)
         cutoff = date.today() - timedelta(days=trend_days)
@@ -140,9 +137,7 @@ class AnalyticsService:
             .group_by(func.date(Certificate.completed_at))
             .order_by(func.date(Certificate.completed_at))
         )
-        completion_trend = [
-            TrendPoint(date=str(r[0]), count=r[1]) for r in cert_trend_result.all()
-        ]
+        completion_trend = [TrendPoint(date=str(r[0]), count=r[1]) for r in cert_trend_result.all()]
 
         return AnalyticsOverview(
             total_courses=total_courses,
@@ -169,9 +164,7 @@ class AnalyticsService:
     ) -> CourseAnalyticsList:
         """Get analytics breakdown for each of the creator's courses."""
         courses_result = await self.db.execute(
-            select(Course).where(
-                Course.user_id == creator_id, Course.is_deleted.is_(False)
-            )
+            select(Course).where(Course.user_id == creator_id, Course.is_deleted.is_(False))
         )
         all_courses = list(courses_result.scalars().all())
 
@@ -209,26 +202,28 @@ class AnalyticsService:
 
             completion_rate = round((comp_count / e_count * 100) if e_count > 0 else 0.0, 1)
 
-            items.append(CourseAnalytics(
-                course_id=c.id,
-                title=c.title,
-                thumbnail_url=c.thumbnail_url,
-                status=c.status,
-                is_public=c.is_public,
-                section_count=s_count,
-                lesson_count=l_count,
-                enrollment_count=e_count,
-                completion_count=comp_count,
-                completion_rate=completion_rate,
-                average_rating=avg_r,
-                rating_count=r_count,
-                rating_distribution=[
-                    RatingBucket(stars=s, count=dist.get(s, 0)) for s in range(1, 6)
-                ],
-                enrollment_trend=[],  # Filled below for paginated items
-                completion_trend=[],
-                created_at=c.created_at,
-            ))
+            items.append(
+                CourseAnalytics(
+                    course_id=c.id,
+                    title=c.title,
+                    thumbnail_url=c.thumbnail_url,
+                    status=c.status,
+                    is_public=c.is_public,
+                    section_count=s_count,
+                    lesson_count=l_count,
+                    enrollment_count=e_count,
+                    completion_count=comp_count,
+                    completion_rate=completion_rate,
+                    average_rating=avg_r,
+                    rating_count=r_count,
+                    rating_distribution=[
+                        RatingBucket(stars=s, count=dist.get(s, 0)) for s in range(1, 6)
+                    ],
+                    enrollment_trend=[],  # Filled below for paginated items
+                    completion_trend=[],
+                    created_at=c.created_at,
+                )
+            )
 
         # Sort
         sort_keys = {
@@ -327,9 +322,7 @@ class AnalyticsService:
         # Get all lesson IDs for this course
         lesson_ids_result = await self.db.execute(
             select(Lesson.id).where(
-                Lesson.section_id.in_(
-                    select(Section.id).where(Section.course_id == course_id)
-                )
+                Lesson.section_id.in_(select(Section.id).where(Section.course_id == course_id))
             )
         )
         all_lesson_ids = [r[0] for r in lesson_ids_result.all()]
@@ -348,8 +341,10 @@ class AnalyticsService:
 
         if not enrollments:
             return CourseLearnersList(
-                course_id=course_id, course_title=course.title,
-                learners=[], total=total,
+                course_id=course_id,
+                course_title=course.title,
+                learners=[],
+                total=total,
             )
 
         user_ids = [e.user_id for e in enrollments]
@@ -388,16 +383,18 @@ class AnalyticsService:
             done = progress_map.get(e.user_id, 0)
             pct = round((done / total_lessons * 100) if total_lessons > 0 else 0.0, 1)
 
-            learners.append(LearnerInfo(
-                user_id=e.user_id,
-                display_name=name,
-                avatar_url=avatar,
-                enrolled_at=e.enrolled_at,
-                lessons_completed=done,
-                total_lessons=total_lessons,
-                progress_percent=pct,
-                completed_course=e.user_id in completed_users,
-            ))
+            learners.append(
+                LearnerInfo(
+                    user_id=e.user_id,
+                    display_name=name,
+                    avatar_url=avatar,
+                    enrolled_at=e.enrolled_at,
+                    lessons_completed=done,
+                    total_lessons=total_lessons,
+                    progress_percent=pct,
+                    completed_course=e.user_id in completed_users,
+                )
+            )
 
         return CourseLearnersList(
             course_id=course_id,
@@ -408,14 +405,10 @@ class AnalyticsService:
 
     # ── Top Courses ───────────────────────────────────────────
 
-    async def get_top_courses(
-        self, creator_id: uuid.UUID, limit: int = 5
-    ) -> list[TopCourse]:
+    async def get_top_courses(self, creator_id: uuid.UUID, limit: int = 5) -> list[TopCourse]:
         """Get top N courses by enrollment count."""
         courses_result = await self.db.execute(
-            select(Course).where(
-                Course.user_id == creator_id, Course.is_deleted.is_(False)
-            )
+            select(Course).where(Course.user_id == creator_id, Course.is_deleted.is_(False))
         )
         courses = list(courses_result.scalars().all())
         if not courses:
@@ -428,24 +421,24 @@ class AnalyticsService:
 
         items = []
         for c in courses:
-            items.append(TopCourse(
-                course_id=c.id,
-                title=c.title,
-                thumbnail_url=c.thumbnail_url,
-                enrollment_count=enroll_counts.get(c.id, 0),
-                completion_count=completion_counts.get(c.id, 0),
-                average_rating=rating_stats.get(c.id, (0.0, 0))[0],
-                rating_count=rating_stats.get(c.id, (0.0, 0))[1],
-            ))
+            items.append(
+                TopCourse(
+                    course_id=c.id,
+                    title=c.title,
+                    thumbnail_url=c.thumbnail_url,
+                    enrollment_count=enroll_counts.get(c.id, 0),
+                    completion_count=completion_counts.get(c.id, 0),
+                    average_rating=rating_stats.get(c.id, (0.0, 0))[0],
+                    rating_count=rating_stats.get(c.id, (0.0, 0))[1],
+                )
+            )
 
         items.sort(key=lambda x: x.enrollment_count, reverse=True)
         return items[:limit]
 
     # ── Private Helpers ───────────────────────────────────────
 
-    async def _get_creator_course(
-        self, creator_id: uuid.UUID, course_id: uuid.UUID
-    ) -> Course:
+    async def _get_creator_course(self, creator_id: uuid.UUID, course_id: uuid.UUID) -> Course:
         """Fetch a course that belongs to the creator, or raise 404."""
         from fastapi import HTTPException, status
 
@@ -521,9 +514,7 @@ class AnalyticsService:
             out.setdefault(row[0], {})[row[1]] = row[2]
         return out
 
-    async def _enrollment_trend(
-        self, course_id: uuid.UUID, cutoff: date
-    ) -> list[TrendPoint]:
+    async def _enrollment_trend(self, course_id: uuid.UUID, cutoff: date) -> list[TrendPoint]:
         result = await self.db.execute(
             select(
                 func.date(CourseEnrollment.enrolled_at),
@@ -538,9 +529,7 @@ class AnalyticsService:
         )
         return [TrendPoint(date=str(r[0]), count=r[1]) for r in result.all()]
 
-    async def _completion_trend(
-        self, course_id: uuid.UUID, cutoff: date
-    ) -> list[TrendPoint]:
+    async def _completion_trend(self, course_id: uuid.UUID, cutoff: date) -> list[TrendPoint]:
         result = await self.db.execute(
             select(
                 func.date(Certificate.completed_at),
@@ -555,15 +544,11 @@ class AnalyticsService:
         )
         return [TrendPoint(date=str(r[0]), count=r[1]) for r in result.all()]
 
-    async def _user_map(
-        self, user_ids: list[uuid.UUID]
-    ) -> dict[uuid.UUID, tuple[str, str | None]]:
+    async def _user_map(self, user_ids: list[uuid.UUID]) -> dict[uuid.UUID, tuple[str, str | None]]:
         """Return {user_id: (display_name, avatar_url)} for a batch of users."""
         if not user_ids:
             return {}
         result = await self.db.execute(
-            select(User.id, User.display_name, User.avatar_url).where(
-                User.id.in_(user_ids)
-            )
+            select(User.id, User.display_name, User.avatar_url).where(User.id.in_(user_ids))
         )
         return {r[0]: (r[1], r[2]) for r in result.all()}

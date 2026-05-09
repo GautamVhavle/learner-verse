@@ -130,17 +130,13 @@ function TestimonialCard({ t }: { t: Testimonial }) {
             <Star
               key={i}
               className={`size-3 ${
-                i < t.stars
-                  ? "fill-amber-400 text-amber-400"
-                  : "text-white/10"
+                i < t.stars ? "fill-amber-400 text-amber-400" : "text-white/10"
               }`}
             />
           ))}
         </div>
       </div>
-      <p className="mt-4 text-[13px] leading-relaxed text-white/55">
-        "{t.quote}"
-      </p>
+      <p className="mt-4 text-[13px] leading-relaxed text-white/55">"{t.quote}"</p>
     </div>
   );
 }

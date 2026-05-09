@@ -7,11 +7,7 @@
  * Persists to localStorage so it survives refreshes.
  */
 import { useState, useEffect, useCallback, useRef } from "react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
 
 /* ── Storage ───────────────────────────────────────── */
@@ -76,8 +72,23 @@ const PRESETS = [
 
 function TimerIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <circle cx="12" cy="13" r="8" className="origin-center animate-[spin_20s_linear_infinite]" opacity="0.15" strokeDasharray="4 4" />
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <circle
+        cx="12"
+        cy="13"
+        r="8"
+        className="origin-center animate-[spin_20s_linear_infinite]"
+        opacity="0.15"
+        strokeDasharray="4 4"
+      />
       <circle cx="12" cy="13" r="8" />
       <path d="M12 9v4l2 2" />
       <path d="M9 1h6" />
@@ -86,16 +97,19 @@ function TimerIcon({ className }: { className?: string }) {
   );
 }
 
-function PulseRing({ size, progress, paused }: { size: number; progress: number; paused: boolean }) {
+function PulseRing({
+  size,
+  progress,
+  paused,
+}: {
+  size: number;
+  progress: number;
+  paused: boolean;
+}) {
   const r = (size - 6) / 2;
   const c = 2 * Math.PI * r;
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox={`0 0 ${size} ${size}`}
-      className="-rotate-90"
-    >
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
       {/* Track */}
       <circle
         cx={size / 2}
@@ -217,24 +231,38 @@ export function PomodoroTimer() {
       <PopoverTrigger asChild>
         {active ? (
           <button
-            className="group relative flex h-8 items-center gap-2 rounded-full border border-accent-purple/30 bg-accent-purple/[0.06] px-1 pr-2.5 text-xs font-semibold tabular-nums text-accent-purple transition-all duration-300 hover:border-accent-purple/50 hover:bg-accent-purple/10"
+            className="group border-accent-purple/30 bg-accent-purple/[0.06] text-accent-purple hover:border-accent-purple/50 hover:bg-accent-purple/10 relative flex h-8 items-center gap-2 rounded-full border px-1 pr-2.5 text-xs font-semibold tabular-nums transition-all duration-300"
             aria-label="Focus timer"
           >
             {/* Breathing glow behind pill */}
             <span
               className="pointer-events-none absolute inset-0 rounded-full opacity-0 transition-opacity duration-500 group-hover:opacity-100"
               style={{
-                boxShadow: "0 0 12px color-mix(in srgb, var(--color-accent-purple) 25%, transparent)",
+                boxShadow:
+                  "0 0 12px color-mix(in srgb, var(--color-accent-purple) 25%, transparent)",
               }}
             />
 
             {/* Mini ring */}
             <span className="flex size-6 items-center justify-center">
               <svg width="18" height="18" viewBox="0 0 18 18" className="-rotate-90">
-                <circle cx="9" cy="9" r={miniR} fill="none" stroke="currentColor" strokeOpacity="0.2" strokeWidth="2" />
                 <circle
-                  cx="9" cy="9" r={miniR}
-                  fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                  cx="9"
+                  cy="9"
+                  r={miniR}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeOpacity="0.2"
+                  strokeWidth="2"
+                />
+                <circle
+                  cx="9"
+                  cy="9"
+                  r={miniR}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
                   strokeDasharray={miniC}
                   strokeDashoffset={miniC * (1 - progress)}
                   className="transition-[stroke-dashoffset] duration-1000 ease-linear"
@@ -245,14 +273,14 @@ export function PomodoroTimer() {
             <span>{fmt(secLeft)}</span>
 
             {paused && (
-              <span className="rounded bg-accent-purple/15 px-1 py-px text-[9px] font-bold uppercase tracking-widest">
+              <span className="bg-accent-purple/15 rounded px-1 py-px text-[9px] font-bold tracking-widest uppercase">
                 paused
               </span>
             )}
           </button>
         ) : (
           <button
-            className="group flex size-8 items-center justify-center rounded-lg border border-border-default bg-bg-secondary text-text-tertiary transition-all duration-200 hover:border-border-hover hover:text-text-secondary"
+            className="group border-border-default bg-bg-secondary text-text-tertiary hover:border-border-hover hover:text-text-secondary flex size-8 items-center justify-center rounded-lg border transition-all duration-200"
             aria-label="Focus timer"
           >
             <TimerIcon className="size-4 transition-transform duration-200 group-hover:scale-110" />
@@ -263,22 +291,25 @@ export function PomodoroTimer() {
       <PopoverContent align="end" className="w-[280px] overflow-hidden rounded-xl p-0">
         {active ? (
           /* ═══ Running / Paused ═══ */
-          <div className="flex flex-col items-center px-5 pb-5 pt-6">
+          <div className="flex flex-col items-center px-5 pt-6 pb-5">
             {/* Ring */}
-            <div className="relative mb-4 flex items-center justify-center" style={{ width: 120, height: 120 }}>
+            <div
+              className="relative mb-4 flex items-center justify-center"
+              style={{ width: 120, height: 120 }}
+            >
               <PulseRing size={120} progress={progress} paused={paused} />
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-2xl font-bold tabular-nums tracking-tight text-text-primary">
+                <span className="text-text-primary text-2xl font-bold tracking-tight tabular-nums">
                   {fmt(secLeft)}
                 </span>
-                <span className="mt-0.5 text-[10px] font-medium text-text-tertiary">
+                <span className="text-text-tertiary mt-0.5 text-[10px] font-medium">
                   {paused ? "paused" : "remaining"}
                 </span>
               </div>
             </div>
 
             {/* Session info */}
-            <p className="mb-5 text-[11px] font-medium text-text-secondary">
+            <p className="text-text-secondary mb-5 text-[11px] font-medium">
               {fmtDur(timer.durationMs)} focus session
             </p>
 
@@ -286,7 +317,7 @@ export function PomodoroTimer() {
             <div className="flex w-full gap-2">
               <button
                 onClick={paused ? resume : pause}
-                className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg border border-border-default text-xs font-medium text-text-primary transition-all duration-200 hover:bg-bg-tertiary active:scale-[0.97]"
+                className="border-border-default text-text-primary hover:bg-bg-tertiary flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg border text-xs font-medium transition-all duration-200 active:scale-[0.97]"
               >
                 {paused ? (
                   <>
@@ -306,10 +337,20 @@ export function PomodoroTimer() {
                 )}
               </button>
               <button
-                onClick={() => { cancel(); setOpen(false); }}
-                className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg border border-accent-red/20 text-xs font-medium text-accent-red transition-all duration-200 hover:bg-accent-red/[0.06] active:scale-[0.97]"
+                onClick={() => {
+                  cancel();
+                  setOpen(false);
+                }}
+                className="border-accent-red/20 text-accent-red hover:bg-accent-red/[0.06] flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg border text-xs font-medium transition-all duration-200 active:scale-[0.97]"
               >
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="size-3">
+                <svg
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  className="size-3"
+                >
                   <path d="M4 4l8 8M12 4l-8 8" />
                 </svg>
                 Cancel
@@ -320,13 +361,13 @@ export function PomodoroTimer() {
           /* ═══ Picker ═══ */
           <div className="flex flex-col">
             {/* Header */}
-            <div className="flex items-center gap-2.5 border-b border-border-default px-4 py-3">
-              <div className="flex size-7 items-center justify-center rounded-lg bg-accent-purple/10">
-                <TimerIcon className="size-3.5 text-accent-purple" />
+            <div className="border-border-default flex items-center gap-2.5 border-b px-4 py-3">
+              <div className="bg-accent-purple/10 flex size-7 items-center justify-center rounded-lg">
+                <TimerIcon className="text-accent-purple size-3.5" />
               </div>
               <div>
-                <p className="text-[13px] font-semibold text-text-primary">Focus Timer</p>
-                <p className="text-[11px] text-text-tertiary">Pick a duration to start</p>
+                <p className="text-text-primary text-[13px] font-semibold">Focus Timer</p>
+                <p className="text-text-tertiary text-[11px]">Pick a duration to start</p>
               </div>
             </div>
 
@@ -336,18 +377,18 @@ export function PomodoroTimer() {
                 <button
                   key={p.minutes}
                   onClick={() => start(p.minutes)}
-                  className="group/p flex h-[52px] flex-col items-center justify-center gap-0.5 rounded-lg border border-border-default transition-all duration-200 hover:border-accent-purple/40 hover:bg-accent-purple/[0.04] hover:shadow-sm active:scale-[0.96]"
+                  className="group/p border-border-default hover:border-accent-purple/40 hover:bg-accent-purple/[0.04] flex h-[52px] flex-col items-center justify-center gap-0.5 rounded-lg border transition-all duration-200 hover:shadow-sm active:scale-[0.96]"
                 >
-                  <span className="text-sm font-bold text-text-primary transition-colors group-hover/p:text-accent-purple">
+                  <span className="text-text-primary group-hover/p:text-accent-purple text-sm font-bold transition-colors">
                     {p.label}
                   </span>
-                  <span className="text-[10px] font-medium text-text-tertiary">{p.sub}</span>
+                  <span className="text-text-tertiary text-[10px] font-medium">{p.sub}</span>
                 </button>
               ))}
             </div>
 
             {/* Custom */}
-            <div className="flex gap-1.5 border-t border-border-default p-3">
+            <div className="border-border-default flex gap-1.5 border-t p-3">
               <div className="relative flex-1">
                 <input
                   type="number"
@@ -357,16 +398,16 @@ export function PomodoroTimer() {
                   value={customMin}
                   onChange={(e) => setCustomMin(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && startCustom()}
-                  className="h-9 w-full rounded-lg border border-border-default bg-transparent px-3 pr-10 text-xs text-text-primary placeholder:text-text-tertiary focus:border-accent-purple/50 focus:outline-none focus:ring-1 focus:ring-accent-purple/20 transition-all duration-200"
+                  className="border-border-default text-text-primary placeholder:text-text-tertiary focus:border-accent-purple/50 focus:ring-accent-purple/20 h-9 w-full rounded-lg border bg-transparent px-3 pr-10 text-xs transition-all duration-200 focus:ring-1 focus:outline-none"
                 />
-                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-medium text-text-tertiary">
+                <span className="text-text-tertiary pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-[10px] font-medium">
                   min
                 </span>
               </div>
               <button
                 onClick={startCustom}
                 disabled={!customMin || parseInt(customMin, 10) <= 0}
-                className="flex h-9 items-center justify-center rounded-lg bg-accent-purple px-4 text-xs font-semibold text-white transition-all duration-200 hover:bg-accent-purple/90 active:scale-[0.96] disabled:opacity-30 disabled:pointer-events-none"
+                className="bg-accent-purple hover:bg-accent-purple/90 flex h-9 items-center justify-center rounded-lg px-4 text-xs font-semibold text-white transition-all duration-200 active:scale-[0.96] disabled:pointer-events-none disabled:opacity-30"
               >
                 Start
               </button>

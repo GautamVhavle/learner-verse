@@ -25,8 +25,7 @@ export function useEnrolledCoursesQuery() {
 export function useEnrollMutation() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (courseId: string) =>
-      api.post<EnrollmentResponse>(`/enrollments/${courseId}`, {}),
+    mutationFn: (courseId: string) => api.post<EnrollmentResponse>(`/enrollments/${courseId}`, {}),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ENROLLMENTS_KEY });
       toast.success("Enrolled successfully!", { description: "Start learning now." });
@@ -39,8 +38,7 @@ export function useEnrollMutation() {
 export function useUnenrollMutation() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (courseId: string) =>
-      api.delete<void>(`/enrollments/${courseId}`),
+    mutationFn: (courseId: string) => api.delete<void>(`/enrollments/${courseId}`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ENROLLMENTS_KEY });
       toast.success("Unenrolled from course");

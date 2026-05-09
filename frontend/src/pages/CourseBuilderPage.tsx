@@ -111,7 +111,7 @@ export default function CourseBuilderPage() {
   if (isLoading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
-        <Loader2 className="size-6 animate-spin text-text-tertiary" />
+        <Loader2 className="text-text-tertiary size-6 animate-spin" />
       </div>
     );
   }
@@ -119,7 +119,7 @@ export default function CourseBuilderPage() {
   if (!course) {
     return (
       <div className="flex h-[60vh] flex-col items-center justify-center gap-4">
-        <p className="text-sm text-text-secondary">Course not found.</p>
+        <p className="text-text-secondary text-sm">Course not found.</p>
         <Button variant="outline" onClick={() => navigate("/")}>
           <ArrowLeft className="size-4" />
           Back to Dashboard
@@ -139,12 +139,8 @@ export default function CourseBuilderPage() {
           lesson={selectedLesson}
           courseId={courseId!}
           onUpdate={(data) => handleUpdateLessonFull(selectedLesson.id, data)}
-          onAddReferenceLink={(data) =>
-            handleAddReferenceLink(selectedLesson.id, data)
-          }
-          onDeleteReferenceLink={(linkId) =>
-            handleDeleteReferenceLink(selectedLesson.id, linkId)
-          }
+          onAddReferenceLink={(data) => handleAddReferenceLink(selectedLesson.id, data)}
+          onDeleteReferenceLink={(linkId) => handleDeleteReferenceLink(selectedLesson.id, linkId)}
           onClose={() => setSelectedLessonId(null)}
         />
       </div>
@@ -158,10 +154,10 @@ export default function CourseBuilderPage() {
     <div className="mx-auto max-w-3xl">
       {/* Published banner */}
       {isReady && (
-        <div className="mb-4 flex items-center justify-between rounded-lg border border-accent-green/30 bg-accent-green/5 px-4 py-3">
+        <div className="border-accent-green/30 bg-accent-green/5 mb-4 flex items-center justify-between rounded-lg border px-4 py-3">
           <div className="flex items-center gap-2">
-            <Lock className="size-4 text-accent-green" />
-            <span className="text-sm font-medium text-text-primary">
+            <Lock className="text-accent-green size-4" />
+            <span className="text-text-primary text-sm font-medium">
               This course is published and read-only.
             </span>
           </div>
@@ -191,17 +187,15 @@ export default function CourseBuilderPage() {
           </Button>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2.5">
-              <h1 className="truncate text-xl font-semibold text-text-primary">
-                {course.title}
-              </h1>
+              <h1 className="text-text-primary truncate text-xl font-semibold">{course.title}</h1>
               <CourseStatusBadge status={course.status} />
             </div>
-            <p className="mt-0.5 text-xs text-text-secondary">
+            <p className="text-text-secondary mt-0.5 text-xs">
               {sections?.length ?? 0} sections &middot; {totalLessons} lessons
               {course.has_issues && (
                 <button
                   onClick={handleShowIssues}
-                  className="ml-2 inline-flex cursor-pointer items-center gap-1 text-accent-amber hover:underline"
+                  className="text-accent-amber ml-2 inline-flex cursor-pointer items-center gap-1 hover:underline"
                 >
                   <AlertTriangle className="size-3" />
                   Has issues
@@ -232,10 +226,10 @@ export default function CourseBuilderPage() {
                 organizeMutation.mutate(undefined, {
                   onSuccess: () => toast.success("Course organized by LiVi!"),
                   onError: () => toast.error("Failed to organize. Please try again."),
-                })
+                }),
               )}
               disabled={organizeMutation.isPending || isResuming}
-              className="gap-1.5 border-accent-purple/30 text-accent-purple hover:bg-accent-purple/10"
+              className="border-accent-purple/30 text-accent-purple hover:bg-accent-purple/10 gap-1.5"
             >
               {organizeMutation.isPending || isResuming ? (
                 <Loader2 className="size-3.5 animate-spin" />
@@ -251,7 +245,7 @@ export default function CourseBuilderPage() {
               size="sm"
               onClick={onMarkReady}
               disabled={updateStatus.isPending}
-              className="gap-1.5 bg-accent-green/15 text-accent-green hover:bg-accent-green/25"
+              className="bg-accent-green/15 text-accent-green hover:bg-accent-green/25 gap-1.5"
             >
               {updateStatus.isPending ? (
                 <Loader2 className="size-3.5 animate-spin" />
@@ -280,9 +274,7 @@ export default function CourseBuilderPage() {
               }}
               disabled={updateCourse.isPending}
               className={`gap-1.5 ${
-                course.is_public
-                  ? "bg-accent-blue/15 text-accent-blue hover:bg-accent-blue/25"
-                  : ""
+                course.is_public ? "bg-accent-blue/15 text-accent-blue hover:bg-accent-blue/25" : ""
               }`}
             >
               {updateCourse.isPending ? (
@@ -299,17 +291,15 @@ export default function CourseBuilderPage() {
       {/* Section List */}
       <div className={`relative ${isReady ? "pointer-events-none opacity-60" : ""}`}>
         {(organizeMutation.isPending || isResuming) && (
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-xl bg-bg-primary/80 backdrop-blur-sm">
+          <div className="bg-bg-primary/80 absolute inset-0 z-10 flex flex-col items-center justify-center rounded-xl backdrop-blur-sm">
             <div className="flex flex-col items-center gap-3">
-              <div className="flex size-12 items-center justify-center rounded-full bg-accent-purple/10">
-                <Sparkles className="size-6 animate-pulse text-accent-purple" />
+              <div className="bg-accent-purple/10 flex size-12 items-center justify-center rounded-full">
+                <Sparkles className="text-accent-purple size-6 animate-pulse" />
               </div>
-              <p className="text-sm font-medium text-text-primary">
+              <p className="text-text-primary text-sm font-medium">
                 LiVi is organizing your course…
               </p>
-              <p className="text-xs text-text-tertiary">
-                Analyzing lessons and creating sections
-              </p>
+              <p className="text-text-tertiary text-xs">Analyzing lessons and creating sections</p>
             </div>
           </div>
         )}
@@ -321,12 +311,12 @@ export default function CourseBuilderPage() {
           onDeleteSection={handleDeleteSection}
           onDuplicateSection={handleDuplicateSection}
           onReorderSections={handleReorderSections}
-        onAddLesson={handleAddLesson}
-        onUpdateLesson={handleUpdateLesson}
-        onDeleteLesson={handleDeleteLesson}
-        onDuplicateLesson={handleDuplicateLesson}
-        onReorderLessons={handleReorderLessons}
-        onLessonClick={isReady ? undefined : setSelectedLessonId}
+          onAddLesson={handleAddLesson}
+          onUpdateLesson={handleUpdateLesson}
+          onDeleteLesson={handleDeleteLesson}
+          onDuplicateLesson={handleDuplicateLesson}
+          onReorderLessons={handleReorderLessons}
+          onLessonClick={isReady ? undefined : setSelectedLessonId}
         />
       </div>
 
@@ -343,10 +333,9 @@ export default function CourseBuilderPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Make this course private?</AlertDialogTitle>
             <AlertDialogDescription>
-              This course is currently public. Making it private will remove it
-              from the Course Hub and new learners won't be able to discover or
-              enroll in it. Existing enrollments, ratings, and reviews will be
-              hidden while the course remains private.
+              This course is currently public. Making it private will remove it from the Course Hub
+              and new learners won't be able to discover or enroll in it. Existing enrollments,
+              ratings, and reviews will be hidden while the course remains private.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

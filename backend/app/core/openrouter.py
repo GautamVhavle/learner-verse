@@ -104,9 +104,7 @@ def _gemini_payload_from_messages(
     payload: dict = {"contents": contents}
 
     if system_lines:
-        payload["system_instruction"] = {
-            "parts": [{"text": "\n\n".join(system_lines)}]
-        }
+        payload["system_instruction"] = {"parts": [{"text": "\n\n".join(system_lines)}]}
 
     generation_config: dict = {}
     if extra_payload:
@@ -140,9 +138,7 @@ def _gemini_payload_from_messages(
 
         thinking_budget = extra_payload.get("gemini_thinking_budget")
         if isinstance(thinking_budget, int) and thinking_budget >= 0:
-            generation_config["thinkingConfig"] = {
-                "thinkingBudget": thinking_budget
-            }
+            generation_config["thinkingConfig"] = {"thinkingBudget": thinking_budget}
 
     if generation_config:
         payload["generationConfig"] = generation_config
@@ -352,7 +348,9 @@ async def call_chat_completion(
     timeout = _TIMEOUT_LONG if long_timeout else _TIMEOUT
     logger.info(
         "OpenRouter request: model=%s, timeout=%.0fs, msg_chars=%d",
-        used_model, timeout.read, sum(len(m.get("content", "")) for m in messages),
+        used_model,
+        timeout.read,
+        sum(len(m.get("content", "")) for m in messages),
     )
 
     try:
@@ -381,7 +379,11 @@ async def call_chat_completion(
             data = response.json()
 
             if "error" in data:
-                err_msg = data["error"] if isinstance(data["error"], str) else data["error"].get("message", str(data["error"]))
+                err_msg = (
+                    data["error"]
+                    if isinstance(data["error"], str)
+                    else data["error"].get("message", str(data["error"]))
+                )
                 logger.error("OpenRouter error: %s", err_msg)
                 return None
 
@@ -422,16 +424,14 @@ async def stream_and_strip_think_blocks(
     in_think_block = False
     buffer = ""
 
-    async for chunk in stream_chat_completions(
-        messages, model=model, extra_payload=extra_payload
-    ):
+    async for chunk in stream_chat_completions(messages, model=model, extra_payload=extra_payload):
         buffer += chunk
 
         while buffer:
             if in_think_block:
                 end_idx = buffer.find("</think>")
                 if end_idx != -1:
-                    buffer = buffer[end_idx + 8:]
+                    buffer = buffer[end_idx + 8 :]
                     in_think_block = False
                     continue
                 if len(buffer) > 8:
@@ -443,7 +443,7 @@ async def stream_and_strip_think_blocks(
                     before = buffer[:start_idx]
                     if before:
                         yield before
-                    buffer = buffer[start_idx + 7:]
+                    buffer = buffer[start_idx + 7 :]
                     in_think_block = True
                     continue
                 safe_end = len(buffer)

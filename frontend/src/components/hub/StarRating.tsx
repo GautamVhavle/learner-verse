@@ -44,9 +44,7 @@ export function StarRating({
             )}
             aria-label={`${star} star${star > 1 ? "s" : ""}`}
           >
-            <Star
-              className={cn(iconSize, filled && "fill-current")}
-            />
+            <Star className={cn(iconSize, filled && "fill-current")} />
           </button>
         );
       })}

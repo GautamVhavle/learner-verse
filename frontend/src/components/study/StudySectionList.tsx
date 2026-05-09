@@ -18,24 +18,20 @@ export function StudySectionList({ sections, progress }: StudySectionListProps) 
 
   return (
     <div className="mt-6 space-y-3">
-      <h2 className="text-sm font-medium text-text-primary">Course Content</h2>
+      <h2 className="text-text-primary text-sm font-medium">Course Content</h2>
       {sections.map((section, idx) => {
-        const sp = progress?.sections.find(
-          (s) => s.section_id === section.id
-        );
+        const sp = progress?.sections.find((s) => s.section_id === section.id);
         return (
           <div
             key={section.id}
-            className="rounded-lg border border-border-default bg-bg-secondary px-4 py-3"
+            className="border-border-default bg-bg-secondary rounded-lg border px-4 py-3"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="flex size-6 items-center justify-center rounded-md bg-bg-tertiary text-xs font-medium text-text-tertiary">
+                <span className="bg-bg-tertiary text-text-tertiary flex size-6 items-center justify-center rounded-md text-xs font-medium">
                   {idx + 1}
                 </span>
-                <span className="text-sm font-medium text-text-primary">
-                  {section.title}
-                </span>
+                <span className="text-text-primary text-sm font-medium">{section.title}</span>
               </div>
               <SectionProgress
                 completed={sp?.completed_lessons ?? 0}

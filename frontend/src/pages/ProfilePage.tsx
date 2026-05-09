@@ -24,7 +24,7 @@ export default function ProfilePage() {
   if (isLoading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
-        <Loader2 className="size-6 animate-spin text-text-tertiary" />
+        <Loader2 className="text-text-tertiary size-6 animate-spin" />
       </div>
     );
   }
@@ -34,17 +34,13 @@ export default function ProfilePage() {
   return (
     <div className="mx-auto max-w-2xl space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold text-text-primary">Profile</h1>
-        <p className="mt-1 text-sm text-text-secondary">
-          Manage your public profile and identity.
-        </p>
+        <h1 className="text-text-primary text-2xl font-semibold">Profile</h1>
+        <p className="text-text-secondary mt-1 text-sm">Manage your public profile and identity.</p>
       </div>
 
       <ProfileSection user={user} onSave={(data) => save(data)} />
 
-      <p className="text-center text-xs text-text-tertiary">
-        Changes are saved automatically.
-      </p>
+      <p className="text-text-tertiary text-center text-xs">Changes are saved automatically.</p>
     </div>
   );
 }

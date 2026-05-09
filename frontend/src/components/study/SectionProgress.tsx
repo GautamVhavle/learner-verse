@@ -21,7 +21,7 @@ export function SectionProgress({ completed, total }: SectionProgressProps) {
           />
         ))}
       </div>
-      <span className="text-xs tabular-nums text-text-tertiary">
+      <span className="text-text-tertiary text-xs tabular-nums">
         {completed}/{total}
       </span>
     </div>

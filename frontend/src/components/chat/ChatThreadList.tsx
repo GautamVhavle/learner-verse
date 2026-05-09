@@ -4,10 +4,7 @@
 import { formatDistanceToNow } from "date-fns";
 import { Clock, MessageSquare, Trash2 } from "lucide-react";
 import { useChatStore } from "@/stores/chatStore";
-import {
-  useChatThreadsQuery,
-  useDeleteThreadMutation,
-} from "@/hooks/useChatThreads";
+import { useChatThreadsQuery, useDeleteThreadMutation } from "@/hooks/useChatThreads";
 
 interface ChatThreadListProps {
   onSelectThread: (threadId: string) => void;
@@ -29,25 +26,25 @@ export function ChatThreadList({ onSelectThread }: ChatThreadListProps) {
   };
 
   return (
-    <div className="flex h-full flex-col bg-bg-secondary">
+    <div className="bg-bg-secondary flex h-full flex-col">
       {/* Header */}
-      <div className="flex h-10 shrink-0 items-center gap-1.5 border-b border-border-primary/60 px-3">
-        <Clock className="size-3 text-text-tertiary" />
-        <span className="text-[10px] font-semibold uppercase tracking-widest text-text-tertiary">
+      <div className="border-border-primary/60 flex h-10 shrink-0 items-center gap-1.5 border-b px-3">
+        <Clock className="text-text-tertiary size-3" />
+        <span className="text-text-tertiary text-[10px] font-semibold tracking-widest uppercase">
           History
         </span>
       </div>
 
       {/* List */}
-      <div className="flex-1 overflow-y-auto scrollbar-thin">
+      <div className="scrollbar-thin flex-1 overflow-y-auto">
         {isLoading ? (
           <div className="flex items-center justify-center py-10">
-            <div className="size-4 animate-spin rounded-full border-2 border-text-tertiary border-t-transparent" />
+            <div className="border-text-tertiary size-4 animate-spin rounded-full border-2 border-t-transparent" />
           </div>
         ) : threads.length === 0 ? (
           <div className="flex flex-col items-center gap-1.5 px-3 py-10">
-            <MessageSquare className="size-5 text-text-tertiary/40" />
-            <p className="text-[11px] text-text-tertiary">No conversations yet</p>
+            <MessageSquare className="text-text-tertiary/40 size-5" />
+            <p className="text-text-tertiary text-[11px]">No conversations yet</p>
           </div>
         ) : (
           <div className="space-y-0.5 p-1.5">
@@ -67,7 +64,7 @@ export function ChatThreadList({ onSelectThread }: ChatThreadListProps) {
                   }}
                   className={`group flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 transition-all ${
                     isActive
-                      ? "bg-accent-purple/8 shadow-sm ring-1 ring-accent-purple/15"
+                      ? "bg-accent-purple/8 ring-accent-purple/15 shadow-sm ring-1"
                       : "hover:bg-bg-secondary"
                   }`}
                 >
@@ -82,13 +79,13 @@ export function ChatThreadList({ onSelectThread }: ChatThreadListProps) {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p
-                      className={`truncate text-[11px] font-medium leading-tight ${
+                      className={`truncate text-[11px] leading-tight font-medium ${
                         isActive ? "text-text-primary" : "text-text-secondary"
                       }`}
                     >
                       {thread.title}
                     </p>
-                    <p className="mt-0.5 text-[10px] leading-tight text-text-tertiary">
+                    <p className="text-text-tertiary mt-0.5 text-[10px] leading-tight">
                       {formatDistanceToNow(new Date(thread.updated_at), {
                         addSuffix: true,
                       })}
@@ -96,10 +93,10 @@ export function ChatThreadList({ onSelectThread }: ChatThreadListProps) {
                   </div>
                   <button
                     onClick={(e) => handleDelete(e, thread.id)}
-                    className="flex size-6 shrink-0 items-center justify-center rounded-md opacity-0 transition-all hover:bg-accent-red/10 group-hover:opacity-100"
+                    className="hover:bg-accent-red/10 flex size-6 shrink-0 items-center justify-center rounded-md opacity-0 transition-all group-hover:opacity-100"
                     title="Delete"
                   >
-                    <Trash2 className="size-3 text-text-tertiary group-hover:text-accent-red/70" />
+                    <Trash2 className="text-text-tertiary group-hover:text-accent-red/70 size-3" />
                   </button>
                 </div>
               );

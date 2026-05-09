@@ -36,10 +36,7 @@ export function SocialProofBar() {
   }, []);
 
   return (
-    <div
-      ref={sectionRef}
-      className="relative border-y border-white/5 bg-[#030712] py-12"
-    >
+    <div ref={sectionRef} className="relative border-y border-white/5 bg-[#030712] py-12">
       <div className="mx-auto grid max-w-5xl grid-cols-2 gap-4 px-4 sm:gap-8 sm:px-6 md:grid-cols-4 lg:gap-12">
         {STATS.map((stat, i) => (
           <BlurFade key={stat.label} delay={i * 0.1} inView>
@@ -52,13 +49,15 @@ export function SocialProofBar() {
                     className="text-3xl font-bold tracking-tight text-white sm:text-4xl"
                   />
                 ) : (
-                  <span className="text-3xl font-bold tracking-tight text-white sm:text-4xl">0</span>
+                  <span className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                    0
+                  </span>
                 )}
                 <span className="text-xl font-semibold text-blue-400 sm:text-2xl">
                   {stat.suffix}
                 </span>
               </div>
-              <span className="text-xs font-medium uppercase tracking-wider text-white/40">
+              <span className="text-xs font-medium tracking-wider text-white/40 uppercase">
                 {stat.label}
               </span>
             </div>
