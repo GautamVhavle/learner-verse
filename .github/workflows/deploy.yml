@@ -47,7 +47,7 @@ jobs:
           cd backend && uv run pytest tests/ -v --tb=short
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: "npm"
@@ -87,7 +87,7 @@ jobs:
           cp private/frontend/src/types/subscription.ts frontend/src/types/subscription.ts
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22
 
