@@ -15,15 +15,18 @@ from app.core.config import settings
 # pool; a second pool inside SQLAlchemy only causes "max clients reached"
 # errors. The connection from the app to PgBouncer is lightweight (no TLS
 # to PG itself), so per-request open/close has negligible overhead.
-engine = create_async_engine(
-    settings.DATABASE_URL,
+_engine_kwargs: dict = dict(
     echo=False,
     poolclass=NullPool,
-    connect_args={
+)
+
+if "sqlite" not in settings.DATABASE_URL:
+    _engine_kwargs["connect_args"] = {
         "statement_cache_size": 0,
         "server_settings": {"search_path": "public"},
-    },
-)
+    }
+
+engine = create_async_engine(settings.DATABASE_URL, **_engine_kwargs)
 
 async_session_maker = async_sessionmaker(
     engine,

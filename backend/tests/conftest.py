@@ -24,18 +24,30 @@ if "supabase" in _db_url or "neon" in _db_url or "amazonaws" in _db_url:
     )
 
 # NullPool ensures each connection is fresh — avoids "another operation in progress"
-test_engine = create_async_engine(
-    settings.DATABASE_URL,
+_test_engine_kwargs: dict = dict(
     echo=False,
     poolclass=NullPool,
-    connect_args={
+)
+
+if "sqlite" not in settings.DATABASE_URL:
+    _test_engine_kwargs["connect_args"] = {
         "statement_cache_size": 0,
         "server_settings": {"search_path": "public"},
-    },
-)
+    }
+
+test_engine = create_async_engine(settings.DATABASE_URL, **_test_engine_kwargs)
 TestSessionLocal = async_sessionmaker(
     test_engine, class_=AsyncSession, expire_on_commit=False
 )
+
+
+@pytest.fixture(scope="session", autouse=True)
+async def _create_tables():
+    """Create all tables for SQLite (Postgres uses Alembic migrations)."""
+    if "sqlite" in settings.DATABASE_URL:
+        async with test_engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+    yield
 
 
 async def override_get_db():
@@ -76,8 +88,12 @@ test_app = create_test_app()
 async def clean_tables():
     """Truncate all tables before each test for isolation."""
     async with test_engine.begin() as conn:
-        for table in reversed(Base.metadata.sorted_tables):
-            await conn.execute(text(f'TRUNCATE TABLE "{table.name}" CASCADE'))
+        if "sqlite" in settings.DATABASE_URL:
+            for table in reversed(Base.metadata.sorted_tables):
+                await conn.execute(text(f'DELETE FROM "{table.name}"'))
+        else:
+            for table in reversed(Base.metadata.sorted_tables):
+                await conn.execute(text(f'TRUNCATE TABLE "{table.name}" CASCADE'))
     yield
 
 
