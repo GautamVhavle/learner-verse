@@ -38,10 +38,7 @@ export function useProGate() {
 function useProGateInternal() {
   const { data: user } = useUserQuery();
   const isPro = user?.is_pro ?? false;
-  const expired =
-    !isPro &&
-    user?.pro_expires_at !== null &&
-    user?.pro_expires_at !== undefined;
+  const expired = !isPro && user?.pro_expires_at !== null && user?.pro_expires_at !== undefined;
 
   const [open, setOpen] = useState(false);
 
@@ -57,9 +54,7 @@ function useProGateInternal() {
   const showGate = useCallback(() => setOpen(true), []);
 
   function ProGate() {
-    return (
-      <ProGateDialog open={open} onOpenChange={setOpen} expired={expired} />
-    );
+    return <ProGateDialog open={open} onOpenChange={setOpen} expired={expired} />;
   }
 
   return { isPro, gatedAction, showGate, ProGate } as const;
