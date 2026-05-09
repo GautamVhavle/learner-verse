@@ -6,7 +6,7 @@
  * status management. All mutation logic lives in the
  * `useCourseBuilder` hook; this component handles layout and routing.
  */
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useParams } from "react-router";
 import { useModeAwareNavigate } from "@/hooks/useModeAwareNavigate";
 import {
@@ -20,6 +20,8 @@ import {
   Lock,
   RefreshCw,
   Sparkles,
+  Download,
+  Upload,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -38,7 +40,12 @@ import { LessonDetailPanel } from "@/components/lesson/LessonDetailPanel";
 import { CourseStatusBadge } from "@/components/course/CourseStatusBadge";
 import { ValidationErrorsDialog } from "@/components/course/ValidationErrorsDialog";
 import { useCourseBuilder } from "@/hooks/useCourseBuilder";
-import { useUpdateCourseMutation, useValidateCourseQuery } from "@/hooks/useCourses";
+import {
+  useUpdateCourseMutation,
+  useValidateCourseQuery,
+  useExportCourseMutation,
+  useImportCourseMutation,
+} from "@/hooks/useCourses";
 import { useOrganizeSectionsMutation, useResumeOrganizePolling } from "@/hooks/useSections";
 import { useProGate } from "@/hooks/useProGate";
 import type { ValidationError } from "@/types/course";
@@ -55,6 +62,13 @@ export default function CourseBuilderPage() {
   const validateQuery = useValidateCourseQuery(courseId);
   const organizeMutation = useOrganizeSectionsMutation(courseId!);
   const [isResuming, setIsResuming] = useState(false);
+  const exportMutation = useExportCourseMutation();
+  const importMutation = useImportCourseMutation();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [importPayload, setImportPayload] = useState<Record<string, unknown> | null>(null);
+  const [importSummary, setImportSummary] = useState<string>("");
+  const [showImportConfirm, setShowImportConfirm] = useState(false);
+  const [importValidating, setImportValidating] = useState(false);
 
   // Resume polling if a previous organize task was interrupted by a refresh
   useResumeOrganizePolling(courseId!, {
@@ -75,6 +89,77 @@ export default function CourseBuilderPage() {
       setValidationErrors(data);
       setShowValidation(true);
     }
+  };
+
+  const handleExport = () => {
+    exportMutation.mutate(courseId!, {
+      onSuccess: (data) => {
+        const json = JSON.stringify(data, null, 2);
+        const blob = new Blob([json], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        const title = (data as { course?: { title?: string } }).course?.title ?? "course";
+        const safe = title.replace(/[^a-zA-Z0-9 _-]/g, "").replace(/\s+/g, "_") || "course";
+        a.href = url;
+        a.download = `${safe}_export.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success("Course exported!");
+      },
+      onError: () => toast.error("Failed to export course"),
+    });
+  };
+
+  const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    // Reset so the same file can be re-selected
+    e.target.value = "";
+
+    setImportValidating(true);
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(reader.result as string);
+        if (parsed.format !== "learnerverse-course-export" || parsed.version !== 1) {
+          toast.error("Invalid file: not a LearnerVerse course export.");
+          setImportValidating(false);
+          return;
+        }
+        const courseTitle = parsed.course?.title ?? "Unknown";
+        const sectionCount = parsed.sections?.length ?? 0;
+        const lessonCount =
+          parsed.sections?.reduce(
+            (sum: number, s: { lessons?: unknown[] }) => sum + (s.lessons?.length ?? 0),
+            0,
+          ) ?? 0;
+        setImportPayload(parsed);
+        setImportSummary(
+          `"${courseTitle}" — ${sectionCount} section${sectionCount !== 1 ? "s" : ""}, ${lessonCount} lesson${lessonCount !== 1 ? "s" : ""}`,
+        );
+        setImportValidating(false);
+        setShowImportConfirm(true);
+      } catch {
+        toast.error("Invalid JSON file.");
+        setImportValidating(false);
+      }
+    };
+    reader.onerror = () => {
+      toast.error("Failed to read file.");
+      setImportValidating(false);
+    };
+    reader.readAsText(file);
+  };
+
+  const handleConfirmImport = () => {
+    if (!importPayload) return;
+    setShowImportConfirm(false);
+    importMutation.mutate(
+      { courseId: courseId!, payload: importPayload },
+      {
+        onSettled: () => setImportPayload(null),
+      },
+    );
   };
 
   const {
@@ -217,6 +302,47 @@ export default function CourseBuilderPage() {
             Preview
           </Button>
 
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExport}
+            disabled={exportMutation.isPending}
+            className="gap-1.5"
+          >
+            {exportMutation.isPending ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <Download className="size-3.5" />
+            )}
+            Export
+          </Button>
+
+          {!isReady && (
+            <>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".json"
+                className="hidden"
+                onChange={handleImportFile}
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={importMutation.isPending || importValidating}
+                className="gap-1.5"
+              >
+                {importMutation.isPending || importValidating ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : (
+                  <Upload className="size-3.5" />
+                )}
+                {importValidating ? "Validating…" : "Import"}
+              </Button>
+            </>
+          )}
+
           <ProGate />
           {!isReady && totalLessons >= 2 && (
             <Button
@@ -350,6 +476,39 @@ export default function CourseBuilderPage() {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Make Private
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Import confirmation dialog */}
+      <AlertDialog
+        open={showImportConfirm}
+        onOpenChange={(open) => {
+          if (!open) setImportPayload(null);
+          setShowImportConfirm(open);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Import course?</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2">
+                <p>
+                  This will <strong>replace all existing content</strong> in this course with the
+                  imported data. The course will be reset to draft status.
+                </p>
+                <p className="bg-bg-secondary text-text-primary rounded-md px-3 py-2 text-sm font-medium">
+                  {importSummary}
+                </p>
+                <p>Are you sure you want to continue?</p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmImport}>
+              Yes, replace everything
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -11,18 +11,21 @@ interface CompletionButtonProps {
   lessonId: string;
   completed: boolean;
   onToggled?: (newCompleted: boolean) => void;
+  /** When true the course is fully completed — no toggling allowed */
+  locked?: boolean;
 }
 
-export function CompletionButton({ lessonId, completed, onToggled }: CompletionButtonProps) {
+export function CompletionButton({ lessonId, completed, onToggled, locked = false }: CompletionButtonProps) {
   const toggle = useToggleProgressMutation();
 
   const handleToggle = useCallback(() => {
+    if (locked) return;
     const newState = !completed;
     toggle.mutate(
       { lessonId, data: { completed: newState } },
       { onSuccess: () => onToggled?.(newState) },
     );
-  }, [lessonId, completed, toggle, onToggled]);
+  }, [lessonId, completed, toggle, onToggled, locked]);
 
   const shortcuts = useMemo(
     () => [
@@ -36,6 +39,19 @@ export function CompletionButton({ lessonId, completed, onToggled }: CompletionB
   );
 
   useKeyboardShortcuts(shortcuts);
+
+  // Course completed & locked — show a non-interactive "Completed" badge
+  if (locked) {
+    return (
+      <div
+        className="bg-accent-green/15 text-accent-green border-accent-green/25 inline-flex cursor-default items-center gap-2 rounded-md border px-3 py-1.5 text-sm font-medium"
+        title="Course completed"
+      >
+        <Check className="size-4" />
+        <span>Completed</span>
+      </div>
+    );
+  }
 
   if (completed) {
     return (

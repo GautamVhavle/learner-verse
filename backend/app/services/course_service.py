@@ -11,6 +11,7 @@ from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.lesson import Lesson
+from app.models.quiz_question import QuizQuestion
 from app.models.section import Section
 from app.repositories.course_repo import CourseRepository
 from app.repositories.rating_repo import RatingRepository
@@ -98,7 +99,8 @@ class CourseService:
 
         has_issues = empty_sections > 0
         if not has_issues and lesson_count > 0:
-            # Check for lessons with no content (no video, no notes, no ref links)
+            # Check for non-quiz lessons with no content (no video, no notes, no ref links)
+            # Quiz lessons are excluded — their content lives in quiz_questions
             empty_lesson_result = await self.db.execute(
                 select(func.count(Lesson.id))
                 .select_from(Lesson)
@@ -106,6 +108,7 @@ class CourseService:
                 .outerjoin(ReferenceLink, ReferenceLink.lesson_id == Lesson.id)
                 .where(
                     Section.course_id == course.id,
+                    Lesson.lesson_type != "quiz",
                     Lesson.youtube_url.is_(None),
                     Lesson.notes_markdown.is_(None),
                 )
@@ -113,6 +116,22 @@ class CourseService:
                 .having(func.count(ReferenceLink.id) == 0)
             )
             has_issues = empty_lesson_result.first() is not None
+
+            # Also flag quiz lessons that have zero questions
+            if not has_issues:
+                empty_quiz_result = await self.db.execute(
+                    select(func.count(Lesson.id))
+                    .select_from(Lesson)
+                    .join(Section, Section.id == Lesson.section_id)
+                    .outerjoin(QuizQuestion, QuizQuestion.lesson_id == Lesson.id)
+                    .where(
+                        Section.course_id == course.id,
+                        Lesson.lesson_type == "quiz",
+                    )
+                    .group_by(Lesson.id)
+                    .having(func.count(QuizQuestion.id) == 0)
+                )
+                has_issues = empty_quiz_result.first() is not None
 
         return CourseResponse(
             id=course.id,
@@ -369,3 +388,234 @@ class CourseService:
         await self.repo.update(course, **update_kwargs)
         await self.db.commit()
         return StatusUpdateResponse(status=new_status, valid=True, errors=[])
+
+    # ── Export / Import ──────────────────────────────────────
+
+    async def export_course(self, course_id: uuid.UUID, user_id: uuid.UUID) -> dict:
+        """Build a complete JSON-serialisable export of a course."""
+        course = await self.repo.get_by_id(course_id, user_id)
+        if not course:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found.")
+
+        sections = await self.section_repo.list_by_course(course_id)
+
+        return {
+            "format": "learnerverse-course-export",
+            "version": 1,
+            "course": {
+                "title": course.title,
+                "description": course.description,
+                "status": course.status,
+                "is_public": course.is_public,
+                "goal_date": str(course.goal_date) if course.goal_date else None,
+                "tags": [t.name for t in (course.tags or [])],
+            },
+            "sections": [
+                {
+                    "title": section.title,
+                    "description": section.description,
+                    "position": section.position,
+                    "lessons": [
+                        {
+                            "title": lesson.title,
+                            "lesson_type": lesson.lesson_type or "video",
+                            "position": lesson.position,
+                            "youtube_url": lesson.youtube_url,
+                            "youtube_title": lesson.youtube_title,
+                            "youtube_thumbnail": lesson.youtube_thumbnail,
+                            "youtube_duration": lesson.youtube_duration,
+                            "youtube_channel": lesson.youtube_channel,
+                            "notes_markdown": lesson.notes_markdown,
+                            "reference_links": [
+                                {
+                                    "url": link.url,
+                                    "title": link.title,
+                                    "description": link.description,
+                                    "image": link.image,
+                                    "favicon": link.favicon,
+                                    "domain": link.domain,
+                                    "position": link.position,
+                                }
+                                for link in (lesson.reference_links or [])
+                            ],
+                            "quiz_questions": [
+                                {
+                                    "question": q.question,
+                                    "options": list(q.options),
+                                    "correct_option": q.correct_option,
+                                    "position": q.position,
+                                }
+                                for q in (lesson.quiz_questions or [])
+                            ],
+                        }
+                        for lesson in section.lessons
+                    ],
+                }
+                for section in sections
+            ],
+        }
+
+    async def import_course(
+        self, course_id: uuid.UUID, user_id: uuid.UUID, payload: dict
+    ) -> CourseResponse:
+        """Validate and import a course JSON, replacing all existing content."""
+        from app.models.reference_link import ReferenceLink as ReferenceLinkModel
+
+        # --- Validate top-level structure ---
+        if payload.get("format") != "learnerverse-course-export":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid export format. Expected 'learnerverse-course-export'.",
+            )
+        if payload.get("version") != 1:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Unsupported export version: {payload.get('version')}.",
+            )
+
+        course_data = payload.get("course")
+        if not isinstance(course_data, dict) or not course_data.get("title"):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid or missing 'course' object in payload.",
+            )
+
+        sections_data = payload.get("sections")
+        if not isinstance(sections_data, list):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid or missing 'sections' array in payload.",
+            )
+
+        # Validate section/lesson structure
+        for i, sec in enumerate(sections_data):
+            if not isinstance(sec, dict) or not sec.get("title"):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Section at index {i} is invalid or missing a title.",
+                )
+            lessons = sec.get("lessons", [])
+            if not isinstance(lessons, list):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Section '{sec['title']}': 'lessons' must be an array.",
+                )
+            for j, les in enumerate(lessons):
+                if not isinstance(les, dict) or not les.get("title"):
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=f"Section '{sec['title']}', lesson at index {j} is invalid.",
+                    )
+                lesson_type = les.get("lesson_type", "video")
+                if lesson_type not in ("video", "note", "quiz"):
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=f"Section '{sec['title']}', lesson '{les['title']}': invalid lesson_type '{lesson_type}'.",
+                    )
+                # Validate quiz questions if present
+                for k, q in enumerate(les.get("quiz_questions", [])):
+                    if not isinstance(q, dict) or not q.get("question"):
+                        raise HTTPException(
+                            status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=f"Lesson '{les['title']}', quiz question at index {k} is invalid.",
+                        )
+                    opts = q.get("options", [])
+                    if not isinstance(opts, list) or len(opts) != 4:
+                        raise HTTPException(
+                            status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=f"Lesson '{les['title']}', question '{q['question']}': must have exactly 4 options.",
+                        )
+                    correct = q.get("correct_option")
+                    if not isinstance(correct, int) or correct < 0 or correct > 3:
+                        raise HTTPException(
+                            status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=f"Lesson '{les['title']}', question '{q['question']}': correct_option must be 0-3.",
+                        )
+
+        # --- Fetch and verify course ownership ---
+        course = await self.repo.get_by_id(course_id, user_id)
+        if not course:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found.")
+        if course.is_deleted:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot import into a deleted course."
+            )
+
+        # --- Delete existing sections (cascades to lessons, links, quiz questions) ---
+        existing_sections = await self.section_repo.list_by_course(course_id)
+        for section in existing_sections:
+            await self.section_repo.delete(section)
+        await self.db.flush()
+
+        # --- Update course metadata ---
+        update_fields: dict = {"title": course_data["title"][:200]}
+        if "description" in course_data:
+            update_fields["description"] = course_data["description"]
+        if "goal_date" in course_data:
+            update_fields["goal_date"] = course_data["goal_date"]
+        # Always reset to draft on import
+        update_fields["status"] = "draft"
+        update_fields["is_public"] = False
+        await self.repo.update(course, **update_fields)
+
+        # Update tags
+        tag_names = course_data.get("tags", [])
+        if isinstance(tag_names, list):
+            await self.repo.set_tags(course, [str(t) for t in tag_names], user_id)
+
+        # --- Create new sections with lessons ---
+        for sec_idx, sec_data in enumerate(sections_data):
+            section = Section(
+                course_id=course_id,
+                title=sec_data["title"][:200],
+                description=sec_data.get("description"),
+                position=sec_data.get("position", sec_idx),
+            )
+            self.db.add(section)
+            await self.db.flush()
+
+            for les_idx, les_data in enumerate(sec_data.get("lessons", [])):
+                lesson = Lesson(
+                    section_id=section.id,
+                    title=les_data["title"][:200],
+                    lesson_type=les_data.get("lesson_type", "video"),
+                    youtube_url=les_data.get("youtube_url"),
+                    youtube_title=les_data.get("youtube_title"),
+                    youtube_thumbnail=les_data.get("youtube_thumbnail"),
+                    youtube_duration=les_data.get("youtube_duration"),
+                    youtube_channel=les_data.get("youtube_channel"),
+                    notes_markdown=les_data.get("notes_markdown"),
+                    position=les_data.get("position", les_idx),
+                )
+                self.db.add(lesson)
+                await self.db.flush()
+
+                # Reference links
+                for link_idx, link_data in enumerate(les_data.get("reference_links", [])):
+                    if isinstance(link_data, dict) and link_data.get("url"):
+                        link = ReferenceLinkModel(
+                            lesson_id=lesson.id,
+                            url=link_data["url"],
+                            title=link_data.get("title"),
+                            description=link_data.get("description"),
+                            image=link_data.get("image"),
+                            favicon=link_data.get("favicon"),
+                            domain=link_data.get("domain"),
+                            position=link_data.get("position", link_idx),
+                        )
+                        self.db.add(link)
+
+                # Quiz questions
+                for q_idx, q_data in enumerate(les_data.get("quiz_questions", [])):
+                    if isinstance(q_data, dict) and q_data.get("question"):
+                        question = QuizQuestion(
+                            lesson_id=lesson.id,
+                            question=q_data["question"],
+                            options=q_data["options"],
+                            correct_option=q_data["correct_option"],
+                            position=q_data.get("position", q_idx),
+                        )
+                        self.db.add(question)
+
+        await self.db.commit()
+        return await self._to_response(course)

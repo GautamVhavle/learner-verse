@@ -142,3 +142,30 @@ export function useValidateCourseQuery(courseId: string | undefined) {
     enabled: false, // Only fetch on demand
   });
 }
+
+export function useExportCourseMutation() {
+  return useMutation({
+    mutationFn: async (courseId: string) => {
+      const data = await api.get<Record<string, unknown>>(`/courses/${courseId}/export`);
+      return data;
+    },
+  });
+}
+
+export function useImportCourseMutation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ courseId, payload }: { courseId: string; payload: unknown }) =>
+      api.post<Course>(`/courses/${courseId}/import`, payload),
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: [...COURSES_KEY, variables.courseId] });
+      qc.invalidateQueries({ queryKey: ["sections", variables.courseId] });
+      qc.invalidateQueries({ queryKey: COURSES_KEY });
+      toast.success("Course imported successfully!");
+    },
+    onError: (err) => {
+      const message = err instanceof Error ? err.message : "Failed to import course";
+      toast.error(message);
+    },
+  });
+}

@@ -1,11 +1,10 @@
 /**
  * Side panel for editing lesson content: YouTube video, markdown notes, and reference links.
  *
- * A lesson is either "video" (YouTube + notes + links) or "note" (notes + links only).
- * The type toggle at the top controls which sections are visible.
+ * A lesson is either "video" (YouTube + notes + links), "note" (notes + links only), or "quiz".
  */
 import { useState, useCallback } from "react";
-import { ArrowLeft, Video, FileText, Link2, StickyNote, ClipboardCheck } from "lucide-react";
+import { ArrowLeft, Video, FileText, Link2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { YouTubeInput } from "@/components/lesson/YouTubeInput";
 import { YouTubeEmbed } from "@/components/lesson/YouTubeEmbed";
@@ -14,7 +13,7 @@ import { LinkCard } from "@/components/lesson/LinkCard";
 import { LinkInput } from "@/components/lesson/LinkInput";
 import { QuizEditor } from "@/components/lesson/QuizEditor";
 import { extractVideoId } from "@/lib/youtube";
-import type { Lesson, LessonUpdate, ReferenceLinkCreate, LessonType } from "@/types/section";
+import type { Lesson, LessonUpdate, ReferenceLinkCreate } from "@/types/section";
 
 const MAX_REFERENCE_LINKS = 20;
 
@@ -35,7 +34,7 @@ export function LessonDetailPanel({
   onDeleteReferenceLink,
   onClose,
 }: LessonDetailPanelProps) {
-  const lessonType: LessonType = lesson.lesson_type ?? "video";
+  const lessonType = lesson.lesson_type ?? "video";
   const isVideo = lessonType === "video";
   const isQuiz = lessonType === "quiz";
 
@@ -49,11 +48,6 @@ export function LessonDetailPanel({
       onUpdate({ notes_markdown: markdown || null });
     }
   }, [markdown, lesson.notes_markdown, onUpdate]);
-
-  const handleTypeChange = (type: LessonType) => {
-    if (type === lessonType) return;
-    onUpdate({ lesson_type: type });
-  };
 
   const links = lesson.reference_links ?? [];
   const atLinkLimit = links.length >= MAX_REFERENCE_LINKS;
@@ -69,34 +63,6 @@ export function LessonDetailPanel({
           <h2 className="text-text-primary truncate text-base font-semibold">{lesson.title}</h2>
           <p className="text-text-secondary text-xs">Lesson content</p>
         </div>
-      </div>
-
-      {/* ── Lesson Type Toggle ────────────────────────────────── */}
-      <div
-        className="border-border-default bg-bg-secondary flex gap-1 rounded-lg border p-1"
-        role="radiogroup"
-        aria-label="Lesson type"
-      >
-        {[
-          { type: "video" as LessonType, icon: Video, label: "Video" },
-          { type: "note" as LessonType, icon: StickyNote, label: "Reading" },
-          { type: "quiz" as LessonType, icon: ClipboardCheck, label: "Quiz" },
-        ].map(({ type, icon: Icon, label }) => (
-          <button
-            key={type}
-            role="radio"
-            aria-checked={lessonType === type}
-            onClick={() => handleTypeChange(type)}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-              lessonType === type
-                ? "bg-bg-primary text-text-primary shadow-sm"
-                : "text-text-tertiary hover:text-text-secondary"
-            }`}
-          >
-            <Icon className="size-4" />
-            {label}
-          </button>
-        ))}
       </div>
 
       {/* ── Quiz Editor (quiz type only) ────────────────────── */}

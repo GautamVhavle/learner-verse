@@ -3,6 +3,7 @@
 import uuid
 
 from fastapi import APIRouter, Depends, Query, status
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_current_user
@@ -138,3 +139,31 @@ async def validate_course(
 ):
     """Run content validation on a course and return the list of issues."""
     return await _service(db).validate_course(course_id, user.id)
+
+
+@router.get("/{course_id}/export")
+async def export_course(
+    course_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Export the full course structure as a downloadable JSON file."""
+    data = await _service(db).export_course(course_id, user.id)
+    # Sanitize the title for use as a filename
+    safe_title = "".join(c if c.isalnum() or c in " -_" else "" for c in data["course"]["title"])
+    safe_title = safe_title.strip().replace(" ", "_") or "course"
+    return JSONResponse(
+        content=data,
+        headers={"Content-Disposition": f'attachment; filename="{safe_title}_export.json"'},
+    )
+
+
+@router.post("/{course_id}/import", response_model=CourseResponse)
+async def import_course(
+    course_id: uuid.UUID,
+    payload: dict,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Import a course JSON, replacing all existing content (sections, lessons, etc.)."""
+    return await _service(db).import_course(course_id, user.id, payload)

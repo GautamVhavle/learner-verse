@@ -24,7 +24,7 @@ import { useHubCourseQuery, useHubSectionsQuery } from "@/hooks/useHub";
 import { useLessonNavigation } from "@/hooks/useLessonNavigation";
 import { useUpdateStudyStateMutation } from "@/hooks/useStudy";
 import { useCourseProgressQuery } from "@/hooks/useProgress";
-import { useGenerateCertificateMutation } from "@/hooks/useCertificates";
+import { useGenerateCertificateMutation, useCourseCertificateQuery } from "@/hooks/useCertificates";
 import { useFocusMode } from "@/hooks/useFocusMode";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useModeAwareNavigate } from "@/hooks/useModeAwareNavigate";
@@ -42,6 +42,8 @@ export default function LessonPage() {
   const { data: user } = useUserQuery();
   const updateState = useUpdateStudyStateMutation();
   const { data: progress } = useCourseProgressQuery(courseId);
+  const { data: existingCert } = useCourseCertificateQuery(courseId);
+  const courseCompleted = !!existingCert;
   const generateCert = useGenerateCertificateMutation();
   const toggleProgress = useToggleProgressMutation();
   const [showCelebration, setShowCelebration] = useState(false);
@@ -120,6 +122,8 @@ export default function LessonPage() {
   const handleCompletionToggled = useCallback(
     (newCompleted: boolean) => {
       if (!newCompleted || !progress || !courseId || !currentLesson) return;
+      // Course already fully completed (certificate exists) — don't re-trigger
+      if (courseCompleted) return;
       // Check if this was the last incomplete lesson
       const wasCompleted = progress.lesson_progress[currentLesson.id] ?? false;
       if (wasCompleted) return; // Was already complete, skip
@@ -129,7 +133,7 @@ export default function LessonPage() {
         setShowCelebration(true);
       }
     },
-    [progress, courseId, currentLesson, generateCert],
+    [progress, courseId, currentLesson, generateCert, courseCompleted],
   );
 
   /** Auto-mark quiz lesson as complete when the learner passes */
@@ -180,13 +184,13 @@ export default function LessonPage() {
 
   /** Mark complete from bottom button */
   const handleMarkCompleteFromBottom = useCallback(() => {
-    if (!currentLesson) return;
+    if (!currentLesson || courseCompleted) return;
     const newState = !(progress?.lesson_progress?.[currentLesson.id] ?? false);
     toggleProgress.mutate(
       { lessonId: currentLesson.id, data: { completed: newState } },
       { onSuccess: () => handleCompletionToggled(newState) },
     );
-  }, [currentLesson, progress, toggleProgress, handleCompletionToggled]);
+  }, [currentLesson, progress, toggleProgress, handleCompletionToggled, courseCompleted]);
 
   if (isLoading) {
     return (
@@ -220,11 +224,11 @@ export default function LessonPage() {
         />
       )}
 
-      <div className={`flex flex-col gap-6 ${focusMode ? "" : "lg:flex-row"}`}>
+      <div className={`flex flex-col gap-6 ${focusMode ? "" : "lg:flex-row lg:max-h-[calc(100svh-9rem)] lg:overflow-hidden"}`}>
         {/* Sidebar — hidden in focus mode */}
         {!focusMode && (
-          <aside className="order-2 w-full shrink-0 lg:order-1 lg:w-60">
-            <div className="sticky top-4 space-y-3">
+          <aside className="order-2 w-full shrink-0 lg:order-1 lg:w-60 lg:overflow-y-auto no-scrollbar">
+            <div className="space-y-3 pb-4">
               {/* Mini progress */}
               {progress && progress.total_lessons > 0 && (
                 <div className="border-border-default bg-bg-secondary rounded-xl border p-3">
@@ -252,8 +256,8 @@ export default function LessonPage() {
         )}
 
         {/* Main content */}
-        <main className={`min-w-0 flex-1 ${focusMode ? "" : "order-1 lg:order-2"}`}>
-          <div className="space-y-6">
+        <main className={`min-w-0 flex-1 lg:overflow-y-auto no-scrollbar ${focusMode ? "" : "order-1 lg:order-2"}`}>
+          <div className="space-y-6 pb-6">
             {/* Lesson title + Completion + Focus toggle */}
             <div className="flex items-start justify-between gap-3">
               <h1 className="text-text-primary text-xl font-semibold">{currentLesson.title}</h1>
@@ -271,6 +275,7 @@ export default function LessonPage() {
                   lessonId={currentLesson.id}
                   completed={progress?.lesson_progress?.[currentLesson.id] ?? false}
                   onToggled={handleCompletionToggled}
+                  locked={courseCompleted}
                 />
               </div>
             </div>
@@ -326,7 +331,6 @@ export default function LessonPage() {
           setShowCelebration(false);
           navigate("/certificates");
         }}
-        goalMetEarlyByDays={progress?.goal?.completed_early_by_days}
       />
 
       {/* Shortcuts modal (opened from FocusOverlay button) */}
