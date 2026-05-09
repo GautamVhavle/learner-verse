@@ -18,6 +18,7 @@ import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useUserQuery } from "@/hooks/useUser";
 import { PRO_WELCOME_PENDING_KEY } from "@/hooks/useSubscription";
 import { CongratulationsDialog } from "@/components/subscription/CongratulationsDialog";
+import { VerificationRequestDialog } from "@/components/verification/VerificationRequestDialog";
 import { useChatStore } from "@/stores/chatStore";
 import type { AppMode } from "@/stores/modeStore";
 
@@ -32,6 +33,7 @@ export function AppShell({ mode }: AppShellProps) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [showProWelcome, setShowProWelcome] = useState(false);
+  const [showVerificationDialog, setShowVerificationDialog] = useState(false);
   const { data: user, isLoading: userLoading } = useUserQuery();
   const [onboardingDismissed, setOnboardingDismissed] = useState(false);
   const { toggleChat } = useChatStore();
@@ -118,7 +120,12 @@ export function AppShell({ mode }: AppShellProps) {
         {/* Hide sidebar in focus mode — keep tree stable to avoid unmounting Outlet */}
         {!focusMode && <AppSidebar mode={mode} onToggleMode={handleToggleMode} />}
         <SidebarInset className="h-svh overflow-y-auto">
-          {!focusMode && <Header onSearchClick={() => setSearchOpen(true)} />}
+          {!focusMode && (
+            <Header
+              onSearchClick={() => setSearchOpen(true)}
+              onGetVerified={() => setShowVerificationDialog(true)}
+            />
+          )}
           <div id="main-content" className="flex-1">
             <div className="mx-auto max-w-[1280px] px-4 py-4 sm:p-6">
               <Outlet />
@@ -131,6 +138,10 @@ export function AppShell({ mode }: AppShellProps) {
       <LiviChatPanel />
       <FontSizeSync />
       <CongratulationsDialog open={showProWelcome} onOpenChange={setShowProWelcome} />
+      <VerificationRequestDialog
+        open={showVerificationDialog}
+        onOpenChange={setShowVerificationDialog}
+      />
     </TooltipProvider>
   );
 }

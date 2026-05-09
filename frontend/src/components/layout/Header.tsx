@@ -2,7 +2,7 @@
  * Top header bar with breadcrumb navigation and search trigger.
  */
 import { useLocation } from "react-router";
-import { Search, Sparkles } from "lucide-react";
+import { BadgeCheck, Search, Sparkles } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -14,6 +14,7 @@ import {
 import { useMode } from "@/hooks/useMode";
 import { useChatStore } from "@/stores/chatStore";
 import { PomodoroTimer } from "@/components/layout/PomodoroTimer";
+import { useUserQuery } from "@/hooks/useUser";
 
 const PAGE_TITLES: Record<string, string> = {
   "/": "Dashboard",
@@ -40,15 +41,20 @@ function getPageTitle(pathname: string): string {
 
 interface HeaderProps {
   onSearchClick?: () => void;
+  onGetVerified?: () => void;
 }
 
-export function Header({ onSearchClick }: HeaderProps) {
+export function Header({ onSearchClick, onGetVerified }: HeaderProps) {
   const location = useLocation();
   const { mode } = useMode();
   const { toggleChat } = useChatStore();
+  const { data: user } = useUserQuery();
 
   const pageTitle = getPageTitle(location.pathname);
   const modeLabel = mode === "creator" ? "Creator" : "Learner";
+
+  // Show "Get Verified" button only in creator mode for non-verified users
+  const showGetVerified = mode === "creator" && user && !user.is_verified_creator;
 
   return (
     <header
@@ -75,6 +81,18 @@ export function Header({ onSearchClick }: HeaderProps) {
       <div className="ml-auto hidden sm:block">
         <PomodoroTimer />
       </div>
+
+      {/* Get Verified button — creator mode only, for non-verified users */}
+      {showGetVerified && onGetVerified && (
+        <button
+          onClick={onGetVerified}
+          className="border-border-default bg-bg-secondary hidden h-8 items-center gap-2 rounded-lg border px-3 text-sm text-blue-500 transition-colors hover:border-blue-400/50 hover:bg-blue-500/5 sm:flex"
+          aria-label="Apply for Verified Creator badge"
+        >
+          <BadgeCheck className="size-3.5" />
+          <span className="hidden sm:inline">Get Verified</span>
+        </button>
+      )}
 
       {/* Search trigger */}
       <button

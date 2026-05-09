@@ -40,6 +40,8 @@ export interface UserProfile {
   pro_since: string | null;
   pro_expires_at: string | null;
   pro_plan: "monthly" | "yearly" | null;
+  is_verified_creator: boolean;
+  verified_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -63,6 +65,7 @@ export interface PublicProfile {
   current_streak: number;
   longest_streak: number;
   total_active_days: number;
+  is_verified_creator: boolean;
   certificates: PublicCertificateItem[];
   activity_heatmap: PublicActivityDay[];
 }

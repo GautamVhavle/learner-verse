@@ -3,6 +3,7 @@
  */
 import { BookOpen, Users, Layers, Play } from "lucide-react";
 import { StarRating } from "./StarRating";
+import { VerifiedBadge } from "@/components/shared/VerifiedBadge";
 import type { Course } from "@/types/course";
 
 interface HubCourseCardProps {
@@ -39,7 +40,10 @@ export function HubCourseCard({ course, onClick }: HubCourseCardProps) {
         <h3 className="text-text-primary line-clamp-2 text-sm font-semibold">{course.title}</h3>
 
         {course.creator_name && (
-          <p className="text-text-secondary text-xs">by {course.creator_name}</p>
+          <p className="text-text-secondary flex items-center gap-1 text-xs">
+            by {course.creator_name}
+            {course.is_creator_verified && <VerifiedBadge size={12} />}
+          </p>
         )}
 
         {course.description && (

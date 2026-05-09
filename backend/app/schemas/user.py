@@ -26,6 +26,8 @@ class UserResponse(BaseModel):
     pro_since: datetime | None = None
     pro_expires_at: datetime | None = None
     pro_plan: str | None = None
+    is_verified_creator: bool = False
+    verified_at: datetime | None = None
     created_at: datetime
     updated_at: datetime
 
@@ -65,6 +67,9 @@ class PublicProfileResponse(BaseModel):
     current_streak: int = 0
     longest_streak: int = 0
     total_active_days: int = 0
+
+    # Verified creator badge
+    is_verified_creator: bool = False
 
     # Certificates
     certificates: list["PublicCertificateItem"] = []

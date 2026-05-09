@@ -43,6 +43,10 @@ class User(Base):
     razorpay_payment_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     razorpay_order_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
+    # Verified Creator badge — granted by superadmin after reviewing an application
+    is_verified_creator: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

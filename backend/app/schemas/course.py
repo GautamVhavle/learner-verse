@@ -52,6 +52,7 @@ class CourseResponse(BaseModel):
     average_rating: float = 0.0
     rating_count: int = 0
     creator_name: str = ""
+    is_creator_verified: bool = False
     created_at: datetime
     updated_at: datetime
 

@@ -26,7 +26,9 @@ from app.api.v1.endpoints import (
     share,
     stats,
     study,
+    superadmin,
     uploads,
+    verification,
     youtube,
 )
 from app.core.config import settings
@@ -55,6 +57,8 @@ api_v1_router.include_router(opengraph.router)
 api_v1_router.include_router(profile.router)
 api_v1_router.include_router(share.router)
 api_v1_router.include_router(uploads.router)
+api_v1_router.include_router(superadmin.router)
+api_v1_router.include_router(verification.router)
 
 # Payment / subscription endpoints are only registered when the payment
 # gateway is explicitly enabled AND the private submodule is present.

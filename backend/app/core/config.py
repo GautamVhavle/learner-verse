@@ -75,6 +75,16 @@ class Settings(BaseSettings):
     SENTRY_DSN: str = ""
     SENTRY_ENVIRONMENT: str = "production"
 
+    # Superadmin
+    # Comma-separated list of email addresses that have superadmin access.
+    # Example: "gautamvhavle@gmail.com,other@example.com"
+    SUPERADMIN_EMAILS: str = ""
+
+    @property
+    def superadmin_emails_list(self) -> list[str]:
+        """Parse SUPERADMIN_EMAILS into a normalised lowercase list."""
+        return [e.strip().lower() for e in self.SUPERADMIN_EMAILS.split(",") if e.strip()]
+
     @property
     def cors_origins_list(self) -> list[str]:
         """Parse the comma-separated CORS_ORIGINS string into a list."""

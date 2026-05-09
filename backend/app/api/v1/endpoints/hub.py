@@ -57,15 +57,17 @@ async def list_hub_courses(
     rating_stats = await rating_repo.get_stats_batch(course_ids)
     enrollment_counts = await enrollment_repo.get_enrollment_counts_batch(course_ids)
 
-    # Batch load creator names
+    # Batch load creator names and verified status
     from sqlalchemy import select
 
     from app.models.user import User as UserModel
 
     result = await db.execute(
-        select(UserModel.id, UserModel.display_name).where(UserModel.id.in_(user_ids))
+        select(UserModel.id, UserModel.display_name, UserModel.is_verified_creator).where(
+            UserModel.id.in_(user_ids)
+        )
     )
-    creator_names = {row[0]: row[1] for row in result.all()}
+    creator_info = {row[0]: (row[1], row[2]) for row in result.all()}
 
     items = []
     for c in courses:
@@ -74,6 +76,7 @@ async def list_hub_courses(
         lesson_count = sum(len(s.lessons) for s in sections)
         avg, r_count = rating_stats.get(c.id, (0.0, 0))
         e_count = enrollment_counts.get(c.id, 0)
+        cname, c_verified = creator_info.get(c.user_id, ("", False))
 
         items.append(
             CourseResponse(
@@ -94,7 +97,8 @@ async def list_hub_courses(
                 enrollment_count=e_count,
                 average_rating=avg,
                 rating_count=r_count,
-                creator_name=creator_names.get(c.user_id, ""),
+                creator_name=cname,
+                is_creator_verified=c_verified,
                 created_at=c.created_at,
                 updated_at=c.updated_at,
             )
@@ -171,6 +175,7 @@ async def list_my_courses(
                 average_rating=avg,
                 rating_count=r_count,
                 creator_name=user.display_name,
+                is_creator_verified=user.is_verified_creator,
                 created_at=c.created_at,
                 updated_at=c.updated_at,
             )
@@ -211,13 +216,19 @@ async def get_hub_course(
     avg, r_count = await rating_repo.get_stats(course_id)
     e_count = await enrollment_repo.get_enrollment_count(course_id)
 
-    # Creator name
+    # Creator name and verified status
     from sqlalchemy import select
 
     from app.models.user import User as UserModel
 
-    result = await db.execute(select(UserModel.display_name).where(UserModel.id == course.user_id))
-    creator_name = result.scalar_one_or_none() or ""
+    result = await db.execute(
+        select(UserModel.display_name, UserModel.is_verified_creator).where(
+            UserModel.id == course.user_id
+        )
+    )
+    row = result.first()
+    creator_name = row[0] if row else ""
+    is_creator_verified = row[1] if row else False
 
     return CourseResponse(
         id=course.id,
@@ -238,6 +249,7 @@ async def get_hub_course(
         average_rating=avg,
         rating_count=r_count,
         creator_name=creator_name,
+        is_creator_verified=is_creator_verified,
         created_at=course.created_at,
         updated_at=course.updated_at,
     )
@@ -271,8 +283,14 @@ async def get_public_course(
 
     from app.models.user import User as UserModel
 
-    result = await db.execute(select(UserModel.display_name).where(UserModel.id == course.user_id))
-    creator_name = result.scalar_one_or_none() or ""
+    result = await db.execute(
+        select(UserModel.display_name, UserModel.is_verified_creator).where(
+            UserModel.id == course.user_id
+        )
+    )
+    row = result.first()
+    creator_name = row[0] if row else ""
+    is_creator_verified = row[1] if row else False
 
     return CourseResponse(
         id=course.id,
@@ -293,6 +311,7 @@ async def get_public_course(
         average_rating=avg,
         rating_count=r_count,
         creator_name=creator_name,
+        is_creator_verified=is_creator_verified,
         created_at=course.created_at,
         updated_at=course.updated_at,
     )

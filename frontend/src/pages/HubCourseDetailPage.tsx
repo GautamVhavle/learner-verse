@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StarRating } from "@/components/hub/StarRating";
+import { VerifiedBadge } from "@/components/shared/VerifiedBadge";
 import { toast } from "sonner";
 import {
   useHubCourseQuery,
@@ -135,7 +136,10 @@ export default function HubCourseDetailPage() {
           <div>
             <h1 className="text-text-primary text-2xl font-bold">{course.title}</h1>
             {course.creator_name && (
-              <p className="text-text-secondary mt-1 text-sm">by {course.creator_name}</p>
+              <p className="text-text-secondary mt-1 flex items-center gap-1.5 text-sm">
+                by {course.creator_name}
+                {course.is_creator_verified && <VerifiedBadge size={14} />}
+              </p>
             )}
           </div>
 

@@ -25,6 +25,7 @@ export interface Course {
   average_rating: number;
   rating_count: number;
   creator_name: string;
+  is_creator_verified: boolean;
   created_at: string;
   updated_at: string;
 }

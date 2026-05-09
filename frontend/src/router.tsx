@@ -8,12 +8,14 @@
  * All page components are lazy-loaded to reduce initial bundle size.
  */
 import { lazy, Suspense } from "react";
-import { BrowserRouter, Routes, Route } from "react-router";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import { SINGLE_USER_MODE } from "@/lib/auth";
 import { PAYMENT_GATEWAY_ENABLED } from "@/lib/payment";
+import { isSuperadmin } from "@/lib/superadmin";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 import { AppShell } from "@/components/layout/AppShell";
+import { useUserQuery } from "@/hooks/useUser";
 
 /* ─── Lazy page imports ─── */
 
@@ -45,6 +47,15 @@ const PublicCoursePage = lazy(() => import("@/pages/PublicCoursePage"));
 // they will simply never be rendered when the flag is false.
 const PricingPage = lazy(() => import("@/pages/PricingPage"));
 const RenewPage = lazy(() => import("@/pages/RenewPage"));
+const SuperadminDashboardPage = lazy(() => import("@/pages/SuperadminDashboardPage"));
+
+/** Protects the /superadmin route — redirects non-admins to /creator. */
+function SuperadminGuard({ children }: { children: React.ReactNode }) {
+  const { data: user, isLoading } = useUserQuery();
+  if (isLoading) return null;
+  if (!user || !isSuperadmin(user.email)) return <Navigate to="/creator" replace />;
+  return <>{children}</>;
+}
 
 /**
  * Routes shared by both /creator and /learner mode blocks.
@@ -113,6 +124,18 @@ export default function AppRouter() {
             <Route path="/profile/:userId" element={<PublicProfilePage />} />
             <Route path="/courses/:courseId" element={<PublicCoursePage />} />
             {PAYMENT_GATEWAY_ENABLED && <Route path="/pricing" element={<PricingPage />} />}
+
+            {/* ── Superadmin dashboard ── */}
+            <Route
+              path="/superadmin"
+              element={
+                <ProtectedRoute>
+                  <SuperadminGuard>
+                    <SuperadminDashboardPage />
+                  </SuperadminGuard>
+                </ProtectedRoute>
+              }
+            />
             <Route path="/" element={<HomePage />} />
             <Route path="/home" element={<HomePage />} />
 

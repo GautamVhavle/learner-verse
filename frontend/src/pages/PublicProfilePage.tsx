@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { VerifiedBadge } from "@/components/shared/VerifiedBadge";
 import { usePublicProfileQuery } from "@/hooks/useProfile";
 import type { PublicProfile, SocialLink } from "@/types/user";
 
@@ -377,8 +378,9 @@ function ProfileContent({ profile }: { profile: PublicProfile }) {
             {/* Identity */}
             <div className="mt-3 space-y-2.5">
               <div>
-                <h1 className="text-text-primary text-2xl font-bold tracking-tight sm:text-3xl">
+                <h1 className="text-text-primary flex items-center gap-2 text-2xl font-bold tracking-tight sm:text-3xl">
                   {profile.display_name}
+                  {profile.is_verified_creator && <VerifiedBadge size={22} />}
                 </h1>
                 {profile.bio && (
                   <p className="text-text-secondary mt-1 max-w-2xl text-sm leading-relaxed sm:text-[15px]">

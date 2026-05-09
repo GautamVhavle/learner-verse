@@ -89,3 +89,17 @@ async def get_current_user(
         user.is_pro = True
 
     return user
+
+
+async def get_superadmin_user(user: User = Depends(get_current_user)) -> User:
+    """Dependency that restricts access to users listed in SUPERADMIN_EMAILS.
+
+    Raises HTTP 403 if the authenticated user's email is not in the
+    configured superadmin list. Used to protect all /superadmin/* routes.
+    """
+    if user.email.lower() not in settings.superadmin_emails_list:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Superadmin access required.",
+        )
+    return user

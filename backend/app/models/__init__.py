@@ -25,6 +25,7 @@ from app.models.section import Section
 from app.models.study_note import StudyNote
 from app.models.tag import Tag, course_tags
 from app.models.user import User
+from app.models.verification_request import VerificationRequest
 
 __all__ = [
     "ActivityLog",
@@ -47,5 +48,6 @@ __all__ = [
     "StudyNote",
     "Tag",
     "User",
+    "VerificationRequest",
     "course_tags",
 ]
