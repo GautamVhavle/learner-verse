@@ -1,76 +1,98 @@
-name: Deploy to Production
+name: Deploy
 
 on:
   push:
     branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
 
 jobs:
-  test-before-deploy:
+  validate:
     runs-on: ubuntu-latest
     name: Validate Before Deploy
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v2
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
 
-      - name: Install backend deps
-        run: cd backend && uv sync
-
-      - name: Backend lint check
-        run: cd backend && uv run ruff check app/
-        continue-on-error: true
+      - name: Backend lint
+        run: cd backend && uv sync && uv run ruff check app/
 
       - name: Backend tests
         env:
-          SINGLE_USER_MODE: 'true'
-          DATABASE_URL: sqlite:///test.db
-          SECRET_KEY: test-secret-key-12345678901234567890123456789012
-          OPENROUTER_API_KEY: test-key
-          ENVIRONMENT: test
+          SINGLE_USER_MODE: "true"
+          DATABASE_URL: "sqlite+aiosqlite:///test.db"
+          SECRET_KEY: "test-secret-key-12345678901234567890123456789012"
+          OPENROUTER_API_KEY: "test-key"
+          ENVIRONMENT: "test"
         run: |
-          # Safety check: ensure we're NOT using production DB
-          if [[ "$DATABASE_URL" == *"supabase"* ]]; then
-            echo "❌ ERROR: Production database detected in tests! Aborting."
+          if [[ "$DATABASE_URL" == *"supabase"* ]] || [[ "$DATABASE_URL" == *"neon"* ]]; then
+            echo "ERROR: Production database detected! Aborting."
             exit 1
           fi
           cd backend && uv run pytest tests/ -v --tb=short
-        continue-on-error: true
 
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
-          cache-dependency-path: 'frontend/package-lock.json'
+          node-version: 22
+          cache: "npm"
+          cache-dependency-path: "frontend/package-lock.json"
 
-      - name: Install frontend deps
-        run: cd frontend && npm ci
+      - name: Frontend checks
+        run: |
+          cd frontend && npm ci
+          npx tsc --noEmit
+          npm run build
 
-      - name: Frontend type check
-        run: cd frontend && npx tsc --noEmit
-        continue-on-error: true
-
-      - name: Frontend build
-        run: cd frontend && npm run build
-        continue-on-error: true
-
-  deploy-frontend-vercel:
-    needs: test-before-deploy
+  deploy-frontend:
+    needs: validate
     runs-on: ubuntu-latest
-    name: Deploy Frontend to Vercel
+    name: Deploy Frontend (Vercel)
+    environment: production
     steps:
       - uses: actions/checkout@v4
 
+      # Checkout the private submodule for production build
+      - name: Checkout private submodule
+        uses: actions/checkout@v4
+        with:
+          repository: GautamVhavle/learner-verse-private
+          token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+          path: private
+
+      # Copy real payment files for production build
+      - name: Prepare payment files
+        run: |
+          cp private/frontend/src/hooks/useSubscription.ts frontend/src/hooks/useSubscription.ts
+          cp private/frontend/src/components/subscription/ProGateDialog.tsx frontend/src/components/subscription/ProGateDialog.tsx
+          cp private/frontend/src/components/subscription/CongratulationsDialog.tsx frontend/src/components/subscription/CongratulationsDialog.tsx
+          cp private/frontend/src/components/home/PricingSection.tsx frontend/src/components/home/PricingSection.tsx
+          cp private/frontend/src/pages/PricingPage.tsx frontend/src/pages/PricingPage.tsx
+          cp private/frontend/src/pages/RenewPage.tsx frontend/src/pages/RenewPage.tsx
+          cp private/frontend/src/types/subscription.ts frontend/src/types/subscription.ts
+
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel
 
       - name: Deploy to Vercel
         env:
@@ -79,67 +101,46 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
           cd frontend
-          npm install -g vercel
-          vercel --prod --token=$VERCEL_TOKEN
+          vercel pull --yes --environment=production --token=$VERCEL_TOKEN
+          vercel build --prod --token=$VERCEL_TOKEN
+          vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
 
-      - name: Comment PR (if PR)
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '✅ Frontend deployed to Vercel\n🌐 Live at https://learnerverse.xyz'
-            })
-
-  deploy-backend-fastapi-cloud:
-    needs: test-before-deploy
+  deploy-backend:
+    needs: validate
     runs-on: ubuntu-latest
-    name: Deploy Backend to FastAPI Cloud
+    name: Deploy Backend (FastAPI Cloud)
+    environment: production
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      # Checkout private submodule for production backend
+      - name: Checkout private submodule
+        uses: actions/checkout@v4
         with:
-          python-version: '3.12'
+          repository: GautamVhavle/learner-verse-private
+          token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+          path: private
+
+      # Copy real payment files for production build
+      - name: Prepare payment files
+        run: |
+          cp private/backend/app/services/subscription_service.py backend/app/services/subscription_service.py
+          cp private/backend/app/api/v1/endpoints/subscription.py backend/app/api/v1/endpoints/subscription.py
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v2
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
 
       - name: Deploy to FastAPI Cloud
         env:
           FASTAPI_CLOUD_TOKEN: ${{ secrets.FASTAPI_CLOUD_TOKEN }}
-          FASTAPI_CLOUD_APP_ID: ${{ secrets.FASTAPI_CLOUD_APP_ID }}
         run: |
           cd backend
           uv sync
-          uv run fastapi deploy --app-id $FASTAPI_CLOUD_APP_ID
-
-      - name: Comment PR (if PR)
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '✅ Backend deployed to FastAPI Cloud\n🔗 API at https://learner-verse.fastapicloud.dev'
-            })
-
-  notify-deployment:
-    needs: [deploy-frontend-vercel, deploy-backend-fastapi-cloud]
-    runs-on: ubuntu-latest
-    name: Notify Deployment Complete
-    if: always()
-    steps:
-      - name: Deployment Status
-        run: |
-          echo "✅ Deployment pipeline completed!"
-          echo "🌐 Frontend: https://learnerverse.xyz"
-          echo "🔗 Backend: https://learner-verse.fastapicloud.dev"
+          uv run fastapi cloud deploy

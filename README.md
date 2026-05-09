@@ -6,36 +6,37 @@
 
 **Turn any YouTube playlist into a structured, AI-powered learning experience.**
 
-Quizzes · Progress Tracking · Certificates · AI Study Companion
+Quizzes . Progress Tracking . Certificates . AI Study Companion
 
-[![Live](https://img.shields.io/badge/🌐_Live-learnerverse.xyz-blue?style=for-the-badge)](https://learnerverse.xyz)
+[![Live](https://img.shields.io/badge/Live-learnerverse.xyz-blue?style=for-the-badge&logo=vercel&logoColor=white)](https://learnerverse.xyz)
 &nbsp;
-[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+[![License](https://img.shields.io/badge/License-BSL_1.1-orange?style=for-the-badge)](LICENSE)
+&nbsp;
+[![GitHub Stars](https://img.shields.io/github/stars/GautamVhavle/learner-verse?style=for-the-badge&logo=github&color=yellow)](https://github.com/GautamVhavle/learner-verse/stargazers)
 
 [![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://typescriptlang.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
 [![Tailwind](https://img.shields.io/badge/Tailwind_CSS-v4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
-[![Vite](https://img.shields.io/badge/Vite-6.x-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vite.dev)
+[![Vite](https://img.shields.io/badge/Vite-8.x-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vite.dev)
+[![CI](https://img.shields.io/github/actions/workflow/status/GautamVhavle/learner-verse/test.yml?branch=main&style=flat-square&label=CI)](https://github.com/GautamVhavle/learner-verse/actions)
 
 <br />
 
-[**Live Demo**](https://learnerverse.xyz) · [**Report Bug**](https://github.com/GautamVhavle/learner-verse/issues) · [**Request Feature**](https://github.com/GautamVhavle/learner-verse/issues)
+[**Try it Live**](https://learnerverse.xyz) &middot; [**Report a Bug**](https://github.com/GautamVhavle/learner-verse/issues/new?template=bug_report.yml) &middot; [**Request a Feature**](https://github.com/GautamVhavle/learner-verse/issues/new?template=feature_request.yml) &middot; [**Discussions**](https://github.com/GautamVhavle/learner-verse/discussions)
 
 </div>
 
-<br />
-
 ---
 
-<br />
+## What is LearnerVerse?
 
-## ✦ About
+Paste a YouTube video or playlist URL and LearnerVerse uses AI to organize it into a structured course with sections, generates quizzes, tracks your progress with streaks, awards verifiable certificates, and gives you **LiVi** -- an inline AI tutor that answers questions about any lesson.
 
-Paste a YouTube video or playlist URL → LearnerVerse uses AI to organize it into a structured course with sections, generates quizzes, tracks your progress with streaks, awards verifiable certificates, and gives you **LiVi** — an inline AI tutor that answers questions about any lesson.
+Whether you are a self-learner turning playlists into study plans or a creator sharing knowledge with the world, LearnerVerse handles the structure so you can focus on learning.
 
-### ✨ Key Features
+### Key Features
 
 <table>
   <tr>
@@ -45,7 +46,7 @@ Paste a YouTube video or playlist URL → LearnerVerse uses AI to organize it in
   </tr>
   <tr>
     <td>📊 <strong>Progress & Streaks</strong><br/>Track completion, build learning streaks</td>
-    <td>📜 <strong>Certificates</strong><br/>Earn & share verifiable completion certificates</td>
+    <td>📜 <strong>Certificates</strong><br/>Earn and share verifiable completion certificates</td>
     <td>🌐 <strong>Course Hub</strong><br/>Discover and share community-created courses</td>
   </tr>
   <tr>
@@ -55,42 +56,78 @@ Paste a YouTube video or playlist URL → LearnerVerse uses AI to organize it in
   </tr>
 </table>
 
-<br />
+---
 
-## ✦ Tech Stack
+## Tech Stack
 
-| Layer | Stack |
-|-------|-------|
-| **Frontend** | React 19, TypeScript, Tailwind CSS v4, Vite, TanStack Query, GSAP, Motion |
-| **Backend** | FastAPI, SQLAlchemy (async), Alembic, PostgreSQL |
-| **Auth** | Auth0 (JWT RS256) — toggle `SINGLE_USER_MODE=true` for local dev |
-| **AI** | OpenRouter (primary) + Gemini fallback on OpenRouter 429 rate limits |
-| **Database** | Supabase PostgreSQL (prod) / any Postgres locally |
-| **Deployment** | Vercel (frontend) · FastAPI Cloud (backend) |
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | React 19, TypeScript, Tailwind CSS v4, Vite 8, TanStack Query, Zustand, GSAP, Motion |
+| **Backend** | FastAPI, SQLAlchemy (async), Alembic, Pydantic v2 |
+| **Database** | PostgreSQL (Supabase in prod, any Postgres locally) |
+| **Auth** | Auth0 (JWT RS256) or `SINGLE_USER_MODE` for local dev |
+| **AI** | OpenRouter (primary) + Gemini fallback when rate-limited |
+| **Deployment** | Vercel (frontend), FastAPI Cloud (backend), Docker (self-host) |
+| **CI/CD** | GitHub Actions (lint, test, type-check, deploy) |
 
-<br />
+---
 
-## ✦ Getting Started
+## Project Structure
+
+```
+learner-verse/
+├── backend/                    # FastAPI application
+│   ├── app/
+│   │   ├── api/v1/endpoints/   # Route handlers
+│   │   ├── core/               # Config, database, security
+│   │   ├── models/             # SQLAlchemy ORM models
+│   │   ├── repositories/       # Data access layer
+│   │   ├── schemas/            # Pydantic request/response schemas
+│   │   └── services/           # Business logic layer
+│   ├── alembic/                # Database migrations
+│   ├── tests/                  # Pytest test suite
+│   ├── Dockerfile
+│   └── pyproject.toml
+├── frontend/                   # React SPA
+│   ├── src/
+│   │   ├── components/         # UI components (shadcn/ui based)
+│   │   ├── hooks/              # React Query hooks, custom hooks
+│   │   ├── pages/              # Route page components
+│   │   ├── stores/             # Zustand state stores
+│   │   ├── lib/                # Utilities, API client, auth
+│   │   └── types/              # TypeScript type definitions
+│   ├── public/                 # Static assets, PWA manifest
+│   ├── tests/                  # Vitest + Playwright tests
+│   ├── Dockerfile
+│   └── package.json
+├── .github/                    # CI/CD workflows, issue templates
+├── scripts/                    # Setup and deployment scripts
+├── docker-compose.yml          # Full-stack Docker setup
+├── Makefile                    # Developer workflow commands
+└── LICENSE                     # BSL-1.1 (free for personal use)
+```
+
+---
+
+## Getting Started
 
 ### Prerequisites
 
 - **Python 3.12+** with [uv](https://docs.astral.sh/uv/)
 - **Node.js 20+** with npm
-- **PostgreSQL** (local or Docker)
+- **PostgreSQL** (local, Docker, or hosted)
 
-### 1. Clone & configure
+### 1. Clone and configure
 
 ```bash
 git clone https://github.com/GautamVhavle/learner-verse.git
 cd learner-verse
-make setup   # copies sample.env files → .env / frontend/.env
+make setup   # copies sample.env files
 ```
 
-Edit the generated `.env` and `frontend/.env` with your settings.
+Edit `.env` and `frontend/.env` with your settings.
 
-> [!TIP]
-> Set `SINGLE_USER_MODE=true` and `VITE_SINGLE_USER_MODE=true` to skip Auth0 setup entirely during local development.
-> Set `GEMINI_API_KEY` to enable automatic fallback when OpenRouter is rate-limited.
+> **Tip:** Set `SINGLE_USER_MODE=true` and `VITE_SINGLE_USER_MODE=true` to skip Auth0 setup entirely during local development. Set `GEMINI_API_KEY` for automatic fallback when OpenRouter is rate-limited.
 
 ### 2. Backend
 
@@ -101,6 +138,8 @@ uv run alembic upgrade head       # run migrations
 uv run uvicorn app.main:app --reload --port 8000
 ```
 
+API docs available at `http://localhost:8000/docs`
+
 ### 3. Frontend
 
 ```bash
@@ -109,15 +148,15 @@ npm install
 npm run dev                       # starts on http://localhost:5173
 ```
 
-### 🐳 Docker (alternative)
+### Docker (alternative)
 
 ```bash
 docker compose up --build         # backend :8000, frontend :3000
 ```
 
-<br />
+---
 
-## ✦ Available Commands
+## Available Commands
 
 | Command | Description |
 |---------|-------------|
@@ -125,84 +164,84 @@ docker compose up --build         # backend :8000, frontend :3000
 | `make dev-backend` | Run backend with hot reload |
 | `make dev-frontend` | Run frontend dev server |
 | `make dev-db` | Start PostgreSQL via Docker |
-| `make docker` | Build & start everything with Docker Compose |
-| `make migrate` | Run alembic migrations |
-| `make migration msg="..."` | Create new migration |
-| `make test` | Run all tests |
+| `make docker` | Build and start everything with Docker Compose |
+| `make migrate` | Run Alembic migrations |
+| `make migration msg="..."` | Create a new migration |
+| `make test` | Run all tests (backend + frontend) |
 | `make test-backend` | Run pytest |
 | `make test-frontend` | Run vitest |
-| `make test-e2e` | Run playwright |
+| `make test-e2e` | Run Playwright end-to-end tests |
 | `make lint` | Ruff + ESLint |
 | `make format` | Ruff format + Prettier |
 
-<br />
+---
 
-## ✦ Environment Variables
+## Environment Variables
 
 <details>
-<summary>🔧 <strong>Backend</strong> (<code>.env</code>)</summary>
-
-<br />
+<summary><strong>Backend</strong> (<code>.env</code>)</summary>
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `DATABASE_URL` | Yes | PostgreSQL connection string (asyncpg) |
-| `SECRET_KEY` | Yes | Random 64-char string |
-| `SINGLE_USER_MODE` | No | `true` to bypass auth (local dev) |
-| `PAYMENT_GATEWAY_ENABLED` | No | `true` to enable payment gateway (default `false`) |
+| `DATABASE_URL` | Yes | PostgreSQL connection string (`postgresql+asyncpg://...`) |
+| `SECRET_KEY` | Yes | Random 64-character string for JWT signing |
+| `SINGLE_USER_MODE` | No | `true` to bypass auth (local dev). Default: `false` |
+| `AUTH0_DOMAIN` | Prod | Auth0 tenant domain |
 | `AUTH0_AUDIENCE` | Prod | Auth0 API identifier |
-| `OPENROUTER_API_KEY` | For AI | OpenRouter API key |
-| `OPENROUTER_MODEL` | No | Primary OpenRouter model (default: free Nemotron) |
-| `GEMINI_API_KEY` | Optional | Gemini fallback key (used when OpenRouter returns 429) |
-| `GEMINI_MODEL` | No | Gemini fallback model (default: `gemini-2.5-flash`) |
-| `SENTRY_DSN` | Prod | Sentry error tracking |
+| `OPENROUTER_API_KEY` | For AI | OpenRouter API key for quiz gen and LiVi |
+| `OPENROUTER_MODEL` | No | Model name (default: free Nemotron) |
+| `GEMINI_API_KEY` | No | Gemini fallback key (auto-fallback on 429) |
 | `CORS_ORIGINS` | Yes | Comma-separated allowed origins |
+| `FRONTEND_URL` | Prod | Public frontend URL for OG tags and redirects |
+| `SENTRY_DSN` | No | Sentry error tracking DSN |
+| `PAYMENT_GATEWAY_ENABLED` | No | `true` to enable payment features. Default: `false` |
 
 </details>
 
 <details>
-<summary>🔧 <strong>Frontend</strong> (<code>frontend/.env</code>)</summary>
-
-<br />
+<summary><strong>Frontend</strong> (<code>frontend/.env</code>)</summary>
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `VITE_API_BASE_URL` | Yes | Backend API URL |
-| `VITE_SINGLE_USER_MODE` | No | `true` to bypass auth |
-| `VITE_PAYMENT_GATEWAY_ENABLED` | No | `true` to show payment UI (default `false`) |
-| `VITE_AUTH0_DOMAIN` | Prod | Auth0 domain |
-| `VITE_AUTH0_CLIENT_ID` | Prod | Auth0 client ID |
+| `VITE_API_BASE_URL` | Yes | Backend API URL (`http://localhost:8000/api/v1`) |
+| `VITE_SINGLE_USER_MODE` | No | `true` to bypass auth. Default: `false` |
+| `VITE_AUTH0_DOMAIN` | Prod | Auth0 tenant domain |
+| `VITE_AUTH0_CLIENT_ID` | Prod | Auth0 SPA client ID |
 | `VITE_AUTH0_AUDIENCE` | Prod | Auth0 API identifier |
+| `VITE_PUBLIC_SITE_URL` | Prod | Public site URL for share links |
+| `VITE_PAYMENT_GATEWAY_ENABLED` | No | `true` to show payment UI. Default: `false` |
 
 </details>
 
-<br />
+---
 
-## ✦ Deployment
+## Deployment
 
-| Target | Command |
-|--------|---------|
-| **Frontend** (Vercel) | `cd frontend && vercel --prod` |
-| **Backend** (FastAPI Cloud) | `cd backend && uv run fastapi deploy --app-id <YOUR_APP_ID>` |
-| **Docker** (self-hosted) | `make docker` |
+### Production
 
-> The backend uses `[tool.fastapi] entrypoint = "app.main:app"` in `pyproject.toml`.
+| Target | Method |
+|--------|--------|
+| **Frontend** | Vercel: `cd frontend && vercel --prod` |
+| **Backend** | FastAPI Cloud: `cd backend && uv run fastapi cloud deploy` |
+| **Full Stack** | Docker: `docker compose up --build -d` |
 
-<br />
+CI/CD is configured via GitHub Actions. Pushing to `main` triggers:
+1. Lint, type-check, and test validation
+2. Automatic deployment to Vercel (frontend) and FastAPI Cloud (backend)
 
-## ✦ Self-Hosting
+See [`.github/workflows/`](.github/workflows/) for the pipeline configuration.
+
+### Self-Hosting
 
 LearnerVerse supports three deployment modes:
 
-| Mode | Auth | Pro Features | Payment UI |
-|------|------|-------------|------------|
+| Mode | Auth | AI Features | Payment UI |
+|------|------|------------|------------|
 | **Single-user** | None (`SINGLE_USER_MODE=true`) | All unlocked | Hidden |
 | **Multi-user** | Auth0 | All unlocked | Hidden |
-| **Hosted SaaS** | Auth0 + payment submodule | Gated behind paywall | Visible |
+| **Hosted SaaS** | Auth0 + payment module | Gated behind subscription | Visible |
 
-By default, `PAYMENT_GATEWAY_ENABLED=false` — every user gets full Pro access. No pricing pages, upgrade banners, or paywall dialogs appear. Self-hosters get the complete feature set out of the box.
-
-### Quick start (Docker)
+By default, `PAYMENT_GATEWAY_ENABLED=false` -- every user gets full access. No pricing pages, upgrade banners, or paywall dialogs appear. Self-hosters get the complete feature set out of the box.
 
 ```bash
 git clone https://github.com/GautamVhavle/learner-verse.git
@@ -214,51 +253,66 @@ make docker       # start everything
 
 The app will be available at `http://localhost:3000` (frontend) and `http://localhost:8000` (backend API).
 
-<br />
+---
 
-## ✦ Contributing
+## Contributing
 
-Contributions are welcome! Here's how:
+We welcome contributions from everyone! Please read our [Contributing Guide](CONTRIBUTING.md) before submitting a pull request.
 
-1. **Fork** the repo
-2. **Branch** — `git checkout -b feat/your-feature`
-3. **Code** — make your changes
-4. **Check** — `make lint && make test`
-5. **Commit** — use [Conventional Commits](https://conventionalcommits.org) (`feat:`, `fix:`, `docs:`)
-6. **PR** — open a Pull Request
+**Quick overview:**
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feat/your-feature`
+3. Make your changes and add tests
+4. Run checks: `make lint && make test`
+5. Commit using [Conventional Commits](https://conventionalcommits.org): `feat:`, `fix:`, `docs:`, `chore:`
+6. Open a Pull Request
 
 ### Code Style
 
 | Area | Tooling |
 |------|---------|
-| Backend | Ruff (lint + format), 100-char line length |
+| Backend | [Ruff](https://docs.astral.sh/ruff/) (lint + format), 100-char line length, Python 3.12+ |
 | Frontend | ESLint + Prettier, TypeScript strict mode |
-| Commits | Conventional Commits (`feat:`, `fix:`, `chore:`) |
+| Commits | [Conventional Commits](https://conventionalcommits.org) |
 
-<br />
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
-## ✦ License
+---
 
-Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for details.
+## Community
 
-<br />
+- [GitHub Discussions](https://github.com/GautamVhavle/learner-verse/discussions) -- Ask questions, share ideas
+- [Issue Tracker](https://github.com/GautamVhavle/learner-verse/issues) -- Report bugs, request features
+- [Security Policy](SECURITY.md) -- Report vulnerabilities responsibly
+
+---
+
+## License
+
+LearnerVerse is licensed under the [Business Source License 1.1](LICENSE) (BSL-1.1).
+
+**What this means:**
+
+- **Personal and educational use**: Free and unrestricted
+- **Self-hosting for your own use**: Allowed
+- **Commercial use** (selling, SaaS, managed service): Not permitted without written permission
+- **After 4 years**: Automatically converts to the MIT License
+
+See the full [LICENSE](LICENSE) file for details.
 
 ---
 
 <div align="center">
 
-<br />
-
 <a href="https://learnerverse.xyz"><img src="frontend/public/logo.svg" alt="LearnerVerse" width="40" /></a>
 
 **[learnerverse.xyz](https://learnerverse.xyz)**
 
-Built with ♥ for curious minds.
+Built with care for curious minds.
 
-[Report Bug](https://github.com/GautamVhavle/learner-verse/issues) · [Request Feature](https://github.com/GautamVhavle/learner-verse/issues) · [Discussions](https://github.com/GautamVhavle/learner-verse/discussions)
+[Report a Bug](https://github.com/GautamVhavle/learner-verse/issues/new?template=bug_report.yml) &middot; [Request a Feature](https://github.com/GautamVhavle/learner-verse/issues/new?template=feature_request.yml) &middot; [Discussions](https://github.com/GautamVhavle/learner-verse/discussions)
 
-<sub>If you found this useful, consider giving it a ⭐</sub>
-
-<br />
+<sub>If you found this useful, consider giving it a star.</sub>
 
 </div>

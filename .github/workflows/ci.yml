@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    name: Backend Lint & Test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Install dependencies
+        run: cd backend && uv sync
+
+      - name: Lint
+        run: cd backend && uv run ruff check app/ --output-format=github
+
+      - name: Format check
+        run: cd backend && uv run ruff format app/ --check
+
+      - name: Run tests
+        env:
+          SINGLE_USER_MODE: "true"
+          DATABASE_URL: "sqlite+aiosqlite:///test.db"
+          SECRET_KEY: "test-secret-key-12345678901234567890123456789012"
+          OPENROUTER_API_KEY: "test-key"
+          ENVIRONMENT: "test"
+        run: |
+          if [[ "$DATABASE_URL" == *"supabase"* ]] || [[ "$DATABASE_URL" == *"neon"* ]]; then
+            echo "ERROR: Production database detected in tests! Aborting."
+            exit 1
+          fi
+          cd backend && uv run pytest tests/ -v --tb=short
+
+  frontend:
+    runs-on: ubuntu-latest
+    name: Frontend Lint, Type-check & Test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+          cache-dependency-path: "frontend/package-lock.json"
+
+      - name: Install dependencies
+        run: cd frontend && npm ci
+
+      - name: TypeScript check
+        run: cd frontend && npx tsc --noEmit
+
+      - name: Lint
+        run: cd frontend && npm run lint
+
+      - name: Format check
+        run: cd frontend && npx prettier --check "src/**/*.{ts,tsx,css}"
+
+      - name: Build
+        run: cd frontend && npm run build
+
+      - name: Unit tests
+        run: cd frontend && npm run test -- --run
