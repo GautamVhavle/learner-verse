@@ -135,7 +135,6 @@ vi.mock("@/components/ui/collapsible", () => ({
   ),
   CollapsibleTrigger: ({
     children,
-    render,
   }: {
     children: React.ReactNode;
     render?: React.ReactNode;

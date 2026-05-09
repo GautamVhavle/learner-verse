@@ -165,7 +165,6 @@ test.describe.serial("Settings Page", () => {
     await expect(trigger).toContainText("UTC");
 
     // Look for the auto-detect prompt banner
-    const prompt = page.locator("text=Use My Device Timezone");
     // The prompt might be in the dropdown or as a banner
     await trigger.click();
     

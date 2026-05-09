@@ -109,7 +109,7 @@ describe("StudySidebar", () => {
   });
 
   it("shows checkmarks for completed lessons", () => {
-    const { container } = render(
+    render(
       <StudySidebar
         sections={mockSections}
         selectedLessonId="l2"

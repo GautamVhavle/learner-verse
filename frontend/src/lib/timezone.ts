@@ -105,7 +105,7 @@ export function getTimezoneInfo(tz: string): { name: string; offset: string } {
       name: formatTimezoneDisplay(tz),
       offset,
     };
-  } catch (error) {
+  } catch {
     return {
       name: formatTimezoneDisplay(tz),
       offset: "",
