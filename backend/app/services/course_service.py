@@ -538,7 +538,8 @@ class CourseService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found.")
         if course.is_deleted:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot import into a deleted course."
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot import into a deleted course.",
             )
 
         # --- Delete existing sections (cascades to lessons, links, quiz questions) ---

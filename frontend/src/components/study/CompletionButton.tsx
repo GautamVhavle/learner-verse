@@ -15,7 +15,12 @@ interface CompletionButtonProps {
   locked?: boolean;
 }
 
-export function CompletionButton({ lessonId, completed, onToggled, locked = false }: CompletionButtonProps) {
+export function CompletionButton({
+  lessonId,
+  completed,
+  onToggled,
+  locked = false,
+}: CompletionButtonProps) {
   const toggle = useToggleProgressMutation();
 
   const handleToggle = useCallback(() => {

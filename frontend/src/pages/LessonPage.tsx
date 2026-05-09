@@ -224,10 +224,12 @@ export default function LessonPage() {
         />
       )}
 
-      <div className={`flex flex-col gap-6 ${focusMode ? "" : "lg:flex-row lg:max-h-[calc(100svh-9rem)] lg:overflow-hidden"}`}>
+      <div
+        className={`flex flex-col gap-6 ${focusMode ? "" : "lg:max-h-[calc(100svh-9rem)] lg:flex-row lg:overflow-hidden"}`}
+      >
         {/* Sidebar — hidden in focus mode */}
         {!focusMode && (
-          <aside className="order-2 w-full shrink-0 lg:order-1 lg:w-60 lg:overflow-y-auto no-scrollbar">
+          <aside className="no-scrollbar order-2 w-full shrink-0 lg:order-1 lg:w-60 lg:overflow-y-auto">
             <div className="space-y-3 pb-4">
               {/* Mini progress */}
               {progress && progress.total_lessons > 0 && (
@@ -256,7 +258,9 @@ export default function LessonPage() {
         )}
 
         {/* Main content */}
-        <main className={`min-w-0 flex-1 lg:overflow-y-auto no-scrollbar ${focusMode ? "" : "order-1 lg:order-2"}`}>
+        <main
+          className={`no-scrollbar min-w-0 flex-1 lg:overflow-y-auto ${focusMode ? "" : "order-1 lg:order-2"}`}
+        >
           <div className="space-y-6 pb-6">
             {/* Lesson title + Completion + Focus toggle */}
             <div className="flex items-start justify-between gap-3">
