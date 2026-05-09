@@ -492,19 +492,14 @@ export default function CourseBuilderPage() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Import course?</AlertDialogTitle>
-            <AlertDialogDescription asChild>
-              <div className="space-y-2">
-                <p>
-                  This will <strong>replace all existing content</strong> in this course with the
-                  imported data. The course will be reset to draft status.
-                </p>
-                <p className="bg-bg-secondary text-text-primary rounded-md px-3 py-2 text-sm font-medium">
-                  {importSummary}
-                </p>
-                <p>Are you sure you want to continue?</p>
-              </div>
+            <AlertDialogDescription>
+              This will replace all existing content in this course with the imported data. The
+              course will be reset to draft status.
             </AlertDialogDescription>
           </AlertDialogHeader>
+          <div className="bg-bg-secondary rounded-md px-3 py-2 text-sm font-medium">
+            {importSummary}
+          </div>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmImport}>
