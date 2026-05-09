@@ -78,7 +78,7 @@ jobs:
           node-version: 22
 
       - name: Install Vercel CLI
-        run: npm install -g vercel
+        run: npm install -g vercel@53.1.1
 
       - name: Deploy to Vercel
         env:
@@ -129,6 +129,6 @@ jobs:
         run: |
           cd backend
           mkdir -p .fastapicloud
-          echo '{"app_id":"${{ secrets.FASTAPI_CLOUD_APP_ID }}"}' > .fastapicloud/cloud.json
+          echo '{"app_id":"${{ secrets.FASTAPI_CLOUD_APP_ID }}","team_id":"${{ secrets.FASTAPI_CLOUD_TEAM_ID }}"}' > .fastapicloud/cloud.json
           uv sync
           uv run fastapi cloud deploy
