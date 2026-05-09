@@ -75,11 +75,9 @@ jobs:
 
       - name: Format check
         run: cd frontend && npx prettier --check "src/**/*.{ts,tsx,css}"
-        continue-on-error: true  # TODO: run prettier --write across codebase
 
       - name: Build
         run: cd frontend && npm run build
 
       - name: Unit tests
         run: cd frontend && npm run test -- --run
-        continue-on-error: true  # TODO: fix YouTubeEmbed test mocking

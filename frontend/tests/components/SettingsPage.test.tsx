@@ -31,6 +31,29 @@ vi.mock("@/hooks/useUser", () => ({
     mutate: vi.fn(),
     isPending: false,
   }),
+  useDeleteAllDataMutation: () => ({
+    mutate: vi.fn(),
+    isPending: false,
+  }),
+  useDeleteAllCoursesMutation: () => ({
+    mutate: vi.fn(),
+    isPending: false,
+  }),
+  useDeleteLearnerStatsMutation: () => ({
+    mutate: vi.fn(),
+    isPending: false,
+  }),
+  useDeleteAccountMutation: () => ({
+    mutate: vi.fn(),
+    isPending: false,
+  }),
+}));
+
+vi.mock("@/hooks/useSubscription", () => ({
+  useCancelSubscriptionMutation: () => ({
+    mutate: vi.fn(),
+    isPending: false,
+  }),
 }));
 
 import SettingsPage from "@/pages/SettingsPage";
@@ -55,7 +78,7 @@ describe("SettingsPage", () => {
   it("renders settings heading", () => {
     renderPage();
     expect(screen.getByText("Settings")).toBeInTheDocument();
-    expect(screen.getByText("Manage your preferences.")).toBeInTheDocument();
+    expect(screen.getByText("Manage your preferences, appearance, and account.")).toBeInTheDocument();
   });
 
   it("renders timezone selector", () => {

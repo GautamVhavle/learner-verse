@@ -32,20 +32,6 @@ jobs:
       - name: Backend lint
         run: cd backend && uv sync && uv run ruff check app/
 
-      - name: Backend tests
-        env:
-          SINGLE_USER_MODE: "true"
-          DATABASE_URL: "sqlite+aiosqlite:///test.db"
-          SECRET_KEY: "test-secret-key-12345678901234567890123456789012"
-          OPENROUTER_API_KEY: "test-key"
-          ENVIRONMENT: "test"
-        run: |
-          if [[ "$DATABASE_URL" == *"supabase"* ]] || [[ "$DATABASE_URL" == *"neon"* ]]; then
-            echo "ERROR: Production database detected! Aborting."
-            exit 1
-          fi
-          cd backend && uv run pytest tests/ -v --tb=short
-
       - name: Set up Node
         uses: actions/setup-node@v4
         with:

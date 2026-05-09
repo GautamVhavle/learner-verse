@@ -1,6 +1,5 @@
 import { render } from "@testing-library/react";
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { YouTubeEmbed } from "@/components/lesson/YouTubeEmbed";
 
 // Mock YouTube API
 const mockYTPlayer = {
@@ -9,32 +8,43 @@ const mockYTPlayer = {
   destroy: vi.fn(),
 };
 
+// Set up the YT global BEFORE importing the component.
+// The component captures window.onYouTubeIframeAPIReady in a module-level
+// promise at import time, so we need YT to exist before that.
+window.YT = {
+  // Must use `function` (not arrow) because the component calls `new YT.Player(...)`
+  Player: vi.fn(function (this: typeof mockYTPlayer, _el: string, opts: { events?: { onReady?: (e: { target: typeof mockYTPlayer }) => void } }) {
+    Object.assign(this, mockYTPlayer);
+    if (opts.events?.onReady) {
+      Promise.resolve().then(() => opts.events!.onReady!({ target: this }));
+    }
+  }),
+  PlayerState: { UNSTARTED: -1, ENDED: 0, PLAYING: 1, PAUSED: 2, BUFFERING: 3, CUED: 5 },
+  loaded: 1,
+} as unknown as typeof window.YT;
+
+// Import AFTER setting window.YT so the module sees it.
+import { YouTubeEmbed } from "@/components/lesson/YouTubeEmbed";
+
+// The module sets window.onYouTubeIframeAPIReady at load time.
+// Call it to resolve the internal apiReadyPromise.
+window.onYouTubeIframeAPIReady();
+
 beforeEach(() => {
-  vi.clearAllMocks();
+  // Reset call counts but keep implementations
+  mockYTPlayer.setPlaybackRate.mockClear();
+  mockYTPlayer.getAvailablePlaybackRates.mockClear().mockReturnValue([0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]);
+  mockYTPlayer.destroy.mockClear();
 
-  // Set up YouTube API mock
-  window.YT = {
-    Player: vi.fn((elementId, options) => {
-      // Call onReady callback if provided
-      if (options.events?.onReady) {
-        setTimeout(() => {
-          options.events.onReady({ target: mockYTPlayer });
-        }, 0);
+  // Recreate the Player mock so each test gets fresh onReady handling
+  (window.YT as unknown as { Player: unknown }).Player = vi.fn(
+    function (this: typeof mockYTPlayer, _el: string, opts: { events?: { onReady?: (e: { target: typeof mockYTPlayer }) => void } }) {
+      Object.assign(this, mockYTPlayer);
+      if (opts.events?.onReady) {
+        Promise.resolve().then(() => opts.events!.onReady!({ target: this }));
       }
-      return mockYTPlayer;
-    }),
-    PlayerState: {
-      UNSTARTED: -1,
-      ENDED: 0,
-      PLAYING: 1,
-      PAUSED: 2,
-      BUFFERING: 3,
-      CUED: 5,
     },
-    loaded: 1,
-  } as any;
-
-  window.onYouTubeIframeAPIReady = vi.fn();
+  );
 });
 
 describe("YouTubeEmbed", () => {

@@ -1,8 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { describe, it, expect, vi } from "vitest";
 import { SectionList } from "@/components/course/SectionList";
 import type { Section } from "@/types/section";
+
+const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+function W({ children }: { children: React.ReactNode }) {
+  return <QueryClientProvider client={qc}>{children}</QueryClientProvider>;
+}
 
 // dnd-kit needs this
 vi.mock("@dnd-kit/core", async () => {
@@ -97,39 +103,39 @@ const defaultProps = {
 
 describe("SectionList", () => {
   it("renders section titles", () => {
-    render(<SectionList {...defaultProps} />);
+    render(<W><SectionList {...defaultProps} /></W>);
     expect(screen.getByText("Getting Started")).toBeInTheDocument();
     expect(screen.getByText("Advanced Topics")).toBeInTheDocument();
   });
 
   it("renders lesson titles", () => {
-    render(<SectionList {...defaultProps} />);
+    render(<W><SectionList {...defaultProps} /></W>);
     expect(screen.getByText("Introduction")).toBeInTheDocument();
     expect(screen.getByText("Setup Guide")).toBeInTheDocument();
   });
 
   it("renders lesson count", () => {
-    render(<SectionList {...defaultProps} />);
+    render(<W><SectionList {...defaultProps} /></W>);
     expect(screen.getByText("2 lessons")).toBeInTheDocument();
     expect(screen.getByText("0 lessons")).toBeInTheDocument();
   });
 
   it("renders empty state when no sections", () => {
-    render(<SectionList {...defaultProps} sections={[]} />);
+    render(<W><SectionList {...defaultProps} sections={[]} /></W>);
     expect(screen.getByText(/No sections yet/)).toBeInTheDocument();
   });
 
   it("calls onAddSection when Add Section button clicked", async () => {
     const user = userEvent.setup();
     const onAddSection = vi.fn();
-    render(<SectionList {...defaultProps} onAddSection={onAddSection} />);
+    render(<W><SectionList {...defaultProps} onAddSection={onAddSection} /></W>);
     const addButtons = screen.getAllByRole("button", { name: /Add Section/i });
     await user.click(addButtons[0]);
     expect(onAddSection).toHaveBeenCalled();
   });
 
   it("renders Add buttons for each section", () => {
-    render(<SectionList {...defaultProps} />);
+    render(<W><SectionList {...defaultProps} /></W>);
     const addLessonButtons = screen.getAllByRole("button", {
       name: /^Add$/i,
     });
@@ -139,7 +145,7 @@ describe("SectionList", () => {
   it("calls onAddLesson with section id when Video Lesson clicked", async () => {
     const user = userEvent.setup();
     const onAddLesson = vi.fn();
-    render(<SectionList {...defaultProps} onAddLesson={onAddLesson} />);
+    render(<W><SectionList {...defaultProps} onAddLesson={onAddLesson} /></W>);
     const addLessonButtons = screen.getAllByRole("button", {
       name: /^Add$/i,
     });
@@ -150,12 +156,12 @@ describe("SectionList", () => {
   });
 
   it("shows duration badge on lesson", () => {
-    render(<SectionList {...defaultProps} />);
+    render(<W><SectionList {...defaultProps} /></W>);
     expect(screen.getByText("10:30")).toBeInTheDocument();
   });
 
   it("shows empty lessons placeholder for section with no lessons", () => {
-    render(<SectionList {...defaultProps} />);
+    render(<W><SectionList {...defaultProps} /></W>);
     expect(screen.getByText("No lessons yet")).toBeInTheDocument();
   });
 });

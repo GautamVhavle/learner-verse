@@ -51,10 +51,11 @@ describe("KeyboardShortcuts", () => {
     expect(screen.getByText("New course")).toBeInTheDocument();
   });
 
-  it("shows ⌘ for Ctrl keys", () => {
+  it("shows modifier key for Ctrl keys", () => {
     render(<KeyboardShortcuts open={true} onOpenChange={vi.fn()} />);
-    const cmdKeys = screen.getAllByText("⌘");
-    expect(cmdKeys.length).toBeGreaterThan(0);
+    // jsdom reports non-Mac platform, so modifier renders as "Ctrl"
+    const modKeys = screen.getAllByText(/⌘|Ctrl/);
+    expect(modKeys.length).toBeGreaterThan(0);
   });
 
   it("shows keyboard key badges (Kbd)", () => {

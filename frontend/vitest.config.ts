@@ -8,6 +8,9 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+    // Resolve imports from the symlink location (frontend/src/) rather than
+    // the symlink target (private/frontend/src/) so node_modules is found.
+    preserveSymlinks: true,
   },
   test: {
     globals: true,
