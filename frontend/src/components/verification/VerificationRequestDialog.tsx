@@ -101,7 +101,7 @@ export function VerificationRequestDialog({ open, onOpenChange }: VerificationRe
                 id="verification-message"
                 placeholder="Describe your expertise, the courses you've created, your teaching experience, and why you'd like to be a verified creator…"
                 value={message}
-                onChange={(e) => setMessage(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMessage(e.target.value)}
                 rows={5}
               />
               <p className="text-muted-foreground text-right text-xs">{message.length} chars</p>

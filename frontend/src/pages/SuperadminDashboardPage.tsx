@@ -771,7 +771,7 @@ function VerificationsTab() {
                       : "Optional message for the creator…"
                   }
                   value={adminNote}
-                  onChange={(e) => setAdminNote(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setAdminNote(e.target.value)}
                   rows={3}
                 />
               </div>
