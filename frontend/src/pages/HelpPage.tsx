@@ -147,8 +147,8 @@ export default function HelpPage() {
             id="help-subject"
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
-            placeholder={`e.g. Issue with course enrollment`}
-            className="max-w-md"
+            placeholder="e.g. Issue with course enrollment"
+            className="border-border-default bg-bg-tertiary text-text-primary placeholder:text-text-tertiary focus:border-accent-blue focus:ring-accent-blue/30 w-full rounded-lg border px-3 py-2 text-sm focus:ring-1 focus:outline-none"
           />
         </div>
 
