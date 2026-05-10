@@ -399,8 +399,7 @@ function ProfileContent({ profile }: { profile: PublicProfile }) {
                   {profile.display_name}
                   {profile.is_verified_creator && <VerifiedBadge size={22} />}
                   {profile.is_pro && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-bold text-amber-500">
-                      <Zap className="size-2.5" />
+                    <span className="bg-accent-purple/10 text-accent-purple rounded-sm px-1.5 py-0.5 text-[9px] font-semibold">
                       PRO
                     </span>
                   )}
