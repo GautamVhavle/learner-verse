@@ -280,49 +280,110 @@ function SectionHeader({ title }: { title: string }) {
   );
 }
 
-// ── Dashboard Banner ──────────────────────────────────────────────────────────
+// ── Quick Stat Card ──────────────────────────────────────────────────────────
 
-function DashboardBanner() {
-  const { data: overview } = usePlatformOverview();
-  const kpis = [
-    { label: "Users", value: fmt(overview?.total_users ?? 0) },
-    { label: "Courses", value: fmt(overview?.total_courses ?? 0) },
-    { label: "Enrollments", value: fmt(overview?.total_enrollments ?? 0) },
-    {
-      label: "Pending",
-      value: String(overview?.pending_verification_requests ?? 0),
-      highlight: (overview?.pending_verification_requests ?? 0) > 0,
-    },
-    {
-      label: "Avg Rating",
-      value: `${(overview?.average_platform_rating ?? 0).toFixed(1)}★`,
-    },
-  ];
+interface QuickStatCardProps {
+  label: string;
+  value: string;
+  sub: string;
+  icon: React.ReactNode;
+  urgent?: boolean;
+}
+
+function QuickStatCard({ label, value, sub, icon, urgent = false }: QuickStatCardProps) {
   return (
-    <div className="mb-2 rounded-xl border border-slate-700 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 p-5 text-white dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="rounded-lg border border-white/10 bg-white/10 p-2.5">
-            <Shield size={20} className="text-white" />
-          </div>
-          <div>
-            <h1 className="text-base leading-tight font-bold text-white">LearnerVerse Admin</h1>
-            <p className="text-xs text-white/50">Superadmin Dashboard</p>
-          </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-6">
-          {kpis.map(({ label, value, highlight }) => (
-            <div key={label} className="text-center">
-              <p
-                className={`text-lg leading-tight font-bold tabular-nums ${highlight ? "text-orange-400" : "text-white"}`}
-              >
-                {value}
-              </p>
-              <p className="text-[10px] tracking-wider text-white/40 uppercase">{label}</p>
-            </div>
-          ))}
+    <div
+      className={`flex flex-col gap-2 rounded-xl border p-4 transition-shadow hover:shadow-sm ${
+        urgent ? "border-orange-500/40 bg-orange-500/5" : "bg-card"
+      }`}
+    >
+      <div className="flex items-center justify-between">
+        <p className="text-muted-foreground text-[11px] font-semibold tracking-wider uppercase">
+          {label}
+        </p>
+        <div
+          className={`rounded-md p-1.5 ${
+            urgent ? "bg-orange-500/15 text-orange-500" : "bg-muted text-muted-foreground"
+          }`}
+        >
+          {icon}
         </div>
       </div>
+      <p
+        className={`text-2xl leading-none font-bold tabular-nums ${
+          urgent ? "text-orange-500" : ""
+        }`}
+      >
+        {value}
+      </p>
+      <p className="text-muted-foreground text-xs leading-tight">{sub}</p>
+    </div>
+  );
+}
+
+// ── Quick Stats Row ───────────────────────────────────────────────────────────
+
+function QuickStats({
+  overview,
+  isLoading,
+}: {
+  overview: PlatformOverview | undefined;
+  isLoading: boolean;
+}) {
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <Skeleton key={i} className="h-[100px] rounded-xl" />
+        ))}
+      </div>
+    );
+  }
+  const o = overview;
+  const hasPending = (o?.pending_verification_requests ?? 0) > 0;
+  return (
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+      <QuickStatCard
+        label="Total Users"
+        value={fmt(o?.total_users ?? 0)}
+        sub={`+${o?.new_users_today ?? 0} today · +${o?.new_users_this_week ?? 0} this week`}
+        icon={<Users size={14} />}
+      />
+      <QuickStatCard
+        label="Published Courses"
+        value={fmt(o?.published_courses ?? 0)}
+        sub={`${o?.total_courses ?? 0} total · ${o?.draft_courses ?? 0} drafts`}
+        icon={<BookOpen size={14} />}
+      />
+      <QuickStatCard
+        label="Total Enrollments"
+        value={fmt(o?.total_enrollments ?? 0)}
+        sub={`+${o?.enrollments_today ?? 0} today`}
+        icon={<GraduationCap size={14} />}
+      />
+      <QuickStatCard
+        label="Active Today"
+        value={fmt(o?.active_users_today ?? 0)}
+        sub={`${o?.active_users_this_week ?? 0} active this week`}
+        icon={<BarChart2 size={14} />}
+      />
+      <QuickStatCard
+        label="Platform Rating"
+        value={`${(o?.average_platform_rating ?? 0).toFixed(1)} / 5`}
+        sub={`from ${fmt(o?.total_ratings ?? 0)} ${o?.total_ratings === 1 ? "rating" : "ratings"}`}
+        icon={<Star size={14} />}
+      />
+      <QuickStatCard
+        label="Pending Verifications"
+        value={String(o?.pending_verification_requests ?? 0)}
+        sub={
+          hasPending
+            ? `${o!.pending_verification_requests} creator ${o!.pending_verification_requests === 1 ? "application" : "applications"} awaiting review`
+            : "No creator applications pending"
+        }
+        icon={<Shield size={14} />}
+        urgent={hasPending}
+      />
     </div>
   );
 }
@@ -1193,6 +1254,7 @@ function VerificationsTab({
 
 export default function SuperadminDashboardPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { data: overview, isLoading: overviewLoading } = usePlatformOverview();
 
   const tab = (searchParams.get("tab") as TabValue) ?? "overview";
   const page = Math.max(1, Number(searchParams.get("page") ?? "1"));
@@ -1200,7 +1262,6 @@ export default function SuperadminDashboardPage() {
   const verStatus = searchParams.get("status") ?? null;
 
   function setTab(t: TabValue) {
-    // Switching tabs resets all per-tab state
     setSearchParams({ tab: t }, { replace: true });
   }
 
@@ -1241,10 +1302,37 @@ export default function SuperadminDashboardPage() {
     );
   }
 
-  return (
-    <div className="mx-auto max-w-7xl space-y-4 px-4 py-6">
-      <DashboardBanner />
+  const today = new Date().toLocaleDateString(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 
+  return (
+    <div className="mx-auto max-w-7xl space-y-6 px-4 py-6">
+      {/* Page header */}
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="bg-primary/5 rounded-xl border p-2.5">
+            <Shield size={22} className="text-primary" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold tracking-tight">Superadmin Dashboard</h1>
+            <p className="text-muted-foreground text-sm">
+              Platform-wide analytics &amp; moderation
+            </p>
+          </div>
+        </div>
+        <p className="text-muted-foreground self-end pb-0.5 text-xs">{today}</p>
+      </div>
+
+      {/* Quick stats — always visible, above tabs */}
+      <QuickStats overview={overview} isLoading={overviewLoading} />
+
+      <Separator />
+
+      {/* Tabs */}
       <Tabs value={tab} onValueChange={(v) => setTab(v as TabValue)}>
         <TabsList className="h-9">
           <TabsTrigger value="overview" className="text-xs">
