@@ -500,7 +500,7 @@ class SuperadminService:
             )
             self._session.add(notif)
 
-        await self._session.flush()
+        await self._session.commit()
         return VerificationRequestSummary(
             id=req.id,
             user_id=req.user_id,
@@ -514,6 +514,63 @@ class SuperadminService:
             created_at=req.created_at,
             reviewed_at=req.reviewed_at,
         )
+
+    # ── Revoke verification ────────────────────────────────────────────────
+
+    async def revoke_verification(
+        self,
+        user_id: uuid.UUID,
+        note: str | None = None,
+    ) -> dict:
+        from fastapi import HTTPException
+        from fastapi import status as http_status
+
+        result = await self._session.execute(select(User).where(User.id == user_id))
+        user = result.scalar_one_or_none()
+        if user is None:
+            raise HTTPException(
+                status_code=http_status.HTTP_404_NOT_FOUND, detail="User not found."
+            )
+        if not user.is_verified_creator:
+            raise HTTPException(
+                status_code=http_status.HTTP_409_CONFLICT,
+                detail="User is not currently a verified creator.",
+            )
+
+        user.is_verified_creator = False
+        user.verified_at = None
+
+        # Update the most recent approved request to 'revoked'
+        req_result = await self._session.execute(
+            select(VerificationRequest)
+            .where(
+                VerificationRequest.user_id == user_id,
+                VerificationRequest.status == "approved",
+            )
+            .order_by(VerificationRequest.created_at.desc())
+            .limit(1)
+        )
+        approved_req = req_result.scalar_one_or_none()
+        if approved_req:
+            approved_req.status = "revoked"
+            approved_req.admin_note = note or "Verification revoked by admin."
+            approved_req.reviewed_at = datetime.now(UTC)
+
+        # Send notification
+        note_text = f" Reason: {note}" if note else ""
+        notif = Notification(
+            user_id=user_id,
+            title="Verified Creator Status Revoked",
+            message=(
+                f"Your Verified Creator status has been revoked.{note_text} "
+                "You may re-apply for verification in the future."
+            ),
+            type="warning",
+        )
+        self._session.add(notif)
+
+        await self._session.commit()
+        return {"detail": f"Verification revoked for {user.display_name}."}
 
     # ── Internal helpers ─────────────────────────────────────────────────
 

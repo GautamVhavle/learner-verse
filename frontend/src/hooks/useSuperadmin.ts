@@ -263,3 +263,20 @@ export function useReviewVerificationMutation() {
     onError: () => toast.error("Failed to review request"),
   });
 }
+
+export function useRevokeVerificationMutation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId, note }: { userId: string; note?: string }) =>
+      api.post<{ detail: string }>(`/superadmin/verifications/revoke/${userId}`, {
+        action: "reject",
+        note,
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["superadmin", "verifications"] });
+      qc.invalidateQueries({ queryKey: ["superadmin", "overview"] });
+      toast.success("Verification revoked.");
+    },
+    onError: () => toast.error("Failed to revoke verification"),
+  });
+}

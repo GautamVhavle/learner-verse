@@ -54,6 +54,7 @@ import {
   useAdminUserList,
   useAdminVerificationList,
   useReviewVerificationMutation,
+  useRevokeVerificationMutation,
   type PlatformOverview,
   type TrendPoint,
 } from "@/hooks/useSuperadmin";
@@ -613,11 +614,15 @@ function VerificationsTab() {
   const [reviewingId, setReviewingId] = useState<string | null>(null);
   const [reviewAction, setReviewAction] = useState<"approve" | "reject">("approve");
   const [adminNote, setAdminNote] = useState("");
+  const [revokingUserId, setRevokingUserId] = useState<string | null>(null);
+  const [revokeNote, setRevokeNote] = useState("");
 
   const { data, isLoading } = useAdminVerificationList(statusFilter, page, 25);
   const reviewMutation = useReviewVerificationMutation();
+  const revokeMutation = useRevokeVerificationMutation();
 
   const reviewingItem = data?.items.find((r) => r.id === reviewingId);
+  const revokingItem = data?.items.find((r) => r.user_id === revokingUserId);
 
   function openReview(id: string, action: "approve" | "reject") {
     setReviewingId(id);
@@ -638,8 +643,8 @@ function VerificationsTab() {
   return (
     <div className="space-y-4">
       {/* Filter tabs */}
-      <div className="flex items-center gap-2">
-        {[null, "pending", "approved", "rejected"].map((s) => (
+      <div className="flex flex-wrap items-center gap-2">
+        {[null, "pending", "approved", "rejected", "withdrawn", "revoked"].map((s) => (
           <Button
             key={s ?? "all"}
             size="sm"
@@ -708,6 +713,20 @@ function VerificationsTab() {
                           onClick={() => openReview(r.id, "reject")}
                         >
                           Reject
+                        </Button>
+                      </div>
+                    )}
+                    {r.status === "approved" && r.user_is_verified_creator && (
+                      <div className="flex shrink-0 gap-2">
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => {
+                            setRevokingUserId(r.user_id);
+                            setRevokeNote("");
+                          }}
+                        >
+                          Revoke
                         </Button>
                       </div>
                     )}
@@ -795,6 +814,58 @@ function VerificationsTab() {
                 : reviewAction === "approve"
                   ? "Approve"
                   : "Reject"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Revoke Dialog */}
+      <Dialog open={!!revokingUserId} onOpenChange={(open) => !open && setRevokingUserId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Revoke Verified Creator Status</DialogTitle>
+          </DialogHeader>
+          {revokingItem && (
+            <div className="space-y-4">
+              <div className="bg-muted/50 rounded-lg p-3 text-sm">
+                <p className="font-medium">{revokingItem.user_display_name}</p>
+                <p className="text-muted-foreground mt-0.5 text-xs">{revokingItem.user_email}</p>
+              </div>
+              <p className="text-muted-foreground text-sm">
+                This will remove the Verified Creator badge from this user. They will be notified
+                and may re-apply in the future.
+              </p>
+              <div className="space-y-2">
+                <Label htmlFor="revoke-note">Reason for revoking (optional)</Label>
+                <Textarea
+                  id="revoke-note"
+                  placeholder="Explain why the verification is being revoked…"
+                  value={revokeNote}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                    setRevokeNote(e.target.value)
+                  }
+                  rows={3}
+                />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRevokingUserId(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={revokeMutation.isPending}
+              onClick={async () => {
+                if (!revokingUserId) return;
+                await revokeMutation.mutateAsync({
+                  userId: revokingUserId,
+                  note: revokeNote || undefined,
+                });
+                setRevokingUserId(null);
+              }}
+            >
+              {revokeMutation.isPending ? "Revoking…" : "Revoke Verification"}
             </Button>
           </DialogFooter>
         </DialogContent>

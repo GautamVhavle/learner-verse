@@ -79,7 +79,7 @@ async def submit_verification_request(
         status="pending",
     )
     session.add(req)
-    await session.flush()
+    await session.commit()
     return {"detail": "Verification request submitted successfully."}
 
 
@@ -103,7 +103,7 @@ async def withdraw_verification_request(
         )
 
     pending.status = "withdrawn"
-    await session.flush()
+    await session.commit()
     return {"detail": "Verification request withdrawn successfully."}
 
 
@@ -120,7 +120,11 @@ async def get_verification_status(
         .order_by(VerificationRequest.created_at.desc())
     )
     all_requests = all_result.scalars().all()
-    latest = all_requests[0] if all_requests else None
+
+    # Find the pending request (if any) — this takes priority as "latest"
+    pending = next((r for r in all_requests if r.status == "pending"), None)
+    # Otherwise use the most recently created request
+    latest = pending or (all_requests[0] if all_requests else None)
 
     history = [
         VerificationHistoryItem(

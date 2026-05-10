@@ -143,7 +143,7 @@ async def list_users(
 
 @router.get("/verifications", response_model=PaginatedVerificationList)
 async def list_verifications(
-    status: str | None = Query(default=None, pattern="^(pending|approved|rejected)$"),
+    status: str | None = Query(default=None, pattern="^(pending|approved|rejected|withdrawn|revoked)$"),
     page: int = Query(default=1, ge=1),
     per_page: int = Query(default=25, ge=1, le=100),
     _admin: User = Depends(get_superadmin_user),
@@ -160,3 +160,14 @@ async def review_verification(
     svc: SuperadminService = Depends(_service),
 ) -> VerificationRequestSummary:
     return await svc.review_verification(request_id=request_id, body=body)
+
+
+@router.post("/verifications/revoke/{user_id}")
+async def revoke_verification(
+    user_id: uuid.UUID,
+    body: ReviewVerificationRequest,
+    _admin: User = Depends(get_superadmin_user),
+    svc: SuperadminService = Depends(_service),
+) -> dict:
+    """Revoke a user's verified creator status."""
+    return await svc.revoke_verification(user_id=user_id, note=body.note)
