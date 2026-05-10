@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import { MemoryRouter } from "react-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 vi.mock("@/stores/modeStore", () => ({
   useModeStore: () => ({
@@ -17,40 +18,33 @@ vi.mock("@/components/ui/sidebar", () => ({
 
 import { Header } from "@/components/layout/Header";
 
+function renderWithProviders(ui: React.ReactElement) {
+  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return render(
+    <QueryClientProvider client={qc}>
+      <MemoryRouter>{ui}</MemoryRouter>
+    </QueryClientProvider>,
+  );
+}
+
 describe("Header", () => {
   it("renders the current page title from route", () => {
-    render(
-      <MemoryRouter initialEntries={["/"]}>
-        <Header />
-      </MemoryRouter>,
-    );
+    renderWithProviders(<Header />);
     expect(screen.getByText("Dashboard")).toBeInTheDocument();
   });
 
   it("shows mode label in breadcrumb", () => {
-    render(
-      <MemoryRouter initialEntries={["/"]}>
-        <Header />
-      </MemoryRouter>,
-    );
+    renderWithProviders(<Header />);
     expect(screen.getByText("Creator")).toBeInTheDocument();
   });
 
   it("renders sidebar trigger button", () => {
-    render(
-      <MemoryRouter initialEntries={["/"]}>
-        <Header />
-      </MemoryRouter>,
-    );
+    renderWithProviders(<Header />);
     expect(screen.getByTestId("sidebar-trigger")).toBeInTheDocument();
   });
 
   it("has the header test id", () => {
-    render(
-      <MemoryRouter initialEntries={["/"]}>
-        <Header />
-      </MemoryRouter>,
-    );
+    renderWithProviders(<Header />);
     expect(screen.getByTestId("app-header")).toBeInTheDocument();
   });
 });

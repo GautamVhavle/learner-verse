@@ -4,10 +4,10 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import DateTime, Float, ForeignKey, Index, Integer, func
-from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
+from app.models.types import JSONVariant, UUIDType
 
 
 class QuizAttempt(Base):
@@ -21,19 +21,19 @@ class QuizAttempt(Base):
     __tablename__ = "quiz_attempts"
     __table_args__ = (Index("idx_quiz_attempts_user_lesson", "user_id", "lesson_id"),)
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(UUIDType, primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
+        UUIDType,
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
     lesson_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
+        UUIDType,
         ForeignKey("lessons.id", ondelete="CASCADE"),
         nullable=False,
     )
     answers: Mapped[dict] = mapped_column(
-        JSONB,
+        JSONVariant,
         nullable=False,
         comment="Map of question_id -> selected_option_index",
     )

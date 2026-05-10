@@ -4,10 +4,10 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, Integer, Text, func
-from sqlalchemy.dialects.postgresql import ARRAY, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
+from app.models.types import TextArray, UUIDType
 
 
 class QuizQuestion(Base):
@@ -26,14 +26,14 @@ class QuizQuestion(Base):
         Index("idx_quiz_questions_lesson_id", "lesson_id"),
     )
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(UUIDType, primary_key=True, default=uuid.uuid4)
     lesson_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
+        UUIDType,
         ForeignKey("lessons.id", ondelete="CASCADE"),
         nullable=False,
     )
     question: Mapped[str] = mapped_column(Text, nullable=False)
-    options: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=False)
+    options: Mapped[list[str]] = mapped_column(TextArray, nullable=False)
     correct_option: Mapped[int] = mapped_column(Integer, nullable=False)
     position: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     created_at: Mapped[datetime] = mapped_column(

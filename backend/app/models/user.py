@@ -4,10 +4,10 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import Boolean, DateTime, Float, String, Text, func
-from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
+from app.models.types import JSONVariant, UUIDType
 
 
 class User(Base):
@@ -19,7 +19,7 @@ class User(Base):
 
     __tablename__ = "users"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(UUIDType, primary_key=True, default=uuid.uuid4)
     clerk_id: Mapped[str | None] = mapped_column(String(255), unique=True, nullable=True)
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     display_name: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -29,8 +29,8 @@ class User(Base):
     font_size: Mapped[str] = mapped_column(String(10), default="normal")
     onboarding_complete: Mapped[bool] = mapped_column(Boolean, default=False)
     bio: Mapped[str | None] = mapped_column(Text, nullable=True)
-    profile_tags: Mapped[list] = mapped_column(JSONB, nullable=False, server_default="[]")
-    social_links: Mapped[list] = mapped_column(JSONB, nullable=False, server_default="[]")
+    profile_tags: Mapped[list] = mapped_column(JSONVariant, nullable=False, server_default="[]")
+    social_links: Mapped[list] = mapped_column(JSONVariant, nullable=False, server_default="[]")
     cover_image_url: Mapped[str | None] = mapped_column(String, nullable=True)
     is_profile_public: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     auto_play_next: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
