@@ -207,13 +207,13 @@ export function ProfileSection({ user, onSave }: ProfileSectionProps) {
           </button>
 
           {/* Avatar — overlaps cover bottom edge */}
-          <div className="absolute -bottom-12 left-5">
+          <div className="absolute -bottom-14 left-5">
             <div className="relative">
-              <Avatar size="lg" className="ring-bg-secondary size-24 shadow-lg ring-4">
+              <Avatar size="lg" className="ring-bg-secondary size-28 shadow-lg ring-4">
                 {user.avatar_url ? (
                   <AvatarImage src={user.avatar_url} alt={user.display_name} />
                 ) : null}
-                <AvatarFallback className="text-3xl font-semibold">
+                <AvatarFallback className="text-4xl font-semibold">
                   {user.display_name.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
@@ -240,7 +240,7 @@ export function ProfileSection({ user, onSave }: ProfileSectionProps) {
         </div>
 
         {/* Name + email row */}
-        <div className="px-5 pt-16 pb-5">
+        <div className="px-5 pt-20 pb-5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-text-primary flex items-center gap-1.5 text-base font-semibold">
