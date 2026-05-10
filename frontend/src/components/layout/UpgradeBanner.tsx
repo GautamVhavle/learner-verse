@@ -13,12 +13,12 @@ const DISMISS_KEY = "learnerverse-upgrade-dismissed";
 const DISMISS_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 export function UpgradeBanner() {
-  // Never show the upgrade banner when payment gateway is disabled.
-  if (!PAYMENT_GATEWAY_ENABLED) return null;
-
   const { data: user } = useUserQuery();
   const { showGate, ProGate } = useProGate();
   const [dismissed, setDismissed] = useState(false);
+
+  // Never show the upgrade banner when payment gateway is disabled.
+  if (!PAYMENT_GATEWAY_ENABLED) return null;
 
   useEffect(() => {
     const ts = localStorage.getItem(DISMISS_KEY);
