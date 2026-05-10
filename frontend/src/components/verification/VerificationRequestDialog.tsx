@@ -31,7 +31,10 @@ interface VerificationRequestDialogProps {
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const variants: Record<string, { variant: "default" | "secondary" | "destructive" | "outline"; label: string }> = {
+  const variants: Record<
+    string,
+    { variant: "default" | "secondary" | "destructive" | "outline"; label: string }
+  > = {
     pending: { variant: "secondary", label: "Pending" },
     approved: { variant: "default", label: "Approved" },
     rejected: { variant: "destructive", label: "Rejected" },
@@ -52,25 +55,20 @@ function HistoryTimeline({ history }: { history: VerificationHistoryItem[] }) {
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <MessageSquare size={14} className="text-muted-foreground" />
-        <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+        <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
           Application History
         </p>
       </div>
       <div className="max-h-48 space-y-2 overflow-y-auto">
         {history.map((item) => (
-          <div
-            key={item.id}
-            className="bg-muted/50 rounded-lg border p-3 text-sm"
-          >
+          <div key={item.id} className="bg-muted/50 rounded-lg border p-3 text-sm">
             <div className="flex items-center justify-between gap-2">
               <StatusBadge status={item.status} />
               <span className="text-muted-foreground text-xs">
                 {new Date(item.created_at).toLocaleDateString()}
               </span>
             </div>
-            <p className="text-muted-foreground mt-2 text-xs line-clamp-2">
-              {item.message}
-            </p>
+            <p className="text-muted-foreground mt-2 line-clamp-2 text-xs">{item.message}</p>
             {item.admin_note && (
               <div className="mt-2 rounded border-l-2 border-orange-400 bg-orange-500/5 pl-2 text-xs">
                 <span className="font-medium text-orange-600">Admin feedback:</span>{" "}
@@ -145,7 +143,8 @@ export function VerificationRequestDialog({ open, onOpenChange }: VerificationRe
                 Pending
               </Badge>
               <p className="text-muted-foreground text-sm">
-                Your verification request is being reviewed. We'll notify you when a decision is made.
+                Your verification request is being reviewed. We'll notify you when a decision is
+                made.
               </p>
             </div>
             {history.length > 0 && <HistoryTimeline history={history} />}

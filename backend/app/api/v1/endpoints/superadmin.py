@@ -143,7 +143,9 @@ async def list_users(
 
 @router.get("/verifications", response_model=PaginatedVerificationList)
 async def list_verifications(
-    status: str | None = Query(default=None, pattern="^(pending|approved|rejected|withdrawn|revoked)$"),
+    status: str | None = Query(
+        default=None, pattern="^(pending|approved|rejected|withdrawn|revoked)$"
+    ),
     page: int = Query(default=1, ge=1),
     per_page: int = Query(default=25, ge=1, le=100),
     _admin: User = Depends(get_superadmin_user),
