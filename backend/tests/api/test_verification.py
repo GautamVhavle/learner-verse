@@ -106,7 +106,7 @@ async def test_withdraw_verification_request(client):
 
 @pytest.mark.asyncio
 async def test_withdraw_no_pending_request(client):
-    """Cannot withdraw when no pending request exists."""
+    """Cannot withdraw when no pending or rejected request exists."""
     await client.get("/api/v1/auth/me")
 
     response = await client.delete("/api/v1/verification/request")
@@ -233,6 +233,40 @@ async def test_superadmin_reject_requires_note(client):
         json={"action": "reject"},
     )
     assert response.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_withdraw_rejected_request(client):
+    """Can withdraw a rejected request to reset to clean state."""
+    await client.get("/api/v1/auth/me")
+
+    # Submit and get rejected
+    await client.post(
+        "/api/v1/verification/request",
+        json={"message": "I am an experienced educator with 5 years of teaching."},
+    )
+    status = await client.get("/api/v1/verification/status")
+    request_id = status.json()["request_id"]
+
+    await client.put(
+        f"/api/v1/superadmin/verifications/{request_id}",
+        json={"action": "reject", "note": "Need more courses."},
+    )
+
+    # Verify rejected state
+    status = await client.get("/api/v1/verification/status")
+    assert status.json()["status"] == "rejected"
+
+    # Withdraw the rejected request
+    response = await client.delete("/api/v1/verification/request")
+    assert response.status_code == 200
+
+    # Status should now be withdrawn (clean state)
+    status = await client.get("/api/v1/verification/status")
+    data = status.json()
+    assert data["status"] == "withdrawn"
+    assert data["has_pending"] is False
+    assert len(data["history"]) == 1  # history maintained
 
 
 @pytest.mark.asyncio

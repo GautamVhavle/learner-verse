@@ -88,21 +88,23 @@ async def withdraw_verification_request(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
 ) -> dict:
-    """Withdraw a pending verification request."""
+    """Withdraw a pending or rejected verification request."""
     result = await session.execute(
-        select(VerificationRequest).where(
+        select(VerificationRequest)
+        .where(
             VerificationRequest.user_id == current_user.id,
-            VerificationRequest.status == "pending",
+            VerificationRequest.status.in_(["pending", "rejected"]),
         )
+        .order_by(VerificationRequest.created_at.desc())
     )
-    pending = result.scalar_one_or_none()
-    if not pending:
+    request = result.scalars().first()
+    if not request:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="No pending verification request to withdraw.",
+            detail="No pending or rejected verification request to withdraw.",
         )
 
-    pending.status = "withdrawn"
+    request.status = "withdrawn"
     await session.commit()
     return {"detail": "Verification request withdrawn successfully."}
 

@@ -206,9 +206,19 @@ export function VerificationRequestDialog({ open, onOpenChange }: VerificationRe
               {withdrawMutation.isPending ? "Withdrawing…" : "Withdraw Application"}
             </Button>
           )}
-          {/* Apply / Re-apply state — show Cancel + Submit */}
+          {/* Apply / Re-apply state — show Cancel + Submit + Withdraw (if rejected) */}
           {!hasApproved && !hasPending && !isLoading && (
             <>
+              {wasRejected && (
+                <Button
+                  variant="outline"
+                  onClick={handleWithdraw}
+                  disabled={withdrawMutation.isPending}
+                  className="text-destructive hover:text-destructive"
+                >
+                  {withdrawMutation.isPending ? "Withdrawing…" : "Withdraw"}
+                </Button>
+              )}
               <Button variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
