@@ -2,7 +2,7 @@
  * Top header bar with breadcrumb navigation and search trigger.
  */
 import { useLocation } from "react-router";
-import { BadgeCheck, Search, Sparkles } from "lucide-react";
+import { BadgeCheck, Clock, Search, Sparkles, XCircle } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -15,6 +15,7 @@ import { useMode } from "@/hooks/useMode";
 import { useChatStore } from "@/stores/chatStore";
 import { PomodoroTimer } from "@/components/layout/PomodoroTimer";
 import { useUserQuery } from "@/hooks/useUser";
+import { useVerificationStatus } from "@/hooks/useVerification";
 
 const PAGE_TITLES: Record<string, string> = {
   "/": "Dashboard",
@@ -49,12 +50,16 @@ export function Header({ onSearchClick, onGetVerified }: HeaderProps) {
   const { mode } = useMode();
   const { toggleChat } = useChatStore();
   const { data: user } = useUserQuery();
+  const { data: verificationStatus } = useVerificationStatus();
 
   const pageTitle = getPageTitle(location.pathname);
   const modeLabel = mode === "creator" ? "Creator" : "Learner";
 
-  // Show "Get Verified" button only in creator mode for non-verified users
-  const showGetVerified = mode === "creator" && user && !user.is_verified_creator;
+  // Determine what to show in creator mode
+  const isCreatorMode = mode === "creator" && user;
+  const isVerified = user?.is_verified_creator;
+  const hasPending = verificationStatus?.has_pending;
+  const wasRejected = verificationStatus?.status === "rejected" && !hasPending;
 
   return (
     <header
@@ -82,16 +87,50 @@ export function Header({ onSearchClick, onGetVerified }: HeaderProps) {
         <PomodoroTimer />
       </div>
 
-      {/* Get Verified button — creator mode only, for non-verified users */}
-      {showGetVerified && onGetVerified && (
+      {/* Verification status button — creator mode only */}
+      {isCreatorMode && !isVerified && onGetVerified && (
         <button
           onClick={onGetVerified}
-          className="border-border-default bg-bg-secondary hidden h-8 items-center gap-2 rounded-lg border px-3 text-sm text-blue-500 transition-colors hover:border-blue-400/50 hover:bg-blue-500/5 sm:flex"
-          aria-label="Apply for Verified Creator badge"
+          className={`hidden h-8 items-center gap-2 rounded-lg border px-3 text-sm transition-colors sm:flex ${
+            hasPending
+              ? "border-orange-400/50 bg-orange-500/5 text-orange-500 hover:bg-orange-500/10"
+              : wasRejected
+                ? "border-red-400/50 bg-red-500/5 text-red-500 hover:bg-red-500/10"
+                : "border-border-default bg-bg-secondary text-blue-500 hover:border-blue-400/50 hover:bg-blue-500/5"
+          }`}
+          aria-label={
+            hasPending
+              ? "Verification pending"
+              : wasRejected
+                ? "Verification rejected — click to reapply"
+                : "Apply for Verified Creator badge"
+          }
         >
-          <BadgeCheck className="size-3.5" />
-          <span className="hidden sm:inline">Get Verified</span>
+          {hasPending ? (
+            <>
+              <Clock className="size-3.5" />
+              <span className="hidden sm:inline">Pending Review</span>
+            </>
+          ) : wasRejected ? (
+            <>
+              <XCircle className="size-3.5" />
+              <span className="hidden sm:inline">Not Approved</span>
+            </>
+          ) : (
+            <>
+              <BadgeCheck className="size-3.5" />
+              <span className="hidden sm:inline">Get Verified</span>
+            </>
+          )}
         </button>
+      )}
+
+      {/* Verified badge in header — creator mode only */}
+      {isCreatorMode && isVerified && (
+        <span className="hidden items-center gap-1.5 text-sm text-blue-500 sm:flex">
+          <BadgeCheck className="size-4" />
+          <span className="text-xs font-medium">Verified</span>
+        </span>
       )}
 
       {/* Search trigger */}

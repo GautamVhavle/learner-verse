@@ -5,6 +5,8 @@ Users submit a message explaining their intent; superadmins review the queue.
 
 from __future__ import annotations
 
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 from sqlalchemy import select
@@ -21,6 +23,15 @@ class VerificationRequestCreate(BaseModel):
     message: str = Field(..., min_length=20, max_length=2000)
 
 
+class VerificationHistoryItem(BaseModel):
+    id: str
+    message: str
+    status: str
+    admin_note: str | None = None
+    created_at: datetime
+    reviewed_at: datetime | None = None
+
+
 class VerificationStatusResponse(BaseModel):
     has_pending: bool
     has_approved: bool
@@ -28,6 +39,9 @@ class VerificationStatusResponse(BaseModel):
     status: str | None = None
     message: str | None = None
     admin_note: str | None = None
+    request_id: str | None = None
+    # Full history of all requests
+    history: list[VerificationHistoryItem] = []
 
 
 @router.post("/request", status_code=status.HTTP_201_CREATED)
@@ -69,19 +83,56 @@ async def submit_verification_request(
     return {"detail": "Verification request submitted successfully."}
 
 
+@router.delete("/request", status_code=status.HTTP_200_OK)
+async def withdraw_verification_request(
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db),
+) -> dict:
+    """Withdraw a pending verification request."""
+    result = await session.execute(
+        select(VerificationRequest).where(
+            VerificationRequest.user_id == current_user.id,
+            VerificationRequest.status == "pending",
+        )
+    )
+    pending = result.scalar_one_or_none()
+    if not pending:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No pending verification request to withdraw.",
+        )
+
+    pending.status = "withdrawn"
+    await session.flush()
+    return {"detail": "Verification request withdrawn successfully."}
+
+
 @router.get("/status", response_model=VerificationStatusResponse)
 async def get_verification_status(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
 ) -> VerificationStatusResponse:
-    """Return the current user's verification status and most recent application."""
-    result = await session.execute(
+    """Return the current user's verification status, most recent application, and full history."""
+    # Get all requests ordered by newest first
+    all_result = await session.execute(
         select(VerificationRequest)
         .where(VerificationRequest.user_id == current_user.id)
         .order_by(VerificationRequest.created_at.desc())
-        .limit(1)
     )
-    latest = result.scalar_one_or_none()
+    all_requests = all_result.scalars().all()
+    latest = all_requests[0] if all_requests else None
+
+    history = [
+        VerificationHistoryItem(
+            id=str(r.id),
+            message=r.message,
+            status=r.status,
+            admin_note=r.admin_note,
+            created_at=r.created_at,
+            reviewed_at=r.reviewed_at,
+        )
+        for r in all_requests
+    ]
 
     return VerificationStatusResponse(
         has_pending=latest.status == "pending" if latest else False,
@@ -89,4 +140,6 @@ async def get_verification_status(
         status=latest.status if latest else None,
         message=latest.message if latest else None,
         admin_note=latest.admin_note if latest else None,
+        request_id=str(latest.id) if latest else None,
+        history=history,
     )

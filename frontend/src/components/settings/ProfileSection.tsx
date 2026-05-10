@@ -18,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { SettingsSaveIndicator } from "./SettingsSaveIndicator";
+import { VerifiedBadge } from "@/components/shared/VerifiedBadge";
 import { useUploadAvatarMutation, useUploadCoverMutation } from "@/hooks/useUser";
 import type { UserProfile, UserSettings, SocialLink } from "@/types/user";
 
@@ -241,7 +242,10 @@ export function ProfileSection({ user, onSave }: ProfileSectionProps) {
         <div className="px-5 pt-14 pb-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-text-primary text-base font-semibold">{user.display_name}</p>
+              <p className="text-text-primary flex items-center gap-1.5 text-base font-semibold">
+                {user.display_name}
+                {user.is_verified_creator && <VerifiedBadge size={18} />}
+              </p>
               <p className="text-text-tertiary text-xs">{user.email}</p>
             </div>
             <SettingsSaveIndicator visible={saved} />
