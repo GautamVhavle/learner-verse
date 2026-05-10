@@ -625,9 +625,9 @@ function OverviewTab() {
                 </ResponsiveContainer>
                 <div className="flex-1 space-y-3">
                   {[
-                    { name: "Video", icon: <Video size={12} />, ...lessonPieData[0] },
-                    { name: "Note", icon: <FileText size={12} />, ...lessonPieData[1] },
-                    { name: "Quiz", icon: <HelpCircle size={12} />, ...lessonPieData[2] },
+                    { icon: <Video size={12} />, ...lessonPieData[0] },
+                    { icon: <FileText size={12} />, ...lessonPieData[1] },
+                    { icon: <HelpCircle size={12} />, ...lessonPieData[2] },
                   ].map((entry) => (
                     <div key={entry.name}>
                       <div className="mb-1 flex items-center justify-between text-sm">
