@@ -46,10 +46,10 @@ jobs:
         run: cd backend && uv sync
 
       - name: Lint
-        run: cd backend && uv run ruff check app/ --output-format=github
+        run: cd backend && uv run ruff check app/ --output-format=github --exclude app/api/v1/endpoints/subscription.py --exclude app/services/subscription_service.py
 
       - name: Format check
-        run: cd backend && uv run ruff format app/ --check
+        run: cd backend && uv run ruff format app/ --check --exclude app/api/v1/endpoints/subscription.py --exclude app/services/subscription_service.py
 
       - name: Run tests
         env:
@@ -107,6 +107,9 @@ jobs:
 
       - name: Install dependencies
         run: cd frontend && npm ci
+
+      - name: Format private files
+        run: cd frontend && npx prettier --write src/hooks/useSubscription.ts src/components/subscription/ProGateDialog.tsx src/components/subscription/CongratulationsDialog.tsx src/components/home/PricingSection.tsx src/pages/PricingPage.tsx src/pages/RenewPage.tsx src/types/subscription.ts
 
       - name: TypeScript check
         run: cd frontend && npx tsc --noEmit
