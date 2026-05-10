@@ -61,15 +61,22 @@ jobs:
           token: ${{ secrets.PRIVATE_REPO_TOKEN }}
           path: private
 
-      # Copy real payment files for production build
+      # Replace symlinks with real files for production build
       - name: Prepare payment files
         run: |
+          rm -f frontend/src/hooks/useSubscription.ts
           cp private/frontend/src/hooks/useSubscription.ts frontend/src/hooks/useSubscription.ts
+          rm -f frontend/src/components/subscription/ProGateDialog.tsx
           cp private/frontend/src/components/subscription/ProGateDialog.tsx frontend/src/components/subscription/ProGateDialog.tsx
+          rm -f frontend/src/components/subscription/CongratulationsDialog.tsx
           cp private/frontend/src/components/subscription/CongratulationsDialog.tsx frontend/src/components/subscription/CongratulationsDialog.tsx
+          rm -f frontend/src/components/home/PricingSection.tsx
           cp private/frontend/src/components/home/PricingSection.tsx frontend/src/components/home/PricingSection.tsx
+          rm -f frontend/src/pages/PricingPage.tsx
           cp private/frontend/src/pages/PricingPage.tsx frontend/src/pages/PricingPage.tsx
+          rm -f frontend/src/pages/RenewPage.tsx
           cp private/frontend/src/pages/RenewPage.tsx frontend/src/pages/RenewPage.tsx
+          rm -f frontend/src/types/subscription.ts
           cp private/frontend/src/types/subscription.ts frontend/src/types/subscription.ts
 
       - name: Set up Node
@@ -108,10 +115,12 @@ jobs:
           token: ${{ secrets.PRIVATE_REPO_TOKEN }}
           path: private
 
-      # Copy real payment files for production build
+      # Replace symlinks with real files for production backend
       - name: Prepare payment files
         run: |
+          rm -f backend/app/services/subscription_service.py
           cp private/backend/app/services/subscription_service.py backend/app/services/subscription_service.py
+          rm -f backend/app/api/v1/endpoints/subscription.py
           cp private/backend/app/api/v1/endpoints/subscription.py backend/app/api/v1/endpoints/subscription.py
 
       - name: Set up Python
