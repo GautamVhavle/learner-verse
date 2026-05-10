@@ -60,3 +60,4 @@ pgdata/
 *.pid
 .vercel
 .env*.local
+test.db
