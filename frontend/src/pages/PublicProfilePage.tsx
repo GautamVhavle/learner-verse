@@ -1,9 +1,9 @@
 /**
  * Public learner profile page — LinkedIn-inspired layout.
  *
- * Wide responsive cover banner, avatar overlay, bio, tags, social links,
- * stats cards, responsive activity heatmap, and certificates.
- * Accessible without authentication at /profile/:userId.
+ * Sticky header with logo + share button, avatar overlay, bio, tags,
+ * stats cards, links card, responsive activity heatmap, certificates,
+ * and a minimal footer. Accessible without authentication at /profile/:userId.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, Link } from "react-router";
@@ -46,6 +46,14 @@ function relativeTime(iso: string): string {
   const months = Math.floor(days / 30);
   if (months < 12) return `${months}mo ago`;
   return `${Math.floor(months / 12)}y ago`;
+}
+
+function getLinkDomain(url: string): string {
+  try {
+    return new URL(url).hostname.replace("www.", "");
+  } catch {
+    return "";
+  }
 }
 
 /* ─── Responsive Activity Heatmap ──────────────────── */
@@ -145,76 +153,84 @@ function ProfileHeatmap({ days }: { days: { date: string; count: number }[] }) {
   const svgW = LABEL_W + weeks * CELL_STEP;
 
   return (
-    <div className="space-y-2" ref={containerRef}>
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-text-primary text-sm font-semibold">Activity</h3>
-          <p className="text-text-tertiary text-xs">
-            {totalLessons} {totalLessons === 1 ? "lesson" : "lessons"} in the last{" "}
-            {weeks === MAX_WEEKS ? "year" : `${weeks} weeks`}
-          </p>
+    <>
+      <div className="space-y-2" ref={containerRef}>
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-text-primary text-sm font-semibold">Activity</h3>
+            <p className="text-text-tertiary text-xs">
+              {totalLessons} {totalLessons === 1 ? "lesson" : "lessons"} in the last{" "}
+              {weeks === MAX_WEEKS ? "year" : `${weeks} weeks`}
+            </p>
+          </div>
+          <div className="text-text-tertiary flex items-center gap-1.5 text-[10px]">
+            <span>Less</span>
+            {[0, 1, 2, 3, 4].map((l) => (
+              <div
+                key={l}
+                className="size-2.5 rounded-[2px]"
+                style={{ backgroundColor: `var(--color-heatmap-${l})` }}
+              />
+            ))}
+            <span>More</span>
+          </div>
         </div>
-        <div className="text-text-tertiary flex items-center gap-1.5 text-[10px]">
-          <span>Less</span>
-          {[0, 1, 2, 3, 4].map((l) => (
-            <div
-              key={l}
-              className="size-2.5 rounded-[2px]"
-              style={{ backgroundColor: `var(--color-heatmap-${l})` }}
-            />
-          ))}
-          <span>More</span>
-        </div>
-      </div>
-      <div className="overflow-x-auto">
-        <svg width={svgW} height={7 * CELL_STEP + 22} className="block select-none">
-          {monthLabels.map((m) => (
-            <text key={`${m.label}-${m.x}`} x={m.x} y={9} className="fill-text-tertiary text-[9px]">
-              {m.label}
-            </text>
-          ))}
-          {DAY_LABELS.map((label, i) =>
-            label ? (
+        <div className="overflow-x-auto">
+          <svg width={svgW} height={7 * CELL_STEP + 22} className="block select-none">
+            {monthLabels.map((m) => (
               <text
-                key={`d-${i}`}
-                x={0}
-                y={18 + i * CELL_STEP + CELL_SIZE / 2 + 3}
+                key={`${m.label}-${m.x}`}
+                x={m.x}
+                y={9}
                 className="fill-text-tertiary text-[9px]"
               >
-                {label}
+                {m.label}
               </text>
-            ) : null,
-          )}
-          {grid.map((c) => (
-            <rect
-              key={c.date}
-              x={LABEL_W + c.w * CELL_STEP}
-              y={18 + c.d * CELL_STEP}
-              width={CELL_SIZE}
-              height={CELL_SIZE}
-              rx={2}
-              fill={getColor(c.count, maxCount)}
-              className="cursor-pointer transition-opacity hover:opacity-75"
-              onMouseEnter={(e) => {
-                const formatted = new Date(c.date + "T00:00:00").toLocaleDateString(undefined, {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                });
-                setTooltip({
-                  text:
-                    c.count === 0
-                      ? `No lessons on ${formatted}`
-                      : `${c.count} ${c.count === 1 ? "lesson" : "lessons"} on ${formatted}`,
-                  x: e.clientX,
-                  y: e.clientY,
-                });
-              }}
-              onMouseLeave={() => setTooltip(null)}
-            />
-          ))}
-        </svg>
+            ))}
+            {DAY_LABELS.map((label, i) =>
+              label ? (
+                <text
+                  key={`d-${i}`}
+                  x={0}
+                  y={18 + i * CELL_STEP + CELL_SIZE / 2 + 3}
+                  className="fill-text-tertiary text-[9px]"
+                >
+                  {label}
+                </text>
+              ) : null,
+            )}
+            {grid.map((c) => (
+              <rect
+                key={c.date}
+                x={LABEL_W + c.w * CELL_STEP}
+                y={18 + c.d * CELL_STEP}
+                width={CELL_SIZE}
+                height={CELL_SIZE}
+                rx={2}
+                fill={getColor(c.count, maxCount)}
+                className="cursor-pointer transition-opacity hover:opacity-75"
+                onMouseEnter={(e) => {
+                  const formatted = new Date(c.date + "T00:00:00").toLocaleDateString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  });
+                  setTooltip({
+                    text:
+                      c.count === 0
+                        ? `No lessons on ${formatted}`
+                        : `${c.count} ${c.count === 1 ? "lesson" : "lessons"} on ${formatted}`,
+                    x: e.clientX,
+                    y: e.clientY,
+                  });
+                }}
+                onMouseLeave={() => setTooltip(null)}
+              />
+            ))}
+          </svg>
+        </div>
       </div>
+      {/* Tooltip rendered outside the container to avoid layout shifts */}
       {tooltip && (
         <div
           className="bg-popover text-popover-foreground ring-border pointer-events-none fixed z-50 rounded-md px-2.5 py-1.5 text-xs font-medium shadow-lg ring-1"
@@ -223,7 +239,7 @@ function ProfileHeatmap({ days }: { days: { date: string; count: number }[] }) {
           {tooltip.text}
         </div>
       )}
-    </div>
+    </>
   );
 }
 
@@ -254,32 +270,31 @@ function StatCard({
   );
 }
 
-/* ─── Social Link Icon Helper ──────────────────────── */
+/* ─── Links Card ───────────────────────────────────── */
 
-function getLinkDomain(url: string): string {
-  try {
-    return new URL(url).hostname.replace("www.", "");
-  } catch {
-    return "";
-  }
-}
-
-function SocialLinks({ links }: { links: SocialLink[] }) {
+function LinksCard({ links }: { links: SocialLink[] }) {
   if (links.length === 0) return null;
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      {links.map((link, i) => (
-        <a
-          key={i}
-          href={link.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="border-border-default bg-bg-secondary text-text-secondary hover:border-accent-blue hover:text-accent-blue inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors"
-        >
-          <Link2 className="size-3" />
-          {link.label || getLinkDomain(link.url)}
-        </a>
-      ))}
+    <div className="border-border-default bg-bg-secondary rounded-2xl border p-5 sm:p-6">
+      <h2 className="text-text-primary mb-3 flex items-center gap-2 text-sm font-semibold">
+        <Link2 className="text-text-tertiary size-4" />
+        Links
+      </h2>
+      <div className="flex flex-wrap gap-2">
+        {links.map((link, i) => (
+          <a
+            key={i}
+            href={link.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="border-border-default bg-bg-tertiary text-text-secondary hover:border-accent-blue/40 hover:text-text-primary inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors"
+          >
+            <Link2 className="size-3" />
+            {link.label || getLinkDomain(link.url)}
+            <ExternalLink className="size-2.5 opacity-60" />
+          </a>
+        ))}
+      </div>
     </div>
   );
 }
@@ -333,26 +348,28 @@ function ProfileContent({ profile }: { profile: PublicProfile }) {
 
   return (
     <div className="bg-bg-primary min-h-screen">
-      {/* ── Top Nav ── */}
-      <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3 sm:px-6">
-        <Link
-          to="/"
-          className="text-text-secondary hover:bg-bg-secondary hover:text-text-primary flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium transition-colors"
-        >
-          <GraduationCap className="size-4" /> Learner Verse
-        </Link>
-        <button
-          onClick={handleShare}
-          className="border-border-default bg-bg-secondary text-text-secondary hover:text-text-primary flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors"
-        >
-          <Share2 className="size-3" /> Share
-        </button>
-      </div>
+      {/* ── Sticky Header ── */}
+      <header className="border-border-default bg-bg-primary/90 sticky top-0 z-50 border-b backdrop-blur">
+        <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3 sm:px-6">
+          <Link to="/" className="flex items-center gap-2">
+            <img src="/logo.svg" alt="Learner Verse" className="size-6" />
+            <span className="text-text-primary text-sm font-semibold">Learner Verse</span>
+          </Link>
+          <button
+            onClick={handleShare}
+            className="border-border-default bg-bg-secondary text-text-secondary hover:text-text-primary flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors"
+          >
+            <Share2 className="size-3.5" />
+            Share Profile
+          </button>
+        </div>
+      </header>
 
-      {/* ── Profile Card ── */}
-      <div className="mx-auto max-w-4xl px-4 sm:px-6">
+      {/* ── Content wrapper ── */}
+      <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
+        {/* ── Profile Card ── */}
         <div className="border-border-default bg-bg-secondary overflow-hidden rounded-2xl border">
-          {/* Cover banner — 4:1 aspect ratio like LinkedIn */}
+          {/* Cover banner */}
           <div className="relative aspect-[4/1] w-full overflow-hidden">
             {profile.cover_image_url ? (
               <img src={profile.cover_image_url} alt="" className="h-full w-full object-cover" />
@@ -378,9 +395,15 @@ function ProfileContent({ profile }: { profile: PublicProfile }) {
             {/* Identity */}
             <div className="mt-3 space-y-2.5">
               <div>
-                <h1 className="text-text-primary flex items-center gap-2 text-2xl font-bold tracking-tight sm:text-3xl">
+                <h1 className="text-text-primary flex flex-wrap items-center gap-2 text-2xl font-bold tracking-tight sm:text-3xl">
                   {profile.display_name}
                   {profile.is_verified_creator && <VerifiedBadge size={22} />}
+                  {profile.is_pro && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-bold text-amber-500">
+                      <Zap className="size-2.5" />
+                      PRO
+                    </span>
+                  )}
                 </h1>
                 {profile.bio && (
                   <p className="text-text-secondary mt-1 max-w-2xl text-sm leading-relaxed sm:text-[15px]">
@@ -403,20 +426,24 @@ function ProfileContent({ profile }: { profile: PublicProfile }) {
                 </div>
               )}
 
-              {/* Social links + member since */}
-              <div className="flex flex-col gap-2 pt-0.5 sm:flex-row sm:items-center sm:gap-4">
-                <SocialLinks links={profile.social_links} />
-                <p className="text-text-tertiary flex items-center gap-1.5 text-xs">
-                  <Calendar className="size-3" />
-                  Member since {formatDate(profile.member_since, "long")}
-                </p>
-              </div>
+              {/* Member since */}
+              <p className="text-text-tertiary flex items-center gap-1.5 pt-0.5 text-xs">
+                <Calendar className="size-3" />
+                Member since {formatDate(profile.member_since, "long")}
+              </p>
             </div>
           </div>
         </div>
 
+        {/* ── Links Card (below profile, above stats) ── */}
+        {profile.social_links.length > 0 && (
+          <div className="mt-4">
+            <LinksCard links={profile.social_links} />
+          </div>
+        )}
+
         {/* ── Content ── */}
-        <div className="mt-6 space-y-6 pb-16">
+        <div className="mt-6 space-y-6">
           {/* Stats */}
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-5">
             <StatCard
@@ -508,16 +535,23 @@ function ProfileContent({ profile }: { profile: PublicProfile }) {
               </p>
             </div>
           )}
-
-          {/* Footer */}
-          <p className="text-text-tertiary text-center text-[11px]">
-            Powered by{" "}
-            <Link to="/" className="text-accent-blue hover:underline">
-              Learner Verse
-            </Link>
-          </p>
         </div>
       </div>
+
+      {/* ── Footer ── */}
+      <footer className="border-border-default mt-16 border-t">
+        <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+          <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
+            <Link to="/" className="flex items-center gap-2">
+              <img src="/logo.svg" alt="Learner Verse" className="size-5 opacity-80" />
+              <span className="text-text-secondary text-sm font-semibold">Learner Verse</span>
+            </Link>
+            <p className="text-text-tertiary text-center text-xs">
+              © {new Date().getFullYear()} Learner Verse · Built for curious minds.
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

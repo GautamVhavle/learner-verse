@@ -71,6 +71,9 @@ class PublicProfileResponse(BaseModel):
     # Verified creator badge
     is_verified_creator: bool = False
 
+    # Pro subscription badge
+    is_pro: bool = False
+
     # Certificates
     certificates: list["PublicCertificateItem"] = []
 

@@ -66,6 +66,7 @@ export interface PublicProfile {
   longest_streak: number;
   total_active_days: number;
   is_verified_creator: boolean;
+  is_pro: boolean;
   certificates: PublicCertificateItem[];
   activity_heatmap: PublicActivityDay[];
 }

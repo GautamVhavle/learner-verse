@@ -15,8 +15,8 @@ export default function ProfilePage() {
   const update = useUpdateUserMutation();
 
   const save = useCallback(
-    (data: Partial<UserSettings>) => {
-      update.mutate(data);
+    async (data: Partial<UserSettings>) => {
+      await update.mutateAsync(data);
     },
     [update],
   );
@@ -39,8 +39,6 @@ export default function ProfilePage() {
       </div>
 
       <ProfileSection user={user} onSave={(data) => save(data)} />
-
-      <p className="text-text-tertiary text-center text-xs">Changes are saved automatically.</p>
     </div>
   );
 }

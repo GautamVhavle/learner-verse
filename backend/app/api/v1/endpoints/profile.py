@@ -60,6 +60,8 @@ async def get_public_profile(
         social_links=user.social_links or [],
         cover_image_url=user.cover_image_url,
         member_since=user.created_at,
+        is_verified_creator=getattr(user, "is_verified_creator", False),
+        is_pro=getattr(user, "is_pro", False),
         total_courses_completed=overview.total_courses_completed,
         total_lessons_completed=overview.total_lessons_completed,
         current_streak=overview.current_streak,
