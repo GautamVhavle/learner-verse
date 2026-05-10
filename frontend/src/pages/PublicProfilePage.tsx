@@ -539,19 +539,12 @@ function ProfileContent({ profile }: { profile: PublicProfile }) {
       </div>
 
       {/* ── Footer ── */}
-      <footer className="border-border-default mt-16 border-t">
-        <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-          <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
-            <Link to="/" className="flex items-center gap-2">
-              <img src="/logo.svg" alt="Learner Verse" className="size-5 opacity-80" />
-              <span className="text-text-secondary text-sm font-semibold">Learner Verse</span>
-            </Link>
-            <p className="text-text-tertiary text-center text-xs">
-              © {new Date().getFullYear()} Learner Verse · Built for curious minds.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <p className="text-text-tertiary pb-10 text-center text-[11px]">
+        Powered by{" "}
+        <Link to="/" className="text-accent-blue hover:underline">
+          Learner Verse
+        </Link>
+      </p>
     </div>
   );
 }
