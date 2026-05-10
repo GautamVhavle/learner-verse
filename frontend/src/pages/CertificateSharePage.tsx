@@ -1,7 +1,7 @@
 /**
- * Public certificate verification page — premium credential view.
+ * Public certificate verification page - premium credential view.
  *
- * Layout: responsive two-column — left: metadata + syllabus, right: certificate + actions.
+ * Layout: responsive two-column - left: metadata + syllabus, right: certificate + actions.
  * Theme: system-default with toggle. Certificate card itself stays light always.
  */
 import { useParams, useNavigate } from "react-router";
@@ -22,10 +22,12 @@ import {
   Sun,
   Moon,
   CheckCircle2,
+  User as UserIcon,
 } from "lucide-react";
 import { useState } from "react";
 import { CertificatePreview } from "@/components/certificate/CertificatePreview";
 import { CertificateDownload } from "@/components/certificate/CertificateDownload";
+import { VerifiedBadge } from "@/components/shared/VerifiedBadge";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { api } from "@/lib/api";
 import type { CertificateDetailResponse, CertificateSectionBrief } from "@/types/certificate";
@@ -219,6 +221,17 @@ export default function CertificateSharePage() {
             </span>{" "}
             on {completedDate}
           </p>
+
+          {certificate.creator_name && (
+            <p className="mt-1.5 flex items-center gap-1.5 text-sm" style={{ color: t.textSec }}>
+              <UserIcon className="size-3.5" style={{ color: t.textMuted }} />
+              Course by{" "}
+              <span className="font-semibold" style={{ color: t.text }}>
+                {certificate.creator_name}
+              </span>
+              {certificate.is_creator_verified && <VerifiedBadge size={14} />}
+            </p>
+          )}
 
           {/* Quick pills */}
           <div className="mt-5 flex flex-wrap gap-2">

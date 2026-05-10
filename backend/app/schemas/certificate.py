@@ -42,3 +42,5 @@ class CertificateDetailResponse(CertificateResponse):
 
     course_description: str | None = None
     sections: list[SectionBrief] = []
+    creator_name: str | None = None
+    is_creator_verified: bool = False

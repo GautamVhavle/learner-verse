@@ -3,6 +3,7 @@
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_current_user
@@ -50,11 +51,27 @@ async def get_shared_certificate(
         for s in sections
     ]
 
+    # Fetch course creator info
+    creator_name: str | None = None
+    is_creator_verified = False
+    if cert.course:
+        creator_result = await db.execute(
+            select(User.display_name, User.is_verified_creator).where(
+                User.id == cert.course.user_id
+            )
+        )
+        creator_row = creator_result.one_or_none()
+        if creator_row:
+            creator_name = creator_row.display_name
+            is_creator_verified = creator_row.is_verified_creator
+
     data = CertificateResponse.model_validate(cert).model_dump()
     return CertificateDetailResponse(
         **data,
         course_description=course_description,
         sections=section_briefs,
+        creator_name=creator_name,
+        is_creator_verified=is_creator_verified,
     )
 
 

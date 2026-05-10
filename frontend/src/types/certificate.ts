@@ -31,4 +31,6 @@ export interface CertificateSectionBrief {
 export interface CertificateDetailResponse extends CertificateResponse {
   course_description: string | null;
   sections: CertificateSectionBrief[];
+  creator_name: string | null;
+  is_creator_verified: boolean;
 }
