@@ -6,7 +6,7 @@
  * Charts use Recharts (consistent with CreatorAnalyticsPage).
  */
 import { useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router";
 import {
   Area,
   AreaChart,
