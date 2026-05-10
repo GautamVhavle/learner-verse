@@ -54,5 +54,5 @@ export const LEARNER_EXTRA: NavLink[] = [];
 /** Bottom secondary navigation (settings, help). */
 export const SECONDARY_LINKS: NavLink[] = [
   { title: "Settings", icon: Settings, path: "/settings" },
-  { title: "Help", icon: HelpCircle, path: "/help", comingSoon: true },
+  { title: "Help", icon: HelpCircle, path: "/help" },
 ];
