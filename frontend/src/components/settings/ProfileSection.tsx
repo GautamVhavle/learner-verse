@@ -209,7 +209,7 @@ export function ProfileSection({ user, onSave }: ProfileSectionProps) {
           {/* Avatar — overlaps cover bottom edge */}
           <div className="absolute -bottom-14 left-5">
             <div className="relative">
-              <Avatar size="lg" className="ring-bg-secondary size-28 shadow-lg ring-4">
+              <Avatar className="ring-bg-secondary size-28 shadow-lg ring-4">
                 {user.avatar_url ? (
                   <AvatarImage src={user.avatar_url} alt={user.display_name} />
                 ) : null}
