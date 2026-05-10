@@ -289,7 +289,6 @@ function LinksCard({ links }: { links: SocialLink[] }) {
             rel="noopener noreferrer"
             className="border-border-default bg-bg-tertiary text-text-secondary hover:border-accent-blue/40 hover:text-text-primary inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors"
           >
-            <Link2 className="size-3" />
             {link.label || getLinkDomain(link.url)}
             <ExternalLink className="size-2.5 opacity-60" />
           </a>
