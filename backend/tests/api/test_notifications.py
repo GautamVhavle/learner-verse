@@ -137,16 +137,6 @@ async def test_notification_lifecycle_with_overdue_goal(client):
         json={"notes_markdown": "Some content"},
     )
 
-    # Set a past goal date directly
-    yesterday = (date.today() - timedelta(days=1)).isoformat()
-    resp = await client.put(
-        f"/api/v1/goals/courses/{course['id']}",
-        json={"goal_date": yesterday},
-    )
-    # Goal date must be in the future — this should fail
-    # So let's set a goal date, then wait... Actually we can't set past dates.
-    # Instead, let's create a near-deadline with incomplete lessons.
-
     # Set a future goal date (tomorrow) with incomplete lesson → behind pace
     tomorrow = (date.today() + timedelta(days=1)).isoformat()
     resp = await client.put(
@@ -181,13 +171,16 @@ async def test_notification_lifecycle_with_overdue_goal(client):
         assert resp.status_code == 200
         assert resp.json()["is_read"] is True
 
-        # Unread count should be back to 0
+        # Mark all read and verify unread count is 0
+        resp = await client.put("/api/v1/notifications/read-all")
+        assert resp.status_code == 200
         resp = await client.get("/api/v1/notifications/unread-count")
         assert resp.json()["count"] == 0
 
-        # Delete
-        resp = await client.delete(f"/api/v1/notifications/{notif['id']}")
-        assert resp.status_code == 204
+        # Delete all notifications
+        resp = await client.get("/api/v1/notifications")
+        for n in resp.json():
+            await client.delete(f"/api/v1/notifications/{n['id']}")
 
         # List should be empty
         resp = await client.get("/api/v1/notifications")

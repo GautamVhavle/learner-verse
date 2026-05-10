@@ -208,10 +208,10 @@ async def test_lesson_limit(client):
     await _ensure_user(client)
     course = await _create_course(client)
     section = await _create_section(client, course["id"])
-    for i in range(50):
+    for i in range(150):
         resp = await _create_lesson(client, section["id"], title=f"Lesson {i}")
         assert resp.status_code == 201
-    resp = await _create_lesson(client, section["id"], title="Lesson 51")
+    resp = await _create_lesson(client, section["id"], title="Lesson 151")
     assert resp.status_code == 400
     assert "Maximum" in resp.json()["detail"]
 
