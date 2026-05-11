@@ -15,7 +15,7 @@ interface ModeState {
 export const useModeStore = create<ModeState>()(
   persist(
     (set) => ({
-      mode: "creator",
+      mode: "student",
       toggleMode: () =>
         set((state) => ({
           mode: state.mode === "creator" ? "student" : "creator",

@@ -122,6 +122,7 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           VITE_SUPERADMIN_EMAILS: ${{ secrets.SUPERADMIN_EMAILS }}
+          VITE_PAYMENT_GATEWAY_ENABLED: "true"
         run: |
           cd frontend
           vercel pull --yes --environment=production --token=$VERCEL_TOKEN
