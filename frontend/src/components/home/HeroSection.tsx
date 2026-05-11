@@ -445,7 +445,7 @@ export function HeroSection() {
         </div>
 
         {/* ── Right: Product Demo ── */}
-        <div className="hero-demo relative mx-auto w-full max-w-md opacity-0 sm:max-w-lg lg:mx-0 lg:max-w-none px-5">
+        <div className="hero-demo relative mx-auto w-full max-w-md px-5 opacity-0 sm:max-w-lg lg:mx-0 lg:max-w-none">
           <ProductDemo />
         </div>
       </div>
