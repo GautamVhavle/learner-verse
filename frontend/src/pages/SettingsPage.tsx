@@ -278,16 +278,26 @@ export default function SettingsPage() {
                 <p className="text-text-secondary text-xs">
                   <span className="text-accent-purple font-medium">LearnerVerse Pro</span>
                   {user.pro_plan && <span className="capitalize"> ({user.pro_plan})</span>}
-                  {(user as { subscription_status?: string | null }).subscription_status === "active" && (
-                    <span className="ml-1.5 rounded-full bg-accent-green/10 px-1.5 py-0.5 text-[10px] font-medium text-accent-green">Auto-renewing</span>
+                  {(user as { subscription_status?: string | null }).subscription_status ===
+                    "active" && (
+                    <span className="bg-accent-green/10 text-accent-green ml-1.5 rounded-full px-1.5 py-0.5 text-[10px] font-medium">
+                      Auto-renewing
+                    </span>
                   )}
-                  {(user as { subscription_status?: string | null }).subscription_status === "cancelled" && (
-                    <span className="ml-1.5 rounded-full bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-500">Cancels at cycle end</span>
+                  {(user as { subscription_status?: string | null }).subscription_status ===
+                    "cancelled" && (
+                    <span className="ml-1.5 rounded-full bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-500">
+                      Cancels at cycle end
+                    </span>
                   )}
                   {user.pro_expires_at && (
                     <>
                       {" "}
-                      · {(user as { subscription_status?: string | null }).subscription_status === "active" ? "Renews" : "Expires"}{" "}
+                      ·{" "}
+                      {(user as { subscription_status?: string | null }).subscription_status ===
+                      "active"
+                        ? "Renews"
+                        : "Expires"}{" "}
                       {new Date(user.pro_expires_at).toLocaleDateString("en-IN", {
                         month: "long",
                         day: "numeric",
@@ -357,7 +367,18 @@ export default function SettingsPage() {
                 <AlertDialogDescription className="text-text-secondary text-sm leading-relaxed">
                   Your Pro access will continue until the end of your current billing cycle
                   {user.pro_expires_at && (
-                    <> ({new Date(user.pro_expires_at).toLocaleDateString("en-IN", { month: "long", day: "numeric", year: "numeric" })})</>)}. After that, auto-renewal will stop and AI features will be locked.
+                    <>
+                      {" "}
+                      (
+                      {new Date(user.pro_expires_at).toLocaleDateString("en-IN", {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                      )
+                    </>
+                  )}
+                  . After that, auto-renewal will stop and AI features will be locked.
                 </AlertDialogDescription>
 
                 <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4">
