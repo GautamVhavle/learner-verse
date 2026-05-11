@@ -54,7 +54,6 @@ class CourseService:
             description=data.description,
             thumbnail_url=data.thumbnail_url,
             category=data.category,
-            goal_date=data.goal_date,
         )
 
         if data.tags:

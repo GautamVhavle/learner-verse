@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { DatePicker } from "@/components/shared/DatePicker";
 import { useUploadThumbnailMutation } from "@/hooks/useCourses";
 import { CATEGORIES, DEFAULT_CATEGORY } from "@/lib/categories";
 import type { Course, CourseCreate, CourseUpdate } from "@/types/course";
@@ -32,7 +31,6 @@ export function CourseForm({ open, onOpenChange, course, onSubmit, isPending }: 
     description: source?.description ?? "",
     tagsInput: source?.tags.map((t) => t.name).join(", ") ?? "",
     category: source?.category ?? DEFAULT_CATEGORY,
-    goalDate: source?.goal_date ?? "",
     thumbnailUrl: source?.thumbnail_url ?? null,
   });
 
@@ -40,7 +38,6 @@ export function CourseForm({ open, onOpenChange, course, onSubmit, isPending }: 
   const [description, setDescription] = useState("");
   const [tagsInput, setTagsInput] = useState("");
   const [category, setCategory] = useState(DEFAULT_CATEGORY);
-  const [goalDate, setGoalDate] = useState("");
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -52,7 +49,6 @@ export function CourseForm({ open, onOpenChange, course, onSubmit, isPending }: 
     setDescription(defaults.description);
     setTagsInput(defaults.tagsInput);
     setCategory(defaults.category);
-    setGoalDate(defaults.goalDate);
     setThumbnailUrl(defaults.thumbnailUrl);
   };
 
@@ -86,7 +82,6 @@ export function CourseForm({ open, onOpenChange, course, onSubmit, isPending }: 
       description: description || null,
       thumbnail_url: thumbnailUrl,
       category,
-      goal_date: goalDate || null,
       tags,
     });
   };
@@ -213,15 +208,6 @@ export function CourseForm({ open, onOpenChange, course, onSubmit, isPending }: 
               placeholder="e.g. python, machine learning"
               value={tagsInput}
               onChange={(e) => setTagsInput(e.target.value)}
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <label className="text-text-secondary text-xs font-medium">Goal Date</label>
-            <DatePicker
-              value={goalDate || null}
-              onChange={(date) => setGoalDate(date ?? "")}
-              placeholder="Pick a target completion date"
             />
           </div>
 

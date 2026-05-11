@@ -41,7 +41,6 @@ export interface CourseCreate {
   description?: string | null;
   thumbnail_url?: string | null;
   category?: string;
-  goal_date?: string | null;
   tags?: string[];
 }
 

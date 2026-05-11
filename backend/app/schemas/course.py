@@ -22,7 +22,6 @@ class CourseCreate(BaseModel):
     description: str | None = None
     thumbnail_url: str | None = None
     category: str = "other"
-    goal_date: date | None = None
     tags: list[str] = Field(default_factory=list, max_length=20)
 
     @field_validator("category")
