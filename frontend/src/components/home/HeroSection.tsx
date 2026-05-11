@@ -263,32 +263,32 @@ export function HeroSection() {
           "-=0.3",
         );
 
-      // Right side: product demo entrance
+      // Product demo entrance (vertical only — no x offset to prevent mobile shift)
       tl.fromTo(
         ".hero-demo",
-        { opacity: 0, x: 40, scale: 0.97 },
-        { opacity: 1, x: 0, scale: 1, duration: 0.8, ease: "power2.out" },
+        { opacity: 0, y: 24, scale: 0.97 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "power2.out" },
         "-=0.8",
       );
 
       // Floating cards pop in
       tl.fromTo(
         ".demo-float-card",
-        { opacity: 0, x: -20, y: 20 },
-        { opacity: 1, x: 0, y: 0, duration: 0.5 },
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.5 },
         "-=0.3",
       ).fromTo(
         ".demo-float-card-2",
-        { opacity: 0, x: 20, y: -20 },
-        { opacity: 1, x: 0, y: 0, duration: 0.5 },
+        { opacity: 0, y: -20 },
+        { opacity: 1, y: 0, duration: 0.5 },
         "-=0.3",
       );
 
       // Subtle sections stagger
       tl.fromTo(
         ".demo-section",
-        { opacity: 0, x: -10 },
-        { opacity: 1, x: 0, duration: 0.3, stagger: 0.08 },
+        { opacity: 0, y: 8 },
+        { opacity: 1, y: 0, duration: 0.3, stagger: 0.08 },
         "-=0.5",
       );
 
@@ -334,7 +334,7 @@ export function HeroSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative flex min-h-[100dvh] items-center overflow-hidden px-4 py-20 sm:px-6 lg:py-0"
+      className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden py-20 lg:py-0"
     >
       {/* Background */}
       <div className="pointer-events-none absolute inset-0">
@@ -350,8 +350,8 @@ export function HeroSection() {
         />
       </div>
 
-      {/* Grid */}
-      <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-12 lg:grid-cols-[1fr_1.1fr] lg:gap-16 xl:gap-20">
+      {/* Grid — matches other sections: mx-auto max-w px-4 pattern */}
+      <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:gap-16 xl:gap-20">
         {/* ── Left: Copy ── */}
         <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
           {/* Badge */}
@@ -445,7 +445,7 @@ export function HeroSection() {
         </div>
 
         {/* ── Right: Product Demo ── */}
-        <div className="hero-demo relative opacity-0 lg:py-8">
+        <div className="hero-demo relative mx-auto w-full max-w-md opacity-0 sm:max-w-lg lg:mx-0 lg:max-w-none lg:py-8">
           <ProductDemo />
         </div>
       </div>
