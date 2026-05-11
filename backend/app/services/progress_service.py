@@ -70,9 +70,7 @@ class ProgressService:
             if all_lesson_ids:
                 completed_set = await self._build_completed_set(user_id, all_lesson_ids)
                 if len(completed_set) == len(all_lesson_ids):
-                    await enrollment_repo.mark_completed(
-                        user_id, course_id, datetime.now(UTC)
-                    )
+                    await enrollment_repo.mark_completed(user_id, course_id, datetime.now(UTC))
 
         await self.db.commit()
         await self.db.refresh(progress)
