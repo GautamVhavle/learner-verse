@@ -88,6 +88,7 @@ class CourseRepository:
         *,
         search: str | None = None,
         tags: list[str] | None = None,
+        category: str | None = None,
         sort_by: str = "newest",
         page: int = 1,
         per_page: int = 20,
@@ -110,6 +111,10 @@ class CourseRepository:
             Course.status == "ready",
             Course.is_deleted.is_(False),
         )
+
+        if category:
+            base = base.where(Course.category == category)
+            count_q = count_q.where(Course.category == category)
 
         if search:
             pattern = f"%{search}%"
@@ -231,6 +236,7 @@ class CourseRepository:
             description=source.description,
             thumbnail_url=source.thumbnail_url,
             status="draft",
+            category=source.category,
             goal_date=source.goal_date,
             tags=tag_objects,
         )

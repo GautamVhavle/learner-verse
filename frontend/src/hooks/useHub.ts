@@ -14,6 +14,7 @@ import type { RatingCreate, RatingListResponse, Rating, RatingUpdate } from "@/t
 interface HubParams {
   search?: string;
   tags?: string;
+  category?: string;
   sort?: "newest" | "oldest" | "title";
   page?: number;
   per_page?: number;
@@ -23,6 +24,7 @@ export function useHubCoursesQuery(params: HubParams = {}, enabled = true) {
   const qs = new URLSearchParams();
   if (params.search) qs.set("search", params.search);
   if (params.tags) qs.set("tags", params.tags);
+  if (params.category) qs.set("category", params.category);
   if (params.sort) qs.set("sort", params.sort);
   if (params.page) qs.set("page", String(params.page));
   if (params.per_page) qs.set("per_page", String(params.per_page));
@@ -81,6 +83,22 @@ export function usePublicCourseSectionsQuery(courseId: string | undefined) {
     queryFn: () => api.get(`/hub/public/courses/${courseId}/sections`),
     enabled: !!courseId,
     retry: false,
+  });
+}
+
+// ── Category Query ────────────────────────────────────────────
+
+export interface CategoryWithCount {
+  slug: string;
+  name: string;
+  icon: string;
+  course_count: number;
+}
+
+export function useHubCategoriesQuery() {
+  return useQuery<CategoryWithCount[]>({
+    queryKey: ["hub-categories"],
+    queryFn: () => api.get("/hub/categories"),
   });
 }
 

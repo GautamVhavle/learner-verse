@@ -3,7 +3,9 @@
  */
 import { BookOpen, Users, Layers, Play } from "lucide-react";
 import { StarRating } from "./StarRating";
+import { CategoryIcon } from "./CategoryIcon";
 import { VerifiedBadge } from "@/components/shared/VerifiedBadge";
+import { CATEGORY_MAP } from "@/lib/categories";
 import type { Course } from "@/types/course";
 
 interface HubCourseCardProps {
@@ -44,6 +46,17 @@ export function HubCourseCard({ course, onClick }: HubCourseCardProps) {
             by {course.creator_name}
             {course.is_creator_verified && <VerifiedBadge size={12} />}
           </p>
+        )}
+
+        {/* Category badge */}
+        {course.category && course.category !== "other" && (
+          <span className="bg-accent-blue/10 text-accent-blue inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium">
+            <CategoryIcon
+              icon={CATEGORY_MAP.get(course.category)?.icon ?? "MoreHorizontal"}
+              className="size-3"
+            />
+            {CATEGORY_MAP.get(course.category)?.name ?? course.category}
+          </span>
         )}
 
         {course.description && (

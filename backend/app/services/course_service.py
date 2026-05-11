@@ -53,6 +53,7 @@ class CourseService:
             title=data.title,
             description=data.description,
             thumbnail_url=data.thumbnail_url,
+            category=data.category,
             goal_date=data.goal_date,
         )
 
@@ -143,6 +144,7 @@ class CourseService:
             is_public=course.is_public,
             is_deleted=course.is_deleted,
             deleted_at=course.deleted_at,
+            category=course.category,
             goal_date=course.goal_date,
             tags=[{"id": t.id, "name": t.name} for t in (course.tags or [])],
             section_count=section_count,
@@ -407,6 +409,7 @@ class CourseService:
                 "description": course.description,
                 "status": course.status,
                 "is_public": course.is_public,
+                "category": course.category,
                 "goal_date": str(course.goal_date) if course.goal_date else None,
                 "tags": [t.name for t in (course.tags or [])],
             },
@@ -552,6 +555,8 @@ class CourseService:
         update_fields: dict = {"title": course_data["title"][:200]}
         if "description" in course_data:
             update_fields["description"] = course_data["description"]
+        if "category" in course_data:
+            update_fields["category"] = course_data["category"]
         if "goal_date" in course_data:
             update_fields["goal_date"] = course_data["goal_date"]
         # Always reset to draft on import

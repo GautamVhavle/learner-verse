@@ -12,10 +12,46 @@ from app.repositories.course_repo import CourseRepository
 from app.repositories.enrollment_repo import EnrollmentRepository
 from app.repositories.rating_repo import RatingRepository
 from app.repositories.section_repo import SectionRepository
+from app.schemas.category import CategoryResponse
 from app.schemas.course import CourseListResponse, CourseResponse
 from app.schemas.rating import RatingCreate, RatingListResponse, RatingResponse, RatingUpdate
 
 router = APIRouter(prefix="/hub", tags=["hub"])
+
+
+# ── Category Listing ───────────────────────────────────────────
+
+
+@router.get("/categories", response_model=list[CategoryResponse])
+async def list_categories(
+    db: AsyncSession = Depends(get_db),
+):
+    """Return all categories with their public course counts."""
+    from sqlalchemy import func, select
+
+    from app.core.categories import CATEGORIES
+    from app.models.course import Course
+
+    result = await db.execute(
+        select(Course.category, func.count(Course.id))
+        .where(
+            Course.is_public.is_(True),
+            Course.status == "ready",
+            Course.is_deleted.is_(False),
+        )
+        .group_by(Course.category)
+    )
+    counts = dict(result.all())
+
+    return [
+        CategoryResponse(
+            slug=cat["slug"],
+            name=cat["name"],
+            icon=cat["icon"],
+            course_count=counts.get(cat["slug"], 0),
+        )
+        for cat in CATEGORIES
+    ]
 
 
 # ── Public Course Listing ──────────────────────────────────────
@@ -25,6 +61,7 @@ router = APIRouter(prefix="/hub", tags=["hub"])
 async def list_hub_courses(
     search: str | None = Query(None, max_length=200),
     tags: str | None = Query(None, max_length=500, description="Comma-separated tag names"),
+    category: str | None = Query(None, max_length=30, description="Category slug filter"),
     sort: str = Query("newest", pattern=r"^(newest|oldest|title)$"),
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),
@@ -41,6 +78,7 @@ async def list_hub_courses(
     courses, total = await repo.list_public_courses(
         search=search,
         tags=tag_list,
+        category=category,
         sort_by=sort,
         page=page,
         per_page=per_page,
@@ -89,6 +127,7 @@ async def list_hub_courses(
                 is_public=c.is_public,
                 is_deleted=c.is_deleted,
                 deleted_at=c.deleted_at,
+                category=c.category,
                 goal_date=c.goal_date,
                 tags=[{"id": t.id, "name": t.name} for t in (c.tags or [])],
                 section_count=section_count,
@@ -166,6 +205,7 @@ async def list_my_courses(
                 is_public=c.is_public,
                 is_deleted=c.is_deleted,
                 deleted_at=c.deleted_at,
+                category=c.category,
                 goal_date=c.goal_date,
                 tags=[{"id": t.id, "name": t.name} for t in (c.tags or [])],
                 section_count=section_count,
@@ -240,6 +280,7 @@ async def get_hub_course(
         is_public=course.is_public,
         is_deleted=course.is_deleted,
         deleted_at=course.deleted_at,
+        category=course.category,
         goal_date=course.goal_date,
         tags=[{"id": t.id, "name": t.name} for t in (course.tags or [])],
         section_count=section_count,
@@ -302,6 +343,7 @@ async def get_public_course(
         is_public=course.is_public,
         is_deleted=course.is_deleted,
         deleted_at=course.deleted_at,
+        category=course.category,
         goal_date=course.goal_date,
         tags=[{"id": t.id, "name": t.name} for t in (course.tags or [])],
         section_count=section_count,

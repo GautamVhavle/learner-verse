@@ -3,7 +3,9 @@
 import uuid
 from datetime import date, datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+from app.core.categories import CATEGORY_SLUGS
 
 
 # --- Tag schemas ---
@@ -19,8 +21,18 @@ class CourseCreate(BaseModel):
     title: str = Field(..., min_length=1, max_length=200)
     description: str | None = None
     thumbnail_url: str | None = None
+    category: str = "other"
     goal_date: date | None = None
     tags: list[str] = Field(default_factory=list, max_length=20)
+
+    @field_validator("category")
+    @classmethod
+    def validate_category(cls, v: str) -> str:
+        if v not in CATEGORY_SLUGS:
+            raise ValueError(
+                f"Invalid category. Must be one of: {', '.join(sorted(CATEGORY_SLUGS))}"
+            )
+        return v
 
 
 class CourseUpdate(BaseModel):
@@ -29,8 +41,18 @@ class CourseUpdate(BaseModel):
     thumbnail_url: str | None = None
     status: str | None = Field(None, pattern=r"^(draft|ready)$")
     is_public: bool | None = None
+    category: str | None = None
     goal_date: date | None = None
     tags: list[str] | None = Field(None, max_length=20)
+
+    @field_validator("category")
+    @classmethod
+    def validate_category(cls, v: str | None) -> str | None:
+        if v is not None and v not in CATEGORY_SLUGS:
+            raise ValueError(
+                f"Invalid category. Must be one of: {', '.join(sorted(CATEGORY_SLUGS))}"
+            )
+        return v
 
 
 class CourseResponse(BaseModel):
@@ -43,6 +65,7 @@ class CourseResponse(BaseModel):
     is_public: bool = False
     is_deleted: bool
     deleted_at: datetime | None = None
+    category: str = "other"
     goal_date: date | None = None
     tags: list[TagResponse] = []
     section_count: int = 0

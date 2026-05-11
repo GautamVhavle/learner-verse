@@ -22,6 +22,7 @@ class Course(Base):
         Index("idx_courses_user_id", "user_id"),
         Index("idx_courses_status", "status"),
         Index("idx_courses_deleted", "is_deleted"),
+        Index("idx_courses_category", "category"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUIDType, primary_key=True, default=uuid.uuid4)
@@ -35,6 +36,9 @@ class Course(Base):
     is_public: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     is_deleted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    category: Mapped[str] = mapped_column(
+        String(30), nullable=False, default="other", server_default="other"
+    )
     goal_date: Mapped[datetime | None] = mapped_column(Date, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False

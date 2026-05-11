@@ -16,6 +16,7 @@ export interface Course {
   is_public: boolean;
   is_deleted: boolean;
   deleted_at: string | null;
+  category: string;
   goal_date: string | null;
   tags: Tag[];
   section_count: number;
@@ -39,6 +40,7 @@ export interface CourseCreate {
   title: string;
   description?: string | null;
   thumbnail_url?: string | null;
+  category?: string;
   goal_date?: string | null;
   tags?: string[];
 }
@@ -49,6 +51,7 @@ export interface CourseUpdate {
   thumbnail_url?: string | null;
   status?: "draft" | "ready";
   is_public?: boolean;
+  category?: string;
   goal_date?: string | null;
   tags?: string[];
 }

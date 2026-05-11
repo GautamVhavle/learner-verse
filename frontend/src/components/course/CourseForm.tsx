@@ -2,7 +2,7 @@
  * Dialog form for creating or editing a course title and description.
  */
 import { useRef, useState } from "react";
-import { ImagePlus, Loader2, X } from "lucide-react";
+import { ImagePlus, Loader2, X, ChevronDown } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/components/shared/DatePicker";
 import { useUploadThumbnailMutation } from "@/hooks/useCourses";
+import { CATEGORIES, DEFAULT_CATEGORY } from "@/lib/categories";
 import type { Course, CourseCreate, CourseUpdate } from "@/types/course";
 
 interface CourseFormProps {
@@ -30,6 +31,7 @@ export function CourseForm({ open, onOpenChange, course, onSubmit, isPending }: 
     title: source?.title ?? "",
     description: source?.description ?? "",
     tagsInput: source?.tags.map((t) => t.name).join(", ") ?? "",
+    category: source?.category ?? DEFAULT_CATEGORY,
     goalDate: source?.goal_date ?? "",
     thumbnailUrl: source?.thumbnail_url ?? null,
   });
@@ -37,6 +39,7 @@ export function CourseForm({ open, onOpenChange, course, onSubmit, isPending }: 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tagsInput, setTagsInput] = useState("");
+  const [category, setCategory] = useState(DEFAULT_CATEGORY);
   const [goalDate, setGoalDate] = useState("");
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -48,6 +51,7 @@ export function CourseForm({ open, onOpenChange, course, onSubmit, isPending }: 
     setTitle(defaults.title);
     setDescription(defaults.description);
     setTagsInput(defaults.tagsInput);
+    setCategory(defaults.category);
     setGoalDate(defaults.goalDate);
     setThumbnailUrl(defaults.thumbnailUrl);
   };
@@ -81,6 +85,7 @@ export function CourseForm({ open, onOpenChange, course, onSubmit, isPending }: 
       title,
       description: description || null,
       thumbnail_url: thumbnailUrl,
+      category,
       goal_date: goalDate || null,
       tags,
     });
@@ -162,6 +167,27 @@ export function CourseForm({ open, onOpenChange, course, onSubmit, isPending }: 
               required
               autoFocus
             />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="course-category" className="text-text-secondary text-xs font-medium">
+              Category
+            </label>
+            <div className="relative">
+              <select
+                id="course-category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="border-input focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 w-full appearance-none rounded-lg border bg-transparent px-2.5 py-2 pr-8 text-sm outline-none focus-visible:ring-3"
+              >
+                {CATEGORIES.map((cat) => (
+                  <option key={cat.slug} value={cat.slug}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="text-text-tertiary pointer-events-none absolute top-1/2 right-2.5 size-4 -translate-y-1/2" />
+            </div>
           </div>
 
           <div className="flex flex-col gap-1.5">

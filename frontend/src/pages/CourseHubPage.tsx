@@ -10,8 +10,10 @@ import { Search, SlidersHorizontal, Globe, Lock, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { HubCourseCard } from "@/components/hub/HubCourseCard";
+import { CategoryIcon } from "@/components/hub/CategoryIcon";
 import { useHubCoursesQuery, useMyCoursesQuery } from "@/hooks/useHub";
 import { useMode } from "@/hooks/useMode";
+import { CATEGORIES } from "@/lib/categories";
 
 type Tab = "public" | "mine";
 
@@ -31,6 +33,7 @@ export default function CourseHubPage() {
   const [tab, setTab] = useState<Tab>("public");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<"newest" | "oldest" | "title">("newest");
+  const [category, setCategory] = useState<string | undefined>(undefined);
   const [page, setPage] = useState(1);
 
   const deferredSearch = useDeferredValue(search);
@@ -38,6 +41,7 @@ export default function CourseHubPage() {
   const queryParams = {
     search: deferredSearch || undefined,
     sort,
+    category,
     page,
     per_page: PER_PAGE,
   };
@@ -138,6 +142,42 @@ export default function CourseHubPage() {
           ))}
         </div>
       </div>
+
+      {/* Category filter (public tab only) */}
+      {tab === "public" && (
+        <div className="scrollbar-none flex gap-2 overflow-x-auto pb-1">
+          <button
+            onClick={() => {
+              setCategory(undefined);
+              setPage(1);
+            }}
+            className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+              !category
+                ? "border-accent-blue/20 bg-accent-blue/10 text-accent-blue"
+                : "border-border-default bg-bg-tertiary text-text-secondary hover:text-text-primary"
+            }`}
+          >
+            All
+          </button>
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat.slug}
+              onClick={() => {
+                setCategory(cat.slug === category ? undefined : cat.slug);
+                setPage(1);
+              }}
+              className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                category === cat.slug
+                  ? "border-accent-blue/20 bg-accent-blue/10 text-accent-blue"
+                  : "border-border-default bg-bg-tertiary text-text-secondary hover:text-text-primary"
+              }`}
+            >
+              <CategoryIcon icon={cat.icon} className="size-3.5" />
+              <span className="whitespace-nowrap">{cat.name}</span>
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Results count */}
       {!isLoading && (

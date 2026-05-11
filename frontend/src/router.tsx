@@ -38,6 +38,7 @@ const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
 const HomePage = lazy(() => import("@/pages/HomePage"));
 const CourseHubPage = lazy(() => import("@/pages/CourseHubPage"));
 const HubCourseDetailPage = lazy(() => import("@/pages/HubCourseDetailPage"));
+const CategoryPage = lazy(() => import("@/pages/CategoryPage"));
 const CreatorAnalyticsPage = lazy(() => import("@/pages/CreatorAnalyticsPage"));
 const CourseAnalyticsDetailPage = lazy(() => import("@/pages/CourseAnalyticsDetailPage"));
 const PublicProfilePage = lazy(() => import("@/pages/PublicProfilePage"));
@@ -72,6 +73,7 @@ function SharedRoutes() {
       <Route path="goals" element={<GoalsPage />} />
       <Route path="stats" element={<StatsPage />} />
       <Route path="hub" element={<CourseHubPage />} />
+      <Route path="hub/category/:slug" element={<CategoryPage />} />
       <Route path="hub/:courseId" element={<HubCourseDetailPage />} />
       <Route path="settings" element={<SettingsPage />} />
       <Route path="profile" element={<ProfilePage />} />
