@@ -74,6 +74,7 @@ describe("CourseForm", () => {
       title: "My New Course",
       description: null,
       thumbnail_url: null,
+      category: "other",
       goal_date: null,
       tags: [],
     });
