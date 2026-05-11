@@ -182,7 +182,7 @@ function ProductDemo() {
       </div>
 
       {/* Floating accent card: Quiz */}
-      <div className="demo-float-card absolute -bottom-3 left-0 z-10 hidden rounded-xl border border-white/[0.08] bg-[#0c0c18]/95 p-3 shadow-xl backdrop-blur-md sm:-bottom-4 sm:-left-6 sm:block sm:p-3.5">
+      <div className="demo-float-card absolute -bottom-4 -left-8 z-10 hidden rounded-xl border border-white/[0.08] bg-[#0c0c18]/95 p-3 shadow-xl backdrop-blur-md md:block md:p-3.5">
         <div className="flex items-center gap-2.5">
           <div className="flex size-8 items-center justify-center rounded-lg bg-purple-500/15">
             <Brain className="size-4 text-purple-400" />
@@ -195,7 +195,7 @@ function ProductDemo() {
       </div>
 
       {/* Floating accent card: Certificate */}
-      <div className="demo-float-card-2 absolute -top-3 right-0 z-10 hidden rounded-xl border border-white/[0.08] bg-[#0c0c18]/95 p-3 shadow-xl backdrop-blur-md sm:-top-4 sm:-right-6 sm:block sm:p-3.5">
+      <div className="demo-float-card-2 absolute -top-4 -right-8 z-10 hidden rounded-xl border border-white/[0.08] bg-[#0c0c18]/95 p-3 shadow-xl backdrop-blur-md md:block md:p-3.5">
         <div className="flex items-center gap-2.5">
           <div className="flex size-8 items-center justify-center rounded-lg bg-amber-500/15">
             <Award className="size-4 text-amber-400" />
