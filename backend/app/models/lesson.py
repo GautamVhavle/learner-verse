@@ -1,4 +1,4 @@
-"""Lesson model — individual learning unit with video, notes, and links."""
+"""Lesson model - individual learning unit with video, notes, and links."""
 
 import uuid
 from datetime import datetime
@@ -13,7 +13,7 @@ from app.models.types import UUIDType
 class Lesson(Base):
     """A single learning unit within a section.
 
-    Each lesson has a `lesson_type` — either ``"video"`` (YouTube-based)
+    Each lesson has a `lesson_type` - either ``"video"`` (YouTube-based)
     or ``"note"`` (markdown-only). The type determines which editing
     sections appear in the builder and which icon is shown in listings.
     """

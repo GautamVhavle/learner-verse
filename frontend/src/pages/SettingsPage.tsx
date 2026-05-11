@@ -1,5 +1,5 @@
 /**
- * Settings page — preferences, appearance, shortcuts, data, danger zone, and about.
+ * Settings page - preferences, appearance, shortcuts, data, and danger zone.
  *
  * Profile editing is on a separate dedicated page (/profile).
  */
@@ -7,7 +7,6 @@ import { useCallback, useState } from "react";
 import {
   Keyboard,
   Database,
-  Info,
   Calendar,
   Loader2,
   Sun,
@@ -180,7 +179,7 @@ export default function SettingsPage() {
             <div className="flex items-center gap-2">
               <Keyboard className="text-accent-green size-4" />
               <h2 className="text-text-primary text-sm font-semibold">Keyboard Shortcuts</h2>
-              <HelpTip text="These work on any page — no need to click into a text field first." />
+              <HelpTip text="These work on any page - no need to click into a text field first." />
             </div>
             <p className="text-text-tertiary text-[11px] leading-relaxed">
               Speed up your workflow with these keyboard shortcuts. They work globally while
@@ -325,24 +324,6 @@ export default function SettingsPage() {
 
         {/* ── Danger Zone ───────────────────────────────────────── */}
         <DangerZoneSection />
-
-        {/* ── About ─────────────────────────────────────────────── */}
-        <section className="border-border-default bg-bg-secondary space-y-3 rounded-xl border p-5">
-          <div className="flex items-center gap-2">
-            <Info className="text-text-secondary size-4" />
-            <h2 className="text-text-primary text-sm font-semibold">About</h2>
-          </div>
-          <div className="text-text-secondary space-y-1.5 text-xs">
-            <p>
-              <span className="text-text-primary font-medium">Learner Verse</span> — Personal
-              Learning Management System
-            </p>
-            <p>Version 1.0.0 (MVP)</p>
-            <p className="text-text-tertiary">
-              Built with ❤️ by Gautam Vhavle for all the learning community
-            </p>
-          </div>
-        </section>
 
         <p className="text-text-tertiary text-center text-xs">Changes are saved automatically.</p>
 

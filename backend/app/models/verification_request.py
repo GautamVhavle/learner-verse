@@ -1,4 +1,4 @@
-"""VerificationRequest model — creator badge application submitted by a user."""
+"""VerificationRequest model - creator badge application submitted by a user."""
 
 import uuid
 from datetime import datetime

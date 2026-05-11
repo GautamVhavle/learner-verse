@@ -1,5 +1,5 @@
 /**
- * Course Hub Detail page — full course info, enrollment, ratings, and section outline.
+ * Course Hub Detail page - full course info, enrollment, ratings, and section outline.
  */
 import { useParams, useNavigate } from "react-router";
 import { useState } from "react";
@@ -298,7 +298,7 @@ export default function HubCourseDetailPage() {
         </div>
       )}
 
-      {/* Rating Form — hidden for course owner */}
+      {/* Rating Form - hidden for course owner */}
       {!isOwner && !myRating && (
         <div className="border-border-default bg-bg-secondary space-y-3 rounded-xl border p-5">
           <h2 className="text-text-primary text-sm font-semibold">Rate this Course</h2>

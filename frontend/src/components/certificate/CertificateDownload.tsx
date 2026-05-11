@@ -40,7 +40,7 @@ const s = StyleSheet.create({
   /* Top accent stripe */
   topBar: { height: 6, backgroundColor: C.indigo },
 
-  /* Content wrapper — fills remaining page, centered */
+  /* Content wrapper - fills remaining page, centered */
   body: {
     flex: 1,
     alignItems: "center",

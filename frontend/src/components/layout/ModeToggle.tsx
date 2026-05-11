@@ -48,7 +48,7 @@ export function ModeToggle({ onToggle }: ModeToggleProps) {
             className="group border-sidebar-border bg-sidebar hover:bg-sidebar-accent flex w-full items-center gap-3 rounded-md border px-3 py-2 transition-colors"
             data-testid="mode-toggle"
           >
-            {/* Pill toggle track — color based on current mode */}
+            {/* Pill toggle track - color based on current mode */}
             <div
               className={`relative flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors ${
                 isCreator ? "bg-purple-200 dark:bg-purple-900" : "bg-blue-200 dark:bg-blue-900"

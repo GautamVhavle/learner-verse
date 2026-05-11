@@ -104,7 +104,7 @@ async def delete_all_data(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Delete ALL user data — courses, progress, stats, chats, everything.
+    """Delete ALL user data - courses, progress, stats, chats, everything.
 
     Resets the user account to a blank slate without deleting the account itself.
     """
@@ -157,7 +157,7 @@ async def delete_learner_stats(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Delete all learning stats — progress, streaks, quiz attempts, study notes."""
+    """Delete all learning stats - progress, streaks, quiz attempts, study notes."""
     uid = user.id
     await db.execute(delete(ActivityLog).where(ActivityLog.user_id == uid))
     await db.execute(delete(LessonProgress).where(LessonProgress.user_id == uid))

@@ -1,5 +1,5 @@
 /**
- * Course card for the Course Hub — shows thumbnail, rating, enrollment count, and tags.
+ * Course card for the Course Hub - shows thumbnail, rating, enrollment count, and tags.
  */
 import { BookOpen, Users, Layers, Play } from "lucide-react";
 import { StarRating } from "./StarRating";
@@ -73,7 +73,7 @@ export function HubCourseCard({ course, onClick }: HubCourseCardProps) {
             <div className="flex items-center gap-1">
               <StarRating value={course.average_rating} readOnly size="sm" />
               <span className="font-medium">
-                {course.average_rating > 0 ? course.average_rating.toFixed(1) : "—"}
+                {course.average_rating > 0 ? course.average_rating.toFixed(1) : "-"}
               </span>
               {course.rating_count > 0 && (
                 <span className="text-text-tertiary">({course.rating_count})</span>

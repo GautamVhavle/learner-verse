@@ -1,4 +1,4 @@
-"""Repository for discussion messages — cursor-based pagination."""
+"""Repository for discussion messages - cursor-based pagination."""
 
 import uuid
 from datetime import datetime

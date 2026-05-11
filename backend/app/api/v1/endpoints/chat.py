@@ -1,4 +1,4 @@
-"""API endpoints for LiVi chat — thread CRUD and streaming responses."""
+"""API endpoints for LiVi chat - thread CRUD and streaming responses."""
 
 import re
 import uuid

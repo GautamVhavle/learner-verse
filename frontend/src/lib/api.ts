@@ -58,7 +58,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const url = `${API_BASE_URL}${path}`;
   const authHeaders = await getAuthHeaders();
 
-  /* Only set Content-Type for JSON bodies — skip for FormData (browser sets boundary). */
+  /* Only set Content-Type for JSON bodies - skip for FormData (browser sets boundary). */
   const contentHeaders: Record<string, string> =
     options.body && !(options.body instanceof FormData)
       ? { "Content-Type": "application/json" }
@@ -83,7 +83,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     throw error;
   }
 
-  /* 204 No Content — nothing to parse. */
+  /* 204 No Content - nothing to parse. */
   if (res.status === 204) return undefined as unknown as T;
   return res.json();
 }

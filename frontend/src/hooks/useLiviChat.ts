@@ -1,5 +1,5 @@
 /**
- * useLiviChat — custom hook for streaming chat with the FastAPI backend.
+ * useLiviChat - custom hook for streaming chat with the FastAPI backend.
  *
  * Manages message state, streaming via fetch ReadableStream, and
  * auto-scroll. Works with any thread ID and handles thread creation

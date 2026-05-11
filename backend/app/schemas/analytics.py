@@ -1,4 +1,4 @@
-"""Pydantic schemas for creator analytics — overview, per-course, ratings, learners."""
+"""Pydantic schemas for creator analytics - overview, per-course, ratings, learners."""
 
 import uuid
 from datetime import datetime

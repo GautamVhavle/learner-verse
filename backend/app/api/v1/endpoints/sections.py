@@ -85,7 +85,7 @@ async def organize_sections(
     task_id = await create_task(db, str(course_id))
     logger.info("Organize task %s started for course %s", task_id, course_id)
 
-    # Fire and forget — runs in the background event loop
+    # Fire and forget - runs in the background event loop
     asyncio.create_task(run_organize_in_background(task_id, course_id, user.id))
 
     return OrganizeStartResponse(task_id=task_id)

@@ -1,4 +1,4 @@
-"""Discussion room endpoints — per-course group chat."""
+"""Discussion room endpoints - per-course group chat."""
 
 import uuid
 

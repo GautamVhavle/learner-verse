@@ -1,5 +1,5 @@
 /**
- * useInlineChat — stateless streaming chat for inline lesson help.
+ * useInlineChat - stateless streaming chat for inline lesson help.
  *
  * Unlike useLiviChat (which uses threads and persistence), this hook
  * manages a local in-memory conversation and streams responses from

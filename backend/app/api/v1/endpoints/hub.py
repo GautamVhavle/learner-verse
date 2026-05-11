@@ -1,4 +1,4 @@
-"""API endpoints for the public Course Hub — discovery, ratings, and enrollment."""
+"""API endpoints for the public Course Hub - discovery, ratings, and enrollment."""
 
 import uuid
 

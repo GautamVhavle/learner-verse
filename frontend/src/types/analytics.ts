@@ -1,5 +1,5 @@
 /**
- * TypeScript types for creator analytics — overview, per-course, ratings, learners.
+ * TypeScript types for creator analytics - overview, per-course, ratings, learners.
  */
 
 // ── Shared ──────────────────────────────────────────────────

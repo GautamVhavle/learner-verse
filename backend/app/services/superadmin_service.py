@@ -1,4 +1,4 @@
-"""SuperadminService — platform-wide analytics and moderation operations.
+"""SuperadminService - platform-wide analytics and moderation operations.
 
 All methods require a superadmin-authenticated caller (enforced at the API
 layer). The service only reads data; destructive operations are explicit

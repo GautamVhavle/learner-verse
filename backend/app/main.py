@@ -52,7 +52,7 @@ async def lifespan(app: FastAPI):
         await ensure_bucket()
     except Exception as exc:
         logging.getLogger(__name__).warning(
-            "Supabase Storage unavailable at startup — thumbnail uploads will fail.\nReason: %s",
+            "Supabase Storage unavailable at startup - thumbnail uploads will fail.\nReason: %s",
             exc,
         )
     yield
@@ -75,7 +75,7 @@ async def _ensure_default_user() -> None:
 async def _ensure_organize_tasks_table() -> None:
     """Create the organize_tasks table if it doesn't exist.
 
-    Uses raw DDL so we don't need a migration — the table is a simple
+    Uses raw DDL so we don't need a migration - the table is a simple
     ephemeral store shared across workers.
     """
     from sqlalchemy import text
@@ -153,7 +153,7 @@ async def timing_middleware(request: Request, call_next):
 async def unhandled_exception_handler(request: Request, exc: Exception):
     """Catch-all handler so unhandled errors still return CORS headers.
 
-    The full traceback is logged server-side only — exception details are
+    The full traceback is logged server-side only - exception details are
     never forwarded to the client to avoid leaking internal information.
     """
     logger.error(

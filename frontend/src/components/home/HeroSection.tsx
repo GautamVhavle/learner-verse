@@ -1,8 +1,8 @@
 /**
- * Hero section — reimagined as a split-layout with animated product demo.
+ * Hero section: split-layout with animated product demo.
  *
- * Left: punchy headline, subtext, CTAs, social proof
- * Right: animated product showcase showing YouTube → Course transformation
+ * Left: punchy headline, subtext, CTAs, open source badge
+ * Right: animated product showcase showing YouTube > Course transformation
  * Responsive: stacks vertically on mobile.
  */
 import { useEffect, useRef } from "react";
@@ -17,6 +17,7 @@ import {
   CheckCircle2,
   BarChart3,
   ChevronRight,
+  Github,
 } from "lucide-react";
 import { Particles } from "@/components/ui/particles";
 import { SparklesText } from "@/components/ui/sparkles-text";
@@ -26,10 +27,7 @@ import { AnimatedShinyText } from "@/components/ui/animated-shiny-text";
 import { useAuth } from "@/hooks/useAuth";
 import { useMode } from "@/hooks/useMode";
 import { SINGLE_USER_MODE } from "@/lib/auth";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
+import { gsap } from "@/lib/gsap";
 
 /* ── Floating Feature Pills ── */
 const PILLS = [
@@ -82,7 +80,7 @@ function ProductDemo() {
                 youtube.com/playlist?list=PLexample-react-course
               </span>
             </div>
-            <div className="shrink-0 rounded-lg bg-blue-500 px-2.5 py-1 text-[10px] font-semibold text-white sm:text-xs">
+            <div className="demo-import-btn shrink-0 rounded-lg bg-blue-500 px-2.5 py-1 text-[10px] font-semibold text-white shadow-[0_0_12px_rgba(59,130,246,0.3)] sm:text-xs">
               Import
             </div>
           </div>
@@ -183,8 +181,8 @@ function ProductDemo() {
         </div>
       </div>
 
-      {/* Floating accent card — Quiz */}
-      <div className="demo-float-card absolute -bottom-3 -left-3 z-10 rounded-xl border border-white/[0.08] bg-[#0c0c18]/95 p-3 shadow-xl backdrop-blur-md sm:-bottom-4 sm:-left-6 sm:p-3.5">
+      {/* Floating accent card: Quiz */}
+      <div className="demo-float-card absolute -bottom-3 left-0 z-10 hidden rounded-xl border border-white/[0.08] bg-[#0c0c18]/95 p-3 shadow-xl backdrop-blur-md sm:-bottom-4 sm:-left-6 sm:block sm:p-3.5">
         <div className="flex items-center gap-2.5">
           <div className="flex size-8 items-center justify-center rounded-lg bg-purple-500/15">
             <Brain className="size-4 text-purple-400" />
@@ -196,8 +194,8 @@ function ProductDemo() {
         </div>
       </div>
 
-      {/* Floating accent card — Certificate */}
-      <div className="demo-float-card-2 absolute -top-3 -right-3 z-10 rounded-xl border border-white/[0.08] bg-[#0c0c18]/95 p-3 shadow-xl backdrop-blur-md sm:-top-4 sm:-right-6 sm:p-3.5">
+      {/* Floating accent card: Certificate */}
+      <div className="demo-float-card-2 absolute -top-3 right-0 z-10 hidden rounded-xl border border-white/[0.08] bg-[#0c0c18]/95 p-3 shadow-xl backdrop-blur-md sm:-top-4 sm:-right-6 sm:block sm:p-3.5">
         <div className="flex items-center gap-2.5">
           <div className="flex size-8 items-center justify-center rounded-lg bg-amber-500/15">
             <Award className="size-4 text-amber-400" />
@@ -303,6 +301,15 @@ export function HeroSection() {
         ease: "sine.inOut",
       });
 
+      // Import button glow pulse
+      gsap.to(".demo-import-btn", {
+        boxShadow: "0 0 20px rgba(59,130,246,0.5)",
+        duration: 1.5,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+      });
+
       // Floating cards gentle hover
       gsap.to(".demo-float-card", {
         y: -6,
@@ -333,9 +340,10 @@ export function HeroSection() {
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_20%_40%,_rgba(59,130,246,0.12)_0%,_transparent_60%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_80%_60%,_rgba(168,85,247,0.08)_0%,_transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_30%_at_50%_80%,_rgba(16,185,129,0.05)_0%,_transparent_60%)]" />
         <Particles
           className="absolute inset-0"
-          quantity={60}
+          quantity={50}
           staticity={40}
           color="#ffffff"
           size={0.4}
@@ -359,23 +367,24 @@ export function HeroSection() {
           {/* Headline */}
           <div className="hero-headline mb-5 opacity-0 sm:mb-6">
             <h1 className="text-3xl leading-[1.08] font-extrabold tracking-tight text-white sm:text-4xl md:text-5xl lg:text-[3.4rem] xl:text-6xl">
-              YouTube to{" "}
+              Turn Any Playlist
+              <br />
+              Into a{" "}
               <SparklesText
                 className="inline-block text-white"
                 sparklesCount={4}
                 colors={{ first: "#60a5fa", second: "#a78bfa" }}
               >
-                Structured
+                Real Course.
               </SparklesText>
-              <br />
-              Learning in Seconds.
             </h1>
           </div>
 
           {/* Subtext */}
-          <p className="hero-subtext mb-8 max-w-lg text-sm leading-relaxed text-white/45 opacity-0 sm:text-base lg:text-lg">
-            Paste any playlist. AI builds your course with sections, quizzes, progress tracking &
-            certificates — instantly.
+          <p className="hero-subtext mb-8 max-w-lg text-sm leading-relaxed text-white/55 opacity-0 sm:text-base lg:text-lg">
+            Build your own courses from any YouTube link, or enroll in structured courses from
+            creators. AI quizzes, progress tracking, and certificates included. Free and open
+            source.
           </p>
 
           {/* CTAs */}
@@ -400,7 +409,7 @@ export function HeroSection() {
               className="hero-cta flex h-12 items-center gap-2 rounded-[14px] border border-white/[0.08] bg-white/[0.03] px-6 text-sm font-medium text-white/60 opacity-0 backdrop-blur-sm transition-all hover:border-white/15 hover:bg-white/[0.06] hover:text-white/90"
             >
               <Play className="size-3.5" />
-              Watch Demo
+              See How It Works
             </button>
           </div>
 
@@ -417,33 +426,21 @@ export function HeroSection() {
             ))}
           </div>
 
-          {/* Social proof */}
+          {/* Open source badge */}
           <div className="hero-social flex items-center gap-3 opacity-0">
-            {/* Avatar stack */}
-            <div className="flex -space-x-2">
-              {["#3b82f6", "#a855f7", "#10b981", "#f59e0b"].map((color, i) => (
-                <div
-                  key={i}
-                  className="flex size-7 items-center justify-center rounded-full border-2 border-[#030712] text-[9px] font-bold text-white/80 sm:size-8"
-                  style={{ backgroundColor: color }}
-                >
-                  {["JD", "AK", "MS", "RW"][i]}
-                </div>
-              ))}
-            </div>
-            <div className="text-left">
-              <div className="text-xs font-medium text-white/60 sm:text-sm">
-                Trusted by <span className="text-white/90">2,000+</span> learners
-              </div>
-              <div className="flex items-center gap-0.5">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <span key={i} className="text-[10px] text-amber-400">
-                    ★
-                  </span>
-                ))}
-                <span className="ml-1 text-[10px] text-white/30">4.9/5</span>
-              </div>
-            </div>
+            <a
+              href="https://github.com/GautamVhavle/learner-verse"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-white/60 backdrop-blur-sm transition-colors hover:border-white/20 hover:text-white"
+            >
+              <Github className="size-4" />
+              <span className="font-medium">Star on GitHub</span>
+              <ArrowRight className="size-3.5 text-white/40" />
+            </a>
+            <span className="hidden text-xs text-white/30 sm:inline">
+              Free forever. No credit card.
+            </span>
           </div>
         </div>
 

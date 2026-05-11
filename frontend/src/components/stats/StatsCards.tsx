@@ -1,5 +1,5 @@
 /**
- * Summary stat cards — streak, lessons, courses, and active days.
+ * Summary stat cards - streak, lessons, courses, and active days.
  *
  * Uses shadcn Card for consistent styling. Responsive grid:
  * 1 col on mobile, 2 on sm, 3 on md, 5 on lg+.

@@ -8,7 +8,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import type { ReferenceLink, ReferenceLinkCreate } from "@/types/section";
 
-/** Shared query key factory — must match useSections.ts */
+/** Shared query key factory - must match useSections.ts */
 const sectionKeys = {
   all: (courseId: string) => ["sections", courseId] as const,
 };

@@ -1,5 +1,5 @@
 /**
- * Pomodoro focus timer — header widget.
+ * Pomodoro focus timer - header widget.
  *
  * Idle  → subtle icon button
  * Active → animated countdown pill with progress ring
@@ -160,6 +160,7 @@ export function PomodoroTimer() {
   const progress = timer ? 1 - secLeft / (timer.durationMs / 1000) : 0;
 
   /* ── Tick ── */
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!timer) return void setSecLeft(0);
     const tick = () => {
@@ -180,6 +181,7 @@ export function PomodoroTimer() {
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, [timer, paused]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   /* ── Actions ── */
   const start = useCallback((min: number) => {

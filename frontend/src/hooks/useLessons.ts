@@ -16,7 +16,7 @@ import type {
   Section,
 } from "@/types/section";
 
-/** Shared query key factory — must match useSections.ts */
+/** Shared query key factory - must match useSections.ts */
 const sectionKeys = {
   all: (courseId: string) => ["sections", courseId] as const,
 };

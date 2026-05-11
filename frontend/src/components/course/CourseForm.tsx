@@ -1,7 +1,7 @@
 /**
  * Dialog form for creating or editing a course title and description.
  */
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { ImagePlus, Loader2, X } from "lucide-react";
 import {
   Dialog,
@@ -26,6 +26,14 @@ interface CourseFormProps {
 
 export function CourseForm({ open, onOpenChange, course, onSubmit, isPending }: CourseFormProps) {
   const isEdit = !!course;
+  const getDefaults = (source?: Course | null) => ({
+    title: source?.title ?? "",
+    description: source?.description ?? "",
+    tagsInput: source?.tags.map((t) => t.name).join(", ") ?? "",
+    goalDate: source?.goal_date ?? "",
+    thumbnailUrl: source?.thumbnail_url ?? null,
+  });
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tagsInput, setTagsInput] = useState("");
@@ -35,21 +43,21 @@ export function CourseForm({ open, onOpenChange, course, onSubmit, isPending }: 
 
   const uploadMutation = useUploadThumbnailMutation();
 
-  useEffect(() => {
-    if (course) {
-      setTitle(course.title);
-      setDescription(course.description ?? "");
-      setTagsInput(course.tags.map((t) => t.name).join(", "));
-      setGoalDate(course.goal_date ?? "");
-      setThumbnailUrl(course.thumbnail_url);
-    } else {
-      setTitle("");
-      setDescription("");
-      setTagsInput("");
-      setGoalDate("");
-      setThumbnailUrl(null);
+  const resetForm = (source?: Course | null) => {
+    const defaults = getDefaults(source);
+    setTitle(defaults.title);
+    setDescription(defaults.description);
+    setTagsInput(defaults.tagsInput);
+    setGoalDate(defaults.goalDate);
+    setThumbnailUrl(defaults.thumbnailUrl);
+  };
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    onOpenChange(nextOpen);
+    if (nextOpen) {
+      resetForm(course);
     }
-  }, [course, open]);
+  };
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -79,7 +87,7 @@ export function CourseForm({ open, onOpenChange, course, onSubmit, isPending }: 
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{isEdit ? "Edit Course" : "New Course"}</DialogTitle>

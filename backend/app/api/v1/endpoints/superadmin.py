@@ -1,4 +1,4 @@
-"""Superadmin dashboard endpoints — all routes require superadmin access.
+"""Superadmin dashboard endpoints - all routes require superadmin access.
 
 These endpoints are gated by the ``get_superadmin_user`` dependency which
 checks the caller's email against the ``SUPERADMIN_EMAILS`` env var.

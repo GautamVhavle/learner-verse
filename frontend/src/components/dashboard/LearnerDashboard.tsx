@@ -1,5 +1,5 @@
 /**
- * Learner dashboard — personal learning overview.
+ * Learner dashboard - personal learning overview.
  *
  * Shows only the courses the user has explicitly enrolled in.
  * Banners surface streak, certificate, and goal information.
@@ -131,10 +131,10 @@ export function LearnerDashboard() {
         </div>
       )}
 
-      {/* Continue Learning hero — only shown once the user has started a course */}
+      {/* Continue Learning hero - only shown once the user has started a course */}
       {mostRecentCourse && <ContinueLearningWrapper course={mostRecentCourse} />}
 
-      {/* Empty state — no enrolled courses yet */}
+      {/* Empty state - no enrolled courses yet */}
       {!isLoading && items.length === 0 && (
         <EmptyState
           icon={

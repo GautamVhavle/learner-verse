@@ -1,4 +1,4 @@
-"""CourseStudyState model — remembers the last-accessed lesson per course."""
+"""CourseStudyState model - remembers the last-accessed lesson per course."""
 
 import uuid
 from datetime import datetime

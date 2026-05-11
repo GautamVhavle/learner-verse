@@ -1,5 +1,5 @@
 /**
- * Certificate preview — renders the actual PDF inline via BlobProvider
+ * Certificate preview - renders the actual PDF inline via BlobProvider
  * so it's a true 1:1 match with the downloaded file.
  */
 import { BlobProvider } from "@react-pdf/renderer";

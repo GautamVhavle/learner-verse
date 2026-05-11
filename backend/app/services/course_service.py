@@ -100,7 +100,7 @@ class CourseService:
         has_issues = empty_sections > 0
         if not has_issues and lesson_count > 0:
             # Check for non-quiz lessons with no content (no video, no notes, no ref links)
-            # Quiz lessons are excluded — their content lives in quiz_questions
+            # Quiz lessons are excluded - their content lives in quiz_questions
             empty_lesson_result = await self.db.execute(
                 select(func.count(Lesson.id))
                 .select_from(Lesson)

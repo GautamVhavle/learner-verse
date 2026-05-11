@@ -1,4 +1,4 @@
-"""LessonProgress model — tracks per-user lesson completion state."""
+"""LessonProgress model - tracks per-user lesson completion state."""
 
 import uuid
 from datetime import datetime

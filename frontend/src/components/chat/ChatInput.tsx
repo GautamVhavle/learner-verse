@@ -1,5 +1,5 @@
 /**
- * ChatInput — message input with file attachments, auto-resize, and send/stop.
+ * ChatInput - message input with file attachments, auto-resize, and send/stop.
  */
 import { useState, useRef, useCallback } from "react";
 import TextareaAutosize from "react-textarea-autosize";

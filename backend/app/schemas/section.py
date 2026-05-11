@@ -30,7 +30,7 @@ class SectionResponse(BaseModel):
 
 
 class SectionBriefResponse(BaseModel):
-    """Section without nested lessons — for reorder responses."""
+    """Section without nested lessons - for reorder responses."""
 
     id: uuid.UUID
     course_id: uuid.UUID
@@ -49,7 +49,7 @@ class ReorderRequest(BaseModel):
     items: list[ReorderItem] = Field(..., min_length=1)
 
 
-# Avoid circular import — LessonResponse defined in lesson schema
+# Avoid circular import - LessonResponse defined in lesson schema
 from app.schemas.lesson import LessonResponse  # noqa: E402
 
 SectionResponse.model_rebuild()

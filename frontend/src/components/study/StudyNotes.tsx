@@ -19,6 +19,7 @@ export function StudyNotes({ lessonId }: StudyNotesProps) {
 
   // Sync from server when lesson changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setContent(note?.content ?? "");
   }, [note?.content, lessonId]);
 

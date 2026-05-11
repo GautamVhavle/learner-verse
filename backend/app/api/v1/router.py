@@ -1,4 +1,4 @@
-"""Central v1 API router — includes all domain endpoint routers."""
+"""Central v1 API router - includes all domain endpoint routers."""
 
 import logging
 

@@ -95,6 +95,7 @@ export function TypingAnimation({
     [words, children],
   );
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     setDisplayedText("");
     setCurrentWordIndex(0);
@@ -171,6 +172,7 @@ export function TypingAnimation({
     pauseDelay,
     delay,
   ]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const currentWordGraphemes = Array.from(wordsToAnimate[currentWordIndex] || "");
   const isComplete =

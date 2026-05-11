@@ -1,5 +1,5 @@
 /**
- * DiscussionRoom — per-course group chat UI.
+ * DiscussionRoom - per-course group chat UI.
  *
  * Features:
  * - Cursor-paginated message list (load older on scroll-up)
@@ -75,24 +75,21 @@ export function DiscussionRoom({ courseId }: DiscussionRoomProps) {
   const isAtBottom = useRef(true);
   const prevMessageCount = useRef(0);
 
-  const { data, isLoading, isFetching } = useDiscussionMessages(courseId, cursor);
+  const { data, isLoading, isFetching, isFetched } = useDiscussionMessages(courseId, cursor);
   const sendMutation = useSendDiscussionMessage(courseId);
   const qc = useQueryClient();
 
-  // Track whether we've ever loaded data (prevents flicker on refetch polls)
-  const hasLoadedOnce = useRef(false);
-
-  /* ── Merge messages (stable — only update when IDs actually change) ── */
+  /* ── Merge messages (stable - only update when IDs actually change) ── */
   const lastDataRef = useRef<string>("");
   useEffect(() => {
     if (!data?.items) return;
-    hasLoadedOnce.current = true;
     if (data.items.length === 0) return;
     // Fingerprint the incoming batch so we skip no-op re-renders
     const fingerprint = data.items.map((m) => m.id).join(",");
     if (fingerprint === lastDataRef.current) return;
     lastDataRef.current = fingerprint;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setAllMessages((prev) => {
       // Remove optimistic messages that now have real counterparts
       const withoutOptimistic = prev.filter((m) => !m.id.startsWith("optimistic-"));
@@ -108,10 +105,10 @@ export function DiscussionRoom({ courseId }: DiscussionRoomProps) {
     });
   }, [data, cursor]);
 
-  // True initial loading — first fetch ever
-  const showInitialLoading = isLoading && !hasLoadedOnce.current;
-  // Empty state — only after first successful load
-  const showEmptyState = hasLoadedOnce.current && allMessages.length === 0;
+  // True initial loading - first fetch ever
+  const showInitialLoading = isLoading && !isFetched;
+  // Empty state - only after first successful load
+  const showEmptyState = isFetched && allMessages.length === 0;
 
   /* ── Auto-scroll on new messages ── */
   useEffect(() => {
@@ -149,7 +146,7 @@ export function DiscussionRoom({ courseId }: DiscussionRoomProps) {
 
     const replySnapshot = replyTo;
 
-    // Optimistic message — show immediately
+    // Optimistic message - show immediately
     const optimisticMsg: DiscussionMessage = {
       id: `optimistic-${Date.now()}`,
       course_id: courseId,
@@ -400,7 +397,7 @@ function ChatBubble({
 /* ═══════════════════════ Message Content ═══════════════════════ */
 
 function MessageContent({ content, role }: { content: string; role: string }) {
-  // AI messages — render markdown with full typography
+  // AI messages - render markdown with full typography
   if (role === "ai") {
     return (
       <div className="prose prose-sm dark:prose-invert text-text-primary prose-p:my-1 prose-pre:my-2 prose-pre:rounded-lg prose-pre:bg-[#1c1c1c] prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-headings:my-1.5 prose-headings:text-sm prose-code:rounded prose-code:bg-bg-tertiary prose-code:px-1 prose-code:py-0.5 prose-code:text-xs prose-code:before:content-none prose-code:after:content-none prose-a:text-accent-purple prose-a:no-underline hover:prose-a:underline max-w-none text-[13px] leading-relaxed">
@@ -422,7 +419,7 @@ function MessageContent({ content, role }: { content: string; role: string }) {
     );
   }
 
-  // User messages — highlight @mentions
+  // User messages - highlight @mentions
   const parts = content.split(/(@\w+)/g);
   return (
     <p className="break-words whitespace-pre-wrap">
@@ -509,7 +506,7 @@ function InputBar({
         </div>
       )}
 
-      {/* Input container — matches LiVi ChatInput style */}
+      {/* Input container - matches LiVi ChatInput style */}
       <div className="border-border-default bg-bg-secondary focus-within:border-accent-purple/40 flex items-end gap-1.5 rounded-xl border transition-colors">
         {/* @MiVi shortcut */}
         <button

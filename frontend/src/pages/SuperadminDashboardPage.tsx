@@ -1,5 +1,5 @@
 /**
- * Superadmin Dashboard — platform-wide analytics for site administrators.
+ * Superadmin Dashboard - platform-wide analytics for site administrators.
  *
  * Tabs: Overview | Users | Verifications
  * URL-synced: /superadmin?tab=overview|users|verifications&page=N&search=...&status=...
@@ -559,7 +559,7 @@ function OverviewTab() {
 
       {/* Trend charts */}
       <div>
-        <SectionHeader title={`Trends — Last ${days} Days`} />
+        <SectionHeader title={`Trends - Last ${days} Days`} />
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Card>
             <CardHeader className="pt-4 pb-1">
@@ -881,7 +881,7 @@ function UsersTab({ page, search, onPageChange, onSearchChange }: UsersTabProps)
                       <td className="px-3 py-3 text-right tabular-nums">{u.lessons_completed}</td>
                       <td className="px-3 py-3 text-right tabular-nums">{u.certificates_earned}</td>
                       <td className="text-muted-foreground px-3 py-3 text-right text-xs">
-                        {u.last_active ? fmtRelative(u.last_active) : "—"}
+                        {u.last_active ? fmtRelative(u.last_active) : "-"}
                       </td>
                       <td className="text-muted-foreground px-4 py-3 text-right text-xs">
                         {new Date(u.joined_at).toLocaleDateString()}
@@ -1327,7 +1327,7 @@ export default function SuperadminDashboardPage() {
         <p className="text-muted-foreground self-end pb-0.5 text-xs">{today}</p>
       </div>
 
-      {/* Quick stats — always visible, above tabs */}
+      {/* Quick stats - always visible, above tabs */}
       <QuickStats overview={overview} isLoading={overviewLoading} />
 
       <Separator />

@@ -123,7 +123,7 @@ async def test_youtube_metadata_endpoint_success(client):
             },
         })()
 
-    # Simpler approach — test the validation path directly
+    # Simpler approach - test the validation path directly
     resp = await client.post("/api/v1/youtube/metadata", json={"url": "not-a-youtube-url"})
     assert resp.status_code == 400
     assert "Invalid" in resp.json()["detail"]

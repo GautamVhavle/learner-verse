@@ -1,4 +1,4 @@
-"""ChatMessage model — individual messages within a chat thread."""
+"""ChatMessage model - individual messages within a chat thread."""
 
 import uuid
 from datetime import datetime

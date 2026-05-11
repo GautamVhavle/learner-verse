@@ -1,5 +1,5 @@
 /**
- * ThinkingIndicator — animated "LiVi is thinking" state.
+ * ThinkingIndicator - animated "LiVi is thinking" state.
  *
  * Shows an animated sparkle icon with a shimmer bar, displayed
  * between the user's message and the assistant's first chunk.

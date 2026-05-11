@@ -96,7 +96,7 @@ export default function StudyPage() {
             onEditGoal={() => setGoalPickerOpen(true)}
           />
 
-          {/* Tab bar — Discussion only for public/published courses */}
+          {/* Tab bar - Discussion only for public/published courses */}
           {course.is_public && (
             <div className="border-border-default mt-6 mb-4 flex gap-1 border-b">
               <button
@@ -137,7 +137,7 @@ export default function StudyPage() {
           )}
         </div>
 
-        {/* Sidebar — section tree */}
+        {/* Sidebar - section tree */}
         <aside className="w-full shrink-0 lg:w-64">
           <div className="border-border-default bg-bg-secondary sticky top-4 rounded-xl border p-2">
             <div className="mb-2 px-2.5 py-1.5">

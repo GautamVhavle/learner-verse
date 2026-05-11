@@ -69,7 +69,7 @@ async def verify_auth0_token(request: Request) -> str:
                 break
 
         if rsa_key is None:
-            # Key not found — force a cache refresh and try once more.
+            # Key not found - force a cache refresh and try once more.
             # This handles Auth0 key rotations without requiring a redeploy.
             jwks = await _get_jwks(force_refresh=True)
             for key in jwks.get("keys", []):
@@ -116,7 +116,7 @@ async def verify_auth0_token(request: Request) -> str:
             detail="Token has expired",
         )
     except jwt.InvalidTokenError:
-        # Do not forward the raw PyJWT error message to the client —
+        # Do not forward the raw PyJWT error message to the client -
         # it can reveal internal token structure details.
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

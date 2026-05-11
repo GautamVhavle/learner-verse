@@ -1,26 +1,21 @@
 /**
- * Footer — clean 4-column layout with branding,
- * product links, resources, and social connect.
+ * Footer: clean 4-column layout with branding,
+ * product links, resources, and social links.
  */
-import { Github, Twitter, MessageCircle } from "lucide-react";
+import { Github } from "lucide-react";
 
 const FOOTER_LINKS = {
   Product: [
     { label: "Features", href: "#features" },
     { label: "How It Works", href: "#how-it-works" },
-    { label: "Course Hub", href: "#" },
-    { label: "Pricing", href: "/pricing" },
+    { label: "Pricing", href: "#pricing" },
+    { label: "Testimonials", href: "#testimonials" },
   ],
   Resources: [
-    { label: "Documentation", href: "#" },
-    { label: "Blog", href: "#" },
-    { label: "Support", href: "#" },
-    { label: "Changelog", href: "#" },
-  ],
-  Connect: [
     { label: "GitHub", href: "https://github.com/GautamVhavle/learner-verse", icon: Github },
-    { label: "Twitter", href: "#", icon: Twitter },
-    { label: "Discord", href: "#", icon: MessageCircle },
+    { label: "Help Center", href: "/help" },
+    { label: "Privacy Policy", href: "/privacy" },
+    { label: "Terms of Service", href: "/terms" },
   ],
 } as const;
 
@@ -28,14 +23,14 @@ export function Footer() {
   return (
     <footer className="border-t border-white/5 bg-[#020617]">
       <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-        <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-4">
+        <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-3">
           {/* Brand column */}
           <div className="sm:col-span-2 md:col-span-1">
             <div className="flex items-center gap-2.5">
               <img src="/logo.svg" alt="LearnerVerse" className="size-7" />
               <span className="text-base font-semibold text-white">LearnerVerse</span>
             </div>
-            <p className="mt-3 max-w-xs text-sm leading-relaxed text-white/40">
+            <p className="mt-3 max-w-xs text-sm leading-relaxed text-white/45">
               Turn any YouTube playlist into a complete, AI-powered learning experience. Built for
               creators and learners.
             </p>
@@ -56,7 +51,7 @@ export function Footer() {
                         ? { target: "_blank", rel: "noopener noreferrer" }
                         : {})}
                       onClick={(e) => {
-                        if (link.href.startsWith("#") && link.href !== "#") {
+                        if (link.href.startsWith("#")) {
                           e.preventDefault();
                           document.querySelector(link.href)?.scrollIntoView({ behavior: "smooth" });
                         }
@@ -88,7 +83,19 @@ export function Footer() {
               <Github className="size-3.5" />
               Star on GitHub
             </a>
-            <p className="text-xs text-white/20">Made with ♥ for curious minds.</p>
+            <p className="text-xs text-white/20">
+              Made by{" "}
+              <a
+                href="https://gautamvhavle.xyz"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/30 underline underline-offset-2 transition-colors hover:text-white/60"
+                style={{ textDecorationThickness: "1px" }}
+              >
+                Gautam Vhavle
+              </a>{" "}
+              with ♥ for curious minds.
+            </p>
           </div>
         </div>
       </div>

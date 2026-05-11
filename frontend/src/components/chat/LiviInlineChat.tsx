@@ -1,5 +1,5 @@
 /**
- * LiviInlineChat — expandable contextual AI chat box.
+ * LiviInlineChat - expandable contextual AI chat box.
  *
  * Renders as a collapsible bar that, when expanded, shows a lightweight
  * chat interface with Livi. Context (video/reading/quiz) is injected
@@ -127,7 +127,7 @@ export function LiviInlineChat({ contextType, contextData, label }: LiviInlineCh
               <Sparkles className="text-accent-purple/40 mx-auto size-5" />
               <p className="text-text-tertiary mt-1.5 text-xs">
                 {contextType === "quiz"
-                  ? "I'll help you think through this question — no spoilers!"
+                  ? "I'll help you think through this question - no spoilers!"
                   : "Ask me anything about this lesson content."}
               </p>
             </div>

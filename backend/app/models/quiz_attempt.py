@@ -1,4 +1,4 @@
-"""QuizAttempt model — records a learner's quiz submission and score."""
+"""QuizAttempt model - records a learner's quiz submission and score."""
 
 import uuid
 from datetime import datetime
@@ -15,7 +15,7 @@ class QuizAttempt(Base):
 
     Stores the answers given, score achieved, and whether the attempt
     resulted in a passing grade. Multiple attempts per user per lesson
-    are allowed — the best score is used for analytics.
+    are allowed - the best score is used for analytics.
     """
 
     __tablename__ = "quiz_attempts"

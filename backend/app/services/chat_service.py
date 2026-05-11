@@ -1,4 +1,4 @@
-"""Service for LiVi chat — streams AI responses via OpenRouter.
+"""Service for LiVi chat - streams AI responses via OpenRouter.
 
 Handles conversation context loading, OpenRouter API streaming,
 and message persistence in a single async generator.
@@ -38,7 +38,7 @@ INLINE_VIDEO_PROMPT = (
     "and explain topics covered in the video.\n\n"
     "Guidelines:\n"
     "- Be concise but thorough. Use markdown for formatting.\n"
-    "- Reference the video content naturally — the learner knows you have context.\n"
+    "- Reference the video content naturally - the learner knows you have context.\n"
     "- If you're unsure about specific video details, say so and offer general help.\n"
     "- Encourage curiosity and deeper exploration of the topic."
 )
@@ -63,7 +63,7 @@ INLINE_QUIZ_PROMPT = (
     "CRITICAL RULES:\n"
     "- NEVER reveal the correct answer directly.\n"
     "- NEVER say which option is correct (e.g., 'The answer is B').\n"
-    "- Give short, focused hints — 1-3 sentences max per response.\n"
+    "- Give short, focused hints - 1-3 sentences max per response.\n"
     "- Answer ONLY what the learner asked. Do not over-explain.\n"
     "- No lengthy breakdowns of every option unless specifically asked.\n"
     "- If the learner asks for the answer, politely refuse and give one "
@@ -132,7 +132,7 @@ class ChatService:
 
 
 class InlineChatService:
-    """Stateless inline chat — no thread persistence, context-aware responses."""
+    """Stateless inline chat - no thread persistence, context-aware responses."""
 
     def _build_system_prompt(self, context_type: str, context_data: dict) -> str:
         if context_type == "video":

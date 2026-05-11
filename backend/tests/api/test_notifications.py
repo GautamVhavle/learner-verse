@@ -145,7 +145,7 @@ async def test_notification_lifecycle_with_overdue_goal(client):
     )
     assert resp.status_code == 200
 
-    # Evaluate — should detect behind-pace course
+    # Evaluate - should detect behind-pace course
     resp = await client.post("/api/v1/notifications/evaluate")
     assert resp.status_code == 200
     notifications = resp.json()
@@ -221,7 +221,7 @@ async def test_evaluate_idempotent(client):
     resp1 = await client.post("/api/v1/notifications/evaluate")
     count1 = len(resp1.json())
 
-    # Second evaluation same day — should not create duplicates
+    # Second evaluation same day - should not create duplicates
     resp2 = await client.post("/api/v1/notifications/evaluate")
     count2 = len(resp2.json())
     assert count2 == 0 or count2 <= count1  # No new notifications

@@ -1,5 +1,5 @@
 /**
- * Learning statistics page — overview cards, weekly activity bar chart,
+ * Learning statistics page - overview cards, weekly activity bar chart,
  * and a responsive activity heatmap.
  */
 import { useMemo } from "react";

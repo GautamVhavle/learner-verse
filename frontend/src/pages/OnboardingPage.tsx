@@ -22,7 +22,7 @@ const STEPS = [
     title: "Welcome to Learner Verse",
     subtitle: "Your personal learning platform for YouTube courses",
     description:
-      "Import YouTube playlists, organize them into structured courses, track your progress, and earn certificates — all in one beautiful space.",
+      "Import YouTube playlists, organize them into structured courses, track your progress, and earn certificates - all in one beautiful space.",
     icon: GraduationCap,
     color: "text-accent-blue",
     bg: "bg-accent-blue/10",
@@ -37,7 +37,7 @@ const STEPS = [
     title: "Your Dashboard",
     subtitle: "Everything starts here",
     description:
-      "The dashboard shows all your courses at a glance. Create new courses, continue learning, and see your progress — always one click away.",
+      "The dashboard shows all your courses at a glance. Create new courses, continue learning, and see your progress - always one click away.",
     icon: LayoutDashboard,
     color: "text-accent-green",
     bg: "bg-accent-green/10",

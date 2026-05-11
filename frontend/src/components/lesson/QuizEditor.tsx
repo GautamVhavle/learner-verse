@@ -1,5 +1,5 @@
 /**
- * Quiz editor for course creators — add, edit, delete multiple-choice questions.
+ * Quiz editor for course creators - add, edit, delete multiple-choice questions.
  * Includes AI-powered quiz generation via LiVi.
  */
 import { useState } from "react";

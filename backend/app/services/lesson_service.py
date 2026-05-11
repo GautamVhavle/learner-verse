@@ -71,7 +71,7 @@ class LessonService:
             section_id=section_id, title=data.title, lesson_type=data.lesson_type
         )
         await self.db.commit()
-        # New lesson — construct response directly (no links or questions yet)
+        # New lesson - construct response directly (no links or questions yet)
         return LessonResponse(
             id=lesson.id,
             section_id=lesson.section_id,

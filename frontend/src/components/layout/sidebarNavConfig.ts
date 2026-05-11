@@ -11,6 +11,7 @@ import {
   BarChart3,
   Globe,
   HelpCircle,
+  Info,
   Inbox,
   LayoutDashboard,
   LineChart,
@@ -51,8 +52,11 @@ export const LEARNER_LINKS: NavLink[] = [
 /** Extra "coming soon" navigation links for Learner mode. */
 export const LEARNER_EXTRA: NavLink[] = [];
 
-/** Bottom secondary navigation (settings, help). */
+/** Bottom secondary navigation (settings, help, about). */
 export const SECONDARY_LINKS: NavLink[] = [
   { title: "Settings", icon: Settings, path: "/settings" },
   { title: "Help", icon: HelpCircle, path: "/help" },
 ];
+
+/** About link - opens a dialog instead of navigating. */
+export const ABOUT_LINK: NavLink = { title: "About", icon: Info, path: "" };

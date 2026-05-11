@@ -1,5 +1,5 @@
 /**
- * Sidebar user footer — click avatar/name to open profile,
+ * Sidebar user footer - click avatar/name to open profile,
  * click the chevron arrow for sign-out dropdown.
  */
 import { LogOut } from "lucide-react";

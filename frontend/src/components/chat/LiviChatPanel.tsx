@@ -1,5 +1,5 @@
 /**
- * LiviChatPanel — right-side resizable chat panel.
+ * LiviChatPanel - right-side resizable chat panel.
  */
 import { useEffect, useRef, useState, useCallback } from "react";
 import { PanelLeftOpen, PanelLeftClose, Sparkles, RotateCcw, Plus, X } from "lucide-react";
@@ -106,7 +106,7 @@ export function LiviChatPanel() {
         style={{ width }}
         className="border-border-primary bg-bg-primary fixed inset-y-0 right-0 z-50 flex flex-col border-l shadow-2xl transition-transform duration-200 ease-out"
       >
-        {/* Drag handle — left edge */}
+        {/* Drag handle - left edge */}
         <div
           onMouseDown={handleMouseDown}
           className="hover:bg-accent-blue/40 active:bg-accent-blue/60 absolute inset-y-0 left-0 z-10 w-1 cursor-col-resize transition-colors"
@@ -157,7 +157,7 @@ export function LiviChatPanel() {
 
         {/* ── Body ───────────────────────────────────── */}
         <div className="relative flex min-h-0 flex-1 overflow-hidden">
-          {/* Thread list drawer — slides in from left, partial width with shadow */}
+          {/* Thread list drawer - slides in from left, partial width with shadow */}
           <div
             className={`absolute inset-y-0 left-0 z-20 w-56 transition-transform duration-200 ease-in-out ${
               isThreadListOpen ? "translate-x-0" : "-translate-x-full"

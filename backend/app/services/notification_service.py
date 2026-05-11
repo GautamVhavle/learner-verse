@@ -25,7 +25,7 @@ STREAK_MILESTONES = [3, 7, 14, 30, 60, 100]
 
 
 class NotificationService:
-    """Business logic for notifications — CRUD and auto-generation."""
+    """Business logic for notifications - CRUD and auto-generation."""
 
     def __init__(self, db: AsyncSession):
         self.db = db

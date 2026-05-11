@@ -30,7 +30,7 @@ MOCK_HTML_NO_OG = """
 
 
 # ============================================================
-# fetch_opengraph — unit tests
+# fetch_opengraph - unit tests
 # ============================================================
 @pytest.mark.asyncio
 async def test_fetch_opengraph_success():
@@ -101,7 +101,7 @@ async def test_fetch_opengraph_relative_image():
 
 
 # ============================================================
-# POST /opengraph/fetch — API tests
+# POST /opengraph/fetch - API tests
 # ============================================================
 @pytest.mark.asyncio
 async def test_opengraph_endpoint_success(client):

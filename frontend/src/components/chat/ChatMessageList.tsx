@@ -1,5 +1,5 @@
 /**
- * ChatMessageList — scrollable container with auto-scroll and thinking state.
+ * ChatMessageList - scrollable container with auto-scroll and thinking state.
  */
 import { useEffect, useRef, useCallback, useState } from "react";
 import { ArrowDown, Loader2 } from "lucide-react";
@@ -25,7 +25,7 @@ export function ChatMessageList({ messages, status, isLoading }: ChatMessageList
     });
   }, []);
 
-  // Auto-scroll when messages change — but not if user has scrolled up
+  // Auto-scroll when messages change - but not if user has scrolled up
   useEffect(() => {
     if (!userScrolledRef.current) {
       // Use requestAnimationFrame for smoother scroll after DOM update

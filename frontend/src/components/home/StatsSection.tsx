@@ -1,82 +1,70 @@
 /**
- * Stats Section — large animated number tickers showing
- * platform impact metrics. Triggered on scroll into view.
+ * Why LearnerVerse section with honest, verifiable platform highlights.
+ *
+ * Replaced fabricated metrics with real product differentiators
+ * that don't claim unverified numbers.
  */
-import { useEffect, useRef, useState } from "react";
-import { NumberTicker } from "@/components/ui/number-ticker";
+import { Shield, DollarSign, Server, Cpu } from "lucide-react";
 import { BlurFade } from "@/components/ui/blur-fade";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-gsap.registerPlugin(ScrollTrigger);
-
-const STATS = [
-  { value: 98, suffix: "%", label: "Completion Rate", description: "vs 12% on raw YouTube" },
-  { value: 3, suffix: "×", label: "Faster Learning", description: "with AI-powered structure" },
-  { value: 10000, suffix: "+", label: "Study Hours Logged", description: "across all learners" },
+const HIGHLIGHTS = [
   {
-    value: 4.9,
-    suffix: "/5",
-    label: "Learner Satisfaction",
-    description: "average course rating",
-    decimals: 1,
+    icon: DollarSign,
+    iconBg: "bg-emerald-500/10",
+    iconColor: "text-emerald-400",
+    title: "100% Free",
+    description: "No hidden costs or paywalls for core features. Learn without limits.",
+  },
+  {
+    icon: Shield,
+    iconBg: "bg-blue-500/10",
+    iconColor: "text-blue-400",
+    title: "Open Source",
+    description: "Fully transparent codebase. Inspect, contribute, or self-host.",
+  },
+  {
+    icon: Cpu,
+    iconBg: "bg-purple-500/10",
+    iconColor: "text-purple-400",
+    title: "AI at Every Step",
+    description: "Quizzes, course organization, and a study companion built in.",
+  },
+  {
+    icon: Server,
+    iconBg: "bg-amber-500/10",
+    iconColor: "text-amber-400",
+    title: "Self-Hostable",
+    description: "Deploy on your own infrastructure. Full control over your data.",
   },
 ] as const;
 
 export function StatsSection() {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    if (!sectionRef.current) return;
-
-    const trigger = ScrollTrigger.create({
-      trigger: sectionRef.current,
-      start: "top 80%",
-      once: true,
-      onEnter: () => setVisible(true),
-    });
-
-    return () => trigger.kill();
-  }, []);
-
   return (
-    <section ref={sectionRef} className="relative py-24 sm:py-32">
+    <section className="relative py-24 sm:py-32">
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
         <BlurFade delay={0} inView>
           <h2 className="mb-4 text-center text-3xl font-bold tracking-tight text-white sm:text-4xl">
-            Built for{" "}
+            Why{" "}
             <span className="bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
-              serious learners.
+              LearnerVerse?
             </span>
           </h2>
-          <p className="mx-auto mb-14 max-w-xl text-center text-base text-white/50">
-            Real numbers from real learners using LearnerVerse every day.
+          <p className="mx-auto mb-14 max-w-xl text-center text-base text-white/55">
+            A learning platform that respects your time, your wallet, and your privacy.
           </p>
         </BlurFade>
 
-        <div className="grid grid-cols-2 gap-6 px-2 md:grid-cols-4 md:gap-12">
-          {STATS.map((stat, i) => (
-            <BlurFade key={stat.label} delay={i * 0.1} inView>
-              <div className="flex flex-col items-center text-center">
-                <div className="flex items-baseline gap-0.5">
-                  {visible ? (
-                    <NumberTicker
-                      value={stat.value}
-                      decimalPlaces={"decimals" in stat ? stat.decimals : 0}
-                      className="text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl"
-                    />
-                  ) : (
-                    <span className="text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl">
-                      0
-                    </span>
-                  )}
-                  <span className="text-xl font-bold text-blue-400 sm:text-2xl md:text-3xl">
-                    {stat.suffix}
-                  </span>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-4 md:gap-6">
+          {HIGHLIGHTS.map((item, i) => (
+            <BlurFade key={item.title} delay={i * 0.1} inView>
+              <div className="flex flex-col items-center rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 text-center transition-colors hover:border-white/10 hover:bg-white/[0.04]">
+                <div
+                  className={`mb-4 flex size-12 items-center justify-center rounded-xl ${item.iconBg}`}
+                >
+                  <item.icon className={`size-5 ${item.iconColor}`} />
                 </div>
-                <span className="mt-2 text-sm font-semibold text-white/70">{stat.label}</span>
-                <span className="mt-0.5 text-xs text-white/30">{stat.description}</span>
+                <h3 className="mb-1.5 text-sm font-semibold text-white">{item.title}</h3>
+                <p className="text-xs leading-relaxed text-white/45">{item.description}</p>
               </div>
             </BlurFade>
           ))}

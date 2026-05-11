@@ -1,4 +1,4 @@
-"""CourseEnrollment model — tracks which courses a user has enrolled in."""
+"""CourseEnrollment model - tracks which courses a user has enrolled in."""
 
 import uuid
 from datetime import UTC, datetime

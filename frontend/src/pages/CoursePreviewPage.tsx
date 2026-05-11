@@ -1,5 +1,5 @@
 /**
- * Course preview page — lets creators see their course as a learner would.
+ * Course preview page - lets creators see their course as a learner would.
  *
  * Renders a sidebar with expandable sections, a lesson content area,
  * and an overview placeholder when no lesson is selected.
@@ -114,7 +114,7 @@ export default function CoursePreviewPage() {
 
       {/* Main layout */}
       <div className="flex flex-col gap-6 lg:flex-row">
-        {/* Sidebar — section/lesson tree */}
+        {/* Sidebar - section/lesson tree */}
         <aside className="w-full shrink-0 lg:w-64">
           <div className="border-border-default bg-bg-secondary sticky top-4 space-y-1 rounded-xl border p-2">
             {sections?.map((section) => {

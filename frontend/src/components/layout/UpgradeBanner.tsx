@@ -1,9 +1,9 @@
 /**
- * UpgradeBanner — sidebar banner for free users only.
+ * UpgradeBanner - sidebar banner for free users only.
  * Dismissible upgrade prompt that reappears after 7 days.
  * Pro users see their badge in the sidebar header instead.
  */
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Sparkles, X } from "lucide-react";
 import { useUserQuery } from "@/hooks/useUser";
 import { useProGate } from "@/hooks/useProGate";
@@ -15,17 +15,15 @@ const DISMISS_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
 export function UpgradeBanner() {
   const { data: user } = useUserQuery();
   const { showGate, ProGate } = useProGate();
-  const [dismissed, setDismissed] = useState(false);
+  const [dismissed, setDismissed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const ts = localStorage.getItem(DISMISS_KEY);
+    if (!ts) return false;
+    return Date.now() - Number(ts) < DISMISS_DURATION;
+  });
 
   // Never show the upgrade banner when payment gateway is disabled.
   if (!PAYMENT_GATEWAY_ENABLED) return null;
-
-  useEffect(() => {
-    const ts = localStorage.getItem(DISMISS_KEY);
-    if (ts && Date.now() - Number(ts) < DISMISS_DURATION) {
-      setDismissed(true);
-    }
-  }, []);
 
   if (!user || user.is_pro || dismissed) return null;
 
@@ -50,7 +48,7 @@ export function UpgradeBanner() {
             <X className="size-3" />
           </button>
         </div>
-        <p className="text-text-tertiary text-[10px]">Unlock AI features — ₹99/mo</p>
+        <p className="text-text-tertiary text-[10px]">Unlock AI features - ₹99/mo</p>
         <button
           onClick={showGate}
           className="bg-accent-purple hover:bg-accent-purple/90 mt-2 w-full rounded-md py-1 text-[10px] font-medium text-white transition-colors"

@@ -1,5 +1,5 @@
 /**
- * React Query hooks for the Course Hub — public course discovery,
+ * React Query hooks for the Course Hub - public course discovery,
  * private (my) courses, and ratings.
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";

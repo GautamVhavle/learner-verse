@@ -1,5 +1,5 @@
 /**
- * Quiz player for learners — take a quiz, submit answers, view results.
+ * Quiz player for learners - take a quiz, submit answers, view results.
  */
 import { useState, useCallback } from "react";
 import {
@@ -92,7 +92,7 @@ export function QuizPlayer({ lessonId, lessonTitle, onQuizCompleted }: QuizPlaye
           </div>
           <h3 className="text-text-primary mt-4 text-lg font-semibold">Ready to take the quiz?</h3>
           <p className="text-text-secondary mt-2 text-sm">
-            {questions.length} question{questions.length !== 1 ? "s" : ""} — Multiple choice
+            {questions.length} question{questions.length !== 1 ? "s" : ""} - Multiple choice
           </p>
           <p className="text-text-tertiary mt-1 text-xs">
             Score 60% or more to pass. You can retake as many times as you'd like.
@@ -283,7 +283,7 @@ export function QuizPlayer({ lessonId, lessonTitle, onQuizCompleted }: QuizPlaye
             {result.score}/{result.total}
           </p>
           <p className="text-text-secondary text-sm">
-            {result.percentage}% — {passed ? "Passed" : "60% needed to pass"}
+            {result.percentage}% - {passed ? "Passed" : "60% needed to pass"}
           </p>
           <div className="mt-4 flex justify-center gap-3">
             <Button variant="outline" size="sm" onClick={handleRetake}>

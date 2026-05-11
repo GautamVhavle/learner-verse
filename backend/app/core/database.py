@@ -1,6 +1,6 @@
 """Async SQLAlchemy engine and session factory.
 
-Provides ``get_db`` — a FastAPI dependency that yields an ``AsyncSession``
+Provides ``get_db`` - a FastAPI dependency that yields an ``AsyncSession``
 scoped to a single request lifetime.
 """
 
@@ -9,7 +9,7 @@ from sqlalchemy.pool import NullPool
 
 from app.core.config import settings
 
-# Use NullPool — no connections are held open between requests.
+# Use NullPool - no connections are held open between requests.
 # This is the correct (and Supabase-recommended) approach when the app
 # connects through PgBouncer in Session mode. PgBouncer itself is the
 # pool; a second pool inside SQLAlchemy only causes "max clients reached"
@@ -36,7 +36,7 @@ async_session_maker = async_sessionmaker(
 
 
 async def get_db() -> AsyncSession:
-    """FastAPI dependency — yields a database session and closes it afterward."""
+    """FastAPI dependency - yields a database session and closes it afterward."""
     async with async_session_maker() as session:
         try:
             yield session

@@ -1,5 +1,5 @@
 /**
- * GitHub-style activity heatmap — fully responsive.
+ * GitHub-style activity heatmap - fully responsive.
  *
  * On large screens renders 52 weeks. On smaller screens it
  * automatically reduces the number of visible weeks to fit the

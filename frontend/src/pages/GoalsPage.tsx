@@ -32,7 +32,7 @@ export default function GoalsPage() {
     goalDate: string | null;
   }>({ open: false, courseId: "", courseTitle: "", goalDate: null });
 
-  // Courses without goals — for "Add Goal" flow
+  // Courses without goals - for "Add Goal" flow
   const goalCourseIds = new Set((goals ?? []).map((g) => g.course_id));
   const coursesWithoutGoals = (courses?.items ?? []).filter((c) => !goalCourseIds.has(c.id));
 

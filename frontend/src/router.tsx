@@ -43,14 +43,14 @@ const CourseAnalyticsDetailPage = lazy(() => import("@/pages/CourseAnalyticsDeta
 const PublicProfilePage = lazy(() => import("@/pages/PublicProfilePage"));
 const PublicCoursePage = lazy(() => import("@/pages/PublicCoursePage"));
 
-// Payment-gated pages — only loaded when PAYMENT_GATEWAY_ENABLED is true.
+// Payment-gated pages - only loaded when PAYMENT_GATEWAY_ENABLED is true.
 // The lazy() calls are harmless even if the underlying files are stubs;
 // they will simply never be rendered when the flag is false.
 const PricingPage = lazy(() => import("@/pages/PricingPage"));
 const RenewPage = lazy(() => import("@/pages/RenewPage"));
 const SuperadminDashboardPage = lazy(() => import("@/pages/SuperadminDashboardPage"));
 
-/** Protects the /superadmin route — redirects non-admins to /creator. */
+/** Protects the /superadmin route - redirects non-admins to /creator. */
 function SuperadminGuard({ children }: { children: React.ReactNode }) {
   const { data: user, isLoading } = useUserQuery();
   if (isLoading) return null;

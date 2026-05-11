@@ -1,5 +1,5 @@
 /**
- * Course Analytics detail page — per-course enrollment, completion,
+ * Course Analytics detail page - per-course enrollment, completion,
  * ratings breakdown, enrolled learners, and shareable link.
  */
 import { useState } from "react";
@@ -344,7 +344,7 @@ export default function CourseAnalyticsDetailPage() {
         />
         <MiniStat
           label="Avg Rating"
-          value={hasRatings ? `${course.average_rating} ★` : "—"}
+          value={hasRatings ? `${course.average_rating} ★` : "-"}
           icon={Star}
           accent="text-amber-500"
         />
@@ -536,7 +536,7 @@ export default function CourseAnalyticsDetailPage() {
               <CardHeader>
                 <CardTitle className="text-base">Shareable Link</CardTitle>
                 <CardDescription>
-                  Share this link on social media — includes OpenGraph preview with course image and
+                  Share this link on social media - includes OpenGraph preview with course image and
                   description
                 </CardDescription>
               </CardHeader>

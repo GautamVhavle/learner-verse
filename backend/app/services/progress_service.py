@@ -141,9 +141,9 @@ class ProgressService:
         lessons_per_week_needed = remaining / weeks_remaining
 
         # Determine pace status using clear thresholds:
-        #   "ahead"    — 70%+ done with 30%+ time remaining
-        #   "behind"   — need more than 5 lessons/week
-        #   "on_track" — everything else
+        #   "ahead"    - 70%+ done with 30%+ time remaining
+        #   "behind"   - need more than 5 lessons/week
+        #   "on_track" - everything else
         pace_status = _classify_pace(
             total_lessons=total_lessons,
             completed_lessons=completed_lessons,

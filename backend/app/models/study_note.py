@@ -1,4 +1,4 @@
-"""StudyNote model — per-user personal notes attached to a lesson."""
+"""StudyNote model - per-user personal notes attached to a lesson."""
 
 import uuid
 from datetime import datetime
@@ -13,7 +13,7 @@ from app.models.types import UUIDType
 class StudyNote(Base):
     """A user's private study notes for a specific lesson.
 
-    Supports upsert semantics — one note per (user, lesson) pair.
+    Supports upsert semantics - one note per (user, lesson) pair.
     Content is freeform text.
     """
 

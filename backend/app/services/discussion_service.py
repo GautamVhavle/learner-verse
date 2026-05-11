@@ -36,7 +36,7 @@ MIVI_SYSTEM_PROMPT = (
     "- If unsure, say so honestly and suggest the user ask the course creator.\n"
     "- Keep responses under 500 words. Use markdown for formatting.\n"
     "- Do not generate code unless specifically asked.\n"
-    "- You are in a group discussion — be respectful and inclusive."
+    "- You are in a group discussion - be respectful and inclusive."
 )
 
 MIVI_TAG_PATTERN = re.compile(r"@[Mm]i[Vv]i\b")

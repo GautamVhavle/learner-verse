@@ -1,5 +1,5 @@
 /**
- * Course Hub page — unified course discovery with public/private tabs.
+ * Course Hub page - unified course discovery with public/private tabs.
  *
  * "Public" tab shows all community-published courses.
  * "My Courses" tab shows the current user's own courses with stats.
@@ -61,7 +61,7 @@ export default function CourseHubPage() {
       // Creator can go directly to builder for their own courses
       navigate(`${modePrefix}/courses/${courseId}/edit`);
     } else {
-      // Learner or public tab — go to hub detail page
+      // Learner or public tab - go to hub detail page
       navigate(`${modePrefix}/hub/${courseId}`);
     }
   };

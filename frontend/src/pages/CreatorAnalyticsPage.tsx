@@ -1,5 +1,5 @@
 /**
- * Creator Analytics page — overview stats, enrollment/completion trends,
+ * Creator Analytics page - overview stats, enrollment/completion trends,
  * rating distribution, top courses, and per-course drill-down table.
  */
 import { useState } from "react";
@@ -273,7 +273,7 @@ export default function CreatorAnalyticsPage() {
         />
         <StatCard
           label="Average Rating"
-          value={hasRatings ? `${overview.average_rating} ★` : "—"}
+          value={hasRatings ? `${overview.average_rating} ★` : "-"}
           sub={hasRatings ? `${overview.total_ratings} ratings` : "No ratings yet"}
           icon={Star}
           accent="text-amber-500"

@@ -1,13 +1,13 @@
-# LearnerVerse — Full Documentation for LLMs
+# LearnerVerse - Full Documentation for LLMs
 
 ## Overview
 LearnerVerse (https://learnerverse.xyz) is an AI-powered educational platform that converts YouTube videos and playlists into structured learning courses. It is built for self-learners, students, and anyone who learns from YouTube content.
 
 ## How It Works
-1. **Paste a YouTube URL** — A single video or entire playlist.
-2. **AI Organizes** — The AI engine (powered by OpenRouter) analyzes video titles, descriptions, and metadata to create a logically structured course with sections and lessons.
-3. **Learn & Track** — Watch videos within the platform while tracking progress, completing quizzes, and taking notes.
-4. **Earn Certificates** — Complete all lessons and quizzes to receive a verifiable certificate with a unique shareable link.
+1. **Paste a YouTube URL** - A single video or entire playlist.
+2. **AI Organizes** - The AI engine (powered by OpenRouter) analyzes video titles, descriptions, and metadata to create a logically structured course with sections and lessons.
+3. **Learn & Track** - Watch videos within the platform while tracking progress, completing quizzes, and taking notes.
+4. **Earn Certificates** - Complete all lessons and quizzes to receive a verifiable certificate with a unique shareable link.
 
 ## Detailed Features
 
@@ -23,7 +23,7 @@ LearnerVerse (https://learnerverse.xyz) is an AI-powered educational platform th
 - Score tracking and attempt history
 - Retry capability
 
-### LiVi — AI Study Companion
+### LiVi - AI Study Companion
 - Inline AI chat available on every lesson page
 - Ask questions about the lesson content
 - Get explanations, summaries, and clarifications
@@ -63,15 +63,15 @@ LearnerVerse (https://learnerverse.xyz) is an AI-powered educational platform th
 - Creator and Learner mode switching
 
 ## Public Routes (Crawlable)
-- `/` — Landing page with product overview
-- `/home` — Same as landing page
-- `/login` — Authentication page
-- `/certificates/share/:uid` — Public certificate verification
-- `/profile/:userId` — Public user profiles
+- `/` - Landing page with product overview
+- `/home` - Same as landing page
+- `/login` - Authentication page
+- `/certificates/share/:uid` - Public certificate verification
+- `/profile/:userId` - Public user profiles
 
 ## Authenticated Routes (Not Crawlable)
-- `/creator/*` — Course creation and management dashboard
-- `/learner/*` — Course learning and study interface
+- `/creator/*` - Course creation and management dashboard
+- `/learner/*` - Course learning and study interface
 
 ## API
 - Backend API: https://learner-verse.fastapicloud.dev

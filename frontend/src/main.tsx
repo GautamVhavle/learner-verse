@@ -1,5 +1,5 @@
 /**
- * Application entry point — sets up React Query, auth provider, and mounts the router.
+ * Application entry point - sets up React Query, auth provider, and mounts the router.
  */
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode } from "react";

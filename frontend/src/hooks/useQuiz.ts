@@ -21,7 +21,7 @@ const quizKeys = {
   best: (lessonId: string) => ["quiz-best", lessonId] as const,
 };
 
-/** Shared section query key — must match useSections.ts */
+/** Shared section query key - must match useSections.ts */
 const sectionKeys = {
   all: (courseId: string) => ["sections", courseId] as const,
 };

@@ -1,4 +1,4 @@
-"""Course model — top-level learning container with sections and lessons."""
+"""Course model - top-level learning container with sections and lessons."""
 
 import uuid
 from datetime import datetime

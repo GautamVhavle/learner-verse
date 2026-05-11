@@ -1,5 +1,5 @@
 /**
- * Reusable star rating component — supports read-only display and interactive input.
+ * Reusable star rating component - supports read-only display and interactive input.
  */
 import { Star } from "lucide-react";
 import { useState } from "react";

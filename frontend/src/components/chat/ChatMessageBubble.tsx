@@ -1,5 +1,5 @@
 /**
- * ChatMessageBubble — clean, left-aligned message display.
+ * ChatMessageBubble - clean, left-aligned message display.
  *
  * User messages are right-aligned minimal bubbles.
  * Assistant messages are full-width with markdown, no bubble.
@@ -82,7 +82,7 @@ export const ChatMessageBubble = memo(function ChatMessageBubble({
           )}
         </div>
 
-        {/* Actions row — shows on hover */}
+        {/* Actions row - shows on hover */}
         {!isStreaming && message.content && (
           <div className="mt-1 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
             <button

@@ -1,9 +1,9 @@
 /**
  * React Query hooks for course enrollment.
  *
- * useEnrolledCoursesQuery — fetch the courses the user has enrolled in.
- * useEnrollMutation       — enroll in a course by ID.
- * useUnenrollMutation     — unenroll from a course by ID.
+ * useEnrolledCoursesQuery - fetch the courses the user has enrolled in.
+ * useEnrollMutation       - enroll in a course by ID.
+ * useUnenrollMutation     - unenroll from a course by ID.
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";

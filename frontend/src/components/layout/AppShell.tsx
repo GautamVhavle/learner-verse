@@ -32,12 +32,16 @@ export function AppShell({ mode }: AppShellProps) {
   const { focusMode, setFocusMode } = useFocusMode();
   const [searchOpen, setSearchOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
-  const [showProWelcome, setShowProWelcome] = useState(false);
+  const [proWelcomeDismissed, setProWelcomeDismissed] = useState(false);
   const [showVerificationDialog, setShowVerificationDialog] = useState(false);
   const { data: user, isLoading: userLoading } = useUserQuery();
   const [onboardingDismissed, setOnboardingDismissed] = useState(false);
   const { toggleChat } = useChatStore();
   const prevIsProRef = useRef<boolean | null>(null);
+  const [proWelcomePending] = useState(() => {
+    if (typeof window === "undefined") return null;
+    return sessionStorage.getItem(PRO_WELCOME_PENDING_KEY);
+  });
 
   const handleToggleMode = useCallback(() => {
     const newMode = mode === "creator" ? "student" : "creator";
@@ -86,21 +90,23 @@ export function AppShell({ mode }: AppShellProps) {
 
   useKeyboardShortcuts(shortcuts());
 
-  // Show welcome dialog reliably after a successful Pro activation.
+  // eslint-disable-next-line react-hooks/refs
+  const justActivated = prevIsProRef.current === false && user?.is_pro === true;
+  const shouldShowProWelcome =
+    Boolean(user?.is_pro) && !proWelcomeDismissed && (Boolean(proWelcomePending) || justActivated);
+
+  // Track previous Pro state without triggering a re-render.
   useEffect(() => {
     if (!user || userLoading) return;
-
-    const pending = sessionStorage.getItem(PRO_WELCOME_PENDING_KEY);
-    const previous = prevIsProRef.current;
-    const justActivated = previous === false && user.is_pro;
-
-    if (user.is_pro && (Boolean(pending) || justActivated)) {
-      setShowProWelcome(true);
-      sessionStorage.removeItem(PRO_WELCOME_PENDING_KEY);
-    }
-
     prevIsProRef.current = user.is_pro;
   }, [user, userLoading]);
+
+  // Clear the pending flag once the dialog is shown.
+  useEffect(() => {
+    if (shouldShowProWelcome && proWelcomePending) {
+      sessionStorage.removeItem(PRO_WELCOME_PENDING_KEY);
+    }
+  }, [shouldShowProWelcome, proWelcomePending]);
 
   // Show onboarding for first-time users
   if (!userLoading && user && !user.onboarding_complete && !onboardingDismissed) {
@@ -110,14 +116,14 @@ export function AppShell({ mode }: AppShellProps) {
   return (
     <TooltipProvider>
       <SidebarProvider>
-        {/* Skip to content — accessibility */}
+        {/* Skip to content - accessibility */}
         <a
           href="#main-content"
           className="focus:bg-accent-blue sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white"
         >
           Skip to content
         </a>
-        {/* Hide sidebar in focus mode — keep tree stable to avoid unmounting Outlet */}
+        {/* Hide sidebar in focus mode - keep tree stable to avoid unmounting Outlet */}
         {!focusMode && <AppSidebar mode={mode} onToggleMode={handleToggleMode} />}
         <SidebarInset className="h-svh overflow-y-auto">
           {!focusMode && (
@@ -137,7 +143,12 @@ export function AppShell({ mode }: AppShellProps) {
       <KeyboardShortcuts open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
       <LiviChatPanel />
       <FontSizeSync />
-      <CongratulationsDialog open={showProWelcome} onOpenChange={setShowProWelcome} />
+      <CongratulationsDialog
+        open={shouldShowProWelcome}
+        onOpenChange={(open) => {
+          if (!open) setProWelcomeDismissed(true);
+        }}
+      />
       <VerificationRequestDialog
         open={showVerificationDialog}
         onOpenChange={setShowVerificationDialog}

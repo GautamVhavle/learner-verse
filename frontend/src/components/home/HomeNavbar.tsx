@@ -13,16 +13,14 @@ import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/s
 import { useAuth } from "@/hooks/useAuth";
 import { useMode } from "@/hooks/useMode";
 import { SINGLE_USER_MODE } from "@/lib/auth";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
+import { gsap } from "@/lib/gsap";
 
 const NAV_LINKS = [
   { label: "Features", href: "#features" },
   { label: "How It Works", href: "#how-it-works" },
+  { label: "Use Cases", href: "#testimonials" },
   { label: "Pricing", href: "#pricing" },
-  { label: "Testimonials", href: "#testimonials" },
+  { label: "FAQ", href: "#faq" },
 ] as const;
 
 export function HomeNavbar() {

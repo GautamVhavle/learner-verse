@@ -1,4 +1,4 @@
-"""API endpoints for creator analytics — overview, per-course, ratings, learners."""
+"""API endpoints for creator analytics - overview, per-course, ratings, learners."""
 
 import uuid
 

@@ -2,7 +2,7 @@
  * React Query hooks for the superadmin dashboard API.
  *
  * All hooks hit /api/v1/superadmin/* which is protected server-side.
- * The client-side isSuperadmin() check is a UX guard only — the server
+ * The client-side isSuperadmin() check is a UX guard only - the server
  * enforces the real authorization boundary.
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";

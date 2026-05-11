@@ -1,4 +1,4 @@
-"""Discussion message model — per-course group chat messages."""
+"""Discussion message model - per-course group chat messages."""
 
 import uuid
 from datetime import datetime

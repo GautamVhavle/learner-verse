@@ -2,7 +2,7 @@
  * Renders the main lesson content area: YouTube embed, markdown
  * notes, reference links, and a fallback for empty lessons.
  *
- * This is a pure presentational component — it receives all data
+ * This is a pure presentational component - it receives all data
  * via props and contains no data-fetching logic.
  */
 import { useMemo } from "react";

@@ -1,5 +1,5 @@
 /**
- * Danger Zone section — destructive account actions with confirmation dialogs.
+ * Danger Zone section - destructive account actions with confirmation dialogs.
  */
 import { useState } from "react";
 import { AlertTriangle, Trash2, BookX, BarChart3, UserX, Loader2 } from "lucide-react";
@@ -61,7 +61,7 @@ const DANGER_ACTIONS: DangerAction[] = [
   {
     id: "data",
     title: "Delete All My Data",
-    description: "Wipe everything — courses, progress, chats, stats — while keeping your account.",
+    description: "Wipe everything - courses, progress, chats, stats - while keeping your account.",
     icon: Trash2,
     confirmTitle: "Delete all your data?",
     confirmDescription:
@@ -144,7 +144,7 @@ export function DangerZoneSection() {
         <div>
           <h2 className="text-accent-red text-sm font-semibold">Danger Zone</h2>
           <p className="text-text-tertiary text-[11px]">
-            Irreversible actions — proceed with caution
+            Irreversible actions - proceed with caution
           </p>
         </div>
       </div>

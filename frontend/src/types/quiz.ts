@@ -12,7 +12,7 @@ export interface QuizQuestion {
   created_at: string;
 }
 
-/** Question as seen by learners — no correct_option field. */
+/** Question as seen by learners - no correct_option field. */
 export interface QuizQuestionLearner {
   id: string;
   question: string;

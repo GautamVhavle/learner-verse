@@ -210,7 +210,7 @@ RULES:
 - Each question must have exactly 4 options labeled A, B, C, D
 - Exactly one option must be correct
 - Questions should be clear, unambiguous, and educational
-- Options should be plausible — no obviously wrong answers
+- Options should be plausible - no obviously wrong answers
 - Difficulty levels:
   - easy: basic recall and understanding
   - medium: application and analysis
@@ -441,7 +441,7 @@ async def get_questions_for_learner(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Get questions without correct answers — for learner quiz-taking UI."""
+    """Get questions without correct answers - for learner quiz-taking UI."""
     await _verify_learner_access(db, lesson_id, user.id)
     repo = QuizRepository(db)
     questions = await repo.list_questions(lesson_id)

@@ -1,15 +1,12 @@
 /**
- * How It Works — 3-step flow showing the journey from
+ * How It Works: 3-step flow showing the journey from
  * YouTube video to mastery. Each step connected visually
- * with dotted lines animated on scroll.
+ * with arrows animated on scroll.
  */
 import { useEffect, useRef } from "react";
 import { Upload, GraduationCap, Trophy, Youtube, Sparkles, ArrowRight } from "lucide-react";
 import { BlurFade } from "@/components/ui/blur-fade";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
+import { gsap } from "@/lib/gsap";
 
 const STEPS = [
   {
@@ -128,6 +125,8 @@ export function HowItWorks() {
 
   return (
     <section id="how-it-works" ref={sectionRef} className="relative py-24 sm:py-32">
+      {/* Subtle purple background glow */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_50%,_rgba(139,92,246,0.04)_0%,_transparent_70%)]" />
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         {/* Heading */}
         <BlurFade delay={0} inView>
@@ -143,8 +142,8 @@ export function HowItWorks() {
               </span>{" "}
               in 3 steps.
             </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-base text-white/50 sm:text-lg">
-              No complicated setup. Just paste a link and start learning.
+            <p className="mx-auto mt-4 max-w-2xl text-base text-white/55 sm:text-lg">
+              No complicated setup. Paste a link and start learning with structure.
             </p>
           </div>
         </BlurFade>
@@ -154,7 +153,7 @@ export function HowItWorks() {
           {STEPS.map((step, i) => (
             <div
               key={step.number}
-              className="step-card relative flex flex-col rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 opacity-0 sm:p-6"
+              className="step-card relative flex flex-col rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 opacity-0 transition-all duration-300 hover:-translate-y-1 hover:border-white/10 hover:bg-white/[0.04] sm:p-6"
             >
               {/* Step number badge */}
               <div className="mb-4 flex items-center justify-between">
@@ -171,7 +170,7 @@ export function HowItWorks() {
               {/* Content */}
               <h3 className="text-xl font-bold text-white">{step.title}</h3>
               <p className="mt-0.5 text-sm font-medium text-white/40">{step.subtitle}</p>
-              <p className="mt-3 flex-1 text-sm leading-relaxed text-white/45">
+              <p className="mt-3 flex-1 text-sm leading-relaxed text-white/50">
                 {step.description}
               </p>
 

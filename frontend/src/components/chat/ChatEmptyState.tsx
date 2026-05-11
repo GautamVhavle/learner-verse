@@ -1,5 +1,5 @@
 /**
- * ChatEmptyState — welcome screen with contextual suggestions.
+ * ChatEmptyState - welcome screen with contextual suggestions.
  */
 import { Sparkles, BookOpen, Brain, MessageSquare, HelpCircle } from "lucide-react";
 

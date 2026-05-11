@@ -1,4 +1,4 @@
-"""Pydantic schemas for LiVi chat — threads and messages."""
+"""Pydantic schemas for LiVi chat - threads and messages."""
 
 import uuid
 from datetime import datetime

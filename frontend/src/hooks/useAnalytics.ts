@@ -1,5 +1,5 @@
 /**
- * React Query hooks for creator analytics — overview, per-course,
+ * React Query hooks for creator analytics - overview, per-course,
  * ratings detail, learners, and top courses.
  */
 import { useQuery } from "@tanstack/react-query";
@@ -62,7 +62,7 @@ export function useCourselearnersQuery(courseId: string, page = 1) {
   });
 }
 
-/** @alias useCourselearnersQuery — camelCase alias for consistent naming. */
+/** @alias useCourselearnersQuery - camelCase alias for consistent naming. */
 export const useCourseLearnerQuery = useCourselearnersQuery;
 
 // ── Top Courses ─────────────────────────────────────────────

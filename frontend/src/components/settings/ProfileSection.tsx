@@ -1,5 +1,5 @@
 /**
- * Profile editing section — cover image, avatar, display name, bio,
+ * Profile editing section - cover image, avatar, display name, bio,
  * tags, social links, and public profile toggle.
  *
  * Details and Links use an explicit Edit → Save / Cancel flow to avoid
@@ -206,7 +206,7 @@ export function ProfileSection({ user, onSave }: ProfileSectionProps) {
             {user.cover_image_url ? "Change cover" : "Add cover"}
           </button>
 
-          {/* Avatar — overlaps cover bottom edge */}
+          {/* Avatar - overlaps cover bottom edge */}
           <div className="absolute -bottom-14 left-5">
             <div className="relative">
               <Avatar className="ring-bg-secondary size-28 shadow-lg ring-4">

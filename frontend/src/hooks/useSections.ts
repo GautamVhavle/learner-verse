@@ -158,7 +158,7 @@ async function pollOrganizeTask(
         localStorage.removeItem(getStorageKey(courseId));
         throw new Error(res.error ?? "Organization failed");
       }
-      // still pending — keep polling
+      // still pending - keep polling
     } catch (err: unknown) {
       // 404 = task not found (may not have propagated to DB yet, or expired)
       // Keep polling for a grace period, then give up
@@ -167,7 +167,7 @@ async function pollOrganizeTask(
           localStorage.removeItem(getStorageKey(courseId));
           throw new Error("Task expired. Please try again.");
         }
-        // else keep polling — task row may not have committed yet
+        // else keep polling - task row may not have committed yet
         continue;
       }
       throw err;

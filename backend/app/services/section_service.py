@@ -60,7 +60,7 @@ class SectionService:
             position=next_pos,
         )
         await self.db.commit()
-        # New section — construct response directly (no lessons yet)
+        # New section - construct response directly (no lessons yet)
         return SectionResponse(
             id=section.id,
             course_id=section.course_id,

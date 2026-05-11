@@ -3,7 +3,7 @@
  *
  * The set of superadmin emails is injected at build time via the
  * VITE_SUPERADMIN_EMAILS environment variable (comma-separated).
- * This is a client-side UX guard only — all actual superadmin API
+ * This is a client-side UX guard only - all actual superadmin API
  * endpoints are protected server-side by the `get_superadmin_user`
  * FastAPI dependency.
  */

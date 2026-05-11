@@ -1,6 +1,6 @@
 """Shared FastAPI dependencies for authentication and session management.
 
-Provides ``get_current_user`` — the central authentication dependency
+Provides ``get_current_user`` - the central authentication dependency
 that resolves the current user in both single-user and Auth0-based
 multi-user modes.
 """
@@ -83,7 +83,7 @@ async def get_current_user(
                 )
 
     # When the payment gateway is disabled, treat every user as Pro.
-    # This is a runtime override — no database write — so it's safe and
+    # This is a runtime override - no database write - so it's safe and
     # reversible. Self-hosters get all features unlocked by default.
     if not settings.PAYMENT_GATEWAY_ENABLED:
         user.is_pro = True

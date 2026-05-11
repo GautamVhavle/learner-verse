@@ -1,5 +1,5 @@
 /**
- * ChatThreadList — history sidebar with depth/inset styling.
+ * ChatThreadList - history sidebar with depth/inset styling.
  */
 import { formatDistanceToNow } from "date-fns";
 import { Clock, MessageSquare, Trash2 } from "lucide-react";

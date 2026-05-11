@@ -70,7 +70,7 @@ def test_streak_consecutive_days():
 def test_streak_grace_period():
     """Days within 7-day grace period still count as a streak."""
     today = date(2026, 3, 20)
-    # Activity on Mar 10, Mar 17, Mar 20 — gaps of 7 and 3 days
+    # Activity on Mar 10, Mar 17, Mar 20 - gaps of 7 and 3 days
     dates = [date(2026, 3, 10), date(2026, 3, 17), date(2026, 3, 20)]
     current, longest = StatsService._compute_streaks(dates, today)
     assert current == 3  # all within grace

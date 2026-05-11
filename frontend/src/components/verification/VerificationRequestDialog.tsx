@@ -1,5 +1,5 @@
 /**
- * VerificationRequestDialog — lets creators apply for the verified badge.
+ * VerificationRequestDialog - lets creators apply for the verified badge.
  *
  * Shows: current status (pending/approved/rejected with history) OR an application form.
  * Supports: withdraw pending application, view rejection reasons, resubmit.
@@ -195,7 +195,7 @@ export function VerificationRequestDialog({ open, onOpenChange }: VerificationRe
         )}
 
         <DialogFooter>
-          {/* Pending state — show Withdraw button */}
+          {/* Pending state - show Withdraw button */}
           {hasPending && !hasApproved && !isLoading && (
             <Button
               variant="outline"
@@ -206,7 +206,7 @@ export function VerificationRequestDialog({ open, onOpenChange }: VerificationRe
               {withdrawMutation.isPending ? "Withdrawing…" : "Withdraw Application"}
             </Button>
           )}
-          {/* Apply / Re-apply state — show Cancel + Submit + Withdraw (if rejected) */}
+          {/* Apply / Re-apply state - show Cancel + Submit + Withdraw (if rejected) */}
           {!hasApproved && !hasPending && !isLoading && (
             <>
               {wasRejected && (
@@ -234,7 +234,7 @@ export function VerificationRequestDialog({ open, onOpenChange }: VerificationRe
               </Button>
             </>
           )}
-          {/* Approved — just close */}
+          {/* Approved - just close */}
           {hasApproved && !isLoading && (
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Close

@@ -1,5 +1,5 @@
 /**
- * VerifiedBadge — shows a blue checkmark badge for verified creators.
+ * VerifiedBadge - shows a blue checkmark badge for verified creators.
  *
  * Used on: public profiles, course cards, creator header, hub pages.
  */
@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 interface VerifiedBadgeProps {
   className?: string;
-  /** Size in pixels — controls icon dimensions */
+  /** Size in pixels - controls icon dimensions */
   size?: number;
   /** If true, shows "Verified Creator" text alongside the icon */
   showLabel?: boolean;

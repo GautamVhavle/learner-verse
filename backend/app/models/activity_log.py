@@ -1,4 +1,4 @@
-"""ActivityLog model — daily lesson-completion counts for streak/heatmap tracking."""
+"""ActivityLog model - daily lesson-completion counts for streak/heatmap tracking."""
 
 import uuid
 from datetime import date

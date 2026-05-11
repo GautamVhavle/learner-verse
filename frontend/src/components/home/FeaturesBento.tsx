@@ -1,5 +1,5 @@
 /**
- * Features Bento Grid — 6 product features in an asymmetric
+ * Features Bento Grid: 6 product features in an asymmetric
  * Apple-style bento layout. Each card has an icon, title,
  * description, and a small animated visual.
  */
@@ -17,10 +17,7 @@ import {
 import { BorderBeam } from "@/components/ui/border-beam";
 import { BlurFade } from "@/components/ui/blur-fade";
 import { Marquee } from "@/components/ui/marquee";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
+import { gsap } from "@/lib/gsap";
 
 /* ─── Mini visuals inside bento cards ─── */
 
@@ -295,7 +292,7 @@ const FEATURES: Feature[] = [
     iconBg: "bg-emerald-500/10",
     title: "LiVi AI Chat",
     description:
-      "Ask LiVi about any lesson. Get instant explanations, hints, and deeper understanding — right where you study.",
+      "Ask LiVi about any lesson. Get instant explanations, hints, and deeper understanding, right where you study.",
     visual: <ChatVisual />,
     className: "md:col-span-1",
   },
@@ -376,9 +373,9 @@ export function FeaturesBento() {
                 learn effectively.
               </span>
             </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-base text-white/50 sm:text-lg">
-              From building courses to earning certificates — every tool is designed to maximize
-              your learning from YouTube content.
+            <p className="mx-auto mt-4 max-w-2xl text-base text-white/55 sm:text-lg">
+              From building courses to earning certificates, every tool is designed to maximize your
+              learning from YouTube content.
             </p>
           </div>
         </BlurFade>
@@ -398,7 +395,7 @@ export function FeaturesBento() {
                 </div>
                 <h3 className="text-base font-semibold text-white">{feat.title}</h3>
               </div>
-              <p className="mt-2 text-sm leading-relaxed text-white/45">{feat.description}</p>
+              <p className="mt-2 text-sm leading-relaxed text-white/55">{feat.description}</p>
               {feat.visual}
             </div>
           ))}

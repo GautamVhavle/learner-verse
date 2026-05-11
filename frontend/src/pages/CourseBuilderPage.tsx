@@ -1,5 +1,5 @@
 /**
- * Course builder page — the creator's editing workspace.
+ * Course builder page - the creator's editing workspace.
  *
  * Provides a section/lesson tree editor with drag-and-drop reordering,
  * inline title editing, a detail panel for lesson content, course
@@ -135,7 +135,7 @@ export default function CourseBuilderPage() {
           ) ?? 0;
         setImportPayload(parsed);
         setImportSummary(
-          `"${courseTitle}" — ${sectionCount} section${sectionCount !== 1 ? "s" : ""}, ${lessonCount} lesson${lessonCount !== 1 ? "s" : ""}`,
+          `"${courseTitle}" - ${sectionCount} section${sectionCount !== 1 ? "s" : ""}, ${lessonCount} lesson${lessonCount !== 1 ? "s" : ""}`,
         );
         setImportValidating(false);
         setShowImportConfirm(true);

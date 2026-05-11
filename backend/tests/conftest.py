@@ -23,7 +23,7 @@ if "supabase" in _db_url or "neon" in _db_url or "amazonaws" in _db_url:
         "Example: DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/learnerverse_test"
     )
 
-# NullPool ensures each connection is fresh — avoids "another operation in progress"
+# NullPool ensures each connection is fresh - avoids "another operation in progress"
 _test_engine_kwargs: dict = dict(
     echo=False,
     poolclass=NullPool,

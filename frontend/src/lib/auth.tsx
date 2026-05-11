@@ -49,6 +49,7 @@ function AuthTokenSync({ children }: { children: ReactNode }) {
       setAccessTokenGetter(null);
       setUnauthorizedHandler(null);
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTokenReady(true);
 
     return () => {
@@ -91,7 +92,7 @@ function AuthTokenSync({ children }: { children: ReactNode }) {
           }
         }
       } catch {
-        // Non-critical — profile sync failure shouldn't block the app.
+        // Non-critical - profile sync failure shouldn't block the app.
       }
     })();
   }, [tokenReady, isAuthenticated, user]);
@@ -114,7 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
   }
 
-  const handleRedirectCallback = (appState: any) => {
+  const handleRedirectCallback = (appState?: { returnTo?: string }) => {
     // After Auth0 login, redirect to the intended destination (default: creator dashboard)
     const returnTo = appState?.returnTo || "/creator";
     window.location.replace(returnTo);

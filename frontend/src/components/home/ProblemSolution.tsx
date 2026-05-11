@@ -9,10 +9,7 @@ import { useEffect, useRef } from "react";
 import { X, Check, Youtube, Brain } from "lucide-react";
 import { MagicCard } from "@/components/ui/magic-card";
 import { BlurFade } from "@/components/ui/blur-fade";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
+import { gsap } from "@/lib/gsap";
 
 const PAIN_POINTS = [
   "Scattered across dozens of browser tabs",
@@ -74,6 +71,8 @@ export function ProblemSolution() {
 
   return (
     <section ref={sectionRef} className="relative py-24 sm:py-32">
+      {/* Subtle section background */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_50%,_rgba(239,68,68,0.04)_0%,_transparent_70%)]" />
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         {/* Section heading */}
         <BlurFade delay={0} inView>
@@ -84,9 +83,9 @@ export function ProblemSolution() {
                 broken.
               </span>
             </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-base text-white/50 sm:text-lg">
-              YouTube has incredible educational content. But watching playlists without structure,
-              quizzes, or tracking doesn't lead to real learning.
+            <p className="mx-auto mt-4 max-w-2xl text-base text-white/55 sm:text-lg">
+              YouTube has the best educational content on the planet. But watching playlists without
+              structure, quizzes, or progress tracking doesn't build real skills.
             </p>
           </div>
         </BlurFade>

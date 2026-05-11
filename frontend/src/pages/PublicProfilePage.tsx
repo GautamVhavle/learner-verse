@@ -1,5 +1,5 @@
 /**
- * Public learner profile page — LinkedIn-inspired layout.
+ * Public learner profile page - LinkedIn-inspired layout.
  *
  * Sticky header with logo + share button, avatar overlay, bio, tags,
  * stats cards, links card, responsive activity heatmap, certificates,
@@ -379,7 +379,7 @@ function ProfileContent({ profile }: { profile: PublicProfile }) {
 
           {/* Profile info area */}
           <div className="relative px-5 pb-5 sm:px-7 sm:pb-6">
-            {/* Avatar — overlapping the cover */}
+            {/* Avatar - overlapping the cover */}
             <div className="-mt-14 sm:-mt-16 md:-mt-20">
               <Avatar className="border-bg-secondary !size-28 border-4 shadow-lg sm:!size-32 md:!size-36">
                 {profile.avatar_url ? (

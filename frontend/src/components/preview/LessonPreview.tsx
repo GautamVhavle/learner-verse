@@ -36,7 +36,7 @@ export function LessonPreview({ lesson, prevLesson, nextLesson, onNavigate }: Le
         <section className="space-y-4">
           <div className="text-text-primary flex items-center gap-2 text-sm font-medium">
             <ClipboardCheck className="size-4 text-purple-500" />
-            Quiz — {questions.length} question{questions.length !== 1 ? "s" : ""}
+            Quiz - {questions.length} question{questions.length !== 1 ? "s" : ""}
           </div>
           <div className="space-y-3">
             {questions.map((q, idx) => (

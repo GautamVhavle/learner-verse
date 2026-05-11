@@ -1,4 +1,4 @@
-"""ChatThread model — tracks user conversation threads with LiVi."""
+"""ChatThread model - tracks user conversation threads with LiVi."""
 
 import uuid
 from datetime import datetime

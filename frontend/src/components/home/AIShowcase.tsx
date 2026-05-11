@@ -1,6 +1,6 @@
 /**
- * AI Showcase section — two-column layout: marketing copy left,
- * app-like preview with LiVi sidebar chat on the right.
+ * AI Showcase section: two-column layout with marketing copy left
+ * and an app-like preview with LiVi sidebar chat on the right.
  * Sequential message reveal on scroll.
  */
 import { useEffect, useRef, useState } from "react";
@@ -20,16 +20,13 @@ import {
 import { SparklesText } from "@/components/ui/sparkles-text";
 import { ShineBorder } from "@/components/ui/shine-border";
 import { BlurFade } from "@/components/ui/blur-fade";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
+import { ScrollTrigger } from "@/lib/gsap";
 
 const CHAT_MESSAGES = [
   { role: "user" as const, text: "Explain the Virtual DOM in simple terms" },
   {
     role: "assistant" as const,
-    text: "Think of it as a lightweight copy of the real DOM. When state changes, React diffs the two trees and only updates what actually changed — making updates blazing fast ⚡",
+    text: "Think of it as a lightweight copy of the real DOM. When state changes, React diffs the two trees and only updates what actually changed, making updates blazing fast ⚡",
   },
   { role: "user" as const, text: "Generate a quick quiz on this" },
   {
@@ -184,7 +181,7 @@ export function AIShowcase() {
 
         {/* Two-column layout */}
         <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.3fr] lg:gap-14">
-          {/* LEFT — Copy */}
+          {/* Left: Copy */}
           <BlurFade delay={0.1} inView>
             <div className="flex flex-col gap-8">
               <div>
@@ -203,9 +200,9 @@ export function AIShowcase() {
                     companion.
                   </span>
                 </h2>
-                <p className="mt-4 text-base leading-relaxed text-white/50 sm:text-lg">
-                  LiVi lives inside your course and knows every lesson. It's not a generic chatbot —
-                  it reads your content and answers with full context.
+                <p className="mt-4 text-base leading-relaxed text-white/55 sm:text-lg">
+                  LiVi lives inside your course and knows every lesson. It reads your content and
+                  answers with full context, not generic responses.
                 </p>
               </div>
 
@@ -236,7 +233,7 @@ export function AIShowcase() {
             </div>
           </BlurFade>
 
-          {/* RIGHT — App preview with sidebar + LiVi chat */}
+          {/* Right: App preview with sidebar + LiVi chat */}
           <BlurFade delay={0.2} inView>
             <div className="relative rounded-2xl">
               {/* The actual app preview */}
@@ -249,7 +246,7 @@ export function AIShowcase() {
                     <div className="size-2 rounded-full bg-[#28c840]" />
                   </div>
                   <div className="flex-1 rounded-md bg-white/[0.04] px-3 py-1 text-center text-[10px] text-white/20">
-                    learnerverse.app/learner/react-fundamentals
+                    learnerverse.xyz/learner/react-fundamentals
                   </div>
                 </div>
 

@@ -50,7 +50,7 @@ class UserUpdate(BaseModel):
 
 
 class PublicProfileResponse(BaseModel):
-    """Public-facing profile — no email, no private settings."""
+    """Public-facing profile - no email, no private settings."""
 
     id: uuid.UUID
     display_name: str

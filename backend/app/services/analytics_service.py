@@ -1,4 +1,4 @@
-"""Service for creator analytics — aggregate stats, per-course breakdowns, learner info."""
+"""Service for creator analytics - aggregate stats, per-course breakdowns, learner info."""
 
 import uuid
 from datetime import date, timedelta

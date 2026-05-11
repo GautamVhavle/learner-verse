@@ -1,5 +1,5 @@
 /**
- * Lesson study page — the main reading/viewing experience.
+ * Lesson study page - the main reading/viewing experience.
  *
  * Renders a single lesson with its content (video, markdown, links),
  * a sidebar with course navigation, progress tracking, focus mode,
@@ -66,7 +66,7 @@ export default function LessonPage() {
     return currentSection?.lessons.length ?? 0;
   }, [currentSection]);
 
-  // Track study state — save the current lesson as last viewed
+  // Track study state - save the current lesson as last viewed
   useEffect(() => {
     if (courseId && lessonId) {
       updateState.mutate({
@@ -122,7 +122,7 @@ export default function LessonPage() {
   const handleCompletionToggled = useCallback(
     (newCompleted: boolean) => {
       if (!newCompleted || !progress || !courseId || !currentLesson) return;
-      // Course already fully completed (certificate exists) — don't re-trigger
+      // Course already fully completed (certificate exists) - don't re-trigger
       if (courseCompleted) return;
       // Check if this was the last incomplete lesson
       const wasCompleted = progress.lesson_progress[currentLesson.id] ?? false;
@@ -214,7 +214,7 @@ export default function LessonPage() {
 
   return (
     <div className="mx-auto max-w-6xl">
-      {/* Breadcrumb — hidden in focus mode */}
+      {/* Breadcrumb - hidden in focus mode */}
       {!focusMode && (
         <LessonBreadcrumb
           courseTitle={course.title}
@@ -227,7 +227,7 @@ export default function LessonPage() {
       <div
         className={`flex flex-col gap-6 ${focusMode ? "" : "lg:max-h-[calc(100svh-9rem)] lg:flex-row lg:overflow-hidden"}`}
       >
-        {/* Sidebar — hidden in focus mode */}
+        {/* Sidebar - hidden in focus mode */}
         {!focusMode && (
           <aside className="no-scrollbar order-2 w-full shrink-0 lg:order-1 lg:w-60 lg:overflow-y-auto">
             <div className="space-y-3 pb-4">
@@ -295,7 +295,7 @@ export default function LessonPage() {
             {/* Study Notes */}
             <StudyNotes lessonId={currentLesson.id} />
 
-            {/* Prev / Next navigation — hidden in focus mode (overlay replaces it) */}
+            {/* Prev / Next navigation - hidden in focus mode (overlay replaces it) */}
             {!focusMode && (
               <LessonNavButtons
                 prevLesson={prevLesson}
@@ -315,7 +315,7 @@ export default function LessonPage() {
         </main>
       </div>
 
-      {/* Focus mode overlay — floating bottom bar */}
+      {/* Focus mode overlay - floating bottom bar */}
       {focusMode && (
         <FocusOverlay
           onExit={() => setFocusMode(false)}

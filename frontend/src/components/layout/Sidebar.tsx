@@ -1,11 +1,12 @@
 /**
- * App sidebar — main navigation panel.
+ * App sidebar - main navigation panel.
  *
  * Renders role-aware navigation (Creator vs Learner), a collapsible
  * courses sub-menu, a mode toggle, and the user footer. Navigation
  * links are defined in `sidebarNavConfig.ts`.
  */
 import { useLocation, useNavigate } from "react-router";
+import { useState } from "react";
 import { BookOpen, ChevronRight, Crown, Pen, Sparkles } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
@@ -34,12 +35,14 @@ import { useEnrolledCoursesQuery } from "@/hooks/useEnrollments";
 import { NotificationBadge } from "@/components/notification/NotificationBadge";
 import { useChatStore } from "@/stores/chatStore";
 import { UpgradeBanner } from "@/components/layout/UpgradeBanner";
+import { AboutDialog } from "@/components/layout/AboutDialog";
 import {
   CREATOR_LINKS,
   CREATOR_EXTRA,
   LEARNER_LINKS,
   LEARNER_EXTRA,
   SECONDARY_LINKS,
+  ABOUT_LINK,
   type NavLink,
 } from "./sidebarNavConfig";
 
@@ -57,6 +60,7 @@ export function AppSidebar({
   const { data: profile } = useUserQuery();
   const { isCreator } = useMode();
   const { toggleChat } = useChatStore();
+  const [aboutOpen, setAboutOpen] = useState(false);
 
   // Fetch courses for the sidebar list
   const { data: allCourses } = useCoursesQuery();
@@ -158,7 +162,7 @@ export function AppSidebar({
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <SidebarMenuSub>
-                    {/* View All link — Creator only */}
+                    {/* View All link - Creator only */}
                     {isCreator && (
                       <SidebarMenuSubItem>
                         <SidebarMenuSubButton
@@ -267,6 +271,17 @@ export function AppSidebar({
                 </SidebarMenuItem>
               );
             })}
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                tooltip="About"
+                onClick={() => setAboutOpen(true)}
+                className="cursor-pointer"
+                size="sm"
+              >
+                <ABOUT_LINK.icon />
+                <span>{ABOUT_LINK.title}</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
@@ -281,6 +296,7 @@ export function AppSidebar({
       </SidebarFooter>
 
       <SidebarRail />
+      <AboutDialog open={aboutOpen} onOpenChange={setAboutOpen} />
     </Sidebar>
   );
 }

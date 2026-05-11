@@ -11,7 +11,7 @@ interface CompletionButtonProps {
   lessonId: string;
   completed: boolean;
   onToggled?: (newCompleted: boolean) => void;
-  /** When true the course is fully completed — no toggling allowed */
+  /** When true the course is fully completed - no toggling allowed */
   locked?: boolean;
 }
 
@@ -45,7 +45,7 @@ export function CompletionButton({
 
   useKeyboardShortcuts(shortcuts);
 
-  // Course completed & locked — show a non-interactive "Completed" badge
+  // Course completed & locked - show a non-interactive "Completed" badge
   if (locked) {
     return (
       <div

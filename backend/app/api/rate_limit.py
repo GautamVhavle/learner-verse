@@ -3,7 +3,7 @@
 Uses a sliding-window approach: stores timestamps of recent requests
 per user and rejects new ones when the window is full.
 
-Not shared across workers — acceptable for single-process / small
+Not shared across workers - acceptable for single-process / small
 deployments. For multi-instance, swap for Redis-backed limiter.
 """
 

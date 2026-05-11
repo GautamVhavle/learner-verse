@@ -1,5 +1,5 @@
 /**
- * Help & Support page — simple contact form that generates a mailto link
+ * Help & Support page - simple contact form that generates a mailto link
  * with a professional query template pre-filled.
  */
 import { useState } from "react";
@@ -114,7 +114,7 @@ export default function HelpPage() {
           <h2 className="text-text-primary text-sm font-semibold">Contact Support</h2>
         </div>
         <p className="text-text-tertiary text-xs leading-relaxed">
-          Fill in the details below and click send — it will open your email client with a
+          Fill in the details below and click send - it will open your email client with a
           pre-formatted message ready to go.
         </p>
 

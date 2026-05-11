@@ -1,4 +1,4 @@
-"""CourseRating model — user ratings and reviews for published courses."""
+"""CourseRating model - user ratings and reviews for published courses."""
 
 import uuid
 from datetime import datetime

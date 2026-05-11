@@ -1,4 +1,4 @@
-"""Verification request endpoints — allow creators to apply for a verified badge.
+"""Verification request endpoints - allow creators to apply for a verified badge.
 
 Users submit a message explaining their intent; superadmins review the queue.
 """
@@ -123,7 +123,7 @@ async def get_verification_status(
     )
     all_requests = all_result.scalars().all()
 
-    # Find the pending request (if any) — this takes priority as "latest"
+    # Find the pending request (if any) - this takes priority as "latest"
     pending = next((r for r in all_requests if r.status == "pending"), None)
     # Otherwise use the most recently created request
     latest = pending or (all_requests[0] if all_requests else None)

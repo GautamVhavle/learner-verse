@@ -59,6 +59,6 @@ async def ensure_bucket() -> None:
             headers=_headers(),
             json={"id": settings.SUPABASE_BUCKET, "name": settings.SUPABASE_BUCKET, "public": True},
         )
-        # 409 = already exists — that's fine
+        # 409 = already exists - that's fine
         if resp.status_code not in (200, 201, 409):
             resp.raise_for_status()

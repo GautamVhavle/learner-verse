@@ -1,5 +1,5 @@
 /**
- * Dedicated profile page — avatar, display name, bio, tags, public toggle.
+ * Dedicated profile page - avatar, display name, bio, tags, public toggle.
  *
  * Separate from Settings (which handles preferences, appearance, etc.).
  * Accessed by clicking the user avatar in the sidebar footer.

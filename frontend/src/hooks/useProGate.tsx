@@ -1,5 +1,5 @@
 /**
- * useProGate — gate any action behind a Pro subscription check.
+ * useProGate - gate any action behind a Pro subscription check.
  *
  * When the payment gateway is disabled (self-hosted / open-source mode),
  * every user is treated as Pro and the gate is a transparent no-op.
@@ -7,7 +7,7 @@
  * Usage:
  *   const { isPro, gatedAction, ProGate } = useProGate();
  *   <Button onClick={gatedAction(doSomethingExpensive)}>Do it</Button>
- *   <ProGate />  // render once — the dialog portal
+ *   <ProGate />  // render once - the dialog portal
  */
 import { useCallback, useState } from "react";
 import { useUserQuery } from "@/hooks/useUser";
@@ -31,9 +31,9 @@ export function useProGate() {
 }
 
 /**
- * Internal implementation — only called when payment gateway is enabled.
+ * Internal implementation - only called when payment gateway is enabled.
  * Separated to keep the hook rules valid (hooks are only called in this
- * function, which is always called or never called — never conditionally).
+ * function, which is always called or never called - never conditionally).
  */
 function useProGateInternal() {
   const { data: user } = useUserQuery();

@@ -1,4 +1,4 @@
-"""QuizQuestion model — multiple-choice questions belonging to a quiz lesson."""
+"""QuizQuestion model - multiple-choice questions belonging to a quiz lesson."""
 
 import uuid
 from datetime import datetime

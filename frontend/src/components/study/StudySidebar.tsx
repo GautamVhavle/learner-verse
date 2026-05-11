@@ -25,6 +25,7 @@ export function StudySidebar({
     if (!selectedLessonId) return;
     const section = sections.find((s) => s.lessons.some((l) => l.id === selectedLessonId));
     if (section && !expanded.has(section.id)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setExpanded((prev) => new Set([...prev, section.id]));
     }
   }, [selectedLessonId, sections]);

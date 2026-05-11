@@ -1,4 +1,4 @@
-"""Section model — ordered grouping of lessons within a course."""
+"""Section model - ordered grouping of lessons within a course."""
 
 import uuid
 from datetime import datetime

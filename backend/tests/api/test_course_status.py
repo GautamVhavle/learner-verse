@@ -82,7 +82,7 @@ async def test_course_list_includes_stats(client):
 
 
 # ============================================================
-# STATUS UPDATE — MARK READY (with validation)
+# STATUS UPDATE - MARK READY (with validation)
 # ============================================================
 @pytest.mark.asyncio
 async def test_mark_ready_valid_course(client):
@@ -168,7 +168,7 @@ async def test_back_to_draft_no_validation(client):
         json={"status": "ready"},
     )
 
-    # Then back to draft — always succeeds
+    # Then back to draft - always succeeds
     resp = await client.put(
         f"/api/v1/courses/{course['id']}/status",
         json={"status": "draft"},

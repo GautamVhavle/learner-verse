@@ -82,12 +82,12 @@ export function Header({ onSearchClick, onGetVerified }: HeaderProps) {
         </BreadcrumbList>
       </Breadcrumb>
 
-      {/* Focus timer — hidden on very small screens */}
+      {/* Focus timer - hidden on very small screens */}
       <div className="ml-auto hidden sm:block">
         <PomodoroTimer />
       </div>
 
-      {/* Verification status button — creator mode only */}
+      {/* Verification status button - creator mode only */}
       {isCreatorMode && !isVerified && onGetVerified && (
         <button
           onClick={onGetVerified}
@@ -102,7 +102,7 @@ export function Header({ onSearchClick, onGetVerified }: HeaderProps) {
             hasPending
               ? "Verification pending"
               : wasRejected
-                ? "Verification rejected — click to reapply"
+                ? "Verification rejected - click to reapply"
                 : "Apply for Verified Creator badge"
           }
         >
@@ -125,7 +125,7 @@ export function Header({ onSearchClick, onGetVerified }: HeaderProps) {
         </button>
       )}
 
-      {/* Verified badge in header — creator mode only */}
+      {/* Verified badge in header - creator mode only */}
       {isCreatorMode && isVerified && (
         <span className="hidden items-center gap-1.5 text-sm text-blue-500 sm:flex">
           <BadgeCheck className="size-4" />

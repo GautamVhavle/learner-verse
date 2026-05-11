@@ -38,6 +38,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   // Debounce query (250ms)
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQuery(query), 250);
     return () => clearTimeout(timer);
@@ -61,6 +62,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   useEffect(() => {
     setActiveIndex(0);
   }, [results.length]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Scroll active item into view
   useEffect(() => {

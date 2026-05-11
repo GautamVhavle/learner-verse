@@ -1,9 +1,10 @@
 /**
- * Final CTA Section — gradient background with bold headline
- * and a large shimmer button for conversion. The last push.
+ * Final CTA section with gradient background and bold headline.
+ * The last conversion push before the footer.
  */
 import { useNavigate } from "react-router";
 import { ArrowRight } from "lucide-react";
+import { WordRotate } from "@/components/ui/word-rotate";
 import { useAuth } from "@/hooks/useAuth";
 import { useMode } from "@/hooks/useMode";
 import { SINGLE_USER_MODE } from "@/lib/auth";
@@ -40,12 +41,17 @@ export function CTASection() {
       <div className="relative z-10 mx-auto max-w-3xl px-4 text-center sm:px-6">
         <BlurFade delay={0} inView>
           <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
-            Ready to transform
+            Ready to change
             <br />
-            how you learn?
+            how you{" "}
+            <WordRotate
+              words={["learn?", "teach?", "grow?"]}
+              duration={2500}
+              className="inline-block bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"
+            />
           </h2>
-          <p className="mx-auto mt-5 max-w-xl text-base text-white/50 sm:text-lg">
-            Start building AI-powered courses from YouTube videos — completely free. No credit card
+          <p className="mx-auto mt-5 max-w-xl text-base text-white/55 sm:text-lg">
+            Start building AI-powered courses from YouTube videos, completely free. No credit card
             required.
           </p>
         </BlurFade>
@@ -66,7 +72,7 @@ export function CTASection() {
               </span>
             </ShimmerButton>
           </div>
-          <p className="mt-4 text-xs text-white/30">
+          <p className="mt-4 text-xs text-white/35">
             Free forever for individual learners. No setup required.
           </p>
         </BlurFade>

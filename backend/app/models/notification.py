@@ -1,4 +1,4 @@
-"""Notification model — in-app notifications for pace warnings, streaks, and system alerts."""
+"""Notification model - in-app notifications for pace warnings, streaks, and system alerts."""
 
 import uuid
 from datetime import datetime

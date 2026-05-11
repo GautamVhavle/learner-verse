@@ -1,4 +1,4 @@
-"""ReferenceLink model — external URL bookmark attached to a lesson."""
+"""ReferenceLink model - external URL bookmark attached to a lesson."""
 
 import uuid
 from datetime import datetime

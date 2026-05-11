@@ -67,6 +67,7 @@ export function PreferencesSection({
   const tzDropdownRef = useRef<HTMLDivElement>(null);
 
   // Sync with server data
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     setTimezone(initialTimezone);
     setPlaybackSpeed(initialSpeed);
@@ -84,6 +85,7 @@ export function PreferencesSection({
       }
     }
   }, [initialTimezone]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Close timezone dropdown on outside click
   useEffect(() => {
@@ -166,7 +168,7 @@ export function PreferencesSection({
           <h2 className="text-text-primary text-sm font-semibold">Learning Preferences</h2>
         </div>
         <p className="text-text-tertiary mt-1 text-[11px] leading-relaxed">
-          Customize how you learn — set your timezone, video speed, text size, and auto-advance
+          Customize how you learn - set your timezone, video speed, text size, and auto-advance
           behavior.
         </p>
       </div>

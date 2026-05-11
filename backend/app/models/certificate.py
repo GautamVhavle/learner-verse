@@ -1,4 +1,4 @@
-"""Certificate model — proof of course completion."""
+"""Certificate model - proof of course completion."""
 
 import uuid
 from datetime import datetime
