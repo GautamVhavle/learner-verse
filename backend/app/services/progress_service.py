@@ -66,7 +66,7 @@ class ProgressService:
 
             # Check if course is now 100% complete → auto-stamp
             sections = await self._fetch_sections_with_lessons(course_id)
-            all_lesson_ids = [l.id for s in sections for l in s.lessons]
+            all_lesson_ids = [lesson.id for s in sections for lesson in s.lessons]
             if all_lesson_ids:
                 completed_set = await self._build_completed_set(user_id, all_lesson_ids)
                 if len(completed_set) == len(all_lesson_ids):
