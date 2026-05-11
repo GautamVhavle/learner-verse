@@ -69,33 +69,35 @@ export function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/5 pt-8 sm:flex-row">
-          <p className="text-xs text-white/30">
-            © {new Date().getFullYear()} LearnerVerse. All rights reserved.
-          </p>
-          <div className="flex items-center gap-4">
-            <a
-              href="https://github.com/GautamVhavle/learner-verse"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-xs text-white/30 transition-colors hover:text-white/60"
-            >
-              <Github className="size-3.5" />
-              Star on GitHub
-            </a>
-            <p className="text-xs text-white/20">
-              Made by{" "}
+        <div className="mt-12 border-t border-white/5 pt-8">
+          <div className="flex flex-col items-center gap-3 text-center sm:flex-row sm:justify-between sm:text-left">
+            <p className="text-xs text-white/30">
+              © {new Date().getFullYear()} LearnerVerse. All rights reserved.
+            </p>
+            <div className="flex flex-col items-center gap-2 sm:flex-row sm:gap-4">
               <a
-                href="https://gautamvhavle.xyz"
+                href="https://github.com/GautamVhavle/learner-verse"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-white/30 underline underline-offset-2 transition-colors hover:text-white/60"
-                style={{ textDecorationThickness: "1px" }}
+                className="flex items-center gap-1.5 text-xs text-white/30 transition-colors hover:text-white/60"
               >
-                Gautam Vhavle
-              </a>{" "}
-              with ♥ for curious minds.
-            </p>
+                <Github className="size-3.5" />
+                Star on GitHub
+              </a>
+              <p className="text-xs text-white/20">
+                Made by{" "}
+                <a
+                  href="https://gautamvhavle.xyz"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/30 underline underline-offset-2 transition-colors hover:text-white/60"
+                  style={{ textDecorationThickness: "1px" }}
+                >
+                  Gautam Vhavle
+                </a>{" "}
+                with ♥ for curious minds.
+              </p>
+            </div>
           </div>
         </div>
       </div>
