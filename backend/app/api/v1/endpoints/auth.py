@@ -42,20 +42,27 @@ async def get_me(
 ):
     """Get current authenticated user profile.
 
-    Performs lazy-expiry: if the user's Pro subscription has lapsed,
-    ``is_pro`` is flipped to False and persisted automatically.
+    Performs two lazy corrections when the payment gateway is enabled:
+    1. Orphan Pro fix: if ``is_pro`` is True but there is no subscription
+       record (no ``pro_since``), the flag was set by a bug — reset it.
+    2. Expiry check: if the subscription has lapsed, flip ``is_pro`` to False.
     Skipped when the payment gateway is disabled (all users are Pro).
     """
-    if (
-        settings.PAYMENT_GATEWAY_ENABLED
-        and user.is_pro
-        and user.pro_expires_at is not None
-        and user.pro_expires_at < datetime.now(UTC)
-        and user.subscription_status != "active"
-    ):
-        user.is_pro = False
-        await db.commit()
-        await db.refresh(user)
+    if settings.PAYMENT_GATEWAY_ENABLED and user.is_pro:
+        # Fix users who got is_pro=True persisted without a real subscription
+        if user.pro_since is None and user.razorpay_subscription_id is None:
+            user.is_pro = False
+            await db.commit()
+            await db.refresh(user)
+        # Expire lapsed subscriptions
+        elif (
+            user.pro_expires_at is not None
+            and user.pro_expires_at < datetime.now(UTC)
+            and user.subscription_status != "active"
+        ):
+            user.is_pro = False
+            await db.commit()
+            await db.refresh(user)
     return user
 
 
