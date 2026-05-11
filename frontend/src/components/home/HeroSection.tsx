@@ -369,7 +369,7 @@ export function HeroSection() {
             <h1 className="text-3xl leading-[1.08] font-extrabold tracking-tight text-white sm:text-4xl md:text-5xl lg:text-[3.4rem] xl:text-6xl">
               Turn Any Playlist
               <br />
-              Into a{" "}
+              Into a <br />
               <SparklesText
                 className="inline-block text-white"
                 sparklesCount={4}
