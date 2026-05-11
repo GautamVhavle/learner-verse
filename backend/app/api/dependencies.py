@@ -12,6 +12,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm.attributes import set_committed_value
 
 from app.core.config import settings
 from app.core.database import get_db
@@ -83,10 +84,11 @@ async def get_current_user(
                 )
 
     # When the payment gateway is disabled, treat every user as Pro.
-    # This is a runtime override - no database write - so it's safe and
-    # reversible. Self-hosters get all features unlocked by default.
+    # Use set_committed_value so SQLAlchemy does NOT mark the column as
+    # dirty — this prevents the override from being accidentally flushed
+    # to the database on the next commit.
     if not settings.PAYMENT_GATEWAY_ENABLED:
-        user.is_pro = True
+        set_committed_value(user, "is_pro", True)
 
     return user
 
