@@ -20,6 +20,7 @@ interface LessonContentProps {
   onQuizCompleted?: () => void;
   onVideoEnded?: () => void;
   playbackSpeed?: number;
+  courseCompleted?: boolean;
 }
 
 export function LessonContent({
@@ -27,6 +28,7 @@ export function LessonContent({
   onQuizCompleted,
   onVideoEnded,
   playbackSpeed = 1,
+  courseCompleted = false,
 }: LessonContentProps) {
   const isVideo = (lesson.lesson_type ?? "video") === "video";
   const isNote = (lesson.lesson_type ?? "video") === "note";
@@ -63,6 +65,7 @@ export function LessonContent({
             lessonId={lesson.id}
             lessonTitle={lesson.title}
             onQuizCompleted={onQuizCompleted}
+            courseCompleted={courseCompleted}
           />
         </section>
       )}

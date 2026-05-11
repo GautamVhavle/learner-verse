@@ -12,12 +12,21 @@ import type { CourseListResponse } from "@/types/course";
 import type { EnrollmentResponse } from "@/types/enrollment";
 
 export const ENROLLMENTS_KEY = ["enrollments"] as const;
+export const ENROLLMENT_RECORDS_KEY = ["enrollment-records"] as const;
 
 /** Fetch all courses the current user is enrolled in. */
 export function useEnrolledCoursesQuery() {
   return useQuery({
     queryKey: ENROLLMENTS_KEY,
     queryFn: () => api.get<CourseListResponse>("/enrollments"),
+  });
+}
+
+/** Fetch raw enrollment records (with completed_at) for course partitioning. */
+export function useEnrollmentRecordsQuery() {
+  return useQuery({
+    queryKey: ENROLLMENT_RECORDS_KEY,
+    queryFn: () => api.get<EnrollmentResponse[]>("/enrollments/records"),
   });
 }
 
@@ -28,6 +37,7 @@ export function useEnrollMutation() {
     mutationFn: (courseId: string) => api.post<EnrollmentResponse>(`/enrollments/${courseId}`, {}),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ENROLLMENTS_KEY });
+      qc.invalidateQueries({ queryKey: ENROLLMENT_RECORDS_KEY });
       toast.success("Enrolled successfully!", { description: "Start learning now." });
     },
     onError: () => toast.error("Failed to enroll"),
@@ -41,6 +51,7 @@ export function useUnenrollMutation() {
     mutationFn: (courseId: string) => api.delete<void>(`/enrollments/${courseId}`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ENROLLMENTS_KEY });
+      qc.invalidateQueries({ queryKey: ENROLLMENT_RECORDS_KEY });
       toast.success("Unenrolled from course");
     },
     onError: () => toast.error("Failed to unenroll"),

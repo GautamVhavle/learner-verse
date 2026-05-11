@@ -43,7 +43,7 @@ export default function LessonPage() {
   const updateState = useUpdateStudyStateMutation();
   const { data: progress } = useCourseProgressQuery(courseId);
   const { data: existingCert } = useCourseCertificateQuery(courseId);
-  const courseCompleted = !!existingCert;
+  const courseCompleted = progress?.is_locked ?? !!existingCert;
   const generateCert = useGenerateCertificateMutation();
   const toggleProgress = useToggleProgressMutation();
   const [showCelebration, setShowCelebration] = useState(false);
@@ -290,6 +290,7 @@ export default function LessonPage() {
               onQuizCompleted={handleQuizCompleted}
               onVideoEnded={handleVideoEnded}
               playbackSpeed={user?.playback_speed ?? 1}
+              courseCompleted={courseCompleted}
             />
 
             {/* Study Notes */}

@@ -4,7 +4,7 @@
  * Displays the course title, description, section/lesson counts,
  * progress bar, goal/pace indicator, and the Continue/Start button.
  */
-import { FileText, Layers, Play, Target } from "lucide-react";
+import { Award, FileText, Layers, Play, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CourseStatusBadge } from "@/components/course/CourseStatusBadge";
 import { ProgressBar } from "@/components/study/ProgressBar";
@@ -73,6 +73,28 @@ export function StudyHero({
         </div>
       )}
 
+      {/* Completion banner */}
+      {progress?.is_locked && progress.completed_at && (
+        <div className="border-accent-green/20 bg-accent-green/5 mt-4 flex items-center gap-3 rounded-lg border px-4 py-3">
+          <div className="bg-accent-green/15 flex size-8 items-center justify-center rounded-full">
+            <Award className="text-accent-green size-4" />
+          </div>
+          <div>
+            <p className="text-text-primary text-sm font-medium">
+              Course completed on{" "}
+              {new Date(progress.completed_at).toLocaleDateString(undefined, {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </p>
+            <p className="text-text-secondary text-xs">
+              Progress is locked. You can still review all lessons.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Goal / Pace indicator */}
       {progress?.goal ? (
         <div className="mt-4">
@@ -98,11 +120,15 @@ export function StudyHero({
         )
       )}
 
-      {/* Continue / Start button */}
+      {/* Continue / Start / View button */}
       {totalLessons > 0 && (
         <Button onClick={onContinue} className="mt-5 gap-2">
           <Play className="size-4" />
-          {hasStudyState ? "Continue Learning" : "Start Course"}
+          {progress?.is_locked
+            ? "View Course"
+            : hasStudyState
+              ? "Continue Learning"
+              : "Start Course"}
         </Button>
       )}
     </div>

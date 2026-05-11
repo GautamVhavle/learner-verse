@@ -36,6 +36,8 @@ export interface CourseProgressResponse {
   sections: SectionProgressResponse[];
   lesson_progress: Record<string, boolean>;
   goal: GoalResponse | null;
+  is_locked: boolean;
+  completed_at: string | null;
 }
 
 export interface CourseGoalResponse {

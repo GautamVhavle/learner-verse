@@ -71,7 +71,7 @@ export default function HubCourseDetailPage() {
   const isEnrolled = enrolledData?.items.some((c) => c.id === courseId) ?? false;
   const isOwner = !!(dbUser && course && dbUser.id === course.user_id);
   const { data: progress } = useCourseProgressQuery(isEnrolled ? courseId : undefined);
-  const isCompleted = isEnrolled && progress?.percentage === 100;
+  const isCompleted = isEnrolled && progress?.is_locked;
   const myRating = ratingsData?.items.find((r) => r.user_id === user?.id);
   const ratings = ratingsData?.items ?? [];
 
@@ -95,7 +95,15 @@ export default function HubCourseDetailPage() {
   }
 
   const handleEnroll = () => enrollMutation.mutate(course.id);
-  const handleUnenroll = () => unenrollMutation.mutate(course.id);
+  const handleUnenroll = () => {
+    if (isCompleted) {
+      const confirmed = window.confirm(
+        "You've completed this course. Unenrolling will remove your Completed status. Continue?",
+      );
+      if (!confirmed) return;
+    }
+    unenrollMutation.mutate(course.id);
+  };
   const handleSubmitRating = () => {
     if (newRating < 1) return;
     createRating.mutate(

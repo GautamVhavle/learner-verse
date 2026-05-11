@@ -38,6 +38,8 @@ export function useToggleProgressMutation() {
 
       for (const [key, oldData] of queries) {
         if (!oldData) continue;
+        // Skip optimistic updates on locked courses
+        if (oldData.is_locked) continue;
         previousData.push({ key, data: oldData });
 
         const wasCompleted = oldData.lesson_progress[lessonId] ?? false;
@@ -76,6 +78,7 @@ export function useToggleProgressMutation() {
     onSettled: () => {
       qc.invalidateQueries({ queryKey: [...PROGRESS_KEY, "course"] });
       qc.invalidateQueries({ queryKey: ["stats"] });
+      qc.invalidateQueries({ queryKey: ["enrollment-records"] });
     },
   });
 }

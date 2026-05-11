@@ -6,12 +6,13 @@
  * The "Continue Learning" hero highlights the most recently studied course.
  * An empty state directs the user to Browse Courses to enrol in their first course.
  */
+import { useState } from "react";
 import { Award, Compass, Flame, GraduationCap, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ContinueLearning } from "@/components/dashboard/ContinueLearning";
 import { LearnerCourseCard } from "@/components/dashboard/LearnerCourseCard";
-import { useEnrolledCoursesQuery } from "@/hooks/useEnrollments";
+import { useEnrolledCoursesQuery, useEnrollmentRecordsQuery } from "@/hooks/useEnrollments";
 import { useCourseProgressQuery } from "@/hooks/useProgress";
 import { useStudyStateQuery } from "@/hooks/useStudy";
 import { useCertificatesQuery } from "@/hooks/useCertificates";
@@ -23,20 +24,27 @@ import type { Course } from "@/types/course";
 export function LearnerDashboard() {
   const navigate = useModeAwareNavigate();
   const { data: enrolledData, isLoading } = useEnrolledCoursesQuery();
+  const { data: enrollmentRecords } = useEnrollmentRecordsQuery();
   const { data: certificates } = useCertificatesQuery();
   const { data: goals } = useGoalsQuery();
   const { data: streak } = useStreakQuery();
+  const [tab, setTab] = useState<"in-progress" | "completed">("in-progress");
 
   const items = enrolledData?.items ?? [];
   const certs = certificates ?? [];
   const activeGoals = (goals ?? []).filter((g) => g.pace_status !== "completed");
 
-  // Most recently enrolled course is the candidate for "Continue Learning"
-  const mostRecentCourse = items[0];
+  // Build a set of completed course IDs from enrollment records
+  const completedCourseIds = new Set(
+    (enrollmentRecords ?? []).filter((r) => r.completed_at !== null).map((r) => r.course_id),
+  );
 
-  // Partition enrolled courses into in-progress and not-started based on progress
-  // (the actual % is loaded per-card, so we just show them all in one grid for now
-  // but surface "Continue Learning" at the top if the user has started studying)
+  const inProgressCourses = items.filter((c) => !completedCourseIds.has(c.id));
+  const completedCourses = items.filter((c) => completedCourseIds.has(c.id));
+  const displayedCourses = tab === "in-progress" ? inProgressCourses : completedCourses;
+
+  // Most recently enrolled in-progress course is the candidate for "Continue Learning"
+  const mostRecentCourse = inProgressCourses[0];
 
   return (
     <div className="space-y-8">
@@ -149,16 +157,38 @@ export function LearnerDashboard() {
         />
       )}
 
-      {/* Enrolled course grid */}
+      {/* Enrolled course grid with tabs */}
       {items.length > 0 && (
         <div>
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-text-primary text-sm font-medium">
-              My Courses
-              <span className="bg-bg-tertiary text-text-tertiary ml-2 rounded-full px-2 py-0.5 text-xs">
-                {items.length}
-              </span>
-            </h2>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setTab("in-progress")}
+                className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                  tab === "in-progress"
+                    ? "bg-accent-blue/10 text-accent-blue"
+                    : "text-text-tertiary hover:text-text-secondary"
+                }`}
+              >
+                In Progress
+                <span className="bg-bg-tertiary text-text-tertiary ml-1.5 rounded-full px-1.5 py-0.5 text-xs">
+                  {inProgressCourses.length}
+                </span>
+              </button>
+              <button
+                onClick={() => setTab("completed")}
+                className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                  tab === "completed"
+                    ? "bg-accent-green/10 text-accent-green"
+                    : "text-text-tertiary hover:text-text-secondary"
+                }`}
+              >
+                Completed
+                <span className="bg-bg-tertiary text-text-tertiary ml-1.5 rounded-full px-1.5 py-0.5 text-xs">
+                  {completedCourses.length}
+                </span>
+              </button>
+            </div>
             <Button
               variant="ghost"
               size="sm"
@@ -169,15 +199,30 @@ export function LearnerDashboard() {
               Browse more
             </Button>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {items.map((course) => (
-              <LearnerCourseCard
-                key={course.id}
-                course={course}
-                onStudy={() => navigate(`/study/${course.id}`)}
-              />
-            ))}
-          </div>
+
+          {displayedCourses.length === 0 && tab === "completed" && (
+            <div className="text-text-tertiary rounded-xl border border-dashed py-10 text-center text-sm">
+              No completed courses yet. Keep learning!
+            </div>
+          )}
+
+          {displayedCourses.length === 0 && tab === "in-progress" && (
+            <div className="text-text-tertiary rounded-xl border border-dashed py-10 text-center text-sm">
+              All courses completed! Browse for more courses.
+            </div>
+          )}
+
+          {displayedCourses.length > 0 && (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {displayedCourses.map((course) => (
+                <LearnerCourseCard
+                  key={course.id}
+                  course={course}
+                  onStudy={() => navigate(`/study/${course.id}`)}
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

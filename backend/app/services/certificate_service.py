@@ -15,6 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.certificate import Certificate
 from app.models.course import Course
 from app.repositories.certificate_repo import CertificateRepository
+from app.repositories.enrollment_repo import EnrollmentRepository
 from app.services.progress_service import ProgressService
 
 
@@ -74,6 +75,11 @@ class CertificateService:
         )
 
         certificate = await self.repo.create(certificate)
+
+        # Backfill: stamp enrollment.completed_at if not already set
+        enrollment_repo = EnrollmentRepository(self.db)
+        await enrollment_repo.mark_completed(user_id, course_id, datetime.now(UTC))
+
         await self.db.commit()
         await self.db.refresh(certificate)
         return certificate

@@ -35,6 +35,11 @@ class CourseEnrollment(Base):
         nullable=False,
         default=lambda: datetime.now(UTC),
     )
+    completed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        default=None,
+    )
 
     __table_args__ = (
         UniqueConstraint("user_id", "course_id", name="uq_enrollment_user_course"),

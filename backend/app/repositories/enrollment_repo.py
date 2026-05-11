@@ -84,6 +84,26 @@ class EnrollmentRepository:
         )
         return result.scalar_one_or_none() is not None
 
+    async def get_enrollment(
+        self, user_id: uuid.UUID, course_id: uuid.UUID
+    ) -> CourseEnrollment | None:
+        """Return the enrollment row for a user+course, or None."""
+        result = await self.db.execute(
+            select(CourseEnrollment).where(
+                CourseEnrollment.user_id == user_id,
+                CourseEnrollment.course_id == course_id,
+            )
+        )
+        return result.scalar_one_or_none()
+
+    async def mark_completed(
+        self, user_id: uuid.UUID, course_id: uuid.UUID, completed_at: datetime
+    ) -> None:
+        """Stamp completed_at on an enrollment (idempotent — only sets if NULL)."""
+        enrollment = await self.get_enrollment(user_id, course_id)
+        if enrollment and enrollment.completed_at is None:
+            enrollment.completed_at = completed_at
+
     async def get_enrollment_count(self, course_id: uuid.UUID) -> int:
         """Return the number of enrollments for a course."""
         result = await self.db.execute(
@@ -92,6 +112,13 @@ class EnrollmentRepository:
             )
         )
         return result.scalar_one()
+
+    async def get_all_enrollments(self, user_id: uuid.UUID) -> list[CourseEnrollment]:
+        """Return all enrollment records for a user."""
+        result = await self.db.execute(
+            select(CourseEnrollment).where(CourseEnrollment.user_id == user_id)
+        )
+        return list(result.scalars().all())
 
     async def get_enrollment_counts_batch(
         self, course_ids: list[uuid.UUID]

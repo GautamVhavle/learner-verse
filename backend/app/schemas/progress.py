@@ -41,3 +41,5 @@ class CourseProgressResponse(BaseModel):
     sections: list[SectionProgressResponse]
     lesson_progress: dict[str, bool]  # lesson_id -> completed
     goal: GoalResponse | None = None
+    is_locked: bool = False
+    completed_at: datetime | None = None

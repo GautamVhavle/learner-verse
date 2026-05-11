@@ -36,6 +36,17 @@ async def get_enrolled_courses(
     return await _svc(db).list_enrolled_courses(current_user.id)
 
 
+@router.get("/records", response_model=list[EnrollmentResponse])
+async def get_enrollment_records(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Return raw enrollment records (with completed_at) for the current user."""
+    repo = EnrollmentRepository(db)
+    enrollments = await repo.get_all_enrollments(current_user.id)
+    return [EnrollmentResponse.model_validate(e) for e in enrollments]
+
+
 @router.post(
     "/{course_id}",
     response_model=EnrollmentResponse,

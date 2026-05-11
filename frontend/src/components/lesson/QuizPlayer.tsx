@@ -25,11 +25,17 @@ interface QuizPlayerProps {
   lessonId: string;
   lessonTitle?: string;
   onQuizCompleted?: () => void;
+  courseCompleted?: boolean;
 }
 
 type QuizState = "intro" | "taking" | "results";
 
-export function QuizPlayer({ lessonId, lessonTitle, onQuizCompleted }: QuizPlayerProps) {
+export function QuizPlayer({
+  lessonId,
+  lessonTitle,
+  onQuizCompleted,
+  courseCompleted = false,
+}: QuizPlayerProps) {
   const { data: questions = [], isLoading } = useLearnerQuestionsQuery(lessonId);
   const { data: bestScore } = useQuizBestScoreQuery(lessonId);
   const submitMutation = useSubmitQuizMutation(lessonId);
@@ -86,6 +92,13 @@ export function QuizPlayer({ lessonId, lessonTitle, onQuizCompleted }: QuizPlaye
   if (state === "intro") {
     return (
       <div className="border-border-default bg-bg-secondary rounded-xl border p-6">
+        {courseCompleted && (
+          <div className="border-accent-blue/20 bg-accent-blue/5 mb-4 rounded-lg border px-4 py-2.5 text-center text-sm">
+            <span className="text-accent-blue font-medium">
+              You've already earned a certificate — this is for practice
+            </span>
+          </div>
+        )}
         <div className="flex flex-col items-center text-center">
           <div className="bg-accent-blue/10 flex size-14 items-center justify-center rounded-full">
             <ClipboardCheck className="text-accent-blue size-7" />

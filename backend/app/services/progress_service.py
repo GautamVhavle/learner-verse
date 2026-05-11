@@ -6,15 +6,18 @@ their goal dates.
 """
 
 import uuid
-from datetime import date
+from datetime import UTC, date, datetime
 
+from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.course import Course
+from app.models.lesson import Lesson
 from app.models.section import Section
 from app.repositories.activity_repo import ActivityRepository
+from app.repositories.enrollment_repo import EnrollmentRepository
 from app.repositories.progress_repo import ProgressRepository
 from app.schemas.progress import (
     CourseProgressResponse,
@@ -40,12 +43,36 @@ class ProgressService:
     ) -> LessonProgressResponse:
         """Mark a lesson as completed or not-completed.
 
-        When marking complete, also logs the activity for streak tracking.
+        Raises 409 if the course is already completed (locked).
+        When marking complete, logs activity and auto-stamps enrollment
+        as completed if the course is now at 100%.
         """
+        # Resolve lesson → course_id
+        course_id = await self._get_course_id_for_lesson(lesson_id)
+
+        # Completion lock: reject if enrollment is already completed
+        enrollment_repo = EnrollmentRepository(self.db)
+        enrollment = await enrollment_repo.get_enrollment(user_id, course_id)
+        if enrollment and enrollment.completed_at is not None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Course already completed. Progress is locked.",
+            )
+
         progress = await self.repo.toggle(user_id, lesson_id, data.completed)
 
         if data.completed:
             await self.activity_repo.upsert(user_id, date.today())
+
+            # Check if course is now 100% complete → auto-stamp
+            sections = await self._fetch_sections_with_lessons(course_id)
+            all_lesson_ids = [l.id for s in sections for l in s.lessons]
+            if all_lesson_ids:
+                completed_set = await self._build_completed_set(user_id, all_lesson_ids)
+                if len(completed_set) == len(all_lesson_ids):
+                    await enrollment_repo.mark_completed(
+                        user_id, course_id, datetime.now(UTC)
+                    )
 
         await self.db.commit()
         await self.db.refresh(progress)
@@ -59,7 +86,7 @@ class ProgressService:
         """Compute full progress breakdown for a course.
 
         Returns per-section breakdowns, overall percentage, per-lesson
-        completion map, and optional goal-pace analysis.
+        completion map, lock status, and optional goal-pace analysis.
         """
         # Fetch sections+lessons AND goal_date in parallel-friendly single session
         sections = await self._fetch_sections_with_lessons(course_id)
@@ -71,6 +98,12 @@ class ProgressService:
         )
         goal_date = goal_date_result.scalar_one_or_none()
 
+        # Fetch enrollment for lock status
+        enrollment_repo = EnrollmentRepository(self.db)
+        enrollment = await enrollment_repo.get_enrollment(user_id, course_id)
+        is_locked = enrollment is not None and enrollment.completed_at is not None
+        completed_at = enrollment.completed_at if enrollment else None
+
         completed_set = await self._build_completed_set(user_id, all_lesson_ids)
         lesson_progress = {str(lid): lid in completed_set for lid in all_lesson_ids}
         section_responses, total_lessons, total_completed = self._build_section_breakdowns(
@@ -78,6 +111,7 @@ class ProgressService:
         )
 
         percentage = round(total_completed / total_lessons * 100, 1) if total_lessons > 0 else 0
+        percentage = min(percentage, 100.0)
 
         goal = None
         if goal_date:
@@ -95,6 +129,8 @@ class ProgressService:
             sections=section_responses,
             lesson_progress=lesson_progress,
             goal=goal,
+            is_locked=is_locked,
+            completed_at=completed_at,
         )
 
     # ── Goal Pace Computation ────────────────────────────────
@@ -159,6 +195,21 @@ class ProgressService:
         )
 
     # ── Private Helpers ──────────────────────────────────────
+
+    async def _get_course_id_for_lesson(self, lesson_id: uuid.UUID) -> uuid.UUID:
+        """Resolve lesson → section → course_id."""
+        result = await self.db.execute(
+            select(Section.course_id)
+            .join(Lesson, Lesson.section_id == Section.id)
+            .where(Lesson.id == lesson_id)
+        )
+        course_id = result.scalar_one_or_none()
+        if course_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Lesson not found.",
+            )
+        return course_id
 
     async def _fetch_sections_with_lessons(self, course_id: uuid.UUID) -> list[Section]:
         """Load all sections (with lessons) for a course, ordered by position."""

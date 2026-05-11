@@ -88,6 +88,14 @@ export function LearnerCourseCard({ course, onStudy }: LearnerCourseCardProps) {
               ? `${progress.completed_lessons}/${progress.total_lessons} lessons`
               : `${course.lesson_count} ${course.lesson_count === 1 ? "lesson" : "lessons"}`}
           </span>
+          <span>&middot;</span>
+          <span>
+            Updated{" "}
+            {new Date(course.updated_at).toLocaleDateString(undefined, {
+              month: "short",
+              day: "numeric",
+            })}
+          </span>
         </div>
       </div>
     </div>
