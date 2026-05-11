@@ -278,10 +278,16 @@ export default function SettingsPage() {
                 <p className="text-text-secondary text-xs">
                   <span className="text-accent-purple font-medium">LearnerVerse Pro</span>
                   {user.pro_plan && <span className="capitalize"> ({user.pro_plan})</span>}
+                  {(user as { subscription_status?: string | null }).subscription_status === "active" && (
+                    <span className="ml-1.5 rounded-full bg-accent-green/10 px-1.5 py-0.5 text-[10px] font-medium text-accent-green">Auto-renewing</span>
+                  )}
+                  {(user as { subscription_status?: string | null }).subscription_status === "cancelled" && (
+                    <span className="ml-1.5 rounded-full bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-500">Cancels at cycle end</span>
+                  )}
                   {user.pro_expires_at && (
                     <>
                       {" "}
-                      · Expires{" "}
+                      · {(user as { subscription_status?: string | null }).subscription_status === "active" ? "Renews" : "Expires"}{" "}
                       {new Date(user.pro_expires_at).toLocaleDateString("en-IN", {
                         month: "long",
                         day: "numeric",
@@ -349,13 +355,14 @@ export default function SettingsPage() {
 
               <div className="space-y-4 px-6 py-5">
                 <AlertDialogDescription className="text-text-secondary text-sm leading-relaxed">
-                  If you cancel now, your Pro access will end immediately. Your courses, progress,
-                  and certificates will stay safe in your account.
+                  Your Pro access will continue until the end of your current billing cycle
+                  {user.pro_expires_at && (
+                    <> ({new Date(user.pro_expires_at).toLocaleDateString("en-IN", { month: "long", day: "numeric", year: "numeric" })})</>)}. After that, auto-renewal will stop and AI features will be locked.
                 </AlertDialogDescription>
 
                 <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4">
                   <p className="mb-2 text-xs font-semibold tracking-wider text-red-400 uppercase">
-                    What changes right away
+                    What changes after your cycle ends
                   </p>
                   <ul className="text-text-secondary space-y-1.5 pl-4 text-sm">
                     <li className="list-disc">LiVi Chat will be locked</li>

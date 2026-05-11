@@ -69,6 +69,9 @@ class Settings(BaseSettings):
     RAZORPAY_KEY_SECRET: str = ""
     RAZORPAY_MONTHLY_AMOUNT: int = 9900  # ₹99 in paise
     RAZORPAY_YEARLY_AMOUNT: int = 99900  # ₹999 in paise
+    RAZORPAY_PLAN_ID_MONTHLY: str = ""
+    RAZORPAY_PLAN_ID_YEARLY: str = ""
+    RAZORPAY_WEBHOOK_SECRET: str = ""
 
     # Observability
     # Set this in production to enable Sentry error tracking.

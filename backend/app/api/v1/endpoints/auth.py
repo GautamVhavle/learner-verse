@@ -51,6 +51,7 @@ async def get_me(
         and user.is_pro
         and user.pro_expires_at is not None
         and user.pro_expires_at < datetime.now(UTC)
+        and user.subscription_status != "active"
     ):
         user.is_pro = False
         await db.commit()

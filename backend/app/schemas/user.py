@@ -26,6 +26,7 @@ class UserResponse(BaseModel):
     pro_since: datetime | None = None
     pro_expires_at: datetime | None = None
     pro_plan: str | None = None
+    subscription_status: str | None = None
     is_verified_creator: bool = False
     verified_at: datetime | None = None
     created_at: datetime

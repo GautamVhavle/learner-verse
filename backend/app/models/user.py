@@ -42,6 +42,9 @@ class User(Base):
     pro_plan: Mapped[str | None] = mapped_column(String(20), nullable=True)
     razorpay_payment_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     razorpay_order_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    razorpay_subscription_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    razorpay_customer_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    subscription_status: Mapped[str | None] = mapped_column(String(20), nullable=True)
 
     # Verified Creator badge - granted by superadmin after reviewing an application
     is_verified_creator: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
