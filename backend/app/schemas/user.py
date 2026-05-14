@@ -7,7 +7,6 @@ from typing import Annotated
 
 from pydantic import BaseModel, Field, field_validator
 
-
 # ── Reusable helpers ─────────────────────────────────────────
 
 _HTTP_URL_RE = re.compile(r"^https?://", re.IGNORECASE)

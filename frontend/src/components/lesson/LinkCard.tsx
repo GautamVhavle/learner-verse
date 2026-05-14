@@ -63,9 +63,7 @@ export function LinkCard({ link, onRemove, readonly }: LinkCardProps) {
               }}
             />
           )}
-          <span className="text-text-tertiary text-xs">
-            {link.domain || safeDomain(link.url)}
-          </span>
+          <span className="text-text-tertiary text-xs">{link.domain || safeDomain(link.url)}</span>
         </div>
       </div>
 
