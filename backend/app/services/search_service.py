@@ -30,7 +30,9 @@ class SearchService:
         if not q:
             return SearchResponse(results=[], query=query, total=0)
 
-        pattern = f"%{q}%"
+        # Escape ILIKE special characters to prevent wildcard injection
+        escaped = q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        pattern = f"%{escaped}%"
         results: list[SearchResultItem] = []
 
         # 1) Search courses

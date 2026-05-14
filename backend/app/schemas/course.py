@@ -24,6 +24,15 @@ class CourseCreate(BaseModel):
     category: str = "other"
     tags: list[str] = Field(default_factory=list, max_length=20)
 
+    @field_validator("thumbnail_url")
+    @classmethod
+    def validate_thumbnail_url(cls, v: str | None) -> str | None:
+        import re
+
+        if v is not None and not re.match(r"^https?://", v, re.IGNORECASE):
+            raise ValueError("URL must start with http:// or https://")
+        return v
+
     @field_validator("category")
     @classmethod
     def validate_category(cls, v: str) -> str:
@@ -43,6 +52,15 @@ class CourseUpdate(BaseModel):
     category: str | None = None
     goal_date: date | None = None
     tags: list[str] | None = Field(None, max_length=20)
+
+    @field_validator("thumbnail_url")
+    @classmethod
+    def validate_thumbnail_url(cls, v: str | None) -> str | None:
+        import re
+
+        if v is not None and not re.match(r"^https?://", v, re.IGNORECASE):
+            raise ValueError("URL must start with http:// or https://")
+        return v
 
     @field_validator("category")
     @classmethod

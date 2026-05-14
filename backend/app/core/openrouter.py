@@ -224,7 +224,7 @@ async def call_gemini_completion(
             logger.error("Gemini response missing text: %s", json.dumps(data)[:500])
             return None
 
-        logger.info("Gemini response: %d chars, first 200: %s", len(content), content[:200])
+        logger.info("Gemini response: %d chars", len(content))
         return content
 
     except httpx.TimeoutException:
@@ -393,7 +393,7 @@ async def call_chat_completion(
                 return None
 
             content = choices[0]["message"]["content"]
-            logger.info("OpenRouter response: %d chars, first 200: %s", len(content), content[:200])
+            logger.info("OpenRouter response: %d chars", len(content))
             return content
 
     except httpx.TimeoutException:

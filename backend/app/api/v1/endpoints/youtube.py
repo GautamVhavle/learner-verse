@@ -1,8 +1,10 @@
 """API endpoint for fetching YouTube video metadata via oEmbed."""
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 
+from app.api.dependencies import get_current_user
+from app.models.user import User
 from app.services.youtube_service import YouTubeMetadata, fetch_youtube_metadata
 
 router = APIRouter(prefix="/youtube", tags=["youtube"])
@@ -13,7 +15,7 @@ class YouTubeURLRequest(BaseModel):
 
 
 @router.post("/metadata", response_model=YouTubeMetadata)
-async def get_youtube_metadata(data: YouTubeURLRequest):
+async def get_youtube_metadata(data: YouTubeURLRequest, user: User = Depends(get_current_user)):
     """Fetch metadata for a YouTube video URL."""
     try:
         return await fetch_youtube_metadata(data.url)

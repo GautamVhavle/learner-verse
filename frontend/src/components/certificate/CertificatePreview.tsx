@@ -37,6 +37,7 @@ export function CertificatePreview({ certificate, compact }: CertificatePreviewP
                   title="Certificate Preview"
                   className="h-full w-full"
                   style={{ border: "none" }}
+                  sandbox="allow-same-origin"
                 />
                 {/* Block all user interaction with the PDF */}
                 <div className="absolute inset-0" />

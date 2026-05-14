@@ -5,11 +5,16 @@ og:image, plus a favicon fallback. Used to generate rich link-card
 previews for lesson reference links.
 """
 
+import ipaddress
 import re
+import socket
 from urllib.parse import urlparse
 
 import httpx
 from pydantic import BaseModel
+
+# Maximum bytes to read from a remote URL
+_MAX_RESPONSE_BYTES = 100_000
 
 
 class OpenGraphData(BaseModel):
@@ -46,6 +51,19 @@ def _parse_og_tags(html: str) -> dict[str, str]:
     return tags
 
 
+def _is_private_ip(hostname: str) -> bool:
+    """Check if a hostname resolves to a private/reserved IP (SSRF protection)."""
+    try:
+        for info in socket.getaddrinfo(hostname, None):
+            addr = info[4][0]
+            ip = ipaddress.ip_address(addr)
+            if ip.is_private or ip.is_loopback or ip.is_reserved or ip.is_link_local:
+                return True
+    except (socket.gaierror, ValueError):
+        return True  # Cannot resolve → block
+    return False
+
+
 async def fetch_opengraph(url: str) -> OpenGraphData:
     """Fetch a URL and parse OpenGraph metadata from the HTML."""
     parsed = urlparse(url)
@@ -53,15 +71,30 @@ async def fetch_opengraph(url: str) -> OpenGraphData:
         raise ValueError("URL must use http or https.")
     domain = parsed.netloc
 
+    # SSRF protection: block private/internal IPs
+    hostname = parsed.hostname or ""
+    if _is_private_ip(hostname):
+        raise ValueError("URL points to a private or reserved address.")
+
     async with httpx.AsyncClient(
         timeout=10.0,
         follow_redirects=True,
+        max_redirects=5,
         headers={"User-Agent": "LearnerVerse/1.0 (OpenGraph Fetcher)"},
     ) as client:
-        resp = await client.get(url)
-        resp.raise_for_status()
+        async with client.stream("GET", url) as resp:
+            resp.raise_for_status()
+            # Stream with byte limit to prevent memory exhaustion
+            chunks: list[bytes] = []
+            total = 0
+            async for chunk in resp.aiter_bytes(chunk_size=8192):
+                chunks.append(chunk)
+                total += len(chunk)
+                if total > _MAX_RESPONSE_BYTES:
+                    break
+            raw = b"".join(chunks)
 
-    html = resp.text[:50_000]  # Only parse first 50KB
+    html = raw.decode("utf-8", errors="replace")[:50_000]
 
     og = _parse_og_tags(html)
 

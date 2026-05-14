@@ -127,6 +127,7 @@ export function YouTubeEmbed({ videoId, title, playbackSpeed = 1, onEnded }: You
             controls: 1,
             modestbranding: 1,
             rel: 0,
+            origin: window.location.origin,
           },
         });
       } catch (error) {

@@ -36,6 +36,7 @@ export function useLiviChat() {
   const [error, setError] = useState<string | null>(null);
   const [threadLoading, setThreadLoading] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  const lastSentRef = useRef<number>(0);
   const location = useLocation();
 
   const { activeThreadId, setActiveThread } = useChatStore();
@@ -109,6 +110,8 @@ export function useLiviChat() {
   const sendMessage = useCallback(
     async (text: string, files?: File[]) => {
       if (!text.trim() || status === "streaming") return;
+      if (Date.now() - lastSentRef.current < 1000) return;
+      lastSentRef.current = Date.now();
 
       setError(null);
       const fileMeta = files?.map((f) => ({

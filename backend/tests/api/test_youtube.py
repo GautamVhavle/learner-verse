@@ -95,38 +95,26 @@ async def test_fetch_metadata_network_error():
 # ============================================================
 @pytest.mark.asyncio
 async def test_youtube_metadata_endpoint_success(client):
-    with patch("app.api.v1.endpoints.youtube.fetch_youtube_metadata") as mock_fetch:
-        mock_fetch.return_value = type("M", (), {
-            "video_id": "dQw4w9WgXcQ",
-            "title": "Never Gonna Give You Up",
-            "thumbnail_url": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
-            "channel_name": "Rick Astley",
-        })()
-        # Make the mock awaitable
-        mock_fetch.return_value = mock_fetch.return_value
-        import asyncio
-        mock_fetch.side_effect = None
-        future = asyncio.Future()
-        future.set_result(mock_fetch.return_value)
-        mock_fetch.return_value = future.result()
+    """Endpoint returns metadata when given a valid YouTube URL."""
+    mock_meta = type("M", (), {
+        "video_id": "dQw4w9WgXcQ",
+        "title": "Never Gonna Give You Up",
+        "thumbnail_url": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+        "channel_name": "Rick Astley",
+    })()
 
-        mock_fetch.return_value = type("M", (), {
-            "video_id": "dQw4w9WgXcQ",
-            "title": "Never Gonna Give You Up",
-            "thumbnail_url": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
-            "channel_name": "Rick Astley",
-            "model_dump": lambda self: {
-                "video_id": "dQw4w9WgXcQ",
-                "title": "Never Gonna Give You Up",
-                "thumbnail_url": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
-                "channel_name": "Rick Astley",
-            },
-        })()
+    with patch("app.api.v1.endpoints.youtube.fetch_youtube_metadata", new_callable=AsyncMock) as mock_fetch:
+        mock_fetch.return_value = mock_meta
+        resp = await client.post(
+            "/api/v1/youtube/metadata",
+            json={"url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"},
+        )
 
-    # Simpler approach - test the validation path directly
-    resp = await client.post("/api/v1/youtube/metadata", json={"url": "not-a-youtube-url"})
-    assert resp.status_code == 400
-    assert "Invalid" in resp.json()["detail"]
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["video_id"] == "dQw4w9WgXcQ"
+    assert data["title"] == "Never Gonna Give You Up"
+    assert data["channel_name"] == "Rick Astley"
 
 
 @pytest.mark.asyncio
@@ -202,3 +190,53 @@ async def test_lesson_clear_youtube_fields(client):
     )
     assert clear_resp.status_code == 200
     assert clear_resp.json()["youtube_url"] is None
+
+
+# ============================================================
+# Additional edge-case tests
+# ============================================================
+
+
+class TestExtractVideoIdEdgeCases:
+    """Additional edge cases for YouTube URL parsing."""
+
+    def test_mobile_url(self):
+        assert extract_video_id("https://m.youtube.com/watch?v=dQw4w9WgXcQ") == "dQw4w9WgXcQ"
+
+    def test_nocookie_embed(self):
+        """youtube-nocookie.com URLs may not be supported."""
+        result = extract_video_id("https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ")
+        # Not currently supported by the parser
+        assert result is None or result == "dQw4w9WgXcQ"
+
+    def test_live_url(self):
+        result = extract_video_id("https://www.youtube.com/live/dQw4w9WgXcQ")
+        # May or may not be supported; should not crash
+        assert result is None or result == "dQw4w9WgXcQ"
+
+    def test_playlist_url_extracts_video(self):
+        url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=PLrAXtmErZgOeiKm4sgNOknGvNjby9efdf"
+        assert extract_video_id(url) == "dQw4w9WgXcQ"
+
+    def test_none_input(self):
+        """Should handle None gracefully (return None or raise)."""
+        try:
+            result = extract_video_id(None)  # type: ignore
+            assert result is None
+        except (TypeError, AttributeError):
+            pass  # Also acceptable
+
+
+@pytest.mark.asyncio
+async def test_youtube_metadata_endpoint_502_on_network_error(client):
+    """Endpoint returns 502 when metadata fetch fails."""
+    with patch(
+        "app.api.v1.endpoints.youtube.fetch_youtube_metadata",
+        new_callable=AsyncMock,
+    ) as mock_fetch:
+        mock_fetch.side_effect = httpx.HTTPError("Connection timeout")
+        resp = await client.post(
+            "/api/v1/youtube/metadata",
+            json={"url": "https://www.youtube.com/watch?v=abc123abc12"},
+        )
+    assert resp.status_code == 502

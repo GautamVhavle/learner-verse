@@ -207,6 +207,16 @@ export function CertificatePDF({ certificate }: { certificate: CertificateRespon
   });
   const shareUrl = `${window.location.origin}/certificates/share/${certificate.certificate_uid}`;
 
+  // Truncate long values to prevent PDF layout overflow
+  const displayName =
+    certificate.user_name.length > 100
+      ? certificate.user_name.slice(0, 100) + "…"
+      : certificate.user_name;
+  const displayTitle =
+    certificate.course_title.length > 200
+      ? certificate.course_title.slice(0, 200) + "…"
+      : certificate.course_title;
+
   return (
     <Document>
       <Page size="A4" orientation="landscape" style={s.page}>
@@ -237,10 +247,10 @@ export function CertificatePDF({ certificate }: { certificate: CertificateRespon
           </View>
 
           <Text style={s.label}>This is to certify that</Text>
-          <Text style={s.userName}>{certificate.user_name}</Text>
+          <Text style={s.userName}>{displayName}</Text>
 
           <Text style={s.label}>has successfully completed</Text>
-          <Text style={s.courseName}>{certificate.course_title}</Text>
+          <Text style={s.courseName}>{displayTitle}</Text>
 
           {/* Stats */}
           <View style={s.statsRow}>

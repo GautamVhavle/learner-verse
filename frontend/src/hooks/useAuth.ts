@@ -30,7 +30,7 @@ export function useAuth(): UseAuthReturn {
   const { user, isLoading, isAuthenticated, error } = useAuth0();
 
   if (error) {
-    console.error("[Auth0 error]", error.message, error);
+    console.error("[Auth0 error]", error.message);
   }
 
   if (isLoading || !isAuthenticated || !user) {

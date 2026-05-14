@@ -20,21 +20,43 @@ THUMBNAILS_PREFIX = "thumbnails"
 AVATARS_PREFIX = "avatars"
 COVERS_PREFIX = "covers"
 
+# Magic bytes for image format detection (independent of client Content-Type)
+_MAGIC_BYTES = {
+    b"\xff\xd8\xff": "image/jpeg",
+    b"\x89PNG\r\n\x1a\n": "image/png",
+    b"RIFF": "image/webp",  # WebP starts with RIFF....WEBP
+    b"GIF87a": "image/gif",
+    b"GIF89a": "image/gif",
+}
+
+
+def _detect_image_type(data: bytes) -> str | None:
+    """Detect image type from magic bytes, ignoring client-supplied Content-Type."""
+    for magic, mime in _MAGIC_BYTES.items():
+        if data[:len(magic)] == magic:
+            # Extra check for WebP: bytes 8-12 must be "WEBP"
+            if mime == "image/webp" and data[8:12] != b"WEBP":
+                continue
+            return mime
+    return None
+
 
 async def _validate_and_upload(file: UploadFile, prefix: str) -> str:
     """Validate image type/size and upload to Supabase Storage. Returns the public URL."""
-    if file.content_type not in ALLOWED_IMAGE_TYPES:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid file type '{file.content_type}'. Allowed: JPEG, PNG, WebP, GIF.",
-        )
-
     contents = await file.read()
     max_bytes = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
     if len(contents) > max_bytes:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"File too large. Maximum size is {settings.MAX_UPLOAD_SIZE_MB} MB.",
+        )
+
+    # Verify actual file content, not just client-supplied Content-Type
+    detected_type = _detect_image_type(contents)
+    if detected_type not in ALLOWED_IMAGE_TYPES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid file type. Allowed: JPEG, PNG, WebP, GIF.",
         )
 
     ext = Path(file.filename).suffix.lower() if file.filename else ".jpg"
@@ -46,7 +68,7 @@ async def _validate_and_upload(file: UploadFile, prefix: str) -> str:
         bucket=settings.SUPABASE_BUCKET,
         path=object_path,
         data=contents,
-        content_type=file.content_type or "application/octet-stream",
+        content_type=detected_type,
     )
 
 

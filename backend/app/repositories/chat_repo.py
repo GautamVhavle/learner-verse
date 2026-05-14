@@ -98,3 +98,15 @@ class ChatRepository:
             .limit(1)
         )
         return result.scalar_one_or_none()
+
+    async def get_last_messages_batch(self, thread_ids: list[uuid.UUID]) -> dict[uuid.UUID, ChatMessage]:
+        """Fetch the last message for each thread in a single query."""
+        if not thread_ids:
+            return {}
+        result = await self.db.execute(
+            select(ChatMessage)
+            .where(ChatMessage.thread_id.in_(thread_ids))
+            .distinct(ChatMessage.thread_id)
+            .order_by(ChatMessage.thread_id, ChatMessage.created_at.desc())
+        )
+        return {msg.thread_id: msg for msg in result.scalars().all()}

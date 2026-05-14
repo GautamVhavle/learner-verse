@@ -166,4 +166,35 @@ async def import_course(
     db: AsyncSession = Depends(get_db),
 ):
     """Import a course JSON, replacing all existing content (sections, lessons, etc.)."""
+    import json
+
+    # Enforce payload size limit to prevent DoS (10.1)
+    payload_size = len(json.dumps(payload))
+    if payload_size > 5_000_000:  # 5 MB
+        from fastapi import HTTPException, status
+
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Import payload too large. Maximum 5 MB.",
+        )
+
+    # Enforce section/lesson count limits
+    sections = payload.get("sections", [])
+    if isinstance(sections, list):
+        if len(sections) > 50:
+            from fastapi import HTTPException, status
+
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Too many sections. Maximum 50.",
+            )
+        total_lessons = sum(len(s.get("lessons", [])) for s in sections if isinstance(s, dict))
+        if total_lessons > 500:
+            from fastapi import HTTPException, status
+
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Too many lessons. Maximum 500.",
+            )
+
     return await _service(db).import_course(course_id, user.id, payload)

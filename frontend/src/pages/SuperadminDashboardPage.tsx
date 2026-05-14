@@ -1256,9 +1256,12 @@ export default function SuperadminDashboardPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { data: overview, isLoading: overviewLoading } = usePlatformOverview();
 
-  const tab = (searchParams.get("tab") as TabValue) ?? "overview";
-  const page = Math.max(1, Number(searchParams.get("page") ?? "1"));
-  const search = searchParams.get("search") ?? "";
+  const VALID_TABS: TabValue[] = ["overview", "users", "verifications"];
+  const rawTab = searchParams.get("tab") as TabValue;
+  const tab: TabValue = VALID_TABS.includes(rawTab) ? rawTab : "overview";
+  const rawPage = Number(searchParams.get("page") ?? "1");
+  const page = Number.isFinite(rawPage) && rawPage > 0 ? Math.floor(rawPage) : 1;
+  const search = (searchParams.get("search") ?? "").slice(0, 200);
   const verStatus = searchParams.get("status") ?? null;
 
   function setTab(t: TabValue) {

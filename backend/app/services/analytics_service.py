@@ -328,16 +328,23 @@ class AnalyticsService:
         all_lesson_ids = [r[0] for r in lesson_ids_result.all()]
         total_lessons = len(all_lesson_ids)
 
-        # Get enrollments with pagination
+        # Get enrollments with SQL-level pagination (10.3)
+        total_result = await self.db.execute(
+            select(func.count(CourseEnrollment.id)).where(
+                CourseEnrollment.course_id == course_id
+            )
+        )
+        total = total_result.scalar_one()
+
+        offset = (page - 1) * per_page
         enroll_result = await self.db.execute(
             select(CourseEnrollment)
             .where(CourseEnrollment.course_id == course_id)
             .order_by(CourseEnrollment.enrolled_at.desc())
+            .limit(per_page)
+            .offset(offset)
         )
-        all_enrollments = list(enroll_result.scalars().all())
-        total = len(all_enrollments)
-        start = (page - 1) * per_page
-        enrollments = all_enrollments[start : start + per_page]
+        enrollments = list(enroll_result.scalars().all())
 
         if not enrollments:
             return CourseLearnersList(

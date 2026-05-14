@@ -569,6 +569,14 @@ class CourseService:
             await self.repo.set_tags(course, [str(t) for t in tag_names], user_id)
 
         # --- Create new sections with lessons ---
+        import re
+
+        def _sanitize_url(url: str | None) -> str | None:
+            """Only allow http/https URLs in imported data."""
+            if url and not re.match(r"^https?://", url, re.IGNORECASE):
+                return None
+            return url
+
         for sec_idx, sec_data in enumerate(sections_data):
             section = Section(
                 course_id=course_id,
@@ -584,9 +592,9 @@ class CourseService:
                     section_id=section.id,
                     title=les_data["title"][:200],
                     lesson_type=les_data.get("lesson_type", "video"),
-                    youtube_url=les_data.get("youtube_url"),
+                    youtube_url=_sanitize_url(les_data.get("youtube_url")),
                     youtube_title=les_data.get("youtube_title"),
-                    youtube_thumbnail=les_data.get("youtube_thumbnail"),
+                    youtube_thumbnail=_sanitize_url(les_data.get("youtube_thumbnail")),
                     youtube_duration=les_data.get("youtube_duration"),
                     youtube_channel=les_data.get("youtube_channel"),
                     notes_markdown=les_data.get("notes_markdown"),
@@ -597,14 +605,15 @@ class CourseService:
 
                 # Reference links
                 for link_idx, link_data in enumerate(les_data.get("reference_links", [])):
-                    if isinstance(link_data, dict) and link_data.get("url"):
+                    link_url = link_data.get("url") if isinstance(link_data, dict) else None
+                    if link_url and _sanitize_url(link_url):
                         link = ReferenceLinkModel(
                             lesson_id=lesson.id,
-                            url=link_data["url"],
+                            url=link_url,
                             title=link_data.get("title"),
                             description=link_data.get("description"),
-                            image=link_data.get("image"),
-                            favicon=link_data.get("favicon"),
+                            image=_sanitize_url(link_data.get("image")),
+                            favicon=_sanitize_url(link_data.get("favicon")),
                             domain=link_data.get("domain"),
                             position=link_data.get("position", link_idx),
                         )

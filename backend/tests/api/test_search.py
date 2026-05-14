@@ -226,3 +226,56 @@ async def test_search_case_insensitive(client):
     resp = await client.get("/api/v1/search", params={"q": "typescript"})
     assert resp.status_code == 200
     assert resp.json()["total"] >= 1
+
+
+# ============================================================
+# Additional edge-case tests
+# ============================================================
+
+
+@pytest.mark.asyncio
+async def test_search_special_characters(client):
+    """Search handles special characters without error."""
+    await _ensure_user(client)
+    await _create_course(client, title="C++ Programming")
+
+    resp = await client.get("/api/v1/search", params={"q": "C++"})
+    assert resp.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_search_whitespace_only(client):
+    """Whitespace-only query returns empty results or 422."""
+    await _ensure_user(client)
+    resp = await client.get("/api/v1/search", params={"q": "   "})
+    # Either returns empty results or rejects; both are acceptable
+    assert resp.status_code in (200, 422)
+
+
+@pytest.mark.asyncio
+async def test_search_single_character(client):
+    """Single character search works without error."""
+    await _ensure_user(client)
+    await _create_course(client, title="R Programming")
+
+    resp = await client.get("/api/v1/search", params={"q": "R"})
+    assert resp.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_search_multiple_types(client):
+    """Search returns different types (course, section, lesson)."""
+    await _ensure_user(client)
+    course = await _create_course(client, title="Unified Topic")
+    section = await _create_section(
+        client, course["id"], title="Unified Topic Section"
+    )
+    await _create_lesson(
+        client, section["id"], title="Unified Topic Lesson"
+    )
+
+    resp = await client.get("/api/v1/search", params={"q": "Unified Topic"})
+    assert resp.status_code == 200
+    types = {r["type"] for r in resp.json()["results"]}
+    assert "course" in types
+    assert len(types) >= 1

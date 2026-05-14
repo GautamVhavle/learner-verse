@@ -375,3 +375,123 @@ async def test_course_limit(client):
     resp = await _create_course(client, title="Course 51")
     assert resp.status_code == 400
     assert "Maximum" in resp.json()["detail"]
+
+
+# ============================================================
+# Additional edge-case tests
+# ============================================================
+
+
+@pytest.mark.asyncio
+async def test_create_course_with_description(client):
+    """Course can be created with a description."""
+    await _ensure_user(client)
+    resp = await _create_course(
+        client, title="Described Course", description="A detailed description"
+    )
+    assert resp.status_code == 201
+    assert resp.json()["description"] == "A detailed description"
+
+
+@pytest.mark.asyncio
+async def test_update_course_description(client):
+    """Course description can be updated."""
+    await _ensure_user(client)
+    create_resp = await _create_course(client)
+    course_id = create_resp.json()["id"]
+
+    resp = await client.put(
+        f"/api/v1/courses/{course_id}",
+        json={"description": "Updated description"},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["description"] == "Updated description"
+
+
+@pytest.mark.asyncio
+async def test_list_courses_returns_all(client):
+    """Listing courses returns all created courses."""
+    await _ensure_user(client)
+    for i in range(5):
+        await _create_course(client, title=f"Page Course {i}")
+
+    resp = await client.get("/api/v1/courses")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert len(data["items"]) == 5
+
+
+@pytest.mark.asyncio
+async def test_get_course_after_update(client):
+    """GET reflects changes made by PUT."""
+    await _ensure_user(client)
+    create_resp = await _create_course(client, title="Before")
+    course_id = create_resp.json()["id"]
+
+    await client.put(f"/api/v1/courses/{course_id}", json={"title": "After"})
+
+    resp = await client.get(f"/api/v1/courses/{course_id}")
+    assert resp.json()["title"] == "After"
+
+
+@pytest.mark.asyncio
+async def test_create_course_empty_title(client):
+    """Empty string title should be rejected."""
+    await _ensure_user(client)
+    resp = await _create_course(client, title="")
+    assert resp.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_update_nonexistent_course(client):
+    """PUT on non-existent course returns 404."""
+    await _ensure_user(client)
+    resp = await client.put(
+        "/api/v1/courses/00000000-0000-0000-0000-000000000099",
+        json={"title": "Nope"},
+    )
+    assert resp.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_delete_nonexistent_course(client):
+    """DELETE on non-existent course returns 404."""
+    await _ensure_user(client)
+    resp = await client.delete(
+        "/api/v1/courses/00000000-0000-0000-0000-000000000099"
+    )
+    assert resp.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_duplicate_nonexistent_course(client):
+    """Duplicate on non-existent course returns 404."""
+    await _ensure_user(client)
+    resp = await client.post(
+        "/api/v1/courses/00000000-0000-0000-0000-000000000099/duplicate"
+    )
+    assert resp.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_trash_empty(client):
+    """Trash is empty when no courses are deleted."""
+    await _ensure_user(client)
+    resp = await client.get("/api/v1/courses/trash")
+    assert resp.status_code == 200
+    assert resp.json()["total"] == 0
+
+
+@pytest.mark.asyncio
+async def test_update_course_tags_to_empty(client):
+    """Can clear tags by setting to empty list."""
+    await _ensure_user(client)
+    create_resp = await _create_course(client, tags=["tag1", "tag2"])
+    course_id = create_resp.json()["id"]
+
+    resp = await client.put(
+        f"/api/v1/courses/{course_id}",
+        json={"tags": []},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["tags"] == []

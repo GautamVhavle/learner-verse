@@ -112,9 +112,9 @@ class CertificateService:
 
     @staticmethod
     def _generate_uid() -> str:
-        """Generate a unique certificate UID like ``LV-2026-A1B2C3D4``."""
+        """Generate a unique certificate UID like ``LV-2026-A1B2C3D4E5F6``."""
         year = datetime.now(UTC).year
-        random_part = secrets.token_hex(4).upper()
+        random_part = secrets.token_hex(8).upper()
         return f"LV-{year}-{random_part}"
 
     async def _get_course_title(self, course_id: uuid.UUID) -> str:

@@ -13,6 +13,7 @@ import TextareaAutosize from "react-textarea-autosize";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
+import rehypeSanitize from "rehype-sanitize";
 import { useInlineChat, type InlineContextType, type InlineMessage } from "@/hooks/useInlineChat";
 import { useProGate } from "@/hooks/useProGate";
 
@@ -217,7 +218,7 @@ function InlineMessageBubble({
         <div className="prose prose-sm dark:prose-invert text-text-primary prose-p:my-1 prose-pre:my-2 prose-pre:rounded-lg prose-pre:bg-[#1c1c1c] prose-ul:my-1 prose-ol:my-1 prose-li:my-0 prose-headings:my-1.5 prose-headings:text-xs prose-code:rounded prose-code:bg-bg-tertiary prose-code:px-1 prose-code:py-0.5 prose-code:text-[11px] prose-code:before:content-none prose-code:after:content-none prose-a:text-accent-blue prose-a:no-underline hover:prose-a:underline max-w-none text-xs leading-relaxed">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeHighlight]}
+            rehypePlugins={[rehypeHighlight, rehypeSanitize]}
             components={{
               a: ({ ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" />,
             }}

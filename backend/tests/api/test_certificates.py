@@ -214,3 +214,58 @@ async def test_certificate_multi_section(client):
     data = resp.json()
     assert data["sections_count"] == 3
     assert data["lessons_count"] == 6
+
+
+# ============================================================
+# Additional edge-case tests
+# ============================================================
+
+
+@pytest.mark.asyncio
+async def test_certificate_for_nonexistent_course(client):
+    """Generating certificate for a non-existent course returns 400 (no lessons)."""
+    await _ensure_user(client)
+    resp = await client.post(
+        "/api/v1/certificates/courses/00000000-0000-0000-0000-000000000099"
+    )
+    # Progress returns zeros for non-existent course → "no lessons" error
+    assert resp.status_code == 400
+
+
+@pytest.mark.asyncio
+async def test_certificate_for_incomplete_course(client):
+    """Cannot generate certificate if course is not 100% complete."""
+    await _ensure_user(client)
+    course = await _create_course(client)
+    section = await _create_section(client, course["id"])
+    l1 = await _create_lesson(client, section["id"], title="L1")
+    await _create_lesson(client, section["id"], title="L2")
+
+    # Only complete one of two lessons
+    await _complete_lesson(client, l1["id"])
+
+    resp = await client.post(f"/api/v1/certificates/courses/{course['id']}")
+    assert resp.status_code == 400
+    assert "complete" in resp.json()["detail"].lower()
+
+
+@pytest.mark.asyncio
+async def test_regenerate_certificate_returns_same_uid(client):
+    """Requesting certificate again returns the same certificate."""
+    course = await _setup_completed_course(client)
+
+    resp1 = await client.post(f"/api/v1/certificates/courses/{course['id']}")
+    resp2 = await client.post(f"/api/v1/certificates/courses/{course['id']}")
+
+    assert resp1.status_code == 200
+    assert resp2.status_code == 200
+    assert resp1.json()["certificate_uid"] == resp2.json()["certificate_uid"]
+
+
+@pytest.mark.asyncio
+async def test_list_certificates_empty(client):
+    """User with no certificates gets empty list."""
+    await _ensure_user(client)
+    resp = await client.get("/api/v1/certificates")
+    assert resp.status_code == 200
+    assert resp.json() == []

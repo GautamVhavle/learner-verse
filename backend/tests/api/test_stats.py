@@ -239,3 +239,42 @@ async def test_activity_months_param(client):
     resp = await client.get("/api/v1/stats/activity?months=6")
     assert resp.status_code == 200
     assert "days" in resp.json()
+
+
+# ============================================================
+# Additional edge-case tests
+# ============================================================
+
+
+@pytest.mark.asyncio
+async def test_overview_zero_state(client):
+    """Overview with no courses returns zero counts."""
+    await _ensure_user(client)
+    resp = await client.get("/api/v1/stats/overview")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["total_courses_completed"] == 0
+    assert data["total_lessons_completed"] == 0
+
+
+@pytest.mark.asyncio
+async def test_activity_default_months(client):
+    """Activity without months param defaults successfully."""
+    await _ensure_user(client)
+    resp = await client.get("/api/v1/stats/activity")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "days" in data
+    assert "total_lessons" in data
+
+
+@pytest.mark.asyncio
+async def test_overview_has_streak_fields(client):
+    """Overview includes streak-related fields."""
+    await _ensure_user(client)
+    resp = await client.get("/api/v1/stats/overview")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "current_streak" in data
+    assert "longest_streak" in data
+    assert "total_active_days" in data

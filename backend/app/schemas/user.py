@@ -1,14 +1,52 @@
 """Pydantic schemas for user profile responses and updates."""
 
+import re
 import uuid
 from datetime import datetime
+from typing import Annotated
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+
+# ── Reusable helpers ─────────────────────────────────────────
+
+_HTTP_URL_RE = re.compile(r"^https?://", re.IGNORECASE)
+
+
+def _validate_http_url(v: str | None) -> str | None:
+    """Reject non-HTTP(S) URLs to prevent javascript:/data: injection."""
+    if v is not None and not _HTTP_URL_RE.match(v):
+        raise ValueError("URL must start with http:// or https://")
+    return v
+
+
+# ── Constrained tag type ─────────────────────────────────────
+
+ProfileTag = Annotated[str, Field(min_length=1, max_length=50)]
+
+
+# ── Social link model ────────────────────────────────────────
+
+
+class SocialLink(BaseModel):
+    """A validated social-media link with constrained fields."""
+
+    platform: str = Field(..., min_length=1, max_length=30)
+    url: str = Field(..., min_length=1, max_length=500)
+
+    @field_validator("url")
+    @classmethod
+    def validate_url(cls, v: str) -> str:
+        if not _HTTP_URL_RE.match(v):
+            raise ValueError("URL must start with http:// or https://")
+        return v
+
+
+# ── Responses ────────────────────────────────────────────────
 
 
 class UserResponse(BaseModel):
     id: uuid.UUID
-    clerk_id: str | None = None
     email: str
     display_name: str
     avatar_url: str | None = None
@@ -43,11 +81,16 @@ class UserUpdate(BaseModel):
     font_size: str | None = Field(None, pattern=r"^(normal|large|xl)$")
     onboarding_complete: bool | None = None
     bio: str | None = Field(None, max_length=500)
-    profile_tags: list[str] | None = Field(None, max_length=10)
-    social_links: list[dict] | None = Field(None, max_length=10)
+    profile_tags: list[ProfileTag] | None = Field(None, max_length=10)
+    social_links: list[SocialLink] | None = Field(None, max_length=10)
     cover_image_url: str | None = None
     is_profile_public: bool | None = None
     auto_play_next: bool | None = None
+
+    @field_validator("avatar_url", "cover_image_url")
+    @classmethod
+    def validate_urls(cls, v: str | None) -> str | None:
+        return _validate_http_url(v)
 
 
 class PublicProfileResponse(BaseModel):

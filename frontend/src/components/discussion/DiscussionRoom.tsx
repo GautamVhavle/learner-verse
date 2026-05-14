@@ -14,6 +14,7 @@ import TextareaAutosize from "react-textarea-autosize";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
+import rehypeSanitize from "rehype-sanitize";
 import {
   MessageSquare,
   ArrowUp,
@@ -403,7 +404,7 @@ function MessageContent({ content, role }: { content: string; role: string }) {
       <div className="prose prose-sm dark:prose-invert text-text-primary prose-p:my-1 prose-pre:my-2 prose-pre:rounded-lg prose-pre:bg-[#1c1c1c] prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-headings:my-1.5 prose-headings:text-sm prose-code:rounded prose-code:bg-bg-tertiary prose-code:px-1 prose-code:py-0.5 prose-code:text-xs prose-code:before:content-none prose-code:after:content-none prose-a:text-accent-purple prose-a:no-underline hover:prose-a:underline max-w-none text-[13px] leading-relaxed">
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
-          rehypePlugins={[rehypeHighlight]}
+          rehypePlugins={[rehypeHighlight, rehypeSanitize]}
           components={{
             a: ({ ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" />,
             pre: ({ children, ...props }) => (

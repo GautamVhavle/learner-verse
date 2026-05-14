@@ -29,6 +29,21 @@ class SectionResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class SectionPublicResponse(BaseModel):
+    """Learner-facing section without quiz answers in lessons."""
+
+    id: uuid.UUID
+    course_id: uuid.UUID
+    title: str
+    description: str | None = None
+    position: int
+    lessons: list["LessonPublicResponse"] = []
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
 class SectionBriefResponse(BaseModel):
     """Section without nested lessons - for reorder responses."""
 
@@ -50,6 +65,7 @@ class ReorderRequest(BaseModel):
 
 
 # Avoid circular import - LessonResponse defined in lesson schema
-from app.schemas.lesson import LessonResponse  # noqa: E402
+from app.schemas.lesson import LessonPublicResponse, LessonResponse  # noqa: E402
 
 SectionResponse.model_rebuild()
+SectionPublicResponse.model_rebuild()

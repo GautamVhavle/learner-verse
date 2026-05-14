@@ -44,11 +44,7 @@ export class ErrorBoundary extends Component<Props, State> {
             <p className="text-text-secondary mt-2 text-sm">
               An unexpected error occurred. Try refreshing the page or going back.
             </p>
-            {this.state.error && (
-              <p className="bg-bg-tertiary text-text-tertiary mt-3 max-w-full truncate rounded-md px-3 py-1.5 font-mono text-xs">
-                {this.state.error.message}
-              </p>
-            )}
+
             <div className="mt-6 flex gap-3">
               <Button variant="outline" size="sm" onClick={this.handleReset}>
                 <RotateCcw className="mr-1.5 size-3.5" />

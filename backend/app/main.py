@@ -86,10 +86,18 @@ async def _ensure_organize_tasks_table() -> None:
             CREATE TABLE IF NOT EXISTS organize_tasks (
                 id VARCHAR(16) PRIMARY KEY,
                 course_id UUID NOT NULL,
-                status VARCHAR(10) NOT NULL DEFAULT 'pending',
+                status VARCHAR(10) NOT NULL DEFAULT 'pending'
+                    CHECK (status IN ('pending', 'done', 'failed')),
                 error TEXT,
                 created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
             )
+        """)
+        )
+        # Ensure index on course_id for lookup performance
+        await session.execute(
+            text("""
+            CREATE INDEX IF NOT EXISTS idx_organize_tasks_course_id
+                ON organize_tasks (course_id)
         """)
         )
         # Clean up old tasks (>10 min)
@@ -102,6 +110,7 @@ async def _ensure_organize_tasks_table() -> None:
 def _validate_config() -> None:
     """Fail fast on misconfiguration before the first request is served."""
     _logger = logging.getLogger(__name__)
+
     if not settings.SINGLE_USER_MODE and not settings.AUTH0_AUDIENCE:
         # An empty audience means PyJWT skips the ``aud`` claim check,
         # allowing tokens issued for *any* Auth0 client to authenticate.
@@ -110,10 +119,25 @@ def _validate_config() -> None:
             "Any valid Auth0 token can authenticate against this API. "
             "Set AUTH0_AUDIENCE to your API identifier in your environment."
         )
-        # Raise so the process exits clearly rather than silently running insecure.
         raise RuntimeError(
             "AUTH0_AUDIENCE must be set when SINGLE_USER_MODE=false. "
             "See sample.env for instructions."
+        )
+
+    # Warn if SINGLE_USER_MODE is enabled in non-development (5.4 / 2.3)
+    if settings.SINGLE_USER_MODE and settings.SENTRY_ENVIRONMENT not in {"development", "local", ""}:
+        _logger.warning(
+            "SINGLE_USER_MODE is enabled in '%s' environment. "
+            "All requests are authenticated as the default local user. "
+            "Disable SINGLE_USER_MODE for production deployments.",
+            settings.SENTRY_ENVIRONMENT,
+        )
+
+    # Reject the default SECRET_KEY in multi-user mode (5.4)
+    if not settings.SINGLE_USER_MODE and settings.SECRET_KEY == "change-me":
+        raise RuntimeError(
+            "SECRET_KEY is still set to the default value 'change-me'. "
+            "Generate a secure secret: python -c \"import secrets; print(secrets.token_urlsafe(32))\""
         )
 
 
@@ -135,6 +159,17 @@ app.add_middleware(
 app.include_router(api_v1_router)
 
 logger = logging.getLogger(__name__)
+
+
+@app.middleware("http")
+async def security_headers_middleware(request: Request, call_next):
+    """Add security headers to all responses."""
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    return response
 
 
 @app.middleware("http")

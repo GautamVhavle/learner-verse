@@ -373,9 +373,9 @@ async def list_public_sections(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found.")
 
     sections = await section_repo.list_by_course(course_id)
-    from app.schemas.section import SectionResponse
+    from app.schemas.section import SectionPublicResponse
 
-    return [SectionResponse.model_validate(s) for s in sections]
+    return [SectionPublicResponse.model_validate(s) for s in sections]
 
 
 # ── Accessible Sections ───────────────────────────────────────
@@ -406,9 +406,9 @@ async def list_hub_sections(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found.")
 
     sections = await section_repo.list_by_course(course_id)
-    from app.schemas.section import SectionResponse
+    from app.schemas.section import SectionPublicResponse
 
-    return [SectionResponse.model_validate(s) for s in sections]
+    return [SectionPublicResponse.model_validate(s) for s in sections]
 
 
 # ── Ratings ────────────────────────────────────────────────────

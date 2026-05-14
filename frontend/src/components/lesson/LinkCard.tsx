@@ -3,6 +3,7 @@
  */
 import { ExternalLink, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { safeExternalUrl, safeDomain } from "@/lib/safeUrl";
 import type { ReferenceLink } from "@/types/section";
 
 interface LinkCardProps {
@@ -22,6 +23,7 @@ export function LinkCard({ link, onRemove, readonly }: LinkCardProps) {
             alt=""
             className="h-16 w-24 rounded-md object-cover"
             loading="lazy"
+            referrerPolicy="no-referrer"
             onError={(e) => {
               (e.target as HTMLImageElement).style.display = "none";
             }}
@@ -32,7 +34,7 @@ export function LinkCard({ link, onRemove, readonly }: LinkCardProps) {
       {/* Content */}
       <div className="min-w-0 flex-1">
         <a
-          href={link.url}
+          href={safeExternalUrl(link.url)}
           target="_blank"
           rel="noopener noreferrer"
           className="group/link flex items-start gap-1.5"
@@ -55,13 +57,14 @@ export function LinkCard({ link, onRemove, readonly }: LinkCardProps) {
               alt=""
               className="size-3.5 rounded-sm"
               loading="lazy"
+              referrerPolicy="no-referrer"
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = "none";
               }}
             />
           )}
           <span className="text-text-tertiary text-xs">
-            {link.domain || new URL(link.url).hostname}
+            {link.domain || safeDomain(link.url)}
           </span>
         </div>
       </div>

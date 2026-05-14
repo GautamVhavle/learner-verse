@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Index, Integer, String, Text, func
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
@@ -19,7 +19,10 @@ class Lesson(Base):
     """
 
     __tablename__ = "lessons"
-    __table_args__ = (Index("idx_lessons_section_id", "section_id"),)
+    __table_args__ = (
+        Index("idx_lessons_section_id", "section_id"),
+        CheckConstraint("lesson_type IN ('video', 'note', 'quiz')", name="ck_lessons_lesson_type"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUIDType, primary_key=True, default=uuid.uuid4)
     section_id: Mapped[uuid.UUID] = mapped_column(

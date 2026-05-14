@@ -283,3 +283,58 @@ async def test_goal_with_progress(client):
     assert data["completed_lessons"] == 2
     assert data["total_lessons"] == 4
     assert data["percentage"] == 50.0
+
+
+# ============================================================
+# Additional edge-case tests
+# ============================================================
+
+
+@pytest.mark.asyncio
+async def test_set_goal_in_the_past(client):
+    """Setting a goal_date in the past should be rejected."""
+    await _ensure_user(client)
+    course = await _create_course(client)
+    section = await _create_section(client, course["id"])
+    await _create_lesson(client, section["id"])
+
+    past = (date.today() - timedelta(days=1)).isoformat()
+    resp = await client.put(
+        f"/api/v1/goals/courses/{course['id']}",
+        json={"goal_date": past},
+    )
+    assert resp.status_code == 400
+
+
+@pytest.mark.asyncio
+async def test_list_goals_empty(client):
+    """No goals set returns empty list."""
+    await _ensure_user(client)
+    resp = await client.get("/api/v1/goals")
+    assert resp.status_code == 200
+    assert resp.json() == []
+
+
+@pytest.mark.asyncio
+async def test_remove_goal_via_null(client):
+    """Can remove a goal by setting goal_date to null."""
+    await _ensure_user(client)
+    course = await _create_course(client)
+    section = await _create_section(client, course["id"])
+    await _create_lesson(client, section["id"])
+
+    goal_date = (date.today() + timedelta(days=30)).isoformat()
+    await client.put(
+        f"/api/v1/goals/courses/{course['id']}",
+        json={"goal_date": goal_date},
+    )
+
+    # Remove goal by setting goal_date to null
+    resp = await client.put(
+        f"/api/v1/goals/courses/{course['id']}",
+        json={"goal_date": None},
+    )
+    assert resp.status_code == 200
+
+    goals = await client.get("/api/v1/goals")
+    assert all(g["course_id"] != course["id"] for g in goals.json())

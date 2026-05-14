@@ -116,8 +116,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const handleRedirectCallback = (appState?: { returnTo?: string }) => {
-    // After Auth0 login, redirect to the intended destination (default: creator dashboard)
-    const returnTo = appState?.returnTo || "/creator";
+    // After Auth0 login, redirect to the intended destination (default: creator dashboard).
+    // Validate that returnTo is a relative path to prevent open-redirect attacks.
+    let returnTo = appState?.returnTo || "/creator";
+    if (!returnTo.startsWith("/") || returnTo.startsWith("//") || returnTo.includes("://")) {
+      returnTo = "/creator";
+    }
     window.location.replace(returnTo);
   };
 

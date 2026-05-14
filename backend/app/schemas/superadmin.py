@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import date, datetime
+from typing import Literal
 
 from pydantic import BaseModel
 
@@ -165,5 +166,5 @@ class PaginatedVerificationList(BaseModel):
 class ReviewVerificationRequest(BaseModel):
     """Body for approving or rejecting a verification request."""
 
-    action: str  # "approve" | "reject"
+    action: Literal["approve", "reject"]
     note: str | None = None  # Required on rejection, optional on approval

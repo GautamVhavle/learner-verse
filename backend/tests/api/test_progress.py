@@ -229,3 +229,68 @@ async def test_course_progress_no_lessons(client):
     assert data["total_lessons"] == 0
     assert data["percentage"] == 0
     assert data["sections"] == []
+
+
+# ============================================================
+# Additional edge-case tests
+# ============================================================
+
+
+@pytest.mark.asyncio
+async def test_complete_lesson_twice_stays_completed(client):
+    """Marking a lesson complete twice keeps it completed."""
+    await _ensure_user(client)
+    course = await _create_course(client)
+    section = await _create_section(client, course["id"])
+    lesson = await _create_lesson(client, section["id"])
+
+    await client.put(
+        f"/api/v1/progress/lessons/{lesson['id']}",
+        json={"completed": True},
+    )
+    resp = await client.put(
+        f"/api/v1/progress/lessons/{lesson['id']}",
+        json={"completed": True},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["completed"] is True
+
+    # Verify course still shows 100%
+    progress = await client.get(f"/api/v1/progress/courses/{course['id']}")
+    assert progress.json()["percentage"] == 100.0
+
+
+@pytest.mark.asyncio
+async def test_progress_after_adding_new_lesson(client):
+    """Progress percentage recalculates when a new lesson is added after completion."""
+    await _ensure_user(client)
+    course = await _create_course(client)
+    section = await _create_section(client, course["id"])
+    l1 = await _create_lesson(client, section["id"], title="L1")
+
+    # Complete the only lesson → 100%
+    await client.put(
+        f"/api/v1/progress/lessons/{l1['id']}",
+        json={"completed": True},
+    )
+    progress = await client.get(f"/api/v1/progress/courses/{course['id']}")
+    assert progress.json()["percentage"] == 100.0
+
+    # Add another lesson → 50%
+    await _create_lesson(client, section["id"], title="L2")
+    progress = await client.get(f"/api/v1/progress/courses/{course['id']}")
+    assert progress.json()["percentage"] == 50.0
+
+
+@pytest.mark.asyncio
+async def test_progress_course_not_found_returns_zeros(client):
+    """Progress for non-existent course returns 200 with zero values."""
+    await _ensure_user(client)
+    resp = await client.get(
+        "/api/v1/progress/courses/00000000-0000-0000-0000-000000000099"
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["percentage"] == 0
+    assert data["total_lessons"] == 0
+    assert data["completed_lessons"] == 0

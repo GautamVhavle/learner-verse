@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { VerifiedBadge } from "@/components/shared/VerifiedBadge";
 import { usePublicProfileQuery } from "@/hooks/useProfile";
+import { safeExternalUrl } from "@/lib/safeUrl";
 import type { PublicProfile, SocialLink } from "@/types/user";
 
 /* ─── Helpers ──────────────────────────────────────── */
@@ -284,7 +285,7 @@ function LinksCard({ links }: { links: SocialLink[] }) {
         {links.map((link, i) => (
           <a
             key={i}
-            href={link.url}
+            href={safeExternalUrl(link.url)}
             target="_blank"
             rel="noopener noreferrer"
             className="border-border-default bg-bg-tertiary text-text-secondary hover:border-accent-blue/40 hover:text-text-primary inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors"

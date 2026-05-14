@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
 import pytest
@@ -29,22 +29,49 @@ MOCK_HTML_NO_OG = """
 """
 
 
+def _mock_stream_client(html: str):
+    """Create a mock httpx.AsyncClient that simulates client.stream("GET", url).
+
+    The service reads chunks via ``resp.aiter_bytes()`` inside an
+    ``async with client.stream(...)`` context manager, so we need a
+    two-level async-CM mock.
+    """
+    html_bytes = html.encode("utf-8")
+
+    # The inner response object (yielded by `async with client.stream(...)`)
+    mock_resp = MagicMock()
+    mock_resp.raise_for_status = MagicMock()
+
+    async def _aiter_bytes(chunk_size=8192):
+        yield html_bytes
+
+    mock_resp.aiter_bytes = _aiter_bytes
+
+    # Inner CM: `async with client.stream("GET", url) as resp:`
+    stream_cm = AsyncMock()
+    stream_cm.__aenter__ = AsyncMock(return_value=mock_resp)
+    stream_cm.__aexit__ = AsyncMock(return_value=False)
+
+    # The client instance
+    instance = MagicMock()
+    instance.stream = MagicMock(return_value=stream_cm)
+    instance.__aenter__ = AsyncMock(return_value=instance)
+    instance.__aexit__ = AsyncMock(return_value=False)
+
+    return instance
+
+
 # ============================================================
 # fetch_opengraph - unit tests
 # ============================================================
 @pytest.mark.asyncio
 async def test_fetch_opengraph_success():
-    mock_response = AsyncMock()
-    mock_response.text = MOCK_HTML
-    mock_response.raise_for_status = lambda: None
+    instance = _mock_stream_client(MOCK_HTML)
 
-    with patch("app.services.opengraph_service.httpx.AsyncClient") as MockClient:
-        instance = AsyncMock()
-        instance.get.return_value = mock_response
-        instance.__aenter__ = AsyncMock(return_value=instance)
-        instance.__aexit__ = AsyncMock(return_value=False)
-        MockClient.return_value = instance
-
+    with (
+        patch("app.services.opengraph_service.httpx.AsyncClient", return_value=instance),
+        patch("app.services.opengraph_service._is_private_ip", return_value=False),
+    ):
         result = await fetch_opengraph("https://example.com/page")
 
     assert result.title == "Example Page"
@@ -56,17 +83,12 @@ async def test_fetch_opengraph_success():
 
 @pytest.mark.asyncio
 async def test_fetch_opengraph_fallback_title():
-    mock_response = AsyncMock()
-    mock_response.text = MOCK_HTML_NO_OG
-    mock_response.raise_for_status = lambda: None
+    instance = _mock_stream_client(MOCK_HTML_NO_OG)
 
-    with patch("app.services.opengraph_service.httpx.AsyncClient") as MockClient:
-        instance = AsyncMock()
-        instance.get.return_value = mock_response
-        instance.__aenter__ = AsyncMock(return_value=instance)
-        instance.__aexit__ = AsyncMock(return_value=False)
-        MockClient.return_value = instance
-
+    with (
+        patch("app.services.opengraph_service.httpx.AsyncClient", return_value=instance),
+        patch("app.services.opengraph_service._is_private_ip", return_value=False),
+    ):
         result = await fetch_opengraph("https://example.com")
 
     assert result.title == "Simple Page"
@@ -84,17 +106,12 @@ async def test_fetch_opengraph_invalid_scheme():
 @pytest.mark.asyncio
 async def test_fetch_opengraph_relative_image():
     html = '<meta property="og:image" content="/images/test.png"><title>T</title>'
-    mock_response = AsyncMock()
-    mock_response.text = html
-    mock_response.raise_for_status = lambda: None
+    instance = _mock_stream_client(html)
 
-    with patch("app.services.opengraph_service.httpx.AsyncClient") as MockClient:
-        instance = AsyncMock()
-        instance.get.return_value = mock_response
-        instance.__aenter__ = AsyncMock(return_value=instance)
-        instance.__aexit__ = AsyncMock(return_value=False)
-        MockClient.return_value = instance
-
+    with (
+        patch("app.services.opengraph_service.httpx.AsyncClient", return_value=instance),
+        patch("app.services.opengraph_service._is_private_ip", return_value=False),
+    ):
         result = await fetch_opengraph("https://example.com/page")
 
     assert result.image == "https://example.com/images/test.png"
@@ -143,3 +160,53 @@ async def test_opengraph_endpoint_fetch_failure(client):
             "/api/v1/opengraph/fetch", json={"url": "https://down.com"}
         )
     assert resp.status_code == 502
+
+
+# ============================================================
+# Additional edge-case tests
+# ============================================================
+
+
+@pytest.mark.asyncio
+async def test_fetch_opengraph_ssrf_private_ip():
+    """URLs pointing to private IPs should be rejected (SSRF protection)."""
+    with pytest.raises(ValueError, match="private or reserved"):
+        await fetch_opengraph("https://127.0.0.1/admin")
+
+
+@pytest.mark.asyncio
+async def test_fetch_opengraph_no_title():
+    """Page with no og:title and no <title> returns None for title."""
+    html = '<html><head></head><body>No title here</body></html>'
+    instance = _mock_stream_client(html)
+
+    with (
+        patch("app.services.opengraph_service.httpx.AsyncClient", return_value=instance),
+        patch("app.services.opengraph_service._is_private_ip", return_value=False),
+    ):
+        result = await fetch_opengraph("https://example.com")
+
+    assert result.title is None
+    assert result.domain == "example.com"
+
+
+@pytest.mark.asyncio
+async def test_fetch_opengraph_protocol_relative_image():
+    """Protocol-relative og:image (//cdn.example.com/img.jpg) is resolved."""
+    html = '<meta property="og:image" content="//cdn.example.com/pic.jpg"><title>T</title>'
+    instance = _mock_stream_client(html)
+
+    with (
+        patch("app.services.opengraph_service.httpx.AsyncClient", return_value=instance),
+        patch("app.services.opengraph_service._is_private_ip", return_value=False),
+    ):
+        result = await fetch_opengraph("https://example.com")
+
+    assert result.image == "https://cdn.example.com/pic.jpg"
+
+
+@pytest.mark.asyncio
+async def test_opengraph_endpoint_missing_url_field(client):
+    """POST /opengraph/fetch without url field returns 422."""
+    resp = await client.post("/api/v1/opengraph/fetch", json={})
+    assert resp.status_code == 422

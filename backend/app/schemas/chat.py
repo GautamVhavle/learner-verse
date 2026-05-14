@@ -26,11 +26,22 @@ class InlineHistoryMessage(BaseModel):
     content: str = Field(..., min_length=1, max_length=8000)
 
 
+class InlineChatContextData(BaseModel):
+    """Constrained context data for inline chat."""
+
+    lesson_title: str | None = Field(None, max_length=500)
+    youtube_title: str | None = Field(None, max_length=500)
+    youtube_channel: str | None = Field(None, max_length=255)
+    notes_markdown: str | None = Field(None, max_length=50000)
+    question: str | None = Field(None, max_length=2000)
+    options: list[str] | None = Field(None, max_length=10)
+
+
 class InlineChatRequest(BaseModel):
     message: str = Field(..., min_length=1, max_length=4000)
     history: list[InlineHistoryMessage] = Field(default_factory=list, max_length=20)
     context_type: str = Field(..., pattern=r"^(video|reading|quiz)$")
-    context_data: dict = Field(default_factory=dict)
+    context_data: InlineChatContextData = Field(default_factory=InlineChatContextData)
 
 
 # ── Responses ──────────────────────────────────────────────────

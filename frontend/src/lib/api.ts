@@ -50,8 +50,11 @@ export async function getAuthHeaders(): Promise<Record<string, string>> {
   }
 }
 
+/** Default request timeout in milliseconds. */
+const REQUEST_TIMEOUT_MS = 30_000;
+
 /**
- * Core request function. Handles auth headers, JSON parsing, and errors.
+ * Core request function. Handles auth headers, JSON parsing, errors, and timeout.
  * Returns `void` (typed as `undefined`) for 204 No Content responses.
  */
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -64,14 +67,31 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
       ? { "Content-Type": "application/json" }
       : {};
 
-  const res = await fetch(url, {
-    ...options,
-    headers: {
-      ...contentHeaders,
-      ...authHeaders,
-      ...options.headers,
-    },
-  });
+  /* Abort after timeout unless the caller supplies their own signal. */
+  const controller = !options.signal ? new AbortController() : null;
+  const timeoutId = controller
+    ? setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+    : undefined;
+
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      ...options,
+      signal: options.signal ?? controller?.signal,
+      headers: {
+        ...contentHeaders,
+        ...authHeaders,
+        ...options.headers,
+      },
+    });
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError" && controller) {
+      throw new ApiError(0, "Request timed out. Please try again.");
+    }
+    throw err;
+  } finally {
+    if (timeoutId !== undefined) clearTimeout(timeoutId);
+  }
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({ detail: res.statusText }));

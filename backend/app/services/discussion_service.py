@@ -62,7 +62,10 @@ class DiscussionService:
 
         before_dt = None
         if before:
-            before_dt = datetime.fromisoformat(before)
+            try:
+                before_dt = datetime.fromisoformat(before)
+            except (ValueError, TypeError):
+                raise HTTPException(status_code=400, detail="Invalid cursor format.")
 
         limit = min(limit, 100)
         messages = await self.repo.list_messages(course_id, before=before_dt, limit=limit + 1)
@@ -111,6 +114,12 @@ class DiscussionService:
         result = await self.db.execute(select(Course.user_id).where(Course.id == course_id))
         course_owner_id = result.scalar_one_or_none()
         role = "creator" if course_owner_id == user.id else "learner"
+
+        # Validate reply_to_id belongs to the same course
+        if payload.reply_to_id:
+            parent = await self.repo.get_by_id(payload.reply_to_id)
+            if not parent or parent.course_id != course_id:
+                raise HTTPException(status_code=400, detail="Invalid reply target.")
 
         msg = DiscussionMessage(
             course_id=course_id,

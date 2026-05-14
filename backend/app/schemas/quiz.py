@@ -20,8 +20,15 @@ class QuizQuestionUpdate(BaseModel):
     correct_option: int | None = Field(None, ge=0, le=3)
 
 
+class QuizQuestionReorderItem(BaseModel):
+    id: uuid.UUID
+    position: int = Field(..., ge=0, le=9999)
+
+
 class QuizQuestionReorder(BaseModel):
-    items: list[dict] = Field(..., description="List of {id, position} objects")
+    items: list[QuizQuestionReorderItem] = Field(
+        ..., min_length=1, max_length=50, description="List of {id, position} objects"
+    )
 
 
 class AIQuizGenerateRequest(BaseModel):
@@ -42,6 +49,19 @@ class QuizQuestionResponse(BaseModel):
     question: str
     options: list[str]
     correct_option: int
+    position: int
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class QuizQuestionPublicResponse(BaseModel):
+    """Learner-facing quiz question without the correct answer."""
+
+    id: uuid.UUID
+    lesson_id: uuid.UUID
+    question: str
+    options: list[str]
     position: int
     created_at: datetime
 

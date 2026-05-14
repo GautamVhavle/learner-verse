@@ -38,6 +38,22 @@ class InMemoryRateLimiter:
 
         self._hits[user_id].append(now)
 
+        # Clean up empty buckets to prevent memory leak (10.9)
+        if not self._hits[user_id]:
+            del self._hits[user_id]
+
+    def cleanup(self) -> None:
+        """Remove all expired entries across all users. Call periodically."""
+        now = time.monotonic()
+        cutoff = now - self.window
+        empty_keys = []
+        for uid, timestamps in self._hits.items():
+            self._hits[uid] = [t for t in timestamps if t > cutoff]
+            if not self._hits[uid]:
+                empty_keys.append(uid)
+        for uid in empty_keys:
+            del self._hits[uid]
+
 
 # ── Pre-configured limiters ───────────────────────────────────
 
@@ -46,3 +62,12 @@ chat_stream_limiter = InMemoryRateLimiter(max_requests=20, window_seconds=60)
 
 # Thread creation: 10 per 60 seconds per user
 chat_thread_limiter = InMemoryRateLimiter(max_requests=10, window_seconds=60)
+
+# AI quiz generation: 5 per 60 seconds per user
+ai_generate_limiter = InMemoryRateLimiter(max_requests=5, window_seconds=60)
+
+# OpenGraph fetching: 30 per 60 seconds per user
+opengraph_limiter = InMemoryRateLimiter(max_requests=30, window_seconds=60)
+
+# Webhook: 100 per 60 seconds (global, keyed by source IP or "webhook")
+webhook_limiter = InMemoryRateLimiter(max_requests=100, window_seconds=60)

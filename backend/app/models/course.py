@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Index, String, Text, func
+from sqlalchemy import Boolean, CheckConstraint, Date, DateTime, ForeignKey, Index, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
@@ -23,6 +23,7 @@ class Course(Base):
         Index("idx_courses_status", "status"),
         Index("idx_courses_deleted", "is_deleted"),
         Index("idx_courses_category", "category"),
+        CheckConstraint("status IN ('draft', 'ready')", name="ck_courses_status"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUIDType, primary_key=True, default=uuid.uuid4)

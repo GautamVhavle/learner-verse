@@ -25,6 +25,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { SettingsSaveIndicator } from "./SettingsSaveIndicator";
 import { VerifiedBadge } from "@/components/shared/VerifiedBadge";
 import { useUploadAvatarMutation, useUploadCoverMutation } from "@/hooks/useUser";
+import { safeExternalUrl } from "@/lib/safeUrl";
 import type { UserProfile, UserSettings, SocialLink } from "@/types/user";
 
 const MAX_BIO_LENGTH = 500;
@@ -509,7 +510,7 @@ export function ProfileSection({ user, onSave }: ProfileSectionProps) {
                 {user.social_links.map((link, i) => (
                   <a
                     key={i}
-                    href={link.url}
+                    href={safeExternalUrl(link.url)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="border-border-default bg-bg-tertiary text-text-secondary hover:border-accent-blue/40 hover:text-text-primary inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors"

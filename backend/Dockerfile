@@ -29,10 +29,16 @@ RUN uv sync --frozen --no-dev
 # Create uploads directory
 RUN mkdir -p /app/uploads
 
+# Create non-root user for security
+RUN groupadd -r appuser && useradd -r -g appuser -d /app -s /sbin/nologin appuser \
+    && chown -R appuser:appuser /app
+
 EXPOSE 8000
 
 # Entrypoint: run migrations then start the server
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
+
+USER appuser
 
 ENTRYPOINT ["/app/entrypoint.sh"]

@@ -64,6 +64,19 @@ class QuizQuestionResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class QuizQuestionPublicResponse(BaseModel):
+    """Learner-facing quiz question without correct_option."""
+
+    id: uuid.UUID
+    lesson_id: uuid.UUID
+    question: str
+    options: list[str]
+    position: int
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
 class LessonResponse(BaseModel):
     id: uuid.UUID
     section_id: uuid.UUID
@@ -77,6 +90,28 @@ class LessonResponse(BaseModel):
     notes_markdown: str | None = None
     reference_links: list[ReferenceLinkResponse] = []
     quiz_questions: list[QuizQuestionResponse] = []
+    position: int
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class LessonPublicResponse(BaseModel):
+    """Learner-facing lesson without quiz answers."""
+
+    id: uuid.UUID
+    section_id: uuid.UUID
+    title: str
+    lesson_type: str = "video"
+    youtube_url: str | None = None
+    youtube_title: str | None = None
+    youtube_thumbnail: str | None = None
+    youtube_duration: str | None = None
+    youtube_channel: str | None = None
+    notes_markdown: str | None = None
+    reference_links: list[ReferenceLinkResponse] = []
+    quiz_questions: list[QuizQuestionPublicResponse] = []
     position: int
     created_at: datetime
     updated_at: datetime

@@ -116,6 +116,11 @@ export default function CourseBuilderPage() {
     // Reset so the same file can be re-selected
     e.target.value = "";
 
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Import file must be under 5 MB.");
+      return;
+    }
+
     setImportValidating(true);
     const reader = new FileReader();
     reader.onload = () => {

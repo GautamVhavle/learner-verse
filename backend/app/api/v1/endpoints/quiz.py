@@ -141,6 +141,7 @@ async def list_questions(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    await _verify_lesson_owner(db, lesson_id, user.id)
     repo = QuizRepository(db)
     return [QuizQuestionResponse.model_validate(q) for q in await repo.list_questions(lesson_id)]
 
@@ -197,7 +198,9 @@ async def reorder_questions(
 ):
     await _verify_lesson_owner(db, lesson_id, user.id)
     repo = QuizRepository(db)
-    questions = await repo.reorder_questions(lesson_id, data.items)
+    questions = await repo.reorder_questions(
+        lesson_id, [{"id": item.id, "position": item.position} for item in data.items]
+    )
     await db.commit()
     return [QuizQuestionResponse.model_validate(q) for q in questions]
 
@@ -254,6 +257,9 @@ async def generate_quiz_with_ai(
     db: AsyncSession = Depends(get_db),
 ):
     """Generate quiz questions using AI and save them to the lesson."""
+    from app.api.rate_limit import ai_generate_limiter
+
+    ai_generate_limiter.check(str(user.id))
     await _verify_lesson_owner(db, lesson_id, user.id)
 
     if not settings.OPENROUTER_API_KEY:

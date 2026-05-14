@@ -230,6 +230,7 @@ class SuperadminService:
 
     async def get_top_courses(self, limit: int = 10) -> list[TopCourse]:
         """Courses ranked by enrollment count with completion rate and rating."""
+        # Include certificate count in the main query to avoid N+1 (7.8)
         stmt = (
             select(
                 Course.id,
@@ -237,10 +238,12 @@ class SuperadminService:
                 User.display_name,
                 func.count(func.distinct(CourseEnrollment.user_id)).label("enrollment_count"),
                 func.coalesce(func.avg(CourseRating.rating), 0.0).label("avg_rating"),
+                func.count(func.distinct(Certificate.id)).label("cert_count"),
             )
             .join(User, User.id == Course.user_id)
             .outerjoin(CourseEnrollment, CourseEnrollment.course_id == Course.id)
             .outerjoin(CourseRating, CourseRating.course_id == Course.id)
+            .outerjoin(Certificate, Certificate.course_id == Course.id)
             .where(Course.is_deleted.is_(False))
             .group_by(Course.id, Course.title, User.display_name)
             .order_by(func.count(func.distinct(CourseEnrollment.user_id)).desc())
@@ -251,13 +254,7 @@ class SuperadminService:
 
         top: list[TopCourse] = []
         for row in rows:
-            course_id, title, creator_name, enroll_count, avg_rating = row
-            # Completion rate = users with a certificate / enrolled users
-            completed_count = await self._scalar(
-                select(func.count())
-                .select_from(Certificate)
-                .where(Certificate.course_id == course_id)
-            )
+            course_id, title, creator_name, enroll_count, avg_rating, completed_count = row
             rate = (completed_count / enroll_count) if enroll_count > 0 else 0.0
             top.append(
                 TopCourse(
@@ -342,40 +339,59 @@ class SuperadminService:
     ) -> PaginatedUserList:
         base = select(User)
         if search:
-            pattern = f"%{search}%"
+            escaped = search.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+            pattern = f"%{escaped}%"
             base = base.where(User.email.ilike(pattern) | User.display_name.ilike(pattern))
 
         total = await self._scalar(select(func.count()).select_from(base.subquery()))
         result = await self._session.execute(
             base.order_by(User.created_at.desc()).offset((page - 1) * per_page).limit(per_page)
         )
-        users = result.scalars().all()
+        users = list(result.scalars().all())
+
+        if not users:
+            return PaginatedUserList(items=[], total=total, page=page, per_page=per_page)
+
+        user_ids = [u.id for u in users]
+
+        # Batch queries to avoid N+1 (7.7)
+        courses_created_result = await self._session.execute(
+            select(Course.user_id, func.count())
+            .where(Course.user_id.in_(user_ids), Course.is_deleted.is_(False))
+            .group_by(Course.user_id)
+        )
+        courses_created_map = dict(courses_created_result.all())
+
+        courses_enrolled_result = await self._session.execute(
+            select(CourseEnrollment.user_id, func.count())
+            .where(CourseEnrollment.user_id.in_(user_ids))
+            .group_by(CourseEnrollment.user_id)
+        )
+        courses_enrolled_map = dict(courses_enrolled_result.all())
+
+        lessons_completed_result = await self._session.execute(
+            select(LessonProgress.user_id, func.count())
+            .where(LessonProgress.user_id.in_(user_ids), LessonProgress.completed.is_(True))
+            .group_by(LessonProgress.user_id)
+        )
+        lessons_completed_map = dict(lessons_completed_result.all())
+
+        certificates_result = await self._session.execute(
+            select(Certificate.user_id, func.count())
+            .where(Certificate.user_id.in_(user_ids))
+            .group_by(Certificate.user_id)
+        )
+        certificates_map = dict(certificates_result.all())
+
+        last_active_result = await self._session.execute(
+            select(ActivityLog.user_id, func.max(ActivityLog.activity_date))
+            .where(ActivityLog.user_id.in_(user_ids))
+            .group_by(ActivityLog.user_id)
+        )
+        last_active_map = dict(last_active_result.all())
 
         items: list[AdminUserSummary] = []
         for u in users:
-            courses_created = await self._scalar(
-                select(func.count())
-                .select_from(Course)
-                .where(Course.user_id == u.id, Course.is_deleted.is_(False))
-            )
-            courses_enrolled = await self._scalar(
-                select(func.count())
-                .select_from(CourseEnrollment)
-                .where(CourseEnrollment.user_id == u.id)
-            )
-            lessons_completed = await self._scalar(
-                select(func.count())
-                .select_from(LessonProgress)
-                .where(LessonProgress.user_id == u.id, LessonProgress.completed.is_(True))
-            )
-            certificates_earned = await self._scalar(
-                select(func.count()).select_from(Certificate).where(Certificate.user_id == u.id)
-            )
-            last_active_result = await self._session.execute(
-                select(func.max(ActivityLog.activity_date)).where(ActivityLog.user_id == u.id)
-            )
-            last_active = last_active_result.scalar()
-
             items.append(
                 AdminUserSummary(
                     id=u.id,
@@ -384,11 +400,11 @@ class SuperadminService:
                     avatar_url=u.avatar_url,
                     is_pro=u.is_pro,
                     is_verified_creator=u.is_verified_creator,
-                    courses_created=courses_created,
-                    courses_enrolled=courses_enrolled,
-                    lessons_completed=lessons_completed,
-                    certificates_earned=certificates_earned,
-                    last_active=last_active,
+                    courses_created=courses_created_map.get(u.id, 0),
+                    courses_enrolled=courses_enrolled_map.get(u.id, 0),
+                    lessons_completed=lessons_completed_map.get(u.id, 0),
+                    certificates_earned=certificates_map.get(u.id, 0),
+                    last_active=last_active_map.get(u.id),
                     joined_at=u.created_at,
                 )
             )

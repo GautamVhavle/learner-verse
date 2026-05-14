@@ -46,7 +46,6 @@ class EnrollmentRepository:
                 CourseEnrollment.user_id == user_id,
                 CourseEnrollment.course_id == course_id,
             )
-            .returning(CourseEnrollment.id)
         )
         return result.rowcount > 0
 

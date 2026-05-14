@@ -33,11 +33,15 @@ export function useInlineChat({ contextType, contextData }: UseInlineChatOptions
   const [status, setStatus] = useState<InlineChatStatus>("idle");
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const lastSentRef = useRef<number>(0);
 
   const sendMessage = useCallback(
     async (text: string) => {
       const trimmed = text.trim();
       if (!trimmed || status === "streaming") return;
+      if (trimmed.length > 2000) return;
+      if (Date.now() - lastSentRef.current < 1000) return;
+      lastSentRef.current = Date.now();
 
       setError(null);
 

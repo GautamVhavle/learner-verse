@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, String, Text, func
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
@@ -12,6 +12,9 @@ from app.models.types import UUIDType
 
 class DiscussionMessage(Base):
     __tablename__ = "discussion_messages"
+    __table_args__ = (
+        CheckConstraint("role IN ('learner', 'creator', 'ai')", name="ck_discussion_messages_role"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUIDType, primary_key=True, default=uuid.uuid4)
     course_id: Mapped[uuid.UUID] = mapped_column(

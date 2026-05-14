@@ -71,9 +71,12 @@ async def list_threads(
 ):
     repo = _repo(db)
     threads = await repo.list_threads(user.id)
+    # Batch-fetch last messages to avoid N+1
+    thread_ids = [t.id for t in threads]
+    last_msgs = await repo.get_last_messages_batch(thread_ids) if thread_ids else {}
     items = []
     for t in threads:
-        last_msg = await repo.get_last_message(t.id)
+        last_msg = last_msgs.get(t.id)
         preview = None
         if last_msg:
             preview = last_msg.content[:100] + ("…" if len(last_msg.content) > 100 else "")
@@ -210,7 +213,7 @@ async def stream_inline_chat(
     async def generate():
         try:
             async for chunk in service.stream_response(
-                message, history, data.context_type, data.context_data
+                message, history, data.context_type, data.context_data.model_dump(exclude_none=True)
             ):
                 yield chunk
         except Exception as exc:
