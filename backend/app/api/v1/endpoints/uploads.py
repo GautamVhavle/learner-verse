@@ -33,7 +33,7 @@ _MAGIC_BYTES = {
 def _detect_image_type(data: bytes) -> str | None:
     """Detect image type from magic bytes, ignoring client-supplied Content-Type."""
     for magic, mime in _MAGIC_BYTES.items():
-        if data[:len(magic)] == magic:
+        if data[: len(magic)] == magic:
             # Extra check for WebP: bytes 8-12 must be "WEBP"
             if mime == "image/webp" and data[8:12] != b"WEBP":
                 continue

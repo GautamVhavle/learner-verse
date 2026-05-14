@@ -99,7 +99,9 @@ class ChatRepository:
         )
         return result.scalar_one_or_none()
 
-    async def get_last_messages_batch(self, thread_ids: list[uuid.UUID]) -> dict[uuid.UUID, ChatMessage]:
+    async def get_last_messages_batch(
+        self, thread_ids: list[uuid.UUID]
+    ) -> dict[uuid.UUID, ChatMessage]:
         """Fetch the last message for each thread in a single query."""
         if not thread_ids:
             return {}

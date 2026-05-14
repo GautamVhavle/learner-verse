@@ -125,7 +125,11 @@ def _validate_config() -> None:
         )
 
     # Warn if SINGLE_USER_MODE is enabled in non-development (5.4 / 2.3)
-    if settings.SINGLE_USER_MODE and settings.SENTRY_ENVIRONMENT not in {"development", "local", ""}:
+    if settings.SINGLE_USER_MODE and settings.SENTRY_ENVIRONMENT not in {
+        "development",
+        "local",
+        "",
+    }:
         _logger.warning(
             "SINGLE_USER_MODE is enabled in '%s' environment. "
             "All requests are authenticated as the default local user. "
@@ -137,7 +141,7 @@ def _validate_config() -> None:
     if not settings.SINGLE_USER_MODE and settings.SECRET_KEY == "change-me":
         raise RuntimeError(
             "SECRET_KEY is still set to the default value 'change-me'. "
-            "Generate a secure secret: python -c \"import secrets; print(secrets.token_urlsafe(32))\""
+            'Generate a secure secret: python -c "import secrets; print(secrets.token_urlsafe(32))"'
         )
 
 

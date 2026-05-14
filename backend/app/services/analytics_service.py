@@ -330,9 +330,7 @@ class AnalyticsService:
 
         # Get enrollments with SQL-level pagination (10.3)
         total_result = await self.db.execute(
-            select(func.count(CourseEnrollment.id)).where(
-                CourseEnrollment.course_id == course_id
-            )
+            select(func.count(CourseEnrollment.id)).where(CourseEnrollment.course_id == course_id)
         )
         total = total_result.scalar_one()
 

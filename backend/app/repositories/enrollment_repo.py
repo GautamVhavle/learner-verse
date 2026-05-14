@@ -41,8 +41,7 @@ class EnrollmentRepository:
     async def unenroll(self, user_id: uuid.UUID, course_id: uuid.UUID) -> bool:
         """Remove a user's enrollment. Returns True if deleted, False if not found."""
         result = await self.db.execute(
-            delete(CourseEnrollment)
-            .where(
+            delete(CourseEnrollment).where(
                 CourseEnrollment.user_id == user_id,
                 CourseEnrollment.course_id == course_id,
             )
