@@ -49,39 +49,38 @@ async def get_current_user(
             db.add(user)
             await db.commit()
             await db.refresh(user)
-        return user
+    else:
+        # Multi-user auth: verify Auth0 JWT
+        auth0_id = await verify_auth0_token(request)
 
-    # Multi-user auth: verify Auth0 JWT
-    auth0_id = await verify_auth0_token(request)
+        result = await db.execute(select(User).where(User.clerk_id == auth0_id))
+        user = result.scalar_one_or_none()
 
-    result = await db.execute(select(User).where(User.clerk_id == auth0_id))
-    user = result.scalar_one_or_none()
-
-    if user is None:
-        # Auto-create user on first authenticated request.
-        # Use optimistic insert + catch IntegrityError to handle the race
-        # condition where two concurrent requests for the same new user both
-        # pass the "user is None" check on separate DB replicas.
-        try:
-            user = User(
-                clerk_id=auth0_id,
-                email=f"{auth0_id}@auth0.user",
-                display_name="New User",
-            )
-            db.add(user)
-            await db.commit()
-            await db.refresh(user)
-        except IntegrityError:
-            # Another request inserted the same clerk_id concurrently.
-            await db.rollback()
-            result = await db.execute(select(User).where(User.clerk_id == auth0_id))
-            user = result.scalar_one_or_none()
-            if user is None:
-                # Should be unreachable, but guard against unexpected states.
-                raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail="Failed to retrieve user after concurrent creation.",
+        if user is None:
+            # Auto-create user on first authenticated request.
+            # Use optimistic insert + catch IntegrityError to handle the race
+            # condition where two concurrent requests for the same new user both
+            # pass the "user is None" check on separate DB replicas.
+            try:
+                user = User(
+                    clerk_id=auth0_id,
+                    email=f"{auth0_id}@auth0.user",
+                    display_name="New User",
                 )
+                db.add(user)
+                await db.commit()
+                await db.refresh(user)
+            except IntegrityError:
+                # Another request inserted the same clerk_id concurrently.
+                await db.rollback()
+                result = await db.execute(select(User).where(User.clerk_id == auth0_id))
+                user = result.scalar_one_or_none()
+                if user is None:
+                    # Should be unreachable, but guard against unexpected states.
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        detail="Failed to retrieve user after concurrent creation.",
+                    )
 
     # When the payment gateway is disabled, treat every user as Pro.
     # Use set_committed_value so SQLAlchemy does NOT mark the column as

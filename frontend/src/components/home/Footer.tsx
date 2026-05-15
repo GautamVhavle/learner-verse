@@ -71,9 +71,14 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="mt-12 border-t border-white/5 pt-8">
           <div className="flex flex-col items-center gap-3 text-center sm:flex-row sm:justify-between sm:text-left">
-            <p className="text-xs text-white/30">
-              © {new Date().getFullYear()} LearnerVerse. All rights reserved.
-            </p>
+            <div className="flex items-center gap-3">
+              <p className="text-xs text-white/30">
+                © {new Date().getFullYear()} LearnerVerse. All rights reserved.
+              </p>
+              <span className="hidden items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[11px] text-white/40 sm:inline-flex">
+                🇮🇳 Made in India
+              </span>
+            </div>
             <div className="flex flex-col items-center gap-2 sm:flex-row sm:gap-4">
               <a
                 href="https://github.com/GautamVhavle/learner-verse"

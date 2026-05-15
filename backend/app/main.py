@@ -9,11 +9,13 @@ import logging
 import time
 import traceback
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 import sentry_sdk
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import select
 
 from app.api.dependencies import SINGLE_USER_ID
@@ -161,6 +163,12 @@ app.add_middleware(
 )
 
 app.include_router(api_v1_router)
+
+# Serve locally-uploaded files when Supabase is not configured.
+_upload_dir = Path(settings.UPLOAD_DIR)
+if _upload_dir.exists() or not settings.SUPABASE_URL:
+    _upload_dir.mkdir(parents=True, exist_ok=True)
+    app.mount("/uploads", StaticFiles(directory=str(_upload_dir)), name="uploads")
 
 logger = logging.getLogger(__name__)
 

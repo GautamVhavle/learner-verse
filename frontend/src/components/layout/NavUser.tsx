@@ -3,7 +3,6 @@
  * click the chevron arrow for sign-out dropdown.
  */
 import { LogOut } from "lucide-react";
-import { useAuth0 } from "@auth0/auth0-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -16,6 +15,7 @@ import { SidebarMenu, SidebarMenuItem, useSidebar } from "@/components/ui/sideba
 import { ChevronsUpDown } from "lucide-react";
 import { useModeAwareNavigate } from "@/hooks/useModeAwareNavigate";
 import { useUserQuery } from "@/hooks/useUser";
+import { useMaybeAuth0 } from "@/hooks/useMaybeAuth0";
 import { SINGLE_USER_MODE } from "@/lib/auth";
 
 interface NavUserProps {
@@ -37,8 +37,7 @@ export function NavUser({ name, email, avatar }: NavUserProps) {
   const { isMobile } = useSidebar();
   const navigate = useModeAwareNavigate();
   const { data: profile } = useUserQuery();
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const auth0 = SINGLE_USER_MODE ? null : useAuth0();
+  const auth0 = useMaybeAuth0();
 
   const handleSignOut = () => {
     auth0?.logout({ logoutParams: { returnTo: window.location.origin } });

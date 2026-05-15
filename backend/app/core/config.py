@@ -85,8 +85,15 @@ class Settings(BaseSettings):
 
     @property
     def superadmin_emails_list(self) -> list[str]:
-        """Parse SUPERADMIN_EMAILS into a normalised lowercase list."""
-        return [e.strip().lower() for e in self.SUPERADMIN_EMAILS.split(",") if e.strip()]
+        """Parse SUPERADMIN_EMAILS into a normalised lowercase list.
+
+        In single-user mode the local development user is always
+        included so that superadmin endpoints work out of the box.
+        """
+        emails = [e.strip().lower() for e in self.SUPERADMIN_EMAILS.split(",") if e.strip()]
+        if self.SINGLE_USER_MODE and "local@learnerverse.dev" not in emails:
+            emails.append("local@learnerverse.dev")
+        return emails
 
     @property
     def cors_origins_list(self) -> list[str]:

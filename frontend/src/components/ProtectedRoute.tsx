@@ -6,12 +6,7 @@ import type { ReactNode } from "react";
 import { SINGLE_USER_MODE } from "@/lib/auth";
 import { useAuth } from "@/hooks/useAuth";
 
-export default function ProtectedRoute({ children }: { children: ReactNode }) {
-  if (SINGLE_USER_MODE) {
-    return <>{children}</>;
-  }
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
+function AuthGate({ children }: { children: ReactNode }) {
   const { isLoaded, isSignedIn } = useAuth();
 
   if (!isLoaded) {
@@ -27,4 +22,12 @@ export default function ProtectedRoute({ children }: { children: ReactNode }) {
   }
 
   return <>{children}</>;
+}
+
+export default function ProtectedRoute({ children }: { children: ReactNode }) {
+  if (SINGLE_USER_MODE) {
+    return <>{children}</>;
+  }
+
+  return <AuthGate>{children}</AuthGate>;
 }

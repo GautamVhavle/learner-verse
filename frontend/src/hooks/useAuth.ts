@@ -1,8 +1,8 @@
 /**
  * Authentication hook that abstracts over Auth0 and single-user mode.
  */
-import { useAuth0 } from "@auth0/auth0-react";
 import { SINGLE_USER, SINGLE_USER_MODE } from "@/lib/auth";
+import { useMaybeAuth0 } from "@/hooks/useMaybeAuth0";
 
 export interface AuthUser {
   id: string;
@@ -18,7 +18,9 @@ interface UseAuthReturn {
 }
 
 export function useAuth(): UseAuthReturn {
-  if (SINGLE_USER_MODE) {
+  const auth0 = useMaybeAuth0();
+
+  if (SINGLE_USER_MODE || !auth0) {
     return {
       user: SINGLE_USER,
       isLoaded: true,
@@ -26,8 +28,7 @@ export function useAuth(): UseAuthReturn {
     };
   }
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { user, isLoading, isAuthenticated, error } = useAuth0();
+  const { user, isLoading, isAuthenticated, error } = auth0;
 
   if (error) {
     console.error("[Auth0 error]", error.message);

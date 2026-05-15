@@ -154,6 +154,36 @@ npm run dev                       # starts on http://localhost:5173
 docker compose up --build         # backend :8000, frontend :3000
 ```
 
+### Single-User Mode (Self-Hosted)
+
+Perfect for personal learning or small teams. No Auth0, no external dependencies — just PostgreSQL + FastAPI + React in a single Docker container.
+
+**Setup:**
+
+```bash
+# 1. Copy the sample environment
+cp single_mode.sample.env .env.single-user
+
+# 2. (Optional) Edit .env.single-user to customize:
+#    - POSTGRES_HOST_PORT: change if 5433 is already in use
+#    - Add API keys for AI features (OPENROUTER_API_KEY, GEMINI_API_KEY)
+nano .env.single-user
+
+# 3. Start the entire stack with one command
+docker compose --env-file .env.single-user -f docker-compose.single-user.yml up --build
+```
+
+Then open **http://localhost:3000** — you're automatically logged in as `local@learnerverse.dev` with all Pro features unlocked.
+
+**Features in Single-User Mode:**
+- ✅ All Pro features enabled (AI tutor, unlimited quizzes, certificates)
+- ✅ Local file storage (no Supabase)
+- ✅ No authentication (always logged in)
+- ✅ PostgreSQL database (data persisted in Docker volumes)
+- ✅ Runs on any machine with Docker
+
+To stop: `docker compose --env-file .env.single-user -f docker-compose.single-user.yml down`
+
 ---
 
 ## Available Commands

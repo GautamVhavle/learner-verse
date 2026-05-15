@@ -1,12 +1,26 @@
-"""Supabase Storage client.
+"""File storage abstraction.
 
-Provides helpers for uploading files to and building public URLs
-from a Supabase Storage bucket.
+Uses Supabase Storage when configured, otherwise falls back to local
+disk storage under the configured ``UPLOAD_DIR``.  The local fallback
+keeps single-user / self-hosted setups working without an external
+storage provider.
 """
+
+import logging
+from pathlib import Path
 
 import httpx
 
 from app.core.config import settings
+
+_logger = logging.getLogger(__name__)
+
+# ── Helpers ────────────────────────────────────────────────────────────────
+
+
+def _use_local_storage() -> bool:
+    """Return True when Supabase credentials are missing."""
+    return not settings.SUPABASE_URL or not settings.SUPABASE_SERVICE_KEY
 
 
 def _headers() -> dict[str, str]:
@@ -22,13 +36,47 @@ def _storage_url(path: str = "") -> str:
     return f"{settings.SUPABASE_URL}/storage/v1{path}"
 
 
+# ── Local-disk helpers ─────────────────────────────────────────────────────
+
+
+def _local_dir(bucket: str) -> Path:
+    """Return (and create) the local directory for *bucket*."""
+    base = Path(settings.UPLOAD_DIR) / bucket
+    base.mkdir(parents=True, exist_ok=True)
+    return base
+
+
+async def _local_upload(bucket: str, path: str, data: bytes) -> str:
+    """Write *data* to the local file-system and return a relative URL."""
+    dest = _local_dir(bucket) / path
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_bytes(data)
+    return local_public_url(bucket, path)
+
+
+def local_public_url(bucket: str, path: str) -> str:
+    """Return the backend-relative URL for a locally stored file."""
+    return f"/uploads/{bucket}/{path}"
+
+
+# ── Public API ─────────────────────────────────────────────────────────────
+
+
 async def upload_file(
     bucket: str,
     path: str,
     data: bytes,
     content_type: str,
 ) -> str:
-    """Upload a file to Supabase Storage and return its public URL."""
+    """Upload a file and return its public URL.
+
+    Uses Supabase Storage when credentials are present, otherwise
+    writes to local disk under ``UPLOAD_DIR``.
+    """
+    if _use_local_storage():
+        _logger.debug("Supabase not configured — saving to local disk: %s/%s", bucket, path)
+        return await _local_upload(bucket, path, data)
+
     url = _storage_url(f"/object/{bucket}/{path}")
     async with httpx.AsyncClient(timeout=30) as client:
         resp = await client.post(
@@ -46,7 +94,16 @@ def public_url(bucket: str, path: str) -> str:
 
 
 async def ensure_bucket() -> None:
-    """Create the storage bucket if it does not exist (idempotent)."""
+    """Create the storage bucket if it does not exist (idempotent).
+
+    Silently skips when Supabase is not configured (local storage
+    doesn't need a bucket).
+    """
+    if _use_local_storage():
+        # Make sure the local upload directory exists.
+        _local_dir(settings.SUPABASE_BUCKET)
+        return
+
     url = _storage_url("/bucket")
     async with httpx.AsyncClient(timeout=15) as client:
         # Check if bucket already exists

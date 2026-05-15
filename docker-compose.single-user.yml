@@ -1,0 +1,78 @@
+# ─────────────────────────────────────────────────────────────
+# LearnerVerse — Single-User Mode (all-in-one)
+#
+# 1. Copy the sample env:  cp single_mode.sample.env .env.single-user
+# 2. (Optional) Edit .env.single-user to add API keys, change ports, etc.
+# 3. Run:
+#      docker compose --env-file .env.single-user \
+#        -f docker-compose.single-user.yml up --build
+#
+# No Supabase, no Auth0, no external services.
+# Just PostgreSQL + FastAPI + React.
+# ─────────────────────────────────────────────────────────────
+
+services:
+  # ── PostgreSQL ─────────────────────────────────────────────
+  db:
+    image: postgres:17-alpine
+    container_name: learnerverse-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_HOST_PORT:-5433}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # ── Backend (FastAPI) ──────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: learnerverse-backend
+    restart: unless-stopped
+    env_file: .env.single-user
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      - uploads:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # ── Frontend (React + Nginx) ───────────────────────────────
+  frontend:
+    build:
+      context: .                # Root context so private/ symlinks resolve
+      dockerfile: frontend/Dockerfile.single-user
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+        VITE_SINGLE_USER_MODE: ${VITE_SINGLE_USER_MODE}
+        VITE_AUTH0_DOMAIN: ${VITE_AUTH0_DOMAIN:-}
+        VITE_AUTH0_CLIENT_ID: ${VITE_AUTH0_CLIENT_ID:-}
+        VITE_AUTH0_AUDIENCE: ${VITE_AUTH0_AUDIENCE:-}
+        VITE_PAYMENT_GATEWAY_ENABLED: ${VITE_PAYMENT_GATEWAY_ENABLED}
+    container_name: learnerverse-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  uploads:

@@ -16,6 +16,7 @@ import { useChatStore } from "@/stores/chatStore";
 import { PomodoroTimer } from "@/components/layout/PomodoroTimer";
 import { useUserQuery } from "@/hooks/useUser";
 import { useVerificationStatus } from "@/hooks/useVerification";
+import { SINGLE_USER_MODE } from "@/lib/auth";
 
 const PAGE_TITLES: Record<string, string> = {
   "/": "Dashboard",
@@ -87,8 +88,8 @@ export function Header({ onSearchClick, onGetVerified }: HeaderProps) {
         <PomodoroTimer />
       </div>
 
-      {/* Verification status button - creator mode only */}
-      {isCreatorMode && !isVerified && onGetVerified && (
+      {/* Verification status button - creator mode only (hidden in single-user mode) */}
+      {!SINGLE_USER_MODE && isCreatorMode && !isVerified && onGetVerified && (
         <button
           onClick={onGetVerified}
           className={`hidden h-8 items-center gap-2 rounded-lg border px-3 text-sm transition-colors sm:flex ${
@@ -125,8 +126,8 @@ export function Header({ onSearchClick, onGetVerified }: HeaderProps) {
         </button>
       )}
 
-      {/* Verified badge in header - creator mode only */}
-      {isCreatorMode && isVerified && (
+      {/* Verified badge in header - creator mode only (hidden in single-user mode) */}
+      {!SINGLE_USER_MODE && isCreatorMode && isVerified && (
         <span className="hidden items-center gap-1.5 text-sm text-blue-500 sm:flex">
           <BadgeCheck className="size-4" />
           <span className="text-xs font-medium">Verified</span>

@@ -3,7 +3,6 @@
  */
 import { useState } from "react";
 import { AlertTriangle, Trash2, BookX, BarChart3, UserX, Loader2 } from "lucide-react";
-import { useAuth0 } from "@auth0/auth0-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,7 +20,7 @@ import {
   useDeleteLearnerStatsMutation,
   useDeleteAccountMutation,
 } from "@/hooks/useUser";
-import { SINGLE_USER_MODE } from "@/lib/auth";
+import { useMaybeAuth0 } from "@/hooks/useMaybeAuth0";
 
 interface DangerAction {
   id: string;
@@ -91,8 +90,7 @@ export function DangerZoneSection() {
   const deleteStats = useDeleteLearnerStatsMutation();
   const deleteAccount = useDeleteAccountMutation();
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const auth0 = SINGLE_USER_MODE ? null : useAuth0();
+  const auth0 = useMaybeAuth0();
 
   const isPending =
     deleteData.isPending ||

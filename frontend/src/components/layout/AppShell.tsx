@@ -20,6 +20,7 @@ import { PRO_WELCOME_PENDING_KEY } from "@/hooks/useSubscription";
 import { CongratulationsDialog } from "@/components/subscription/CongratulationsDialog";
 import { VerificationRequestDialog } from "@/components/verification/VerificationRequestDialog";
 import { useChatStore } from "@/stores/chatStore";
+import { SINGLE_USER_MODE } from "@/lib/auth";
 import type { AppMode } from "@/stores/modeStore";
 
 interface AppShellProps {
@@ -129,7 +130,7 @@ export function AppShell({ mode }: AppShellProps) {
           {!focusMode && (
             <Header
               onSearchClick={() => setSearchOpen(true)}
-              onGetVerified={() => setShowVerificationDialog(true)}
+              onGetVerified={SINGLE_USER_MODE ? undefined : () => setShowVerificationDialog(true)}
             />
           )}
           <div id="main-content" className="flex-1">
@@ -149,10 +150,12 @@ export function AppShell({ mode }: AppShellProps) {
           if (!open) setProWelcomeDismissed(true);
         }}
       />
-      <VerificationRequestDialog
-        open={showVerificationDialog}
-        onOpenChange={setShowVerificationDialog}
-      />
+      {!SINGLE_USER_MODE && (
+        <VerificationRequestDialog
+          open={showVerificationDialog}
+          onOpenChange={setShowVerificationDialog}
+        />
+      )}
     </TooltipProvider>
   );
 }

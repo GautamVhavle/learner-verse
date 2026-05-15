@@ -40,15 +40,15 @@ export function CTASection() {
 
       <div className="relative z-10 mx-auto max-w-3xl px-4 text-center sm:px-6">
         <BlurFade delay={0} inView>
-          <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
-            Ready to change
-            <br />
-            how you{" "}
-            <WordRotate
-              words={["learn?", "teach?", "grow?"]}
-              duration={2500}
-              className="inline-block bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"
-            />
+          <h2 className="max-w-4xl text-2xl font-bold tracking-tight text-white sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
+            <div className="mb-2">Ready to change</div>
+            <div className="mb-2">how you{" "}
+              <WordRotate
+                words={["learn?", "teach?", "grow?"]}
+                duration={2500}
+                className="inline-block bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"
+              />
+            </div>
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-base text-white/55 sm:text-lg">
             Start building AI-powered courses from YouTube videos, completely free. No credit card

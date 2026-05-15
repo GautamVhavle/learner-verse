@@ -23,6 +23,7 @@ import { PreferencesSection } from "@/components/settings/PreferencesSection";
 import { DangerZoneSection } from "@/components/settings/DangerZoneSection";
 import { useUserQuery, useUpdateUserMutation } from "@/hooks/useUser";
 import { PAYMENT_GATEWAY_ENABLED } from "@/lib/payment";
+import { SINGLE_USER_MODE } from "@/lib/auth";
 import { useCancelSubscriptionMutation } from "@/hooks/useSubscription";
 import { useModeAwareNavigate } from "@/hooks/useModeAwareNavigate";
 import { useThemeStore, type Theme } from "@/stores/themeStore";
@@ -251,11 +252,17 @@ export default function SettingsPage() {
               <Tooltip>
                 <TooltipTrigger
                   render={
-                    <span className="text-accent-green text-xs font-medium">Cloud (Supabase)</span>
+                    SINGLE_USER_MODE ? (
+                      <span className="text-accent-blue text-xs font-medium">Local (Disk)</span>
+                    ) : (
+                      <span className="text-accent-green text-xs font-medium">Cloud (Supabase)</span>
+                    )
                   }
                 />
                 <TooltipContent side="left">
-                  Your data is stored securely in the cloud and synced across devices.
+                  {SINGLE_USER_MODE
+                    ? "Your data is stored locally on this machine."
+                    : "Your data is stored securely in the cloud and synced across devices."}
                 </TooltipContent>
               </Tooltip>
             </div>
