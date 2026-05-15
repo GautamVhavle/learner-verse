@@ -20,8 +20,8 @@ copy_if_missing() {
 echo "🔧 Setting up LearnerVerse..."
 echo ""
 
-copy_if_missing "$ROOT_DIR/backend/sample.env" "$ROOT_DIR/.env"
-copy_if_missing "$ROOT_DIR/frontend/sample.env" "$ROOT_DIR/frontend/.env"
+copy_if_missing "$ROOT_DIR/sample.env" "$ROOT_DIR/.env"
+copy_if_missing "$ROOT_DIR/sample.env" "$ROOT_DIR/frontend/.env"
 
 echo ""
 echo "✅ Done! Next steps:"

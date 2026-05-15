@@ -42,7 +42,8 @@ export function CTASection() {
         <BlurFade delay={0} inView>
           <h2 className="max-w-4xl text-2xl font-bold tracking-tight text-white sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
             <div className="mb-2">Ready to change</div>
-            <div className="mb-2">how you{" "}
+            <div className="mb-2">
+              how you{" "}
               <WordRotate
                 words={["learn?", "teach?", "grow?"]}
                 duration={2500}

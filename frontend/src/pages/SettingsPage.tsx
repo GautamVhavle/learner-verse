@@ -255,7 +255,9 @@ export default function SettingsPage() {
                     SINGLE_USER_MODE ? (
                       <span className="text-accent-blue text-xs font-medium">Local (Disk)</span>
                     ) : (
-                      <span className="text-accent-green text-xs font-medium">Cloud (Supabase)</span>
+                      <span className="text-accent-green text-xs font-medium">
+                        Cloud (Supabase)
+                      </span>
                     )
                   }
                 />
