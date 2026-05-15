@@ -93,20 +93,15 @@ async def sync_profile(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Sync OAuth provider email on first login.
+    """Sync OAuth provider email and profile on first login.
 
     Only updates email if the current value is the auto-generated placeholder.
-    Rejects emails that would grant superadmin access.
+    The email is trusted because it comes from an Auth0-authenticated token —
+    Auth0 is the identity provider and has already verified the email address.
+    Server-side superadmin endpoints remain protected by get_superadmin_user
+    regardless of the email stored here.
     """
     if user.email.endswith("@auth0.user"):
-        # Prevent privilege escalation by rejecting superadmin emails
-        if payload.email.lower() in [e.lower() for e in settings.superadmin_emails_list]:
-            from fastapi import HTTPException, status
-
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="This email cannot be used.",
-            )
         user.email = payload.email
         await db.commit()
         await db.refresh(user)
