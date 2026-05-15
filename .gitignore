@@ -27,6 +27,7 @@ backend/dist/
 .env.local
 .env.*.local
 .env.single-user
+.env.multi-user
 
 # === IDE ===
 .idea/

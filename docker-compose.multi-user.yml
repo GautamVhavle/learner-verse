@@ -1,0 +1,80 @@
+# ─────────────────────────────────────────────────────────────
+# LearnerVerse — Multi-User Mode (self-hosted)
+#
+# 1. Copy the sample env:  cp multi_mode.sample.env .env.multi-user
+# 2. Fill in Auth0 credentials and any API keys
+# 3. Add http://localhost:3000 to your Auth0 allowed callbacks and origins
+# 4. Run:
+#      docker compose --env-file .env.multi-user \
+#        -f docker-compose.multi-user.yml up --build
+#
+# Includes: PostgreSQL + FastAPI + React + Auth0 authentication
+# Payment gateway is disabled — all users get full access.
+# ─────────────────────────────────────────────────────────────
+
+services:
+  # ── PostgreSQL ─────────────────────────────────────────────
+  db:
+    image: postgres:17-alpine
+    container_name: learnerverse-multi-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_HOST_PORT:-5434}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # ── Backend (FastAPI) ──────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: learnerverse-multi-backend
+    restart: unless-stopped
+    env_file: .env.multi-user
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      - uploads:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # ── Frontend (React + Nginx) ───────────────────────────────
+  frontend:
+    build:
+      context: .                # Root context so private/ symlinks resolve
+      dockerfile: frontend/Dockerfile.multi-user
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+        VITE_SINGLE_USER_MODE: "false"
+        VITE_AUTH0_DOMAIN: ${VITE_AUTH0_DOMAIN}
+        VITE_AUTH0_CLIENT_ID: ${VITE_AUTH0_CLIENT_ID}
+        VITE_AUTH0_AUDIENCE: ${VITE_AUTH0_AUDIENCE}
+        VITE_PAYMENT_GATEWAY_ENABLED: "false"
+        VITE_SUPERADMIN_EMAILS: ${VITE_SUPERADMIN_EMAILS:-}
+    container_name: learnerverse-multi-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  uploads:
