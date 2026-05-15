@@ -162,7 +162,7 @@ Perfect for personal learning or small teams. No Auth0, no external dependencies
 
 ```bash
 # 1. Copy the sample environment
-cp single_mode.sample.env .env.single-user
+cp single_user.sample.env .env.single-user
 
 # 2. (Optional) Edit .env.single-user to customize:
 #    - POSTGRES_HOST_PORT: change if 5433 is already in use
@@ -183,6 +183,39 @@ Then open **http://localhost:3000** — you're automatically logged in as `local
 - ✅ Runs on any machine with Docker
 
 To stop: `docker compose --env-file .env.single-user -f docker-compose.single-user.yml down`
+
+### Multi-User Mode (Self-Hosted)
+
+For teams, classrooms, or communities. Uses Auth0 for authentication so multiple users can sign up, track their own progress, and earn individual certificates. Payment gateway is disabled — all users get full access.
+
+**Prerequisites:**
+- A free [Auth0](https://auth0.com) account
+- Add `http://localhost:3000` to your Auth0 app's allowed callback URLs and origins
+
+**Setup:**
+
+```bash
+# 1. Copy the sample environment
+cp multi_user.sample.env .env.multi-user
+
+# 2. Fill in your Auth0 credentials and (optional) API keys
+nano .env.multi-user
+
+# 3. Start the entire stack with one command
+docker compose --env-file .env.multi-user -f docker-compose.multi-user.yml up --build
+```
+
+Then open **http://localhost:3000** — users can sign up and log in via Auth0.
+
+**Features in Multi-User Mode:**
+- ✅ All Pro features enabled (AI tutor, unlimited quizzes, certificates)
+- ✅ Auth0 authentication (email/password, social logins)
+- ✅ Each user gets their own progress, notes, and certificates
+- ✅ Course Hub for sharing courses between users
+- ✅ Local file storage (no Supabase)
+- ✅ PostgreSQL database (data persisted in Docker volumes)
+
+To stop: `docker compose --env-file .env.multi-user -f docker-compose.multi-user.yml down`
 
 ---
 
