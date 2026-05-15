@@ -36,6 +36,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    image: learnerverse-single-backend
     container_name: learnerverse-backend
     restart: unless-stopped
     env_file: .env.single-user
@@ -65,6 +66,7 @@ services:
         VITE_AUTH0_CLIENT_ID: ${VITE_AUTH0_CLIENT_ID:-}
         VITE_AUTH0_AUDIENCE: ${VITE_AUTH0_AUDIENCE:-}
         VITE_PAYMENT_GATEWAY_ENABLED: ${VITE_PAYMENT_GATEWAY_ENABLED}
+    image: learnerverse-single-frontend
     container_name: learnerverse-frontend
     restart: unless-stopped
     ports:
