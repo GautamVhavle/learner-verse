@@ -10,7 +10,8 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, date, datetime, timedelta
 
-from fastapi import HTTPException, status as http_status
+from fastapi import HTTPException
+from fastapi import status as http_status
 from sqlalchemy import cast, func, literal_column, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.types import Date

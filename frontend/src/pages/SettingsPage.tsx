@@ -308,8 +308,7 @@ export default function SettingsPage() {
                   {user.pro_expires_at && (
                     <>
                       {" "}
-                      ·{" "}
-                      {subscriptionStatus === "active" ? "Renews" : "Expires"}{" "}
+                      · {subscriptionStatus === "active" ? "Renews" : "Expires"}{" "}
                       {new Date(user.pro_expires_at).toLocaleDateString("en-IN", {
                         month: "long",
                         day: "numeric",

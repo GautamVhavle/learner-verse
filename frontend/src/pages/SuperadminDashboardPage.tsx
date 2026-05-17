@@ -820,9 +820,7 @@ function UsersTab({ page, search, onPageChange, onSearchChange }: UsersTabProps)
       userId: proDialog.user.id,
       action: proDialog.action,
       durationDays:
-        proDialog.action === "grant" && grantDuration !== "lifetime"
-          ? Number(grantDuration)
-          : null,
+        proDialog.action === "grant" && grantDuration !== "lifetime" ? Number(grantDuration) : null,
       note: proNote || undefined,
     });
     setProDialog(null);
@@ -1004,7 +1002,7 @@ function UsersTab({ page, search, onPageChange, onSearchChange }: UsersTabProps)
               </div>
             </div>
           ) : (
-            <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm">
+            <div className="border-destructive/30 bg-destructive/5 rounded-lg border p-3 text-sm">
               This disables Pro in LearnerVerse immediately. It does not cancel a Razorpay
               subscription outside the app.
             </div>

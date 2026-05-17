@@ -130,13 +130,7 @@ interface PlaylistImportStatusResponse {
 export function useImportPlaylistMutation(courseId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({
-      sectionId,
-      playlistUrl,
-    }: {
-      sectionId: string;
-      playlistUrl: string;
-    }) => {
+    mutationFn: async ({ sectionId, playlistUrl }: { sectionId: string; playlistUrl: string }) => {
       const { task_id } = await api.post<PlaylistImportResponse>(
         `/sections/${sectionId}/lessons/import-playlist`,
         {
