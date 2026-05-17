@@ -9,7 +9,7 @@ import uuid
 from datetime import date, datetime
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 # ── Shared primitives ────────────────────────────────────────────────────────
 
@@ -121,6 +121,10 @@ class AdminUserSummary(BaseModel):
     display_name: str
     avatar_url: str | None
     is_pro: bool
+    pro_since: datetime | None = None
+    pro_expires_at: datetime | None = None
+    pro_plan: str | None = None
+    subscription_status: str | None = None
     is_verified_creator: bool
     courses_created: int
     courses_enrolled: int
@@ -135,6 +139,27 @@ class PaginatedUserList(BaseModel):
     total: int
     page: int
     per_page: int
+
+
+class AdminUserProUpdate(BaseModel):
+    """Manual Pro grant/revoke request from the superadmin dashboard."""
+
+    action: Literal["grant", "revoke"]
+    duration_days: int | None = Field(default=None, ge=1, le=3660)
+    note: str | None = Field(default=None, max_length=300)
+
+
+class AdminUserProStatus(BaseModel):
+    """Updated Pro state for a user after an admin action."""
+
+    id: uuid.UUID
+    email: str
+    display_name: str
+    is_pro: bool
+    pro_since: datetime | None = None
+    pro_expires_at: datetime | None = None
+    pro_plan: str | None = None
+    subscription_status: str | None = None
 
 
 # ── Verification requests ────────────────────────────────────────────────────

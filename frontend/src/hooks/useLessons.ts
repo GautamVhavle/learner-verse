@@ -116,24 +116,51 @@ export function useMoveLessonMutation(courseId: string) {
 }
 
 interface PlaylistImportResponse {
-  playlist_title: string;
-  imported_count: number;
-  lessons: Lesson[];
+  task_id: string;
+}
+
+interface PlaylistImportStatusResponse {
+  status: "pending" | "running" | "done" | "failed";
+  error: string | null;
+  status_message: string | null;
+  playlist_title: string | null;
+  imported_count: number | null;
 }
 
 export function useImportPlaylistMutation(courseId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ sectionId, playlistUrl }: { sectionId: string; playlistUrl: string }) =>
-      api.post<PlaylistImportResponse>(`/sections/${sectionId}/lessons/import-playlist`, {
-        playlist_url: playlistUrl,
-      }),
-    onSuccess: (result, { sectionId }) => {
-      qc.setQueryData<Section[]>(sectionKeys.all(courseId), (old) =>
-        old?.map((s) =>
-          s.id === sectionId ? { ...s, lessons: [...s.lessons, ...result.lessons] } : s,
-        ),
+    mutationFn: async ({
+      sectionId,
+      playlistUrl,
+    }: {
+      sectionId: string;
+      playlistUrl: string;
+    }) => {
+      const { task_id } = await api.post<PlaylistImportResponse>(
+        `/sections/${sectionId}/lessons/import-playlist`,
+        {
+          playlist_url: playlistUrl,
+        },
       );
+
+      for (let i = 0; i < 120; i++) {
+        await new Promise((r) => setTimeout(r, 3000));
+        const status = await api.get<PlaylistImportStatusResponse>(
+          `/sections/${sectionId}/lessons/import-playlist/${task_id}`,
+        );
+
+        if (status.status === "done") {
+          return status;
+        }
+        if (status.status === "failed") {
+          throw new Error(status.error ?? "Failed to import playlist");
+        }
+      }
+
+      throw new Error("Playlist import timed out");
+    },
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: sectionKeys.all(courseId) });
     },
   });

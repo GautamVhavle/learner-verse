@@ -88,6 +88,10 @@ export interface AdminUserSummary {
   display_name: string;
   avatar_url: string | null;
   is_pro: boolean;
+  pro_since: string | null;
+  pro_expires_at: string | null;
+  pro_plan: string | null;
+  subscription_status: string | null;
   is_verified_creator: boolean;
   courses_created: number;
   courses_enrolled: number;
@@ -102,6 +106,17 @@ export interface PaginatedUserList {
   total: number;
   page: number;
   per_page: number;
+}
+
+export interface AdminUserProStatus {
+  id: string;
+  email: string;
+  display_name: string;
+  is_pro: boolean;
+  pro_since: string | null;
+  pro_expires_at: string | null;
+  pro_plan: string | null;
+  subscription_status: string | null;
 }
 
 export interface VerificationRequestSummary {
@@ -219,6 +234,34 @@ export function useAdminUserList(page: number, perPage: number, search: string) 
       return api.get<PaginatedUserList>(`/superadmin/users?${params}`);
     },
     staleTime: 30_000,
+  });
+}
+
+export function useUpdateUserProMutation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      userId,
+      action,
+      durationDays,
+      note,
+    }: {
+      userId: string;
+      action: "grant" | "revoke";
+      durationDays?: number | null;
+      note?: string;
+    }) =>
+      api.put<AdminUserProStatus>(`/superadmin/users/${userId}/pro`, {
+        action,
+        duration_days: durationDays ?? null,
+        note: note || null,
+      }),
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: ["superadmin", "users"] });
+      qc.invalidateQueries({ queryKey: ["superadmin", "overview"] });
+      toast.success(variables.action === "grant" ? "Pro access granted." : "Pro access revoked.");
+    },
+    onError: () => toast.error("Failed to update Pro access"),
   });
 }
 

@@ -1,4 +1,8 @@
+import asyncio
+
 import pytest
+
+from app.services.playlist_service import PlaylistResult, PlaylistVideo
 
 
 # --- Helpers ---
@@ -214,6 +218,99 @@ async def test_lesson_limit(client):
     resp = await _create_lesson(client, section["id"], title="Lesson 151")
     assert resp.status_code == 400
     assert "Maximum" in resp.json()["detail"]
+
+
+# ============================================================
+# PLAYLIST IMPORT (BACKGROUND TASK)
+# ============================================================
+async def _poll_import_task(client, section_id, task_id, max_attempts=50):
+    for _ in range(max_attempts):
+        resp = await client.get(
+            f"/api/v1/sections/{section_id}/lessons/import-playlist/{task_id}"
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        if data["status"] in {"done", "failed"}:
+            return data
+        await asyncio.sleep(0.02)
+    pytest.fail("Playlist import task did not finish in time")
+
+
+@pytest.mark.asyncio
+async def test_import_playlist_runs_in_background(client, monkeypatch):
+    from app.services import playlist_import_task_service
+
+    await _ensure_user(client)
+    course = await _create_course(client)
+    section = await _create_section(client, course["id"])
+
+    async def fake_extract_playlist(_url):
+        return PlaylistResult(
+            playlist_title="Backend Playlist",
+            videos=[
+                PlaylistVideo(
+                    video_id="vid-1",
+                    title="Video 1",
+                    thumbnail_url="https://img.youtube.com/vi/vid-1/hqdefault.jpg",
+                    channel_name="Channel One",
+                    youtube_url="https://www.youtube.com/watch?v=vid-1",
+                    position=0,
+                ),
+                PlaylistVideo(
+                    video_id="vid-2",
+                    title="Video 2",
+                    thumbnail_url="https://img.youtube.com/vi/vid-2/hqdefault.jpg",
+                    channel_name="Channel Two",
+                    youtube_url="https://www.youtube.com/watch?v=vid-2",
+                    position=1,
+                ),
+            ],
+        )
+
+    monkeypatch.setattr(playlist_import_task_service, "extract_playlist", fake_extract_playlist)
+
+    resp = await client.post(
+        f"/api/v1/sections/{section['id']}/lessons/import-playlist",
+        json={"playlist_url": "https://www.youtube.com/playlist?list=test"},
+    )
+    assert resp.status_code == 202
+    task_id = resp.json()["task_id"]
+
+    final = await _poll_import_task(client, section["id"], task_id)
+    assert final["status"] == "done"
+    assert final["playlist_title"] == "Backend Playlist"
+    assert final["imported_count"] == 2
+
+    sections_resp = await client.get(f"/api/v1/courses/{course['id']}/sections")
+    assert sections_resp.status_code == 200
+    lessons = sections_resp.json()[0]["lessons"]
+    assert [lesson["title"] for lesson in lessons] == ["Video 1", "Video 2"]
+    assert [lesson["position"] for lesson in lessons] == [0, 1]
+
+
+@pytest.mark.asyncio
+async def test_import_playlist_surfaces_background_failure(client, monkeypatch):
+    from app.services import playlist_import_task_service
+
+    await _ensure_user(client)
+    course = await _create_course(client)
+    section = await _create_section(client, course["id"])
+
+    async def fake_extract_playlist(_url):
+        raise ValueError("Invalid YouTube playlist URL.")
+
+    monkeypatch.setattr(playlist_import_task_service, "extract_playlist", fake_extract_playlist)
+
+    resp = await client.post(
+        f"/api/v1/sections/{section['id']}/lessons/import-playlist",
+        json={"playlist_url": "https://www.youtube.com/playlist?list=broken"},
+    )
+    assert resp.status_code == 202
+    task_id = resp.json()["task_id"]
+
+    final = await _poll_import_task(client, section["id"], task_id)
+    assert final["status"] == "failed"
+    assert "Invalid YouTube playlist URL." in final["error"]
 
 
 # ============================================================

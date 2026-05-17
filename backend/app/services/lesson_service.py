@@ -12,6 +12,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.course import Course
+from app.models.lesson import Lesson
 from app.models.section import Section
 from app.repositories.lesson_repo import LessonRepository
 from app.repositories.reference_link_repo import ReferenceLinkRepository
@@ -225,9 +226,9 @@ class LessonService:
                 ),
             )
 
-        created: list[LessonResponse] = []
-        for video in playlist.videos:
-            lesson = await self.lesson_repo.create(
+        start_position = await self.lesson_repo.next_position(section_id)
+        lesson_rows = [
+            Lesson(
                 section_id=section_id,
                 title=video.title,
                 lesson_type="video",
@@ -235,7 +236,28 @@ class LessonService:
                 youtube_title=video.title,
                 youtube_thumbnail=video.thumbnail_url,
                 youtube_channel=video.channel_name,
+                position=start_position + index,
             )
+            for index, video in enumerate(playlist.videos)
+        ]
+        self.db.add_all(lesson_rows)
+        await self.db.flush()
+
+        lesson_ids = [lesson.id for lesson in lesson_rows]
+        created_rows = list(
+            (
+                await self.db.execute(
+                    select(Lesson)
+                    .where(Lesson.id.in_(lesson_ids))
+                    .order_by(Lesson.position)
+                )
+            )
+            .scalars()
+            .all()
+        )
+
+        created: list[LessonResponse] = []
+        for lesson in created_rows:
             created.append(
                 LessonResponse(
                     id=lesson.id,

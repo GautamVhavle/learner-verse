@@ -47,7 +47,9 @@ export function ImportPlaylistDialog({
       { sectionId, playlistUrl: url.trim() },
       {
         onSuccess: (result) => {
-          toast.success(`Imported ${result.imported_count} videos from "${result.playlist_title}"`);
+          const importedCount = result.imported_count ?? 0;
+          const playlistTitle = result.playlist_title ?? "playlist";
+          toast.success(`Imported ${importedCount} videos from "${playlistTitle}"`);
           setUrl("");
           onOpenChange(false);
         },
@@ -105,9 +107,15 @@ export function ImportPlaylistDialog({
           {importMutation.isPending && (
             <div className="border-border-default bg-bg-secondary flex items-center gap-2 rounded-lg border px-3 py-2.5">
               <Loader2 className="text-accent-purple size-4 animate-spin" />
-              <span className="text-text-secondary text-sm">
-                Extracting videos from playlist...
-              </span>
+              <div className="space-y-0.5">
+                <span className="text-text-secondary block text-sm">
+                  Importing playlist in the background...
+                </span>
+                <span className="text-text-tertiary block text-xs">
+                  Large playlists can take a while. This dialog will stay open until the import
+                  finishes.
+                </span>
+              </div>
             </div>
           )}
         </div>

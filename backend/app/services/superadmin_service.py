@@ -10,6 +10,7 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, date, datetime, timedelta
 
+from fastapi import HTTPException, status as http_status
 from sqlalchemy import cast, func, literal_column, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.types import Date
@@ -27,6 +28,8 @@ from app.models.section import Section
 from app.models.user import User
 from app.models.verification_request import VerificationRequest
 from app.schemas.superadmin import (
+    AdminUserProStatus,
+    AdminUserProUpdate,
     AdminUserSummary,
     CourseStatusDistribution,
     LessonTypeDistribution,
@@ -399,6 +402,10 @@ class SuperadminService:
                     display_name=u.display_name,
                     avatar_url=u.avatar_url,
                     is_pro=u.is_pro,
+                    pro_since=u.pro_since,
+                    pro_expires_at=u.pro_expires_at,
+                    pro_plan=u.pro_plan,
+                    subscription_status=u.subscription_status,
                     is_verified_creator=u.is_verified_creator,
                     courses_created=courses_created_map.get(u.id, 0),
                     courses_enrolled=courses_enrolled_map.get(u.id, 0),
@@ -409,6 +416,78 @@ class SuperadminService:
                 )
             )
         return PaginatedUserList(items=items, total=total, page=page, per_page=per_page)
+
+    async def update_user_pro(
+        self,
+        user_id: uuid.UUID,
+        body: AdminUserProUpdate,
+    ) -> AdminUserProStatus:
+        """Manually grant or revoke Pro for a user.
+
+        This is an admin-only bypass path. It intentionally does not call
+        Razorpay or cancel a payment subscription; it only updates the app's
+        persisted Pro state.
+        """
+        result = await self._session.execute(select(User).where(User.id == user_id))
+        user = result.scalar_one_or_none()
+        if user is None:
+            raise HTTPException(
+                status_code=http_status.HTTP_404_NOT_FOUND,
+                detail="User not found.",
+            )
+
+        now = datetime.now(UTC)
+        note_suffix = f" Note from admin: {body.note}" if body.note else ""
+
+        if body.action == "grant":
+            user.is_pro = True
+            user.pro_since = now
+            user.pro_expires_at = (
+                now + timedelta(days=body.duration_days) if body.duration_days else None
+            )
+            user.pro_plan = "manual"
+            user.subscription_status = "manual_active"
+
+            if body.duration_days:
+                duration_text = f" for {body.duration_days} days"
+            else:
+                duration_text = ""
+            self._session.add(
+                Notification(
+                    user_id=user.id,
+                    title="Pro Access Activated",
+                    message=(
+                        "Your LearnerVerse Pro access was activated"
+                        f"{duration_text}.{note_suffix}"
+                    ),
+                    type="info",
+                )
+            )
+        else:
+            user.is_pro = False
+            user.pro_expires_at = now
+            user.subscription_status = "manual_revoked"
+            self._session.add(
+                Notification(
+                    user_id=user.id,
+                    title="Pro Access Revoked",
+                    message=f"Your LearnerVerse Pro access was revoked by an admin.{note_suffix}",
+                    type="warning",
+                )
+            )
+
+        await self._session.commit()
+        await self._session.refresh(user)
+        return AdminUserProStatus(
+            id=user.id,
+            email=user.email,
+            display_name=user.display_name,
+            is_pro=user.is_pro,
+            pro_since=user.pro_since,
+            pro_expires_at=user.pro_expires_at,
+            pro_plan=user.pro_plan,
+            subscription_status=user.subscription_status,
+        )
 
     # ── Verification requests ────────────────────────────────────────────
 

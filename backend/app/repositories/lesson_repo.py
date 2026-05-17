@@ -23,7 +23,7 @@ class LessonRepository:
 
     async def create(self, section_id: uuid.UUID, title: str, **kwargs) -> Lesson:
         """Create a lesson at the next available position in the section."""
-        pos = await self._next_position(section_id)
+        pos = await self.next_position(section_id)
         lesson = Lesson(section_id=section_id, title=title, position=pos, **kwargs)
         self.db.add(lesson)
         await self.db.flush()
@@ -95,7 +95,7 @@ class LessonRepository:
 
     async def duplicate(self, lesson: Lesson) -> Lesson:
         """Deep-copy a lesson (including all reference links)."""
-        pos = await self._next_position(lesson.section_id)
+        pos = await self.next_position(lesson.section_id)
         new_lesson = Lesson(
             section_id=lesson.section_id,
             title=f"{lesson.title} (Copy)",
@@ -119,7 +119,7 @@ class LessonRepository:
 
     # ── Private Helpers ──────────────────────────────────────
 
-    async def _next_position(self, section_id: uuid.UUID) -> int:
+    async def next_position(self, section_id: uuid.UUID) -> int:
         """Return the next sequential position for a new lesson in the section."""
         result = await self.db.execute(
             select(func.coalesce(func.max(Lesson.position), -1)).where(

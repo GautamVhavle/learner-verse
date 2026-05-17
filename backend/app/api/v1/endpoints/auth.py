@@ -32,6 +32,13 @@ from app.schemas.user import UserResponse, UserUpdate
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
+def _as_aware_utc(value: datetime) -> datetime:
+    """Normalize DB datetimes before comparing them to timezone-aware UTC."""
+    if value.tzinfo is None:
+        return value.replace(tzinfo=UTC)
+    return value.astimezone(UTC)
+
+
 # ── Profile Endpoints ────────────────────────────────────────────
 
 
@@ -57,10 +64,12 @@ async def get_me(
         # Expire lapsed subscriptions
         elif (
             user.pro_expires_at is not None
-            and user.pro_expires_at < datetime.now(UTC)
+            and _as_aware_utc(user.pro_expires_at) < datetime.now(UTC)
             and user.subscription_status != "active"
         ):
             user.is_pro = False
+            if user.subscription_status == "manual_active":
+                user.subscription_status = "manual_expired"
             await db.commit()
             await db.refresh(user)
     return user

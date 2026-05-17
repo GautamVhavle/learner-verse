@@ -1,5 +1,6 @@
 """API endpoints for lesson CRUD, reordering, movement, and reference links."""
 
+import asyncio
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -19,7 +20,11 @@ from app.schemas.lesson import (
 )
 from app.schemas.section import ReorderRequest
 from app.services.lesson_service import LessonService
-from app.services.playlist_service import extract_playlist
+from app.services.playlist_import_task_service import (
+    create_playlist_import_task,
+    get_playlist_import_task_status,
+    run_playlist_import_in_background,
+)
 
 router = APIRouter(prefix="/sections/{section_id}/lessons", tags=["lessons"])
 
@@ -141,16 +146,22 @@ class PlaylistImportRequest(BaseModel):
     playlist_url: str
 
 
-class PlaylistImportResponse(BaseModel):
-    playlist_title: str
-    imported_count: int
-    lessons: list[LessonResponse]
+class PlaylistImportStartResponse(BaseModel):
+    task_id: str
+
+
+class PlaylistImportStatusResponse(BaseModel):
+    status: str  # "pending" | "running" | "done" | "failed"
+    error: str | None = None
+    status_message: str | None = None
+    playlist_title: str | None = None
+    imported_count: int | None = None
 
 
 @router.post(
     "/import-playlist",
-    response_model=PlaylistImportResponse,
-    status_code=status.HTTP_201_CREATED,
+    response_model=PlaylistImportStartResponse,
+    status_code=status.HTTP_202_ACCEPTED,
 )
 async def import_playlist(
     section_id: uuid.UUID,
@@ -158,20 +169,28 @@ async def import_playlist(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Import all videos from a YouTube playlist as video lessons."""
-    try:
-        playlist = await extract_playlist(data.playlist_url)
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="Failed to fetch playlist from YouTube. It may be private or unavailable.",
-        )
-
-    lessons = await _service(db).import_playlist_videos(section_id, user.id, playlist)
-    return PlaylistImportResponse(
-        playlist_title=playlist.playlist_title,
-        imported_count=len(lessons),
-        lessons=lessons,
+    """Start a background playlist import and return a task ID to poll."""
+    await _service(db)._verify_section_owner(section_id, user.id)
+    task_id = await create_playlist_import_task(db, str(section_id))
+    asyncio.create_task(
+        run_playlist_import_in_background(task_id, section_id, user.id, data.playlist_url)
     )
+    return PlaylistImportStartResponse(task_id=task_id)
+
+
+@router.get("/import-playlist/{task_id}", response_model=PlaylistImportStatusResponse)
+async def import_playlist_status(
+    section_id: uuid.UUID,
+    task_id: str,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Poll the status of a background playlist import task."""
+    await _service(db)._verify_section_owner(section_id, user.id)
+    task = await get_playlist_import_task_status(db, task_id, str(section_id))
+    if not task:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found or expired.",
+        )
+    return PlaylistImportStatusResponse(**task)

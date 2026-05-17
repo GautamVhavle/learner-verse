@@ -87,6 +87,9 @@ export default function SettingsPage() {
 
   if (!user) return null;
 
+  const subscriptionStatus = user.subscription_status;
+  const isManualPro = user.is_pro && user.pro_plan === "manual";
+
   return (
     <TooltipProvider>
       <div className="mx-auto max-w-2xl space-y-8 pb-12">
@@ -287,14 +290,17 @@ export default function SettingsPage() {
                 <p className="text-text-secondary text-xs">
                   <span className="text-accent-purple font-medium">LearnerVerse Pro</span>
                   {user.pro_plan && <span className="capitalize"> ({user.pro_plan})</span>}
-                  {(user as { subscription_status?: string | null }).subscription_status ===
-                    "active" && (
+                  {subscriptionStatus === "active" && (
                     <span className="bg-accent-green/10 text-accent-green ml-1.5 rounded-full px-1.5 py-0.5 text-[10px] font-medium">
                       Auto-renewing
                     </span>
                   )}
-                  {(user as { subscription_status?: string | null }).subscription_status ===
-                    "cancelled" && (
+                  {isManualPro && (
+                    <span className="bg-accent-blue/10 text-accent-blue ml-1.5 rounded-full px-1.5 py-0.5 text-[10px] font-medium">
+                      Admin-managed
+                    </span>
+                  )}
+                  {subscriptionStatus === "cancelled" && (
                     <span className="ml-1.5 rounded-full bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-500">
                       Cancels at cycle end
                     </span>
@@ -303,10 +309,7 @@ export default function SettingsPage() {
                     <>
                       {" "}
                       ·{" "}
-                      {(user as { subscription_status?: string | null }).subscription_status ===
-                      "active"
-                        ? "Renews"
-                        : "Expires"}{" "}
+                      {subscriptionStatus === "active" ? "Renews" : "Expires"}{" "}
                       {new Date(user.pro_expires_at).toLocaleDateString("en-IN", {
                         month: "long",
                         day: "numeric",
@@ -314,21 +317,28 @@ export default function SettingsPage() {
                       })}
                     </>
                   )}
+                  {isManualPro && !user.pro_expires_at && <> · Lifetime access</>}
                 </p>
-                <div className="flex flex-wrap items-center gap-2 pt-1">
-                  <button
-                    onClick={() => navigate("/renew")}
-                    className="bg-accent-purple/10 text-accent-purple hover:bg-accent-purple/20 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
-                  >
-                    Manage / Renew
-                  </button>
-                  <button
-                    onClick={() => setShowCancelDialog(true)}
-                    className="rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-1.5 text-xs font-medium text-red-500 transition-colors hover:bg-red-500/10"
-                  >
-                    Cancel Subscription
-                  </button>
-                </div>
+                {isManualPro ? (
+                  <p className="text-text-tertiary text-[11px]">
+                    This Pro access is managed by LearnerVerse support.
+                  </p>
+                ) : (
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <button
+                      onClick={() => navigate("/renew")}
+                      className="bg-accent-purple/10 text-accent-purple hover:bg-accent-purple/20 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
+                    >
+                      Manage / Renew
+                    </button>
+                    <button
+                      onClick={() => setShowCancelDialog(true)}
+                      className="rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-1.5 text-xs font-medium text-red-500 transition-colors hover:bg-red-500/10"
+                    >
+                      Cancel Subscription
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="space-y-2">

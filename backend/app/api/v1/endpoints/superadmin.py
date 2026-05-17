@@ -14,6 +14,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.dependencies import get_db, get_superadmin_user
 from app.models.user import User
 from app.schemas.superadmin import (
+    AdminUserProStatus,
+    AdminUserProUpdate,
     CourseStatusDistribution,
     LessonTypeDistribution,
     PaginatedUserList,
@@ -136,6 +138,16 @@ async def list_users(
     svc: SuperadminService = Depends(_service),
 ) -> PaginatedUserList:
     return await svc.list_users(page=page, per_page=per_page, search=search)
+
+
+@router.put("/users/{user_id}/pro", response_model=AdminUserProStatus)
+async def update_user_pro(
+    user_id: uuid.UUID,
+    body: AdminUserProUpdate,
+    _admin: User = Depends(get_superadmin_user),
+    svc: SuperadminService = Depends(_service),
+) -> AdminUserProStatus:
+    return await svc.update_user_pro(user_id=user_id, body=body)
 
 
 # ── Verifications ─────────────────────────────────────────────────────────────

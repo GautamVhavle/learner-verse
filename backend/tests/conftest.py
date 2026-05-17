@@ -47,6 +47,33 @@ async def _create_tables():
     if "sqlite" in settings.DATABASE_URL:
         async with test_engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
+
+    async with test_engine.begin() as conn:
+        await conn.execute(
+            text("""
+                CREATE TABLE IF NOT EXISTS organize_tasks (
+                    id VARCHAR(16) PRIMARY KEY,
+                    course_id UUID NOT NULL,
+                    status VARCHAR(10) NOT NULL DEFAULT 'pending',
+                    error TEXT,
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+        )
+        await conn.execute(
+            text("""
+                CREATE TABLE IF NOT EXISTS playlist_import_tasks (
+                    id VARCHAR(16) PRIMARY KEY,
+                    section_id UUID NOT NULL,
+                    status VARCHAR(10) NOT NULL DEFAULT 'pending',
+                    status_message TEXT,
+                    playlist_title VARCHAR(500),
+                    imported_count INTEGER,
+                    error TEXT,
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+        )
     yield
 
 
@@ -91,9 +118,13 @@ async def clean_tables():
         if "sqlite" in settings.DATABASE_URL:
             for table in reversed(Base.metadata.sorted_tables):
                 await conn.execute(text(f'DELETE FROM "{table.name}"'))
+            await conn.execute(text('DELETE FROM "organize_tasks"'))
+            await conn.execute(text('DELETE FROM "playlist_import_tasks"'))
         else:
             for table in reversed(Base.metadata.sorted_tables):
                 await conn.execute(text(f'TRUNCATE TABLE "{table.name}" CASCADE'))
+            await conn.execute(text('TRUNCATE TABLE "organize_tasks"'))
+            await conn.execute(text('TRUNCATE TABLE "playlist_import_tasks"'))
     yield
 
 

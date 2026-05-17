@@ -1,6 +1,21 @@
 /**
  * TypeScript types for user profiles and settings.
  */
+export type ProPlan = "monthly" | "yearly" | "manual";
+
+export type SubscriptionStatus =
+  | "active"
+  | "authenticated"
+  | "cancelled"
+  | "completed"
+  | "halted"
+  | "manual_active"
+  | "manual_expired"
+  | "manual_revoked"
+  | "paused"
+  | "pending"
+  | null;
+
 export interface UserSettings {
   display_name: string;
   avatar_url: string | null;
@@ -17,7 +32,8 @@ export interface UserSettings {
   is_pro: boolean;
   pro_since: string | null;
   pro_expires_at: string | null;
-  pro_plan: "monthly" | "yearly" | null;
+  pro_plan: ProPlan | null;
+  subscription_status: SubscriptionStatus;
 }
 
 export interface UserProfile {
@@ -39,7 +55,8 @@ export interface UserProfile {
   is_pro: boolean;
   pro_since: string | null;
   pro_expires_at: string | null;
-  pro_plan: "monthly" | "yearly" | null;
+  pro_plan: ProPlan | null;
+  subscription_status: SubscriptionStatus;
   is_verified_creator: boolean;
   verified_at: string | null;
   created_at: string;

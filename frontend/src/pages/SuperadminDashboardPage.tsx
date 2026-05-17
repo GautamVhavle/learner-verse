@@ -32,6 +32,7 @@ import {
   FileText,
   GraduationCap,
   HelpCircle,
+  Loader2,
   Search,
   Shield,
   Star,
@@ -61,12 +62,15 @@ import {
   useAdminVerificationList,
   useReviewVerificationMutation,
   useRevokeVerificationMutation,
+  useUpdateUserProMutation,
+  type AdminUserSummary,
   type PlatformOverview,
   type TrendPoint,
 } from "@/hooks/useSuperadmin";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -99,6 +103,29 @@ function fmtRelative(iso: string): string {
   if (diffDays < 30) return `${diffDays}d ago`;
   if (diffDays < 365) return `${Math.floor(diffDays / 30)}mo ago`;
   return `${Math.floor(diffDays / 365)}y ago`;
+}
+
+function fmtShortDate(iso: string): string {
+  return new Date(iso).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function getProDetail(user: AdminUserSummary): string {
+  if (user.is_pro) {
+    if (user.subscription_status === "manual_active") {
+      return user.pro_expires_at
+        ? `Manual until ${fmtShortDate(user.pro_expires_at)}`
+        : "Manual lifetime";
+    }
+    if (user.pro_expires_at) return `Until ${fmtShortDate(user.pro_expires_at)}`;
+    return user.pro_plan ? `${user.pro_plan} plan` : "Active";
+  }
+  if (user.subscription_status === "manual_revoked") return "Revoked";
+  if (user.subscription_status === "manual_expired") return "Expired";
+  return "Free";
 }
 
 function fillGaps(points: TrendPoint[], days: number): { date: string; value: number }[] {
@@ -765,13 +792,40 @@ interface UsersTabProps {
 
 function UsersTab({ page, search, onPageChange, onSearchChange }: UsersTabProps) {
   const [inputValue, setInputValue] = useState(search);
+  const [proDialog, setProDialog] = useState<{
+    user: AdminUserSummary;
+    action: "grant" | "revoke";
+  } | null>(null);
+  const [grantDuration, setGrantDuration] = useState<"30" | "365" | "lifetime">("365");
+  const [proNote, setProNote] = useState("");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const proMutation = useUpdateUserProMutation();
 
   function handleSearch(e: React.ChangeEvent<HTMLInputElement>) {
     const v = e.target.value;
     setInputValue(v);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => onSearchChange(v), 400);
+  }
+
+  function openProDialog(user: AdminUserSummary, action: "grant" | "revoke") {
+    setProDialog({ user, action });
+    setGrantDuration(action === "grant" ? "365" : "30");
+    setProNote("");
+  }
+
+  async function submitProAction() {
+    if (!proDialog) return;
+    await proMutation.mutateAsync({
+      userId: proDialog.user.id,
+      action: proDialog.action,
+      durationDays:
+        proDialog.action === "grant" && grantDuration !== "lifetime"
+          ? Number(grantDuration)
+          : null,
+      note: proNote || undefined,
+    });
+    setProDialog(null);
   }
 
   const { data, isLoading } = useAdminUserList(page, PER_PAGE, search);
@@ -815,6 +869,7 @@ function UsersTab({ page, search, onPageChange, onSearchChange }: UsersTabProps)
                   ["Certs", "text-right px-3"],
                   ["Last Active", "text-right px-3"],
                   ["Joined", "text-right px-4"],
+                  ["Actions", "text-right px-4"],
                 ].map(([label, cls]) => (
                   <th
                     key={label}
@@ -838,7 +893,7 @@ function UsersTab({ page, search, onPageChange, onSearchChange }: UsersTabProps)
                           </div>
                         </div>
                       </td>
-                      {Array.from({ length: 8 }).map((_, j) => (
+                      {Array.from({ length: 9 }).map((_, j) => (
                         <td key={j} className="px-3 py-3">
                           <Skeleton className="h-3 w-full" />
                         </td>
@@ -865,11 +920,14 @@ function UsersTab({ page, search, onPageChange, onSearchChange }: UsersTabProps)
                         </div>
                       </td>
                       <td className="px-3 py-3 text-center">
-                        {u.is_pro && (
+                        <div className="flex flex-col items-center gap-1">
                           <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">
-                            Pro
+                            {u.is_pro ? "Pro" : "Free"}
                           </Badge>
-                        )}
+                          <span className="text-muted-foreground max-w-[110px] truncate text-[10px]">
+                            {getProDetail(u)}
+                          </span>
+                        </div>
                       </td>
                       <td className="px-3 py-3 text-center">
                         {u.is_verified_creator && (
@@ -885,6 +943,17 @@ function UsersTab({ page, search, onPageChange, onSearchChange }: UsersTabProps)
                       </td>
                       <td className="text-muted-foreground px-4 py-3 text-right text-xs">
                         {new Date(u.joined_at).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <Button
+                          size="sm"
+                          variant={u.is_pro ? "destructive" : "outline"}
+                          className="h-7 text-xs"
+                          disabled={proMutation.isPending}
+                          onClick={() => openProDialog(u, u.is_pro ? "revoke" : "grant")}
+                        >
+                          {u.is_pro ? "Revoke Pro" : "Grant Pro"}
+                        </Button>
                       </td>
                     </tr>
                   ))}
@@ -902,6 +971,75 @@ function UsersTab({ page, search, onPageChange, onSearchChange }: UsersTabProps)
           <PaginationBar page={page} totalPages={totalPages} onChange={onPageChange} />
         </div>
       )}
+
+      <Dialog open={proDialog !== null} onOpenChange={(open) => !open && setProDialog(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {proDialog?.action === "grant" ? "Grant Pro access" : "Revoke Pro access"}
+            </DialogTitle>
+            <DialogDescription>
+              {proDialog?.user.display_name} · {proDialog?.user.email}
+            </DialogDescription>
+          </DialogHeader>
+
+          {proDialog?.action === "grant" ? (
+            <div className="space-y-3">
+              <Label className="text-xs font-semibold tracking-wider uppercase">Duration</Label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  ["30", "30 days"],
+                  ["365", "1 year"],
+                  ["lifetime", "Lifetime"],
+                ].map(([value, label]) => (
+                  <Button
+                    key={value}
+                    type="button"
+                    variant={grantDuration === value ? "default" : "outline"}
+                    onClick={() => setGrantDuration(value as "30" | "365" | "lifetime")}
+                  >
+                    {label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm">
+              This disables Pro in LearnerVerse immediately. It does not cancel a Razorpay
+              subscription outside the app.
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <Label htmlFor="pro-note">Admin note</Label>
+            <Textarea
+              id="pro-note"
+              value={proNote}
+              onChange={(e) => setProNote(e.target.value)}
+              placeholder="Optional note shown to the user"
+              rows={3}
+            />
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setProDialog(null)}
+              disabled={proMutation.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant={proDialog?.action === "revoke" ? "destructive" : "default"}
+              onClick={submitProAction}
+              disabled={proMutation.isPending}
+            >
+              {proMutation.isPending && <Loader2 className="size-3.5 animate-spin" />}
+              {proDialog?.action === "grant" ? "Grant Pro" : "Revoke Pro"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

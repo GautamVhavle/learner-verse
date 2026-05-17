@@ -46,8 +46,8 @@ async def lifespan(app: FastAPI):
     if settings.SINGLE_USER_MODE:
         await _ensure_default_user()
 
-    # Ensure the organize_tasks table exists (shared across workers).
-    await _ensure_organize_tasks_table()
+    # Ensure background task tables exist (shared across workers).
+    await _ensure_background_task_tables()
 
     # Create the Supabase Storage bucket if missing.
     try:
@@ -74,11 +74,11 @@ async def _ensure_default_user() -> None:
             await session.commit()
 
 
-async def _ensure_organize_tasks_table() -> None:
-    """Create the organize_tasks table if it doesn't exist.
+async def _ensure_background_task_tables() -> None:
+    """Create background task tables if they don't exist.
 
-    Uses raw DDL so we don't need a migration - the table is a simple
-    ephemeral store shared across workers.
+    Uses raw DDL so we don't need a migration - these tables are simple
+    ephemeral stores shared across workers.
     """
     from sqlalchemy import text
 
@@ -91,20 +91,47 @@ async def _ensure_organize_tasks_table() -> None:
                 status VARCHAR(10) NOT NULL DEFAULT 'pending'
                     CHECK (status IN ('pending', 'done', 'failed')),
                 error TEXT,
-                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
             )
         """)
         )
-        # Ensure index on course_id for lookup performance
         await session.execute(
             text("""
             CREATE INDEX IF NOT EXISTS idx_organize_tasks_course_id
                 ON organize_tasks (course_id)
         """)
         )
-        # Clean up old tasks (>10 min)
+
+        await session.execute(
+            text("""
+            CREATE TABLE IF NOT EXISTS playlist_import_tasks (
+                id VARCHAR(16) PRIMARY KEY,
+                section_id UUID NOT NULL,
+                status VARCHAR(10) NOT NULL DEFAULT 'pending'
+                    CHECK (status IN ('pending', 'running', 'done', 'failed')),
+                status_message TEXT,
+                playlist_title VARCHAR(500),
+                imported_count INTEGER,
+                error TEXT,
+                created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        )
+        await session.execute(
+            text("""
+            CREATE INDEX IF NOT EXISTS idx_playlist_import_tasks_section_id
+                ON playlist_import_tasks (section_id)
+        """)
+        )
+
         await session.execute(
             text("DELETE FROM organize_tasks WHERE created_at < NOW() - INTERVAL '10 minutes'")
+        )
+        await session.execute(
+            text(
+                "DELETE FROM playlist_import_tasks "
+                "WHERE created_at < NOW() - INTERVAL '1 hour'"
+            )
         )
         await session.commit()
 
