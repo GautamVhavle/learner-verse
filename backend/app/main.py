@@ -128,10 +128,7 @@ async def _ensure_background_task_tables() -> None:
             text("DELETE FROM organize_tasks WHERE created_at < NOW() - INTERVAL '10 minutes'")
         )
         await session.execute(
-            text(
-                "DELETE FROM playlist_import_tasks "
-                "WHERE created_at < NOW() - INTERVAL '1 hour'"
-            )
+            text("DELETE FROM playlist_import_tasks WHERE created_at < NOW() - INTERVAL '1 hour'")
         )
         await session.commit()
 

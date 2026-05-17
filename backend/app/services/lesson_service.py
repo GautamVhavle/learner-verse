@@ -247,9 +247,7 @@ class LessonService:
         created_rows = list(
             (
                 await self.db.execute(
-                    select(Lesson)
-                    .where(Lesson.id.in_(lesson_ids))
-                    .order_by(Lesson.position)
+                    select(Lesson).where(Lesson.id.in_(lesson_ids)).order_by(Lesson.position)
                 )
             )
             .scalars()

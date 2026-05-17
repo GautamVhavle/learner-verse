@@ -458,8 +458,7 @@ class SuperadminService:
                     user_id=user.id,
                     title="Pro Access Activated",
                     message=(
-                        "Your LearnerVerse Pro access was activated"
-                        f"{duration_text}.{note_suffix}"
+                        f"Your LearnerVerse Pro access was activated{duration_text}.{note_suffix}"
                     ),
                     type="info",
                 )
