@@ -12,8 +12,13 @@ User-agent: Googlebot
 Allow: /
 Allow: /home
 Allow: /login
+Allow: /help
+Allow: /pricing
+Allow: /privacy
+Allow: /terms
 Allow: /certificates/share/
 Allow: /profile/
+Allow: /courses/
 Disallow: /creator/
 Disallow: /learner/
 Disallow: /superadmin/
@@ -22,11 +27,19 @@ User-agent: Bingbot
 Allow: /
 Allow: /home
 Allow: /login
+Allow: /help
+Allow: /pricing
+Allow: /privacy
+Allow: /terms
 Allow: /certificates/share/
 Allow: /profile/
+Allow: /courses/
 Disallow: /creator/
 Disallow: /learner/
 Disallow: /superadmin/
+
+# Sitemap
+Sitemap: https://learnerverse.xyz/sitemap.xml
 
 # AI crawlers
 User-agent: GPTBot

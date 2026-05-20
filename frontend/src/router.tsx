@@ -43,6 +43,8 @@ const CreatorAnalyticsPage = lazy(() => import("@/pages/CreatorAnalyticsPage"));
 const CourseAnalyticsDetailPage = lazy(() => import("@/pages/CourseAnalyticsDetailPage"));
 const PublicProfilePage = lazy(() => import("@/pages/PublicProfilePage"));
 const PublicCoursePage = lazy(() => import("@/pages/PublicCoursePage"));
+const PrivacyPage = lazy(() => import("@/pages/PrivacyPage"));
+const TermsPage = lazy(() => import("@/pages/TermsPage"));
 
 // Payment-gated pages - only loaded when PAYMENT_GATEWAY_ENABLED is true.
 // The lazy() calls are harmless even if the underlying files are stubs;
@@ -127,6 +129,8 @@ export default function AppRouter() {
             <Route path="certificates/share/:uid" element={<CertificateSharePage />} />
             <Route path="/profile/:userId" element={<PublicProfilePage />} />
             <Route path="/courses/:courseId" element={<PublicCoursePage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/terms" element={<TermsPage />} />
             {PAYMENT_GATEWAY_ENABLED && <Route path="/pricing" element={<PricingPage />} />}
 
             {/* ── Superadmin dashboard ── */}

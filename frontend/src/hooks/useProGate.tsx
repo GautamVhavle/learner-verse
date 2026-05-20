@@ -10,6 +10,7 @@
  *   <ProGate />  // render once - the dialog portal
  */
 import { useCallback, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useUserQuery } from "@/hooks/useUser";
 import { PAYMENT_GATEWAY_ENABLED } from "@/lib/payment";
 import { ProGateDialog } from "@/components/subscription/ProGateDialog";
@@ -37,6 +38,7 @@ export function useProGate() {
  */
 function useProGateInternal() {
   const { data: user } = useUserQuery();
+  const navigate = useNavigate();
   const isPro = user?.is_pro ?? false;
   const expired = !isPro && user?.pro_expires_at !== null && user?.pro_expires_at !== undefined;
 
@@ -54,7 +56,14 @@ function useProGateInternal() {
   const showGate = useCallback(() => setOpen(true), []);
 
   function ProGate() {
-    return <ProGateDialog open={open} onOpenChange={setOpen} expired={expired} />;
+    return (
+      <ProGateDialog
+        open={open}
+        onOpenChange={setOpen}
+        expired={expired}
+        onViewPlans={() => navigate("/pricing")}
+      />
+    );
   }
 
   return { isPro, gatedAction, showGate, ProGate } as const;
