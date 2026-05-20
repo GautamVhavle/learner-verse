@@ -57,7 +57,9 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-white">3. How We Use Your Information</h2>
+            <h2 className="mb-3 text-lg font-semibold text-white">
+              3. How We Use Your Information
+            </h2>
             <ul className="ml-4 list-disc space-y-2">
               <li>To provide, maintain, and improve the LearnerVerse platform</li>
               <li>To track your learning progress, streaks, and generate certificates</li>
@@ -73,7 +75,7 @@ export default function PrivacyPage() {
               We do not sell your personal data. We may share data with third-party services that
               help us operate the platform:
             </p>
-            <ul className="ml-4 mt-2 list-disc space-y-2">
+            <ul className="mt-2 ml-4 list-disc space-y-2">
               <li>
                 <strong className="text-white/90">Auth0:</strong> Authentication and identity
                 management
@@ -101,7 +103,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="mb-3 text-lg font-semibold text-white">6. Your Rights</h2>
             <p>You have the right to:</p>
-            <ul className="ml-4 mt-2 list-disc space-y-2">
+            <ul className="mt-2 ml-4 list-disc space-y-2">
               <li>Access and download your personal data</li>
               <li>Correct inaccurate information</li>
               <li>Delete your account and data</li>
@@ -113,9 +115,9 @@ export default function PrivacyPage() {
           <section>
             <h2 className="mb-3 text-lg font-semibold text-white">7. Cookies</h2>
             <p>
-              We use essential cookies for authentication and theme preferences. We use
-              localStorage to persist your learning progress and app settings. No third-party
-              tracking cookies are used on the platform.
+              We use essential cookies for authentication and theme preferences. We use localStorage
+              to persist your learning progress and app settings. No third-party tracking cookies
+              are used on the platform.
             </p>
           </section>
 

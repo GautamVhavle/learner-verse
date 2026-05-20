@@ -57,7 +57,7 @@ export default function TermsPage() {
           <section>
             <h2 className="mb-3 text-lg font-semibold text-white">4. Acceptable Use</h2>
             <p>You agree not to:</p>
-            <ul className="ml-4 mt-2 list-disc space-y-2">
+            <ul className="mt-2 ml-4 list-disc space-y-2">
               <li>Use the platform for any unlawful purpose</li>
               <li>Upload harmful, offensive, or misleading content</li>
               <li>Attempt to gain unauthorized access to other accounts or systems</li>
@@ -90,9 +90,9 @@ export default function TermsPage() {
           <section>
             <h2 className="mb-3 text-lg font-semibold text-white">7. Free & Pro Plans</h2>
             <p>
-              Core features are free forever. The optional Pro plan unlocks AI-powered features.
-              Pro subscriptions are billed monthly or annually. You may cancel at any time, and
-              your Pro access will continue until the end of your billing period.
+              Core features are free forever. The optional Pro plan unlocks AI-powered features. Pro
+              subscriptions are billed monthly or annually. You may cancel at any time, and your Pro
+              access will continue until the end of your billing period.
             </p>
           </section>
 
