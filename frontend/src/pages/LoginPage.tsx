@@ -61,6 +61,10 @@ export default function LoginPage() {
     }
   }, [isLoading, isAuthenticated, navigate]);
 
+  useEffect(() => {
+    document.title = "Log In — LearnerVerse";
+  }, []);
+
   if (isLoading || isAuthenticated) {
     return (
       <div className="bg-bg-root flex min-h-screen items-center justify-center">

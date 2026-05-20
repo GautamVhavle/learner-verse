@@ -2,6 +2,7 @@
  * LearnerVerse Landing Page: fully public marketing page.
  * No auth checks or redirects. The navbar CTA handles navigation.
  */
+import { useEffect } from "react";
 import { HomeNavbar } from "@/components/home/HomeNavbar";
 import { HeroSection } from "@/components/home/HeroSection";
 import { SocialProofBar } from "@/components/home/SocialProofBar";
@@ -28,6 +29,11 @@ function SectionDivider() {
 }
 
 export default function HomePage() {
+  useEffect(() => {
+    document.title =
+      "LearnerVerse — Turn Any YouTube Playlist into a Course with AI Quizzes";
+  }, []);
+
   return (
     <div className="min-h-screen w-full overflow-x-clip scroll-smooth bg-[#030712] text-white antialiased">
       <HomeNavbar />

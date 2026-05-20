@@ -2,7 +2,7 @@
  * Help & Support page - simple contact form that generates a mailto link
  * with a professional query template pre-filled.
  */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   HelpCircle,
   Mail,
@@ -46,6 +46,10 @@ export default function HelpPage() {
   const [category, setCategory] = useState<Category>("general");
   const [subject, setSubject] = useState("");
   const [description, setDescription] = useState("");
+
+  useEffect(() => {
+    document.title = "Help & Support — LearnerVerse";
+  }, []);
 
   const userName = user?.display_name ?? "User";
   const userEmail = user?.email ?? "";

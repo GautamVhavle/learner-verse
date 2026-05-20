@@ -10,7 +10,7 @@
  *   <ProGate />  // render once - the dialog portal
  */
 import { useCallback, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { useUserQuery } from "@/hooks/useUser";
 import { PAYMENT_GATEWAY_ENABLED } from "@/lib/payment";
 import { ProGateDialog } from "@/components/subscription/ProGateDialog";
