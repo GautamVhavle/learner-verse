@@ -11,7 +11,6 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_current_user
-from app.core.config import settings
 from app.core.database import get_db
 from app.models.course import Course
 from app.models.user import User
@@ -68,11 +67,6 @@ async def enroll_in_course(
     course = result.scalar_one_or_none()
     if not course:
         raise HTTPException(status_code=404, detail="Course not found.")
-    if course.user_id == current_user.id and not settings.SINGLE_USER_MODE:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Cannot enroll in your own course.",
-        )
     if course.status != "ready":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

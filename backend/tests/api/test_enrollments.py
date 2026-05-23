@@ -93,8 +93,8 @@ async def test_enrollment_records_empty(client):
 # POST /enrollments/{course_id}  – enroll
 # ============================================================
 @pytest.mark.asyncio
-async def test_enroll_own_course_allowed_in_single_user_mode(client):
-    """In single-user mode, self-enrollment is allowed (201)."""
+async def test_enroll_own_course_allowed(client):
+    """Self-enrollment in own course is allowed (201)."""
     await _ensure_user(client)
     course = await _setup_public_course(client)
 
