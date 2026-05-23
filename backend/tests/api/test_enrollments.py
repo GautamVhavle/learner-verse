@@ -129,19 +129,19 @@ async def test_enroll_deleted_course(client):
 # ============================================================
 @pytest.mark.asyncio
 async def test_unenroll_when_not_enrolled(client):
-    """Unenrolling from something not enrolled should not crash."""
+    """Unenrolling from something not enrolled returns 404."""
     await _ensure_user(client)
     course = await _create_course(client)
 
     resp = await client.delete(f"/api/v1/enrollments/{course['id']}")
-    assert resp.status_code == 204
+    assert resp.status_code == 404
 
 
 @pytest.mark.asyncio
 async def test_unenroll_nonexistent_course(client):
-    """Unenrolling from a non-existent course returns 204 (no-op)."""
+    """Unenrolling from a non-existent course returns 404."""
     await _ensure_user(client)
     resp = await client.delete(
         "/api/v1/enrollments/00000000-0000-0000-0000-000000000099"
     )
-    assert resp.status_code == 204
+    assert resp.status_code == 404
