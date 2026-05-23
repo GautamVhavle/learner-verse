@@ -98,5 +98,14 @@ async def unenroll_from_course(
     current_user: User = Depends(get_current_user),
 ):
     """Remove the current user's enrollment from a course."""
-    await EnrollmentRepository(db).unenroll(user_id=current_user.id, course_id=course_id)
+    repo = EnrollmentRepository(db)
+    enrollment = await repo.get_enrollment(current_user.id, course_id)
+    if not enrollment:
+        raise HTTPException(status_code=404, detail="Not enrolled in this course.")
+    if enrollment.completed_at is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Cannot unenroll from a completed course.",
+        )
+    await repo.unenroll(user_id=current_user.id, course_id=course_id)
     await db.commit()

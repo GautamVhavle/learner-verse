@@ -156,7 +156,10 @@ class DiscussionService:
         from sqlalchemy import select
 
         result = await self.db.execute(
-            select(Course.user_id, Course.is_public).where(Course.id == course_id)
+            select(Course.user_id, Course.is_public).where(
+                Course.id == course_id,
+                Course.is_deleted.is_(False),
+            )
         )
         row = result.one_or_none()
         if row is None:

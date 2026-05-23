@@ -12,6 +12,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.course import Course
+from app.models.enrollment import CourseEnrollment
 from app.models.lesson import Lesson
 from app.models.section import Section
 from app.repositories.lesson_repo import LessonRepository
@@ -85,8 +86,36 @@ class LessonService:
             updated_at=lesson.updated_at,
         )
 
-    async def get_lesson(self, lesson_id: uuid.UUID) -> LessonResponse:
+    async def _verify_access(self, lesson_id: uuid.UUID, user_id: uuid.UUID) -> None:
+        """Verify user owns the course or is enrolled."""
+        result = await self.db.execute(
+            select(Section.course_id)
+            .join(Lesson, Lesson.section_id == Section.id)
+            .where(Lesson.id == lesson_id)
+        )
+        row = result.first()
+        if not row:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lesson not found.")
+        course_id = row[0]
+        # Check ownership
+        owner = await self.db.execute(
+            select(Course.id).where(Course.id == course_id, Course.user_id == user_id)
+        )
+        if owner.first():
+            return
+        # Check enrollment
+        enrolled = await self.db.execute(
+            select(CourseEnrollment.id).where(
+                CourseEnrollment.user_id == user_id,
+                CourseEnrollment.course_id == course_id,
+            )
+        )
+        if not enrolled.first():
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enrolled.")
+
+    async def get_lesson(self, lesson_id: uuid.UUID, user_id: uuid.UUID) -> LessonResponse:
         """Fetch a single lesson with its reference links."""
+        await self._verify_access(lesson_id, user_id)
         lesson = await self.lesson_repo.get_by_id(lesson_id)
         if not lesson:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lesson not found.")

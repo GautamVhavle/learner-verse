@@ -50,7 +50,7 @@ async def get_lesson(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    return await _service(db).get_lesson(lesson_id)
+    return await _service(db).get_lesson(lesson_id, user.id)
 
 
 @router.put("/{lesson_id}", response_model=LessonResponse)

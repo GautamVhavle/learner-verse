@@ -6,8 +6,14 @@ state to support the study/learner view.
 
 import uuid
 
+from fastapi import HTTPException, status
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.course import Course
+from app.models.enrollment import CourseEnrollment
+from app.models.lesson import Lesson
+from app.models.section import Section
 from app.repositories.study_note_repo import StudyNoteRepository
 from app.repositories.study_state_repo import StudyStateRepository
 from app.schemas.study_note import StudyNoteResponse, StudyNoteUpdate
@@ -22,9 +28,40 @@ class StudyService:
         self.note_repo = StudyNoteRepository(db)
         self.state_repo = StudyStateRepository(db)
 
+    async def _verify_course_access(self, course_id: uuid.UUID, user_id: uuid.UUID) -> None:
+        """Verify user owns the course or is enrolled."""
+        owner = await self.db.execute(
+            select(Course.id).where(
+                Course.id == course_id, Course.user_id == user_id, Course.is_deleted.is_(False)
+            )
+        )
+        if owner.first():
+            return
+        enrolled = await self.db.execute(
+            select(CourseEnrollment.id).where(
+                CourseEnrollment.user_id == user_id,
+                CourseEnrollment.course_id == course_id,
+            )
+        )
+        if not enrolled.first():
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enrolled.")
+
+    async def _verify_lesson_access(self, lesson_id: uuid.UUID, user_id: uuid.UUID) -> None:
+        """Verify user owns or is enrolled in the course containing this lesson."""
+        result = await self.db.execute(
+            select(Section.course_id)
+            .join(Lesson, Lesson.section_id == Section.id)
+            .where(Lesson.id == lesson_id)
+        )
+        row = result.first()
+        if not row:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lesson not found.")
+        await self._verify_course_access(row[0], user_id)
+
     # ── Study Notes ──────────────────────────────────────────
 
     async def get_study_note(self, lesson_id: uuid.UUID, user_id: uuid.UUID) -> StudyNoteResponse:
+        await self._verify_lesson_access(lesson_id, user_id)
         note = await self.note_repo.get(user_id, lesson_id)
         if note is None:
             return StudyNoteResponse(content=None, updated_at=None)
@@ -33,6 +70,7 @@ class StudyService:
     async def update_study_note(
         self, lesson_id: uuid.UUID, user_id: uuid.UUID, data: StudyNoteUpdate
     ) -> StudyNoteResponse:
+        await self._verify_lesson_access(lesson_id, user_id)
         note = await self.note_repo.upsert(user_id, lesson_id, data.content)
         await self.db.commit()
         return StudyNoteResponse.model_validate(note)
@@ -42,6 +80,7 @@ class StudyService:
     async def get_study_state(
         self, course_id: uuid.UUID, user_id: uuid.UUID
     ) -> StudyStateResponse | None:
+        await self._verify_course_access(course_id, user_id)
         state = await self.state_repo.get(user_id, course_id)
         if state is None:
             return None
@@ -50,6 +89,7 @@ class StudyService:
     async def update_study_state(
         self, course_id: uuid.UUID, user_id: uuid.UUID, data: StudyStateUpdate
     ) -> StudyStateResponse:
+        await self._verify_course_access(course_id, user_id)
         state = await self.state_repo.upsert(user_id, course_id, data.last_lesson_id)
         await self.db.commit()
         return StudyStateResponse.model_validate(state)

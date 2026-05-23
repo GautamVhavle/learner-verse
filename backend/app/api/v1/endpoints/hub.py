@@ -431,6 +431,13 @@ async def create_rating(
     if not course:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found.")
 
+    enrollment_repo = EnrollmentRepository(db)
+    if not await enrollment_repo.is_enrolled(user.id, course_id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You must be enrolled in this course to rate it.",
+        )
+
     rating_repo = RatingRepository(db)
     existing = await rating_repo.get_by_user_course(user.id, course_id)
     if existing:
