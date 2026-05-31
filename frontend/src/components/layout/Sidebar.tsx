@@ -24,6 +24,7 @@ import {
   SidebarMenuSubItem,
   SidebarRail,
   SidebarSeparator,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/layout/ModeToggle";
 import { NavUser } from "@/components/layout/NavUser";
@@ -60,7 +61,14 @@ export function AppSidebar({
   const { data: profile } = useUserQuery();
   const { isCreator } = useMode();
   const { toggleChat } = useChatStore();
+  const { isMobile, setOpenMobile } = useSidebar();
   const [aboutOpen, setAboutOpen] = useState(false);
+
+  /** Navigate and close sidebar on mobile */
+  const navTo = (path: string) => {
+    navigate(path);
+    if (isMobile) setOpenMobile(false);
+  };
 
   // Fetch courses for the sidebar list
   const { data: allCourses } = useCoursesQuery();
@@ -88,7 +96,7 @@ export function AppSidebar({
         <SidebarMenuButton
           tooltip={item.comingSoon ? `${item.title} (Coming Soon)` : item.title}
           isActive={!item.comingSoon && location.pathname === fullPath}
-          onClick={() => !item.comingSoon && navigate(fullPath)}
+          onClick={() => !item.comingSoon && navTo(fullPath)}
           className={item.comingSoon ? "cursor-default opacity-50" : "cursor-pointer"}
         >
           <item.icon />
@@ -173,7 +181,7 @@ export function AppSidebar({
                         <SidebarMenuSubButton
                           size="sm"
                           isActive={location.pathname === `${modePrefix}/courses`}
-                          onClick={() => navigate(`${modePrefix}/courses`)}
+                          onClick={() => navTo(`${modePrefix}/courses`)}
                           className="cursor-pointer"
                         >
                           <span>View All</span>
@@ -190,7 +198,7 @@ export function AppSidebar({
                             location.pathname === course.path ||
                             location.pathname.startsWith(course.path + "/")
                           }
-                          onClick={() => navigate(course.path)}
+                          onClick={() => navTo(course.path)}
                           className="cursor-pointer"
                         >
                           <span className="truncate">{course.title}</span>
@@ -232,7 +240,7 @@ export function AppSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton
               tooltip="Ask LiVi"
-              onClick={toggleChat}
+              onClick={() => { toggleChat(); if (isMobile) setOpenMobile(false); }}
               className="cursor-pointer"
               size="sm"
             >
@@ -250,7 +258,7 @@ export function AppSidebar({
                 <SidebarMenuButton
                   tooltip={item.comingSoon ? `${item.title} (Coming Soon)` : item.title}
                   isActive={!item.comingSoon && location.pathname === fullPath}
-                  onClick={() => !item.comingSoon && navigate(fullPath)}
+                  onClick={() => !item.comingSoon && navTo(fullPath)}
                   className={item.comingSoon ? "cursor-default opacity-50" : "cursor-pointer"}
                   size="sm"
                 >

@@ -29,19 +29,28 @@ export function StarRating({
     <div className={cn("flex items-center gap-0.5", className)}>
       {[1, 2, 3, 4, 5].map((star) => {
         const filled = readOnly ? star <= Math.round(value) : star <= (hover || value);
+        const starClasses = cn(
+          "transition-colors",
+          readOnly ? "cursor-default" : "cursor-pointer",
+          filled ? "text-amber-400" : "text-text-tertiary",
+        );
+
+        if (readOnly) {
+          return (
+            <span key={star} className={starClasses} aria-label={`${star} star${star > 1 ? "s" : ""}`}>
+              <Star className={cn(iconSize, filled && "fill-current")} />
+            </span>
+          );
+        }
+
         return (
           <button
             key={star}
             type="button"
-            disabled={readOnly}
             onClick={() => onChange?.(star)}
-            onMouseEnter={() => !readOnly && setHover(star)}
-            onMouseLeave={() => !readOnly && setHover(0)}
-            className={cn(
-              "transition-colors",
-              readOnly ? "cursor-default" : "cursor-pointer",
-              filled ? "text-amber-400" : "text-text-tertiary",
-            )}
+            onMouseEnter={() => setHover(star)}
+            onMouseLeave={() => setHover(0)}
+            className={starClasses}
             aria-label={`${star} star${star > 1 ? "s" : ""}`}
           >
             <Star className={cn(iconSize, filled && "fill-current")} />

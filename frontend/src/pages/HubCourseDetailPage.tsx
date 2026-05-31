@@ -199,16 +199,18 @@ export default function HubCourseDetailPage() {
           )}
 
           {/* Action buttons */}
-          <div className="flex items-center gap-3">
-            {isOwner ? (
+          <div className="flex flex-wrap items-center gap-3">
+            {isOwner && (
               <Button
+                variant="outline"
                 onClick={() => navigate(`/creator/courses/${course.id}/edit`)}
                 className="gap-1.5"
               >
                 <FileEdit className="size-4" />
                 Edit Course
               </Button>
-            ) : isEnrolled ? (
+            )}
+            {isEnrolled ? (
               <>
                 {isCompleted ? (
                   <>
