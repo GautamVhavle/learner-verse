@@ -44,7 +44,7 @@ import {
 import type { LearnerInfo, RatingDetail } from "@/types/analytics";
 
 const SHARE_BASE = (
-  import.meta.env.VITE_PUBLIC_SITE_URL ??
+  import.meta.env.VITE_PUBLIC_SITE_URL ||
   (typeof window !== "undefined" ? window.location.origin : "")
 ).replace(/\/$/, "");
 

@@ -40,7 +40,7 @@ export default function PublicCoursePage() {
   }, [course]);
 
   const publicBase = (
-    import.meta.env.VITE_PUBLIC_SITE_URL ??
+    import.meta.env.VITE_PUBLIC_SITE_URL ||
     (typeof window !== "undefined" ? window.location.origin : "")
   ).replace(/\/$/, "");
   const shareUrl = courseId ? `${publicBase}/courses/${courseId}` : "";

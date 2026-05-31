@@ -49,7 +49,7 @@ export default function HubCourseDetailPage() {
   const { mode } = useMode();
   const modePrefix = mode === "creator" ? "/creator" : "/learner";
   const publicBase = (
-    import.meta.env.VITE_PUBLIC_SITE_URL ??
+    import.meta.env.VITE_PUBLIC_SITE_URL ||
     (typeof window !== "undefined" ? window.location.origin : "")
   ).replace(/\/$/, "");
 

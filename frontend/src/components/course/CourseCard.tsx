@@ -55,7 +55,7 @@ export function CourseCard({
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const publicBase = (
-    import.meta.env.VITE_PUBLIC_SITE_URL ??
+    import.meta.env.VITE_PUBLIC_SITE_URL ||
     (typeof window !== "undefined" ? window.location.origin : "")
   ).replace(/\/$/, "");
   const shareUrl = `${publicBase}/courses/${course.id}`;
