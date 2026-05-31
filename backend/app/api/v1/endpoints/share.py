@@ -396,11 +396,7 @@ def _build_og_html(
     if json_ld:
         # Escape </script> sequences to prevent XSS breakout from JSON-LD block
         safe_json = json.dumps(json_ld, ensure_ascii=False).replace("<", "\\u003c")
-        json_ld_tag = (
-            '\n    <script type="application/ld+json">'
-            + safe_json
-            + "</script>"
-        )
+        json_ld_tag = '\n    <script type="application/ld+json">' + safe_json + "</script>"
 
     return f"""<!DOCTYPE html>
 <html lang="en">
