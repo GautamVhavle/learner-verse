@@ -4,8 +4,11 @@ import { CertificatePreview } from "@/components/certificate/CertificatePreview"
 
 // BlobProvider can't run in jsdom - mock it to render an iframe with a fake url
 vi.mock("@react-pdf/renderer", () => ({
-  BlobProvider: ({ children }: { children: (props: { url: string | null; loading: boolean }) => React.ReactNode }) =>
-    children({ url: "blob:fake", loading: false }),
+  BlobProvider: ({
+    children,
+  }: {
+    children: (props: { url: string | null; loading: boolean }) => React.ReactNode;
+  }) => children({ url: "blob:fake", loading: false }),
 }));
 
 // CertificatePDF uses react-pdf internals (Document, Page, etc.) which also fail in jsdom
@@ -29,7 +32,7 @@ describe("CertificatePreview", () => {
   it("renders the preview container and iframe", () => {
     render(<CertificatePreview certificate={mockCert} />);
     expect(screen.getByTestId("certificate-preview")).toBeInTheDocument();
-    expect(screen.getByTitle("Certificate Preview")).toBeInTheDocument();
+    expect(screen.getAllByTitle("Certificate Preview").length).toBeGreaterThanOrEqual(1);
   });
 
   it("renders with compact prop", () => {

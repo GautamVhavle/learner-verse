@@ -15,25 +15,17 @@ vi.mock("@/hooks/useMode", () => ({
 }));
 
 vi.mock("@/components/ui/sidebar", () => ({
-  SidebarMenu: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
-  ),
-  SidebarMenuItem: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
-  ),
+  SidebarMenu: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  SidebarMenuItem: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   useSidebar: () => ({ state: "expanded", isMobile: false }),
 }));
 
 vi.mock("@/components/ui/tooltip", () => ({
-  Tooltip: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
-  ),
+  Tooltip: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   TooltipTrigger: ({ children, ...props }: Record<string, unknown>) => (
     <button {...props}>{children as React.ReactNode}</button>
   ),
-  TooltipContent: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
-  ),
+  TooltipContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
 import { ModeToggle } from "@/components/layout/ModeToggle";
@@ -51,7 +43,7 @@ describe("ModeToggle", () => {
 
   it("calls onToggle on click", () => {
     render(<ModeToggle onToggle={mockOnToggle} />);
-    fireEvent.click(screen.getByTestId("mode-toggle"));
+    fireEvent.click(screen.getByText("Learner"));
     expect(mockOnToggle).toHaveBeenCalledTimes(1);
   });
 

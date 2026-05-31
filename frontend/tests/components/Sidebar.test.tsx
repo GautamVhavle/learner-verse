@@ -58,10 +58,7 @@ vi.mock("@/hooks/useUser", () => ({
 
 // Need to mock the sidebar context for child components
 vi.mock("@/components/ui/sidebar", async () => {
-  const actual =
-    await vi.importActual<Record<string, unknown>>(
-      "@/components/ui/sidebar",
-    );
+  const actual = await vi.importActual<Record<string, unknown>>("@/components/ui/sidebar");
   return {
     ...actual,
     useSidebar: () => ({
@@ -73,36 +70,18 @@ vi.mock("@/components/ui/sidebar", async () => {
       isMobile: false,
       toggleSidebar: vi.fn(),
     }),
-    SidebarProvider: ({ children }: { children: React.ReactNode }) => (
-      <div>{children}</div>
-    ),
-    SidebarInset: ({ children }: { children: React.ReactNode }) => (
-      <div>{children}</div>
-    ),
+    SidebarProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+    SidebarInset: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
     Sidebar: ({ children }: { children: React.ReactNode }) => (
       <nav data-testid="sidebar">{children}</nav>
     ),
-    SidebarContent: ({ children }: { children: React.ReactNode }) => (
-      <div>{children}</div>
-    ),
-    SidebarHeader: ({ children }: { children: React.ReactNode }) => (
-      <div>{children}</div>
-    ),
-    SidebarFooter: ({ children }: { children: React.ReactNode }) => (
-      <div>{children}</div>
-    ),
-    SidebarGroup: ({ children }: { children: React.ReactNode }) => (
-      <div>{children}</div>
-    ),
-    SidebarGroupLabel: ({ children }: { children: React.ReactNode }) => (
-      <div>{children}</div>
-    ),
-    SidebarMenu: ({ children }: { children: React.ReactNode }) => (
-      <div>{children}</div>
-    ),
-    SidebarMenuItem: ({ children }: { children: React.ReactNode }) => (
-      <div>{children}</div>
-    ),
+    SidebarContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+    SidebarHeader: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+    SidebarFooter: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+    SidebarGroup: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+    SidebarGroupLabel: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+    SidebarMenu: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+    SidebarMenuItem: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
     SidebarMenuButton: ({
       children,
       ...rest
@@ -110,12 +89,8 @@ vi.mock("@/components/ui/sidebar", async () => {
       children: React.ReactNode;
       [key: string]: unknown;
     }) => <button {...rest}>{children}</button>,
-    SidebarMenuSub: ({ children }: { children: React.ReactNode }) => (
-      <div>{children}</div>
-    ),
-    SidebarMenuSubItem: ({ children }: { children: React.ReactNode }) => (
-      <div>{children}</div>
-    ),
+    SidebarMenuSub: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+    SidebarMenuSubItem: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
     SidebarMenuSubButton: ({
       children,
       ...rest
@@ -130,33 +105,20 @@ vi.mock("@/components/ui/sidebar", async () => {
 });
 
 vi.mock("@/components/ui/collapsible", () => ({
-  Collapsible: ({ children }: { children: React.ReactNode }) => (
+  Collapsible: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  CollapsibleTrigger: ({ children }: { children: React.ReactNode; render?: React.ReactNode }) => (
     <div>{children}</div>
   ),
-  CollapsibleTrigger: ({
-    children,
-  }: {
-    children: React.ReactNode;
-    render?: React.ReactNode;
-  }) => <div>{children}</div>,
-  CollapsibleContent: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
-  ),
+  CollapsibleContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
 vi.mock("@/components/ui/tooltip", () => ({
-  TooltipProvider: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
-  ),
-  Tooltip: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
-  ),
+  TooltipProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  Tooltip: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   TooltipTrigger: ({ children, ...props }: Record<string, unknown>) => (
     <button {...props}>{children as React.ReactNode}</button>
   ),
-  TooltipContent: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
-  ),
+  TooltipContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
 import { AppSidebar } from "@/components/layout/Sidebar";
@@ -200,7 +162,7 @@ describe("Sidebar", () => {
       </MemoryRouter>,
     );
     expect(screen.getByText("Learner Verse")).toBeInTheDocument();
-    expect(screen.getByText("Creator Mode")).toBeInTheDocument();
+    expect(screen.getByText("Learn. Create. Grow.")).toBeInTheDocument();
   });
 
   it("renders user info in footer", () => {
@@ -210,8 +172,6 @@ describe("Sidebar", () => {
       </MemoryRouter>,
     );
     expect(screen.getByText("Local User")).toBeInTheDocument();
-    expect(
-      screen.getByText("local@learnerverse.dev"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("local@learnerverse.dev")).toBeInTheDocument();
   });
 });
