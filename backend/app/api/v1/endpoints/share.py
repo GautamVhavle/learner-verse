@@ -1,6 +1,7 @@
 """Public shareable link endpoint - serves OpenGraph HTML for social previews."""
 
 import json
+import re
 import uuid
 
 from fastapi import APIRouter, Depends
@@ -251,6 +252,12 @@ async def share_certificate(
     db: AsyncSession = Depends(get_db),
 ):
     """Serve OpenGraph HTML with a meta refresh to the certificate share page."""
+    # Validate certificate_uid format to prevent XSS via path injection
+    if not re.fullmatch(r"[A-Za-z0-9\-]+", certificate_uid):
+        return HTMLResponse(
+            content="<html><body>Invalid certificate ID.</body></html>",
+            status_code=400,
+        )
     frontend_base = settings.FRONTEND_URL.rstrip("/")
     canonical_url = f"{frontend_base}/certificates/share/{certificate_uid}"
 
@@ -387,9 +394,11 @@ def _build_og_html(
 
     json_ld_tag = ""
     if json_ld:
+        # Escape </script> sequences to prevent XSS breakout from JSON-LD block
+        safe_json = json.dumps(json_ld, ensure_ascii=False).replace("<", "\\u003c")
         json_ld_tag = (
             '\n    <script type="application/ld+json">'
-            + json.dumps(json_ld, ensure_ascii=False)
+            + safe_json
             + "</script>"
         )
 

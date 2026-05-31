@@ -64,6 +64,18 @@ def _is_private_ip(hostname: str) -> bool:
     return False
 
 
+async def _validate_redirect(response: httpx.Response) -> None:
+    """Block redirects that target private/internal IPs (SSRF protection)."""
+    if response.is_redirect and response.has_redirect_location:
+        next_url = response.headers.get("location", "")
+        parsed = urlparse(next_url)
+        hostname = parsed.hostname or ""
+        if parsed.scheme and parsed.scheme not in ("http", "https"):
+            raise ValueError("Redirect uses a disallowed scheme.")
+        if hostname and _is_private_ip(hostname):
+            raise ValueError("Redirect points to a private or reserved address.")
+
+
 async def fetch_opengraph(url: str) -> OpenGraphData:
     """Fetch a URL and parse OpenGraph metadata from the HTML."""
     parsed = urlparse(url)
@@ -81,6 +93,7 @@ async def fetch_opengraph(url: str) -> OpenGraphData:
         follow_redirects=True,
         max_redirects=5,
         headers={"User-Agent": "LearnerVerse/1.0 (OpenGraph Fetcher)"},
+        event_hooks={"response": [_validate_redirect]},
     ) as client:
         async with client.stream("GET", url) as resp:
             resp.raise_for_status()
