@@ -251,6 +251,7 @@ async def test_goal_not_found(client):
     """Setting goal on non-existent course returns 404."""
     await _ensure_user(client)
     import uuid
+
     resp = await client.put(
         f"/api/v1/goals/courses/{uuid.uuid4()}",
         json={"goal_date": (date.today() + timedelta(days=30)).isoformat()},

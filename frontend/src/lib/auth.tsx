@@ -44,7 +44,19 @@ function AuthTokenSync({ children }: { children: ReactNode }) {
       setAccessTokenGetter(() => getAccessTokenSilently());
       // Redirect to login when any request gets a 401 from the backend.
       // This handles expired refresh tokens and revoked sessions.
-      setUnauthorizedHandler(() => loginWithRedirect());
+      // Only redirect on protected routes (/creator, /learner, /superadmin)
+      // to avoid kicking users off public pages (landing, public profiles, etc.)
+      // when a stale session triggers a background 401.
+      setUnauthorizedHandler(() => {
+        const path = window.location.pathname;
+        if (
+          path.startsWith("/creator") ||
+          path.startsWith("/learner") ||
+          path.startsWith("/superadmin")
+        ) {
+          loginWithRedirect();
+        }
+      });
     } else {
       setAccessTokenGetter(null);
       setUnauthorizedHandler(null);

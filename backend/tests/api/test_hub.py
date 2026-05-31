@@ -17,31 +17,23 @@ async def _create_course(client, **overrides):
 
 async def _create_section(client, course_id, **overrides):
     payload = {"title": "Hub Section", **overrides}
-    resp = await client.post(
-        f"/api/v1/courses/{course_id}/sections", json=payload
-    )
+    resp = await client.post(f"/api/v1/courses/{course_id}/sections", json=payload)
     assert resp.status_code == 201
     return resp.json()
 
 
 async def _create_lesson(client, section_id, **overrides):
     payload = {"title": "Hub Lesson", **overrides}
-    resp = await client.post(
-        f"/api/v1/sections/{section_id}/lessons", json=payload
-    )
+    resp = await client.post(f"/api/v1/sections/{section_id}/lessons", json=payload)
     assert resp.status_code == 201
     return resp.json()
 
 
 async def _make_public_ready(client, course_id):
     """Set course to ready + public (must be ready before setting public)."""
-    resp = await client.put(
-        f"/api/v1/courses/{course_id}/status", json={"status": "ready"}
-    )
+    resp = await client.put(f"/api/v1/courses/{course_id}/status", json={"status": "ready"})
     assert resp.json()["valid"] is True, f"Course not valid for ready: {resp.json()}"
-    resp = await client.put(
-        f"/api/v1/courses/{course_id}", json={"is_public": True}
-    )
+    resp = await client.put(f"/api/v1/courses/{course_id}", json={"is_public": True})
     assert resp.status_code == 200
 
 
@@ -101,9 +93,7 @@ async def test_hub_courses_hides_draft(client):
     """Draft (non-ready) course does not appear in hub."""
     await _ensure_user(client)
     course = await _create_course(client, title="Draft Course")
-    await client.put(
-        f"/api/v1/courses/{course['id']}", json={"is_public": True}
-    )
+    await client.put(f"/api/v1/courses/{course['id']}", json={"is_public": True})
     # Do NOT set status=ready
 
     resp = await client.get("/api/v1/hub/courses")
@@ -118,9 +108,7 @@ async def test_hub_courses_search(client):
     await _ensure_user(client)
     await _setup_public_course(client, title="UniqueSearchable")
 
-    resp = await client.get(
-        "/api/v1/hub/courses", params={"search": "UniqueSearchable"}
-    )
+    resp = await client.get("/api/v1/hub/courses", params={"search": "UniqueSearchable"})
     assert resp.status_code == 200
     assert resp.json()["total"] >= 1
 
@@ -158,9 +146,7 @@ async def test_hub_course_detail_as_owner(client):
 async def test_hub_course_detail_nonexistent(client):
     """Non-existent course returns 404."""
     await _ensure_user(client)
-    resp = await client.get(
-        "/api/v1/hub/courses/00000000-0000-0000-0000-000000000099"
-    )
+    resp = await client.get("/api/v1/hub/courses/00000000-0000-0000-0000-000000000099")
     assert resp.status_code == 404
 
 

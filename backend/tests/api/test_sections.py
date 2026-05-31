@@ -99,9 +99,7 @@ async def test_get_section(client):
     await _ensure_user(client)
     course = await _create_course(client)
     section = (await _create_section(client, course["id"])).json()
-    resp = await client.get(
-        f"/api/v1/courses/{course['id']}/sections/{section['id']}"
-    )
+    resp = await client.get(f"/api/v1/courses/{course['id']}/sections/{section['id']}")
     assert resp.status_code == 200
     assert resp.json()["id"] == section["id"]
 
@@ -151,14 +149,10 @@ async def test_delete_section(client):
     await _ensure_user(client)
     course = await _create_course(client)
     section = (await _create_section(client, course["id"])).json()
-    resp = await client.delete(
-        f"/api/v1/courses/{course['id']}/sections/{section['id']}"
-    )
+    resp = await client.delete(f"/api/v1/courses/{course['id']}/sections/{section['id']}")
     assert resp.status_code == 204
     # Verify gone
-    get_resp = await client.get(
-        f"/api/v1/courses/{course['id']}/sections/{section['id']}"
-    )
+    get_resp = await client.get(f"/api/v1/courses/{course['id']}/sections/{section['id']}")
     assert get_resp.status_code == 404
 
 
@@ -191,9 +185,7 @@ async def test_duplicate_section(client):
     await _ensure_user(client)
     course = await _create_course(client)
     section = (await _create_section(client, course["id"], title="Original")).json()
-    resp = await client.post(
-        f"/api/v1/courses/{course['id']}/sections/{section['id']}/duplicate"
-    )
+    resp = await client.post(f"/api/v1/courses/{course['id']}/sections/{section['id']}/duplicate")
     assert resp.status_code == 201
     data = resp.json()
     assert data["title"] == "Original (Copy)"
@@ -210,9 +202,7 @@ async def test_duplicate_section_with_lessons(client):
         f"/api/v1/sections/{section['id']}/lessons",
         json={"title": "Lesson 1"},
     )
-    resp = await client.post(
-        f"/api/v1/courses/{course['id']}/sections/{section['id']}/duplicate"
-    )
+    resp = await client.post(f"/api/v1/courses/{course['id']}/sections/{section['id']}/duplicate")
     assert resp.status_code == 201
     assert len(resp.json()["lessons"]) == 1
 

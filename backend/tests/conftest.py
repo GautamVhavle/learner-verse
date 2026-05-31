@@ -8,6 +8,7 @@ from sqlalchemy.pool import NullPool
 
 # Force single-user mode for tests before importing settings
 import os
+
 os.environ["SINGLE_USER_MODE"] = "true"
 
 from app.core.config import settings
@@ -36,9 +37,7 @@ if "sqlite" not in settings.DATABASE_URL:
     }
 
 test_engine = create_async_engine(settings.DATABASE_URL, **_test_engine_kwargs)
-TestSessionLocal = async_sessionmaker(
-    test_engine, class_=AsyncSession, expire_on_commit=False
-)
+TestSessionLocal = async_sessionmaker(test_engine, class_=AsyncSession, expire_on_commit=False)
 
 
 @pytest.fixture(scope="session", autouse=True)

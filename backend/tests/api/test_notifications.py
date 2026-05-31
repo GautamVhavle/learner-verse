@@ -5,6 +5,7 @@ import pytest
 
 # --- Helpers ---
 
+
 async def _ensure_user(client):
     await client.get("/api/v1/auth/me")
 

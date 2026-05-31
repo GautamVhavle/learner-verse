@@ -30,12 +30,8 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.Column("activity_date", sa.Date(), nullable=False),
-        sa.Column(
-            "lessons_completed", sa.Integer(), nullable=False, server_default="0"
-        ),
-        sa.UniqueConstraint(
-            "user_id", "activity_date", name="uq_activity_log_user_date"
-        ),
+        sa.Column("lessons_completed", sa.Integer(), nullable=False, server_default="0"),
+        sa.UniqueConstraint("user_id", "activity_date", name="uq_activity_log_user_date"),
         sa.Index("ix_activity_log_user_date", "user_id", "activity_date"),
     )
 

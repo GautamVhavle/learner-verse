@@ -130,9 +130,7 @@ async def test_list_messages_pagination(client):
             json={"content": f"Message {i}"},
         )
 
-    resp = await client.get(
-        f"/api/v1/discussions/{course['id']}", params={"limit": 2}
-    )
+    resp = await client.get(f"/api/v1/discussions/{course['id']}", params={"limit": 2})
     assert resp.status_code == 200
     data = resp.json()
     assert len(data["items"]) == 2

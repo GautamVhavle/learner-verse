@@ -20,9 +20,7 @@ async def _create_course(client, **overrides):
 
 async def _create_section(client, course_id, **overrides):
     payload = {"title": "Quiz Section", **overrides}
-    resp = await client.post(
-        f"/api/v1/courses/{course_id}/sections", json=payload
-    )
+    resp = await client.post(f"/api/v1/courses/{course_id}/sections", json=payload)
     assert resp.status_code == 201
     return resp.json()
 
@@ -30,9 +28,7 @@ async def _create_section(client, course_id, **overrides):
 async def _create_quiz_lesson(client, section_id, **overrides):
     """Create a lesson and set its type to 'quiz'."""
     payload = {"title": "Quiz Lesson", **overrides}
-    resp = await client.post(
-        f"/api/v1/sections/{section_id}/lessons", json=payload
-    )
+    resp = await client.post(f"/api/v1/sections/{section_id}/lessons", json=payload)
     assert resp.status_code == 201
     lesson = resp.json()
 
@@ -220,9 +216,7 @@ async def test_delete_question(client):
     resp = await client.delete(f"/api/v1/quiz/questions/{q_id}")
     assert resp.status_code == 204
 
-    remaining = await client.get(
-        f"/api/v1/quiz/lessons/{lesson_id}/questions"
-    )
+    remaining = await client.get(f"/api/v1/quiz/lessons/{lesson_id}/questions")
     assert len(remaining.json()) == 1
 
 
@@ -230,9 +224,7 @@ async def test_delete_question(client):
 async def test_delete_nonexistent_question(client):
     """Deleting a non-existent question returns 404."""
     await _ensure_user(client)
-    resp = await client.delete(
-        "/api/v1/quiz/questions/00000000-0000-0000-0000-000000000099"
-    )
+    resp = await client.delete("/api/v1/quiz/questions/00000000-0000-0000-0000-000000000099")
     assert resp.status_code == 404
 
 
@@ -392,9 +384,7 @@ async def test_learner_questions_hide_correct_answer(client):
     setup = await _setup_quiz(client, num_questions=2)
     lesson_id = setup["lesson"]["id"]
 
-    resp = await client.get(
-        f"/api/v1/quiz/lessons/{lesson_id}/questions/learner"
-    )
+    resp = await client.get(f"/api/v1/quiz/lessons/{lesson_id}/questions/learner")
     assert resp.status_code == 200
     questions = resp.json()
     assert len(questions) == 2

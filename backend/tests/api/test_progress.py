@@ -286,9 +286,7 @@ async def test_progress_after_adding_new_lesson(client):
 async def test_progress_course_not_found_returns_zeros(client):
     """Progress for non-existent course returns 200 with zero values."""
     await _ensure_user(client)
-    resp = await client.get(
-        "/api/v1/progress/courses/00000000-0000-0000-0000-000000000099"
-    )
+    resp = await client.get("/api/v1/progress/courses/00000000-0000-0000-0000-000000000099")
     assert resp.status_code == 200
     data = resp.json()
     assert data["percentage"] == 0

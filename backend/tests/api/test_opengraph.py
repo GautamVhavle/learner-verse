@@ -131,9 +131,7 @@ async def test_opengraph_endpoint_success(client):
             favicon="https://example.com/favicon.ico",
             domain="example.com",
         )
-        resp = await client.post(
-            "/api/v1/opengraph/fetch", json={"url": "https://example.com"}
-        )
+        resp = await client.post("/api/v1/opengraph/fetch", json={"url": "https://example.com"})
     assert resp.status_code == 200
     data = resp.json()
     assert data["title"] == "Example"
@@ -144,9 +142,7 @@ async def test_opengraph_endpoint_success(client):
 async def test_opengraph_endpoint_invalid_url(client):
     with patch("app.api.v1.endpoints.opengraph.fetch_opengraph") as mock_fetch:
         mock_fetch.side_effect = ValueError("URL must use http or https.")
-        resp = await client.post(
-            "/api/v1/opengraph/fetch", json={"url": "ftp://bad"}
-        )
+        resp = await client.post("/api/v1/opengraph/fetch", json={"url": "ftp://bad"})
     assert resp.status_code == 400
 
 
@@ -156,9 +152,7 @@ async def test_opengraph_endpoint_fetch_failure(client):
         mock_fetch.side_effect = httpx.HTTPStatusError(
             "500", request=httpx.Request("GET", "https://down.com"), response=httpx.Response(500)
         )
-        resp = await client.post(
-            "/api/v1/opengraph/fetch", json={"url": "https://down.com"}
-        )
+        resp = await client.post("/api/v1/opengraph/fetch", json={"url": "https://down.com"})
     assert resp.status_code == 502
 
 
@@ -177,7 +171,7 @@ async def test_fetch_opengraph_ssrf_private_ip():
 @pytest.mark.asyncio
 async def test_fetch_opengraph_no_title():
     """Page with no og:title and no <title> returns None for title."""
-    html = '<html><head></head><body>No title here</body></html>'
+    html = "<html><head></head><body>No title here</body></html>"
     instance = _mock_stream_client(html)
 
     with (

@@ -15,18 +15,14 @@ async def _create_course(client, **overrides):
 
 async def _create_section(client, course_id, **overrides):
     payload = {"title": "Test Section", **overrides}
-    resp = await client.post(
-        f"/api/v1/courses/{course_id}/sections", json=payload
-    )
+    resp = await client.post(f"/api/v1/courses/{course_id}/sections", json=payload)
     assert resp.status_code == 201
     return resp.json()
 
 
 async def _create_lesson(client, section_id, **overrides):
     payload = {"title": "Test Lesson", **overrides}
-    resp = await client.post(
-        f"/api/v1/sections/{section_id}/lessons", json=payload
-    )
+    resp = await client.post(f"/api/v1/sections/{section_id}/lessons", json=payload)
     assert resp.status_code == 201
     return resp.json()
 
@@ -95,9 +91,7 @@ async def test_search_finds_lesson_by_title(client):
     await _ensure_user(client)
     course = await _create_course(client, title="Course X")
     section = await _create_section(client, course["id"], title="Section 1")
-    await _create_lesson(
-        client, section["id"], title="Introduction to Hooks"
-    )
+    await _create_lesson(client, section["id"], title="Introduction to Hooks")
 
     resp = await client.get("/api/v1/search", params={"q": "Hooks"})
     assert resp.status_code == 200
@@ -132,9 +126,7 @@ async def test_search_finds_section_by_title(client):
     """Search matches section title."""
     await _ensure_user(client)
     course = await _create_course(client, title="C1")
-    await _create_section(
-        client, course["id"], title="Advanced Patterns"
-    )
+    await _create_section(client, course["id"], title="Advanced Patterns")
 
     resp = await client.get("/api/v1/search", params={"q": "Advanced Patterns"})
     assert resp.status_code == 200
@@ -157,9 +149,7 @@ async def test_search_finds_study_notes(client):
         json={"content": "Remember to review dependency injection patterns"},
     )
 
-    resp = await client.get(
-        "/api/v1/search", params={"q": "dependency injection"}
-    )
+    resp = await client.get("/api/v1/search", params={"q": "dependency injection"})
     assert resp.status_code == 200
     data = resp.json()
     note_results = [r for r in data["results"] if r["type"] == "note"]
@@ -173,9 +163,7 @@ async def test_search_respects_limit(client):
     for i in range(5):
         await _create_course(client, title=f"Alpha Course {i}")
 
-    resp = await client.get(
-        "/api/v1/search", params={"q": "Alpha", "limit": 2}
-    )
+    resp = await client.get("/api/v1/search", params={"q": "Alpha", "limit": 2})
     assert resp.status_code == 200
     data = resp.json()
     assert data["total"] <= 2
@@ -200,12 +188,8 @@ async def test_search_result_has_breadcrumb(client):
     """Search results include breadcrumb navigation path."""
     await _ensure_user(client)
     course = await _create_course(client, title="Web Dev")
-    section = await _create_section(
-        client, course["id"], title="React Basics"
-    )
-    await _create_lesson(
-        client, section["id"], title="JSX Syntax"
-    )
+    section = await _create_section(client, course["id"], title="React Basics")
+    await _create_lesson(client, section["id"], title="JSX Syntax")
 
     resp = await client.get("/api/v1/search", params={"q": "JSX"})
     assert resp.status_code == 200
@@ -267,12 +251,8 @@ async def test_search_multiple_types(client):
     """Search returns different types (course, section, lesson)."""
     await _ensure_user(client)
     course = await _create_course(client, title="Unified Topic")
-    section = await _create_section(
-        client, course["id"], title="Unified Topic Section"
-    )
-    await _create_lesson(
-        client, section["id"], title="Unified Topic Lesson"
-    )
+    section = await _create_section(client, course["id"], title="Unified Topic Section")
+    await _create_lesson(client, section["id"], title="Unified Topic Lesson")
 
     resp = await client.get("/api/v1/search", params={"q": "Unified Topic"})
     assert resp.status_code == 200

@@ -23,7 +23,9 @@ class TestExtractVideoId:
         assert extract_video_id("https://www.youtube.com/shorts/dQw4w9WgXcQ") == "dQw4w9WgXcQ"
 
     def test_watch_url_with_extra_params(self):
-        assert extract_video_id("https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=120") == "dQw4w9WgXcQ"
+        assert (
+            extract_video_id("https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=120") == "dQw4w9WgXcQ"
+        )
 
     def test_no_protocol(self):
         assert extract_video_id("youtube.com/watch?v=dQw4w9WgXcQ") == "dQw4w9WgXcQ"
@@ -96,14 +98,20 @@ async def test_fetch_metadata_network_error():
 @pytest.mark.asyncio
 async def test_youtube_metadata_endpoint_success(client):
     """Endpoint returns metadata when given a valid YouTube URL."""
-    mock_meta = type("M", (), {
-        "video_id": "dQw4w9WgXcQ",
-        "title": "Never Gonna Give You Up",
-        "thumbnail_url": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
-        "channel_name": "Rick Astley",
-    })()
+    mock_meta = type(
+        "M",
+        (),
+        {
+            "video_id": "dQw4w9WgXcQ",
+            "title": "Never Gonna Give You Up",
+            "thumbnail_url": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+            "channel_name": "Rick Astley",
+        },
+    )()
 
-    with patch("app.api.v1.endpoints.youtube.fetch_youtube_metadata", new_callable=AsyncMock) as mock_fetch:
+    with patch(
+        "app.api.v1.endpoints.youtube.fetch_youtube_metadata", new_callable=AsyncMock
+    ) as mock_fetch:
         mock_fetch.return_value = mock_meta
         resp = await client.post(
             "/api/v1/youtube/metadata",

@@ -36,7 +36,7 @@ export function StudyNotes({ lessonId }: StudyNotesProps) {
   const { status } = useAutoSave({
     data: content,
     onSave: handleSave,
-    debounceMs: 1500,
+    debounceMs: 5000,
     enabled: open,
   });
 

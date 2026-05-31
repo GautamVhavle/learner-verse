@@ -22,31 +22,23 @@ async def _create_course(client, **overrides):
 
 async def _create_section(client, course_id, **overrides):
     payload = {"title": "Test Section", **overrides}
-    resp = await client.post(
-        f"/api/v1/courses/{course_id}/sections", json=payload
-    )
+    resp = await client.post(f"/api/v1/courses/{course_id}/sections", json=payload)
     assert resp.status_code == 201
     return resp.json()
 
 
 async def _create_lesson(client, section_id, **overrides):
     payload = {"title": "Test Lesson", **overrides}
-    resp = await client.post(
-        f"/api/v1/sections/{section_id}/lessons", json=payload
-    )
+    resp = await client.post(f"/api/v1/sections/{section_id}/lessons", json=payload)
     assert resp.status_code == 201
     return resp.json()
 
 
 async def _make_public_ready(client, course_id):
     """Mark a course ready + public (must be ready before setting public)."""
-    resp = await client.put(
-        f"/api/v1/courses/{course_id}/status", json={"status": "ready"}
-    )
+    resp = await client.put(f"/api/v1/courses/{course_id}/status", json={"status": "ready"})
     assert resp.json()["valid"] is True
-    resp = await client.put(
-        f"/api/v1/courses/{course_id}", json={"is_public": True}
-    )
+    resp = await client.put(f"/api/v1/courses/{course_id}", json={"is_public": True})
     assert resp.status_code == 200
 
 
@@ -106,9 +98,7 @@ async def test_enroll_own_course_allowed(client):
 async def test_enroll_nonexistent_course(client):
     """Enrolling in a non-existent course returns 404."""
     await _ensure_user(client)
-    resp = await client.post(
-        "/api/v1/enrollments/00000000-0000-0000-0000-000000000099"
-    )
+    resp = await client.post("/api/v1/enrollments/00000000-0000-0000-0000-000000000099")
     assert resp.status_code == 404
 
 
@@ -141,7 +131,5 @@ async def test_unenroll_when_not_enrolled(client):
 async def test_unenroll_nonexistent_course(client):
     """Unenrolling from a non-existent course returns 404."""
     await _ensure_user(client)
-    resp = await client.delete(
-        "/api/v1/enrollments/00000000-0000-0000-0000-000000000099"
-    )
+    resp = await client.delete("/api/v1/enrollments/00000000-0000-0000-0000-000000000099")
     assert resp.status_code == 404

@@ -5,6 +5,7 @@ Revises: a1b2c3d4e5f6
 Create Date: 2026-03-20 00:00:00.000000
 
 """
+
 from typing import Sequence, Union
 
 import sqlalchemy as sa
@@ -36,9 +37,7 @@ def upgrade() -> None:
         ),
         sa.Column("completed", sa.Boolean(), nullable=False, server_default="false"),
         sa.Column("completed_at", sa.DateTime(timezone=True), nullable=True),
-        sa.UniqueConstraint(
-            "user_id", "lesson_id", name="uq_lesson_progress_user_lesson"
-        ),
+        sa.UniqueConstraint("user_id", "lesson_id", name="uq_lesson_progress_user_lesson"),
     )
     op.create_index(
         "ix_lesson_progress_user_lesson",

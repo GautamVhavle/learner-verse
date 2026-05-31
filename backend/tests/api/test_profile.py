@@ -11,9 +11,7 @@ async def _ensure_user(client):
 
 
 async def _set_profile_public(client, public: bool = True):
-    resp = await client.put(
-        "/api/v1/auth/me", json={"is_profile_public": public}
-    )
+    resp = await client.put("/api/v1/auth/me", json={"is_profile_public": public})
     assert resp.status_code == 200
 
 
@@ -46,9 +44,7 @@ async def test_public_profile_when_private(client):
 async def test_public_profile_nonexistent_user(client):
     """Profile for non-existent user returns 404."""
     await _ensure_user(client)
-    resp = await client.get(
-        "/api/v1/profile/00000000-0000-0000-0000-000000000099"
-    )
+    resp = await client.get("/api/v1/profile/00000000-0000-0000-0000-000000000099")
     assert resp.status_code == 404
 
 

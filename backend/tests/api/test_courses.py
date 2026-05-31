@@ -154,9 +154,7 @@ async def test_update_course_status(client):
     await _ensure_user(client)
     create_resp = await _create_course(client)
     course_id = create_resp.json()["id"]
-    resp = await client.put(
-        f"/api/v1/courses/{course_id}", json={"status": "ready"}
-    )
+    resp = await client.put(f"/api/v1/courses/{course_id}", json={"status": "ready"})
     assert resp.status_code == 200
     assert resp.json()["status"] == "ready"
 
@@ -167,9 +165,7 @@ async def test_update_deleted_course_blocked(client):
     create_resp = await _create_course(client)
     course_id = create_resp.json()["id"]
     await client.delete(f"/api/v1/courses/{course_id}")
-    resp = await client.put(
-        f"/api/v1/courses/{course_id}", json={"title": "Nope"}
-    )
+    resp = await client.put(f"/api/v1/courses/{course_id}", json={"title": "Nope"})
     assert resp.status_code == 400
 
 
@@ -457,9 +453,7 @@ async def test_update_nonexistent_course(client):
 async def test_delete_nonexistent_course(client):
     """DELETE on non-existent course returns 404."""
     await _ensure_user(client)
-    resp = await client.delete(
-        "/api/v1/courses/00000000-0000-0000-0000-000000000099"
-    )
+    resp = await client.delete("/api/v1/courses/00000000-0000-0000-0000-000000000099")
     assert resp.status_code == 404
 
 
@@ -467,9 +461,7 @@ async def test_delete_nonexistent_course(client):
 async def test_duplicate_nonexistent_course(client):
     """Duplicate on non-existent course returns 404."""
     await _ensure_user(client)
-    resp = await client.post(
-        "/api/v1/courses/00000000-0000-0000-0000-000000000099/duplicate"
-    )
+    resp = await client.post("/api/v1/courses/00000000-0000-0000-0000-000000000099/duplicate")
     assert resp.status_code == 404
 
 

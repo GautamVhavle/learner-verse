@@ -81,9 +81,7 @@ async def test_get_lesson(client):
     course = await _create_course(client)
     section = await _create_section(client, course["id"])
     lesson = (await _create_lesson(client, section["id"])).json()
-    resp = await client.get(
-        f"/api/v1/sections/{section['id']}/lessons/{lesson['id']}"
-    )
+    resp = await client.get(f"/api/v1/sections/{section['id']}/lessons/{lesson['id']}")
     assert resp.status_code == 200
     assert resp.json()["id"] == lesson["id"]
 
@@ -137,13 +135,9 @@ async def test_delete_lesson(client):
     course = await _create_course(client)
     section = await _create_section(client, course["id"])
     lesson = (await _create_lesson(client, section["id"])).json()
-    resp = await client.delete(
-        f"/api/v1/sections/{section['id']}/lessons/{lesson['id']}"
-    )
+    resp = await client.delete(f"/api/v1/sections/{section['id']}/lessons/{lesson['id']}")
     assert resp.status_code == 204
-    get_resp = await client.get(
-        f"/api/v1/sections/{section['id']}/lessons/{lesson['id']}"
-    )
+    get_resp = await client.get(f"/api/v1/sections/{section['id']}/lessons/{lesson['id']}")
     assert get_resp.status_code == 404
 
 
@@ -195,9 +189,7 @@ async def test_duplicate_lesson(client):
     course = await _create_course(client)
     section = await _create_section(client, course["id"])
     lesson = (await _create_lesson(client, section["id"], title="Original")).json()
-    resp = await client.post(
-        f"/api/v1/sections/{section['id']}/lessons/{lesson['id']}/duplicate"
-    )
+    resp = await client.post(f"/api/v1/sections/{section['id']}/lessons/{lesson['id']}/duplicate")
     assert resp.status_code == 201
     data = resp.json()
     assert data["title"] == "Original (Copy)"
@@ -225,9 +217,7 @@ async def test_lesson_limit(client):
 # ============================================================
 async def _poll_import_task(client, section_id, task_id, max_attempts=50):
     for _ in range(max_attempts):
-        resp = await client.get(
-            f"/api/v1/sections/{section_id}/lessons/import-playlist/{task_id}"
-        )
+        resp = await client.get(f"/api/v1/sections/{section_id}/lessons/import-playlist/{task_id}")
         assert resp.status_code == 200
         data = resp.json()
         if data["status"] in {"done", "failed"}:
@@ -382,9 +372,7 @@ async def test_reference_links_in_lesson_response(client):
     lesson = (await _create_lesson(client, section["id"])).json()
     await _add_ref_link(client, section["id"], lesson["id"], url="https://a.com")
     await _add_ref_link(client, section["id"], lesson["id"], url="https://b.com")
-    resp = await client.get(
-        f"/api/v1/sections/{section['id']}/lessons/{lesson['id']}"
-    )
+    resp = await client.get(f"/api/v1/sections/{section['id']}/lessons/{lesson['id']}")
     assert resp.status_code == 200
     links = resp.json()["reference_links"]
     assert len(links) == 2
@@ -402,9 +390,7 @@ async def test_delete_reference_link(client):
     )
     assert resp.status_code == 204
     # Verify removed
-    lesson_resp = await client.get(
-        f"/api/v1/sections/{section['id']}/lessons/{lesson['id']}"
-    )
+    lesson_resp = await client.get(f"/api/v1/sections/{section['id']}/lessons/{lesson['id']}")
     assert len(lesson_resp.json()["reference_links"]) == 0
 
 
@@ -431,13 +417,9 @@ async def test_duplicate_lesson_copies_reference_links(client):
     section = await _create_section(client, course["id"])
     lesson = (await _create_lesson(client, section["id"])).json()
     await _add_ref_link(client, section["id"], lesson["id"])
-    resp = await client.post(
-        f"/api/v1/sections/{section['id']}/lessons/{lesson['id']}/duplicate"
-    )
+    resp = await client.post(f"/api/v1/sections/{section['id']}/lessons/{lesson['id']}/duplicate")
     assert resp.status_code == 201
     dup = resp.json()
     # Fetch the duplicated lesson to verify reference links were copied
-    get_resp = await client.get(
-        f"/api/v1/sections/{section['id']}/lessons/{dup['id']}"
-    )
+    get_resp = await client.get(f"/api/v1/sections/{section['id']}/lessons/{dup['id']}")
     assert len(get_resp.json()["reference_links"]) == 1

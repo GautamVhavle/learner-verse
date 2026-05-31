@@ -70,10 +70,10 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
     return null;
   }
 
-  // Only allow safe CSS color values (hex, rgb, hsl, oklch, named colors).
+  // Only allow safe CSS color values (hex, rgb, hsl, oklch, named colors, var() references).
   const safeColor = (c: string | undefined): string | null => {
     if (!c) return null;
-    if (/^[a-zA-Z0-9#(),%.\s\/]+$/.test(c)) return c;
+    if (/^[a-zA-Z0-9#(),%.\s\/\-]+$/.test(c)) return c;
     return null;
   };
 

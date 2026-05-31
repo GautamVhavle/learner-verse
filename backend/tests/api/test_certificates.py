@@ -225,9 +225,7 @@ async def test_certificate_multi_section(client):
 async def test_certificate_for_nonexistent_course(client):
     """Generating certificate for a non-existent course returns 400 (no lessons)."""
     await _ensure_user(client)
-    resp = await client.post(
-        "/api/v1/certificates/courses/00000000-0000-0000-0000-000000000099"
-    )
+    resp = await client.post("/api/v1/certificates/courses/00000000-0000-0000-0000-000000000099")
     # Progress returns zeros for non-existent course → "no lessons" error
     assert resp.status_code == 400
 
