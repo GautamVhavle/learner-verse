@@ -2,7 +2,10 @@ import { z } from "zod";
 
 // ── Reference Link ──────────────────────────────────────────────
 export const referenceLinkSchema = z.object({
-  url: z.string().url("Must be a valid URL").regex(/^https?:\/\//, "Only http/https URLs allowed"),
+  url: z
+    .string()
+    .url("Must be a valid URL")
+    .regex(/^https?:\/\//, "Only http/https URLs allowed"),
   title: z.string().max(300).optional(),
   description: z.string().max(1000).optional(),
   image: z.string().url().optional().nullable(),
@@ -52,7 +55,10 @@ export const lessonSchema = z
     quiz_questions: z.array(quizQuestionSchema).optional().default([]),
   })
   .superRefine((lesson, ctx) => {
-    if (lesson.lesson_type === "quiz" && (!lesson.quiz_questions || lesson.quiz_questions.length === 0)) {
+    if (
+      lesson.lesson_type === "quiz" &&
+      (!lesson.quiz_questions || lesson.quiz_questions.length === 0)
+    ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Quiz lessons must have at least one quiz question",

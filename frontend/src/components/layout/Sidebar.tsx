@@ -132,9 +132,7 @@ export function AppSidebar({
                     </span>
                   )}
                 </span>
-                <span className="text-muted-foreground truncate text-xs">
-                  Learn. Create. Grow.
-                </span>
+                <span className="text-muted-foreground truncate text-xs">Learn. Create. Grow.</span>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -240,7 +238,10 @@ export function AppSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton
               tooltip="Ask LiVi"
-              onClick={() => { toggleChat(); if (isMobile) setOpenMobile(false); }}
+              onClick={() => {
+                toggleChat();
+                if (isMobile) setOpenMobile(false);
+              }}
               className="cursor-pointer"
               size="sm"
             >

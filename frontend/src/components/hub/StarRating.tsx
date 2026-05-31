@@ -37,7 +37,11 @@ export function StarRating({
 
         if (readOnly) {
           return (
-            <span key={star} className={starClasses} aria-label={`${star} star${star > 1 ? "s" : ""}`}>
+            <span
+              key={star}
+              className={starClasses}
+              aria-label={`${star} star${star > 1 ? "s" : ""}`}
+            >
               <Star className={cn(iconSize, filled && "fill-current")} />
             </span>
           );

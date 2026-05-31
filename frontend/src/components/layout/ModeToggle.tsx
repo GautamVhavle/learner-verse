@@ -39,15 +39,9 @@ export function ModeToggle({ onToggle }: ModeToggleProps) {
               }`}
               data-testid="mode-toggle"
             >
-              {isCreator ? (
-                <Pen className="size-4" />
-              ) : (
-                <GraduationCap className="size-4" />
-              )}
+              {isCreator ? <Pen className="size-4" /> : <GraduationCap className="size-4" />}
             </TooltipTrigger>
-            <TooltipContent side="right">
-              Switch to {targetMode} mode
-            </TooltipContent>
+            <TooltipContent side="right">Switch to {targetMode} mode</TooltipContent>
           </Tooltip>
         ) : (
           <div className="flex flex-col gap-1.5">
@@ -59,9 +53,7 @@ export function ModeToggle({ onToggle }: ModeToggleProps) {
               {/* Sliding background */}
               <div
                 className={`absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-md shadow-sm transition-all duration-200 ${
-                  isCreator
-                    ? "left-1 bg-purple-500"
-                    : "left-[calc(50%+2px)] bg-blue-500"
+                  isCreator ? "left-1 bg-purple-500" : "left-[calc(50%+2px)] bg-blue-500"
                 }`}
               />
 
@@ -69,9 +61,7 @@ export function ModeToggle({ onToggle }: ModeToggleProps) {
               <button
                 onClick={isCreator ? undefined : handleClick}
                 className={`relative z-10 flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-md py-2 text-xs font-semibold transition-colors ${
-                  isCreator
-                    ? "text-white"
-                    : "text-muted-foreground hover:text-foreground"
+                  isCreator ? "text-white" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <Pen className="size-3" />
@@ -82,9 +72,7 @@ export function ModeToggle({ onToggle }: ModeToggleProps) {
               <button
                 onClick={isCreator ? handleClick : undefined}
                 className={`relative z-10 flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-md py-2 text-xs font-semibold transition-colors ${
-                  !isCreator
-                    ? "text-white"
-                    : "text-muted-foreground hover:text-foreground"
+                  !isCreator ? "text-white" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <GraduationCap className="size-3.5" />

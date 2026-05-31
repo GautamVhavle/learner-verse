@@ -140,10 +140,7 @@ export default function CourseBuilderPage() {
         const validated = result.data;
         const courseTitle = validated.course.title;
         const sectionCount = validated.sections.length;
-        const lessonCount = validated.sections.reduce(
-          (sum, s) => sum + s.lessons.length,
-          0,
-        );
+        const lessonCount = validated.sections.reduce((sum, s) => sum + s.lessons.length, 0);
         setImportPayload(parsed);
         setImportSummary(
           `"${courseTitle}" - ${sectionCount} section${sectionCount !== 1 ? "s" : ""}, ${lessonCount} lesson${lessonCount !== 1 ? "s" : ""}`,

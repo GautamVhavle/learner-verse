@@ -310,7 +310,7 @@ export default function CertificateSharePage() {
           </div>
 
           {/* ── Right Column (appears first on mobile, second on desktop) ── */}
-          <div className="order-1 space-y-5 lg:order-2 lg:sticky lg:top-20 lg:self-start">
+          <div className="order-1 space-y-5 lg:sticky lg:top-20 lg:order-2 lg:self-start">
             <CertificatePreview certificate={certificate} compact />
 
             {/* Actions */}
@@ -398,7 +398,10 @@ function Pill({
 
 function Card({ children, t }: { children: React.ReactNode; t: Tokens }) {
   return (
-    <div className="rounded-xl border p-4 sm:p-5" style={{ background: t.cardBg, borderColor: t.border }}>
+    <div
+      className="rounded-xl border p-4 sm:p-5"
+      style={{ background: t.cardBg, borderColor: t.border }}
+    >
       {children}
     </div>
   );
@@ -502,13 +505,16 @@ function SyllabusSection({
       {expanded && (
         <div className="pb-2">
           {section.lessons.map((lesson, i) => (
-            <div key={i} className="flex items-center gap-3 py-1.5 pr-4 pl-10 sm:pr-5 sm:pl-[3.75rem]">
+            <div
+              key={i}
+              className="flex items-center gap-3 py-1.5 pr-4 pl-10 sm:pr-5 sm:pl-[3.75rem]"
+            >
               {lesson.lesson_type === "video" ? (
                 <PlayCircle className="size-3.5 shrink-0" style={{ color: t.textMuted }} />
               ) : (
                 <StickyNote className="size-3.5 shrink-0" style={{ color: t.textMuted }} />
               )}
-              <span className="min-w-0 break-words text-xs" style={{ color: t.textSec }}>
+              <span className="min-w-0 text-xs break-words" style={{ color: t.textSec }}>
                 {lesson.title}
               </span>
             </div>

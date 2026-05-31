@@ -45,7 +45,11 @@ export default function CertificatesPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
           {certs.map((cert) => (
-            <CertificateCard key={cert.id} certificate={cert} onClick={() => navigate(`/certificates/share/${cert.certificate_uid}`)} />
+            <CertificateCard
+              key={cert.id}
+              certificate={cert}
+              onClick={() => navigate(`/certificates/share/${cert.certificate_uid}`)}
+            />
           ))}
         </div>
       )}
