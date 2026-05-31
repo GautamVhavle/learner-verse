@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import { CertificatePreview } from "@/components/certificate/CertificatePreview";
 
-// BlobProvider can't run in jsdom — mock it to render an iframe with a fake url
+// BlobProvider can't run in jsdom - mock it to render an iframe with a fake url
 vi.mock("@react-pdf/renderer", () => ({
   BlobProvider: ({ children }: { children: (props: { url: string | null; loading: boolean }) => React.ReactNode }) =>
     children({ url: "blob:fake", loading: false }),

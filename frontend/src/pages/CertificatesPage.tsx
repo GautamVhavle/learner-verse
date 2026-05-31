@@ -1,26 +1,14 @@
 /**
  * Page listing all earned certificates with share and download actions.
  */
-import { useState } from "react";
-import { Award, Loader2, Copy, Check, Share2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { CertificatePreview } from "@/components/certificate/CertificatePreview";
-import { CertificateDownload } from "@/components/certificate/CertificateDownload";
-import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
+import { Award, Loader2 } from "lucide-react";
+import { useNavigate } from "react-router";
 import { useCertificatesQuery } from "@/hooks/useCertificates";
 import type { CertificateResponse } from "@/types/certificate";
 
 export default function CertificatesPage() {
   const { data: certificates, isLoading } = useCertificatesQuery();
-  const [selected, setSelected] = useState<CertificateResponse | null>(null);
-  const { copied, copyToClipboard } = useCopyToClipboard();
-
-  const shareUrl = selected
-    ? `${window.location.origin}/certificates/share/${selected.certificate_uid}`
-    : "";
-
-  const handleCopy = () => copyToClipboard(shareUrl);
+  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -57,65 +45,10 @@ export default function CertificatesPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
           {certs.map((cert) => (
-            <CertificateCard key={cert.id} certificate={cert} onClick={() => setSelected(cert)} />
+            <CertificateCard key={cert.id} certificate={cert} onClick={() => navigate(`/certificates/share/${cert.certificate_uid}`)} />
           ))}
         </div>
       )}
-
-      {/* Detail dialog */}
-      <Dialog
-        open={!!selected}
-        onOpenChange={(open) => {
-          if (!open) {
-            setSelected(null);
-          }
-        }}
-      >
-        <DialogContent className="sm:max-w-lg">
-          {selected && (
-            <div className="space-y-4">
-              <CertificatePreview certificate={selected} />
-              <div className="flex flex-wrap justify-center gap-2">
-                <CertificateDownload certificate={selected} />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCopy}
-                  data-testid="copy-share-link"
-                >
-                  {copied ? (
-                    <>
-                      <Check className="text-accent-green mr-1.5 size-3.5" />
-                      Copied!
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="mr-1.5 size-3.5" />
-                      Copy Link
-                    </>
-                  )}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    if (navigator.share) {
-                      navigator.share({
-                        title: `${selected.user_name}'s Certificate`,
-                        text: `${selected.user_name} completed "${selected.course_title}" on Learner Verse`,
-                        url: shareUrl,
-                      });
-                    }
-                  }}
-                >
-                  <Share2 className="mr-1.5 size-3.5" />
-                  Share
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 # ─────────────────────────────────────────────────────────────
-# LearnerVerse — Single-User Mode (all-in-one)
+# LearnerVerse - Single-User Mode (all-in-one)
 #
 # 1. Copy the sample env:  cp single_mode.sample.env .env.single-user
 # 2. (Optional) Edit .env.single-user to add API keys, change ports, etc.

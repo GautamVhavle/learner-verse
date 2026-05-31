@@ -26,7 +26,7 @@ ENV VITE_AUTH0_CLIENT_ID=$VITE_AUTH0_CLIENT_ID
 ENV VITE_AUTH0_AUDIENCE=$VITE_AUTH0_AUDIENCE
 ENV VITE_PAYMENT_GATEWAY_ENABLED=$VITE_PAYMENT_GATEWAY_ENABLED
 
-# Vite uses envDir to look for .env — skip it for Docker builds
+# Vite uses envDir to look for .env - skip it for Docker builds
 RUN npx vite build
 
 # ── Stage 2: Serve with nginx ────────────────────────────

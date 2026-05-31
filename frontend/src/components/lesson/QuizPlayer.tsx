@@ -95,7 +95,7 @@ export function QuizPlayer({
         {courseCompleted && (
           <div className="border-accent-blue/20 bg-accent-blue/5 mb-4 rounded-lg border px-4 py-2.5 text-center text-sm">
             <span className="text-accent-blue font-medium">
-              You've already earned a certificate — this is for practice
+              You've already earned a certificate. This is for practice
             </span>
           </div>
         )}

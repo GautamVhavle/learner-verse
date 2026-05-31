@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 const API = "http://localhost:8000/api/v1";
 
 /**
- * Phase 20 — Full Platform E2E Journey
+ * Phase 20 - Full Platform E2E Journey
  *
  * Tests the entire user workflow from start to finish:
  * 1. Create course → add sections → add lessons with content
@@ -174,7 +174,7 @@ test.describe.serial("Full Platform Journey", () => {
     await page.waitForLoadState("networkidle");
 
     await expect(page.getByRole("heading", { name: "Introduction" })).toBeVisible();
-    // Markdown is rendered — check for the bold "introduction" text inside markdown content
+    // Markdown is rendered - check for the bold "introduction" text inside markdown content
     await expect(page.locator("strong").getByText("introduction", { exact: true })).toBeVisible();
   });
 

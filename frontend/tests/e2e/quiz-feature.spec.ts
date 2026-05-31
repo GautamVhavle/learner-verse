@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 const API = "http://localhost:8000/api/v1";
 
 /**
- * Quiz Feature E2E — tests all three lesson types (video, reading, quiz)
+ * Quiz Feature E2E - tests all three lesson types (video, reading, quiz)
  * including creator quiz management and learner quiz-taking.
  *
  * Flow:
@@ -124,7 +124,7 @@ async function completeOnboarding() {
 
 // ── Tests ────────────────────────────────────────────────────
 
-test.describe.serial("Quiz Feature — All Lesson Types", () => {
+test.describe.serial("Quiz Feature - All Lesson Types", () => {
   let courseId: string;
   let sectionId: string;
   let videoLessonId: string;
@@ -364,7 +364,7 @@ test.describe.serial("Quiz Feature — All Lesson Types", () => {
 
     // Should see quiz questions in preview with correct answers marked
     await expect(page.getByText("What is 2 + 2?")).toBeVisible();
-    await expect(page.getByText("Quiz — 3 questions")).toBeVisible();
+    await expect(page.getByText("Quiz - 3 questions")).toBeVisible();
   });
 
   // ── Learner Mode UI ────────────────────────────────────
@@ -440,17 +440,17 @@ test.describe.serial("Quiz Feature — All Lesson Types", () => {
     await expect(startBtn).toBeVisible({ timeout: 5000 });
     await startBtn.click();
 
-    // Q1: "What is 2 + 2?" — select "4" (option B, index 1)
+    // Q1: "What is 2 + 2?" - select "4" (option B, index 1)
     await expect(page.getByText("Question 1 of 3")).toBeVisible({ timeout: 10000 });
     await page.getByText("4").click();
     await page.getByRole("button", { name: "Next" }).click();
 
-    // Q2: "Which planet is closest to the Sun?" — select "Mercury" (option C, index 2)
+    // Q2: "Which planet is closest to the Sun?" - select "Mercury" (option C, index 2)
     await expect(page.getByText("Question 2 of 3")).toBeVisible();
     await page.getByText("Mercury").click();
     await page.getByRole("button", { name: "Next" }).click();
 
-    // Q3: "What color is the sky?" — select "Blue" (option C, index 2)
+    // Q3: "What color is the sky?" - select "Blue" (option C, index 2)
     await expect(page.getByText("Question 3 of 3")).toBeVisible();
     await page.getByText("Blue").click();
 

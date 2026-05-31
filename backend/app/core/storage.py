@@ -74,7 +74,7 @@ async def upload_file(
     writes to local disk under ``UPLOAD_DIR``.
     """
     if _use_local_storage():
-        _logger.debug("Supabase not configured — saving to local disk: %s/%s", bucket, path)
+        _logger.debug("Supabase not configured - saving to local disk: %s/%s", bucket, path)
         return await _local_upload(bucket, path, data)
 
     url = _storage_url(f"/object/{bucket}/{path}")

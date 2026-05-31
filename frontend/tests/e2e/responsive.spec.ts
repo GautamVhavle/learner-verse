@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 /**
- * Phase 20 — Responsive Layout Tests
+ * Phase 20 - Responsive Layout Tests
  *
  * Tests critical layout behavior at mobile, tablet, and desktop breakpoints.
  */

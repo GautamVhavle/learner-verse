@@ -62,7 +62,7 @@ export default function LoginPage() {
   }, [isLoading, isAuthenticated, navigate]);
 
   useEffect(() => {
-    document.title = "Log In — LearnerVerse";
+    document.title = "Log In | LearnerVerse";
   }, []);
 
   if (isLoading || isAuthenticated) {

@@ -3,7 +3,7 @@ import { Link } from "react-router";
 
 export default function PrivacyPage() {
   useEffect(() => {
-    document.title = "Privacy Policy — LearnerVerse";
+    document.title = "Privacy Policy | LearnerVerse";
   }, []);
 
   return (

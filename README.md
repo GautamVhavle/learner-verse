@@ -156,7 +156,7 @@ docker compose up --build         # backend :8000, frontend :3000
 
 ### Single-User Mode (Self-Hosted)
 
-Perfect for personal learning or small teams. No Auth0, no external dependencies — just PostgreSQL + FastAPI + React in a single Docker container.
+Perfect for personal learning or small teams. No Auth0, no external dependencies - just PostgreSQL + FastAPI + React in a single Docker container.
 
 **Setup:**
 
@@ -173,7 +173,7 @@ nano .env.single-user
 docker compose --env-file .env.single-user -f docker-compose.single-user.yml up --build
 ```
 
-Then open **http://localhost:3000** — you're automatically logged in as `local@learnerverse.dev` with all Pro features unlocked.
+Then open **http://localhost:3000** - you're automatically logged in as `local@learnerverse.dev` with all Pro features unlocked.
 
 **Features in Single-User Mode:**
 - ✅ All Pro features enabled (AI tutor, unlimited quizzes, certificates)
@@ -186,7 +186,7 @@ To stop: `docker compose --env-file .env.single-user -f docker-compose.single-us
 
 ### Multi-User Mode (Self-Hosted)
 
-For teams, classrooms, or communities. Uses Auth0 for authentication so multiple users can sign up, track their own progress, and earn individual certificates. Payment gateway is disabled — all users get full access.
+For teams, classrooms, or communities. Uses Auth0 for authentication so multiple users can sign up, track their own progress, and earn individual certificates. Payment gateway is disabled - all users get full access.
 
 **Prerequisites:**
 - A free [Auth0](https://auth0.com) account
@@ -205,7 +205,7 @@ nano .env.multi-user
 docker compose --env-file .env.multi-user -f docker-compose.multi-user.yml up --build
 ```
 
-Then open **http://localhost:3000** — users can sign up and log in via Auth0.
+Then open **http://localhost:3000** - users can sign up and log in via Auth0.
 
 **Features in Multi-User Mode:**
 - ✅ All Pro features enabled (AI tutor, unlimited quizzes, certificates)

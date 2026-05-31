@@ -1,4 +1,4 @@
-"""Central category configuration — single source of truth for all 17 categories."""
+"""Central category configuration - single source of truth for all 17 categories."""
 
 CATEGORIES: list[dict[str, str]] = [
     {"slug": "technology", "name": "Technology", "icon": "Monitor"},

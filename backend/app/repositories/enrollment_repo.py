@@ -97,7 +97,7 @@ class EnrollmentRepository:
     async def mark_completed(
         self, user_id: uuid.UUID, course_id: uuid.UUID, completed_at: datetime
     ) -> None:
-        """Stamp completed_at on an enrollment (idempotent — only sets if NULL)."""
+        """Stamp completed_at on an enrollment (idempotent - only sets if NULL)."""
         enrollment = await self.get_enrollment(user_id, course_id)
         if enrollment and enrollment.completed_at is None:
             enrollment.completed_at = completed_at

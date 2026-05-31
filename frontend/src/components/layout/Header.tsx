@@ -17,6 +17,7 @@ import { PomodoroTimer } from "@/components/layout/PomodoroTimer";
 import { useUserQuery } from "@/hooks/useUser";
 import { useVerificationStatus } from "@/hooks/useVerification";
 import { SINGLE_USER_MODE } from "@/lib/auth";
+import { usePlatform } from "@/hooks/usePlatform";
 
 const PAGE_TITLES: Record<string, string> = {
   "/": "Dashboard",
@@ -52,6 +53,7 @@ export function Header({ onSearchClick, onGetVerified }: HeaderProps) {
   const { toggleChat } = useChatStore();
   const { data: user } = useUserQuery();
   const { data: verificationStatus } = useVerificationStatus();
+  const { isMac } = usePlatform();
 
   const pageTitle = getPageTitle(location.pathname);
   const modeLabel = mode === "creator" ? "Creator" : "Learner";
@@ -144,7 +146,7 @@ export function Header({ onSearchClick, onGetVerified }: HeaderProps) {
         <Search className="size-3.5" />
         <span className="hidden flex-1 text-left sm:inline">Search...</span>
         <kbd className="border-border-default bg-bg-tertiary hidden rounded border px-1 py-px text-[10px] font-medium sm:inline-block">
-          ⌘K
+          {isMac ? "⌘K" : "Ctrl+K"}
         </kbd>
       </button>
 

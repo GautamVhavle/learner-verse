@@ -117,7 +117,7 @@ describe("StudySidebar", () => {
         lessonProgress={{ l1: true, l2: false }}
       />,
     );
-    // l1 is completed — should show strikethrough
+    // l1 is completed - should show strikethrough
     const l1Button = screen.getByText("Welcome");
     expect(l1Button.className).toContain("line-through");
   });

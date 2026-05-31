@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("Auth — multi-user mode (Auth0)", () => {
+test.describe("Auth - multi-user mode (Auth0)", () => {
   test("unauthenticated user visiting / sees loader then redirects to /login", async ({
     page,
   }) => {

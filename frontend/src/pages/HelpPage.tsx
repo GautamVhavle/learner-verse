@@ -48,7 +48,7 @@ export default function HelpPage() {
   const [description, setDescription] = useState("");
 
   useEffect(() => {
-    document.title = "Help & Support — LearnerVerse";
+    document.title = "Help & Support | LearnerVerse";
   }, []);
 
   const userName = user?.display_name ?? "User";
@@ -172,13 +172,13 @@ export default function HelpPage() {
         </div>
 
         {/* Send */}
-        <div className="flex items-center justify-between pt-1">
+        <div className="flex flex-col-reverse gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-text-tertiary text-[11px]">
             Opens your default email client with a pre-filled message.
           </p>
           <a
             href={buildMailto()}
-            className="bg-accent-blue hover:bg-accent-blue/90 inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-xs font-medium text-white transition-colors"
+            className="bg-accent-blue hover:bg-accent-blue/90 inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg px-4 py-2 text-xs font-medium text-white transition-colors"
           >
             <Send className="size-3.5" />
             Send Email

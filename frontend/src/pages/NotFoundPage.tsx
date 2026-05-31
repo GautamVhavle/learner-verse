@@ -1,12 +1,17 @@
 /**
  * 404 Not Found page with navigation back to the dashboard.
  */
+import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { Home, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function NotFoundPage() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.title = "Page Not Found | LearnerVerse";
+  }, []);
 
   return (
     <div className="flex min-h-[60vh] items-center justify-center" data-testid="not-found-page">

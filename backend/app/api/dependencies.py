@@ -84,7 +84,7 @@ async def get_current_user(
 
     # When the payment gateway is disabled, treat every user as Pro.
     # Use set_committed_value so SQLAlchemy does NOT mark the column as
-    # dirty — this prevents the override from being accidentally flushed
+    # dirty - this prevents the override from being accidentally flushed
     # to the database on the next commit.
     if not settings.PAYMENT_GATEWAY_ENABLED:
         set_committed_value(user, "is_pro", True)

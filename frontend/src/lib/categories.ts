@@ -1,5 +1,5 @@
 /**
- * Central category configuration — mirrors backend/app/core/categories.py.
+ * Central category configuration - mirrors backend/app/core/categories.py.
  */
 export interface Category {
   slug: string;

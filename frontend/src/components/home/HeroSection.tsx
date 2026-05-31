@@ -263,7 +263,7 @@ export function HeroSection() {
           "-=0.3",
         );
 
-      // Product demo entrance (vertical only — no x offset to prevent mobile shift)
+      // Product demo entrance (vertical only - no x offset to prevent mobile shift)
       tl.fromTo(
         ".hero-demo",
         { opacity: 0, y: 24, scale: 0.97 },
@@ -350,7 +350,7 @@ export function HeroSection() {
         />
       </div>
 
-      {/* Grid — matches other sections: mx-auto max-w px-4 pattern */}
+      {/* Grid - matches other sections: mx-auto max-w px-4 pattern */}
       <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:gap-16 xl:gap-20">
         {/* ── Left: Copy ── */}
         <div className="flex flex-col items-center text-center lg:items-start lg:text-left">

@@ -1,6 +1,7 @@
 /**
  * Public course detail page for shareable links (no auth required).
  */
+import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import {
   ArrowLeft,
@@ -29,6 +30,14 @@ export default function PublicCoursePage() {
 
   const { data: course, isLoading, isError } = usePublicCourseQuery(courseId ?? "");
   const { data: sections } = usePublicCourseSectionsQuery(courseId);
+
+  useEffect(() => {
+    if (course) {
+      document.title = `${course.title} | LearnerVerse`;
+    } else {
+      document.title = "Course | LearnerVerse";
+    }
+  }, [course]);
 
   const publicBase = (
     import.meta.env.VITE_PUBLIC_SITE_URL ??

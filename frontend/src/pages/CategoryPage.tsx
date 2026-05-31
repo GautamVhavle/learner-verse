@@ -1,5 +1,5 @@
 /**
- * Dedicated category page — lists all public courses in a specific category.
+ * Dedicated category page - lists all public courses in a specific category.
  */
 import { useState, useDeferredValue } from "react";
 import { useParams, useNavigate } from "react-router";

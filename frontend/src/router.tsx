@@ -8,7 +8,8 @@
  * All page components are lazy-loaded to reduce initial bundle size.
  */
 import { lazy, Suspense } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router";
+import { useEffect } from "react";
 import { SINGLE_USER_MODE } from "@/lib/auth";
 import { PAYMENT_GATEWAY_ENABLED } from "@/lib/payment";
 import { isSuperadmin } from "@/lib/superadmin";
@@ -86,9 +87,18 @@ function SharedRoutes() {
   );
 }
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
 export default function AppRouter() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <ErrorBoundary>
         <Suspense>
           <Routes>

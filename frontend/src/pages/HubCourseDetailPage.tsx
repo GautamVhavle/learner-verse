@@ -2,7 +2,7 @@
  * Course Hub Detail page - full course info, enrollment, ratings, and section outline.
  */
 import { useParams, useNavigate } from "react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   BookOpen,
@@ -57,6 +57,12 @@ export default function HubCourseDetailPage() {
   const { data: ratingsData } = useRatingsQuery(courseId ?? "");
   const { data: enrolledData } = useEnrolledCoursesQuery();
   const { data: dbUser } = useUserQuery();
+
+  useEffect(() => {
+    if (course) {
+      document.title = `${course.title} | LearnerVerse`;
+    }
+  }, [course]);
   const enrollMutation = useEnrollMutation();
   const unenrollMutation = useUnenrollMutation();
   const createRating = useCreateRatingMutation(courseId ?? "");

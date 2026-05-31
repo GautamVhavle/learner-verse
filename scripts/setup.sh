@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────
-# setup.sh — First-time project setup.
+# setup.sh - First-time project setup.
 # Copies sample.env files if they don't already exist.
 # ─────────────────────────────────────────────────────────────────
 set -euo pipefail

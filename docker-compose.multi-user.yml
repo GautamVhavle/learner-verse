@@ -1,5 +1,5 @@
 # ─────────────────────────────────────────────────────────────
-# LearnerVerse — Multi-User Mode (self-hosted)
+# LearnerVerse - Multi-User Mode (self-hosted)
 #
 # 1. Copy the sample env:  cp multi_mode.sample.env .env.multi-user
 # 2. Fill in Auth0 credentials and any API keys
@@ -9,7 +9,7 @@
 #        -f docker-compose.multi-user.yml up --build
 #
 # Includes: PostgreSQL + FastAPI + React + Auth0 authentication
-# Payment gateway is disabled — all users get full access.
+# Payment gateway is disabled - all users get full access.
 # ─────────────────────────────────────────────────────────────
 
 services:

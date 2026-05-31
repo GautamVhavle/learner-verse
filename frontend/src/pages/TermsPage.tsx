@@ -3,7 +3,7 @@ import { Link } from "react-router";
 
 export default function TermsPage() {
   useEffect(() => {
-    document.title = "Terms of Service — LearnerVerse";
+    document.title = "Terms of Service | LearnerVerse";
   }, []);
 
   return (

@@ -83,7 +83,7 @@ test.describe.serial("Onboarding & Empty States", () => {
     await expect(page.getByTestId("onboarding")).not.toBeVisible({
       timeout: 3000,
     }).catch(() => {
-      // If onboarding is visible, it means it wasn't persisted — fail
+      // If onboarding is visible, it means it wasn't persisted - fail
       throw new Error("Onboarding should not be visible after completion");
     });
     await expect(

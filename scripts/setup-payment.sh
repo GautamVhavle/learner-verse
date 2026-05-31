@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────
-# setup-payment.sh — Link the private payment submodule into the
+# setup-payment.sh - Link the private payment submodule into the
 # main codebase.  Run this after `git submodule update --init`.
 #
 # When the private/ submodule is present, this script replaces the
@@ -59,7 +59,7 @@ undo_links() {
       frontend/src/pages/RenewPage.tsx \
       2>/dev/null) && echo "  ✅ Frontend stubs restored from git" \
                     || echo "  ⚠️  Could not restore stubs from git. Re-run: git checkout -- <files>"
-    # Backend files have no stubs — the try/except ImportError handles them
+    # Backend files have no stubs - the try/except ImportError handles them
     echo ""
   fi
 

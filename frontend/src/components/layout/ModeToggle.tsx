@@ -1,5 +1,6 @@
 /**
  * Sidebar toggle button for switching between creator and learner modes.
+ * Segmented-control design that stands out from regular nav items.
  */
 import { Pen, GraduationCap } from "lucide-react";
 import { useMode } from "@/hooks/useMode";
@@ -22,6 +23,8 @@ export function ModeToggle({ onToggle }: ModeToggleProps) {
     onToggle?.();
   };
 
+  const targetMode = isCreator ? "Learner" : "Creator";
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -29,54 +32,73 @@ export function ModeToggle({ onToggle }: ModeToggleProps) {
           <Tooltip>
             <TooltipTrigger
               onClick={handleClick}
-              className="hover:bg-sidebar-accent flex h-8 w-full cursor-pointer items-center justify-center rounded-md"
+              className={`flex h-8 w-full cursor-pointer items-center justify-center rounded-lg transition-colors ${
+                isCreator
+                  ? "bg-purple-500/15 text-purple-500 hover:bg-purple-500/25"
+                  : "bg-blue-500/15 text-blue-500 hover:bg-blue-500/25"
+              }`}
               data-testid="mode-toggle"
             >
               {isCreator ? (
-                <Pen className="text-sidebar-foreground size-4" />
+                <Pen className="size-4" />
               ) : (
-                <GraduationCap className="text-sidebar-foreground size-4" />
+                <GraduationCap className="size-4" />
               )}
             </TooltipTrigger>
             <TooltipContent side="right">
-              Switch to {isCreator ? "Learner" : "Creator"} mode
+              Switch to {targetMode} mode
             </TooltipContent>
           </Tooltip>
         ) : (
-          <button
-            onClick={handleClick}
-            className="group border-sidebar-border bg-sidebar hover:bg-sidebar-accent flex w-full items-center gap-3 rounded-md border px-3 py-2 transition-colors"
-            data-testid="mode-toggle"
-          >
-            {/* Pill toggle track - color based on current mode */}
+          <div className="flex flex-col gap-1.5">
+            {/* Segmented control */}
             <div
-              className={`relative flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors ${
-                isCreator ? "bg-purple-200 dark:bg-purple-900" : "bg-blue-200 dark:bg-blue-900"
-              }`}
+              className="bg-sidebar-accent/50 relative flex w-full rounded-lg p-1"
+              data-testid="mode-toggle"
             >
+              {/* Sliding background */}
               <div
-                className={`bg-primary flex size-5 items-center justify-center rounded-full shadow-sm transition-transform duration-200 ${
-                  isCreator ? "translate-x-0" : "translate-x-5"
+                className={`absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-md shadow-sm transition-all duration-200 ${
+                  isCreator
+                    ? "left-1 bg-purple-500"
+                    : "left-[calc(50%+2px)] bg-blue-500"
+                }`}
+              />
+
+              {/* Creator button */}
+              <button
+                onClick={isCreator ? undefined : handleClick}
+                className={`relative z-10 flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-md py-2 text-xs font-semibold transition-colors ${
+                  isCreator
+                    ? "text-white"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {isCreator ? (
-                  <Pen className="text-primary-foreground size-3" />
-                ) : (
-                  <GraduationCap className="text-primary-foreground size-3" />
-                )}
-              </div>
+                <Pen className="size-3" />
+                Creator
+              </button>
+
+              {/* Learner button */}
+              <button
+                onClick={isCreator ? handleClick : undefined}
+                className={`relative z-10 flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-md py-2 text-xs font-semibold transition-colors ${
+                  !isCreator
+                    ? "text-white"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <GraduationCap className="size-3.5" />
+                Learner
+              </button>
             </div>
-            <div className="flex flex-col">
-              <span className="text-sidebar-foreground text-xs leading-none font-medium">
-                {isCreator ? "Creator" : "Learner"}
-              </span>
-              {!isMobile && (
-                <span className="text-muted-foreground mt-0.5 text-[10px] leading-none">
-                  {isMobile ? null : isMac ? "⌘⇧C to switch" : "Ctrl+Shift+C to switch"}
-                </span>
-              )}
-            </div>
-          </button>
+
+            {/* Shortcut hint */}
+            {!isMobile && (
+              <p className="text-muted-foreground text-center text-[10px]">
+                {isMac ? "⌘⇧C" : "Ctrl+Shift+C"} to switch
+              </p>
+            )}
+          </div>
         )}
       </SidebarMenuItem>
     </SidebarMenu>

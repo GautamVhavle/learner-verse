@@ -4,7 +4,7 @@
  * "Public" tab shows all community-published courses.
  * "My Courses" tab shows the current user's own courses with stats.
  */
-import { useState, useDeferredValue } from "react";
+import { useEffect, useState, useDeferredValue } from "react";
 import { useNavigate } from "react-router";
 import { Search, SlidersHorizontal, Globe, Lock, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,10 @@ export default function CourseHubPage() {
   const navigate = useNavigate();
   const { mode } = useMode();
   const modePrefix = mode === "creator" ? "/creator" : "/learner";
+
+  useEffect(() => {
+    document.title = "Course Hub | LearnerVerse";
+  }, []);
 
   const [tab, setTab] = useState<Tab>("public");
   const [search, setSearch] = useState("");

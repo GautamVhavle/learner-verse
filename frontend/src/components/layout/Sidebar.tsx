@@ -125,7 +125,7 @@ export function AppSidebar({
                   )}
                 </span>
                 <span className="text-muted-foreground truncate text-xs">
-                  {isCreator ? "Creator Mode" : "Learner Mode"}
+                  Learn. Create. Grow.
                 </span>
               </div>
             </SidebarMenuButton>
@@ -134,6 +134,11 @@ export function AppSidebar({
       </SidebarHeader>
 
       <SidebarContent>
+        {/* Mode Toggle - prominent placement */}
+        <SidebarGroup className="px-2 pt-1 pb-0">
+          <ModeToggle onToggle={onToggleMode} />
+        </SidebarGroup>
+
         {/* Primary navigation */}
         <SidebarGroup>
           <SidebarGroupLabel>{isCreator ? "Creator" : "Learner"}</SidebarGroupLabel>
@@ -215,79 +220,63 @@ export function AppSidebar({
           </SidebarGroup>
         )}
 
-        {/* Mode Toggle */}
-        <SidebarGroup className="mt-auto">
-          <SidebarGroupLabel>Mode</SidebarGroupLabel>
-          <ModeToggle onToggle={onToggleMode} />
-        </SidebarGroup>
-
         <SidebarSeparator />
 
         {/* Upgrade / Pro Status Banner */}
         <UpgradeBanner />
-
-        {/* LiVi AI Assistant */}
-        <SidebarGroup>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                tooltip="Ask LiVi"
-                onClick={toggleChat}
-                className="cursor-pointer"
-                size="sm"
-              >
-                <Sparkles className="text-accent-purple" />
-                <span>LiVi</span>
-                <span className="bg-accent-purple/10 text-accent-purple ml-auto rounded-sm px-1.5 py-0.5 text-[9px] font-medium">
-                  AI
-                </span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
-
-        {/* Secondary navigation (settings, etc.) */}
-        <SidebarGroup>
-          <SidebarMenu>
-            {SECONDARY_LINKS.map((item) => {
-              const fullPath = `${modePrefix}${item.path}`;
-              return (
-                <SidebarMenuItem key={fullPath}>
-                  <SidebarMenuButton
-                    tooltip={item.comingSoon ? `${item.title} (Coming Soon)` : item.title}
-                    isActive={!item.comingSoon && location.pathname === fullPath}
-                    onClick={() => !item.comingSoon && navigate(fullPath)}
-                    className={item.comingSoon ? "cursor-default opacity-50" : "cursor-pointer"}
-                    size="sm"
-                  >
-                    <item.icon />
-                    <span>{item.title}</span>
-                    {item.comingSoon && (
-                      <span className="bg-bg-tertiary text-text-tertiary ml-auto rounded-sm px-1.5 py-0.5 text-[9px] font-medium">
-                        Soon
-                      </span>
-                    )}
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              );
-            })}
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                tooltip="About"
-                onClick={() => setAboutOpen(true)}
-                className="cursor-pointer"
-                size="sm"
-              >
-                <ABOUT_LINK.icon />
-                <span>{ABOUT_LINK.title}</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
       </SidebarContent>
 
-      {/* User Footer */}
+      {/* Footer: LiVi, Settings, Help, About, User */}
       <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip="Ask LiVi"
+              onClick={toggleChat}
+              className="cursor-pointer"
+              size="sm"
+            >
+              <Sparkles className="text-accent-purple" />
+              <span>LiVi</span>
+              <span className="bg-accent-purple/10 text-accent-purple ml-auto rounded-sm px-1.5 py-0.5 text-[9px] font-medium">
+                AI
+              </span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          {SECONDARY_LINKS.map((item) => {
+            const fullPath = `${modePrefix}${item.path}`;
+            return (
+              <SidebarMenuItem key={fullPath}>
+                <SidebarMenuButton
+                  tooltip={item.comingSoon ? `${item.title} (Coming Soon)` : item.title}
+                  isActive={!item.comingSoon && location.pathname === fullPath}
+                  onClick={() => !item.comingSoon && navigate(fullPath)}
+                  className={item.comingSoon ? "cursor-default opacity-50" : "cursor-pointer"}
+                  size="sm"
+                >
+                  <item.icon />
+                  <span>{item.title}</span>
+                  {item.comingSoon && (
+                    <span className="bg-bg-tertiary text-text-tertiary ml-auto rounded-sm px-1.5 py-0.5 text-[9px] font-medium">
+                      Soon
+                    </span>
+                  )}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip="About"
+              onClick={() => setAboutOpen(true)}
+              className="cursor-pointer"
+              size="sm"
+            >
+              <ABOUT_LINK.icon />
+              <span>{ABOUT_LINK.title}</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
         <NavUser
           name={profile?.display_name ?? authUser?.displayName ?? "User"}
           email={profile?.email ?? authUser?.email ?? ""}

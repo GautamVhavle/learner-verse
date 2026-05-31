@@ -51,7 +51,7 @@ async def get_me(
 
     Performs two lazy corrections when the payment gateway is enabled:
     1. Orphan Pro fix: if ``is_pro`` is True but there is no subscription
-       record (no ``pro_since``), the flag was set by a bug — reset it.
+       record (no ``pro_since``), the flag was set by a bug - reset it.
     2. Expiry check: if the subscription has lapsed, flip ``is_pro`` to False.
     Skipped when the payment gateway is disabled (all users are Pro).
     """
@@ -105,7 +105,7 @@ async def sync_profile(
     """Sync OAuth provider email and profile on first login.
 
     Only updates email if the current value is the auto-generated placeholder.
-    The email is trusted because it comes from an Auth0-authenticated token —
+    The email is trusted because it comes from an Auth0-authenticated token -
     Auth0 is the identity provider and has already verified the email address.
     Server-side superadmin endpoints remain protected by get_superadmin_user
     regardless of the email stored here.

@@ -1,5 +1,6 @@
 """Public shareable link endpoint - serves OpenGraph HTML for social previews."""
 
+import json
 import uuid
 
 from fastapi import APIRouter, Depends
@@ -67,7 +68,7 @@ async def share_course(
     if not course:
         return HTMLResponse(
             content=_build_og_html(
-                title="Course Not Found - Learner Verse",
+                title="Course Not Found | LearnerVerse",
                 description="This course is no longer available.",
                 image=settings.DEFAULT_OG_IMAGE_URL or None,
                 url=canonical_url,
@@ -122,15 +123,46 @@ async def share_course(
     description = _truncate(" · ".join(desc_parts), 240)
     image = course.thumbnail_url or settings.DEFAULT_OG_IMAGE_URL or None
 
+    # JSON-LD structured data for course
+    course_json_ld: dict = {
+        "@context": "https://schema.org",
+        "@type": "Course",
+        "name": course.title,
+        "description": course.description or description,
+        "url": canonical_url,
+        "provider": {
+            "@type": "Organization",
+            "name": "LearnerVerse",
+            "url": frontend_base,
+        },
+        "creator": {
+            "@type": "Person",
+            "name": creator_name,
+        },
+        "numberOfCredits": lesson_count,
+        "isAccessibleForFree": True,
+    }
+    if image:
+        course_json_ld["image"] = image
+    if rating_count > 0:
+        course_json_ld["aggregateRating"] = {
+            "@type": "AggregateRating",
+            "ratingValue": avg_rating,
+            "ratingCount": rating_count,
+            "bestRating": 5,
+            "worstRating": 1,
+        }
+
     return HTMLResponse(
         content=_build_og_html(
-            title=f"{course.title} - Learner Verse",
+            title=f"{course.title} | LearnerVerse",
             description=description,
             image=image,
             url=canonical_url,
             redirect_url=course_url,
             creator=creator_name,
             tags=tag_names,
+            json_ld=course_json_ld,
         )
     )
 
@@ -150,7 +182,7 @@ async def share_profile(
     if not user or not user.is_profile_public:
         return HTMLResponse(
             content=_build_og_html(
-                title="Profile Not Found - LearnerVerse",
+                title="Profile Not Found | LearnerVerse",
                 description="This profile is not available or is set to private.",
                 image=settings.DEFAULT_OG_IMAGE_URL or None,
                 url=canonical_url,
@@ -185,9 +217,22 @@ async def share_profile(
     image = user.avatar_url or settings.DEFAULT_OG_IMAGE_URL or None
     profile_tags = user.profile_tags or []
 
+    # JSON-LD structured data for profile
+    profile_json_ld: dict = {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": user.display_name,
+        "url": canonical_url,
+        "description": description,
+    }
+    if user.avatar_url:
+        profile_json_ld["image"] = user.avatar_url
+    if user.is_verified_creator:
+        profile_json_ld["jobTitle"] = "Verified Creator"
+
     return HTMLResponse(
         content=_build_og_html(
-            title=f"{user.display_name} - LearnerVerse",
+            title=f"{user.display_name} | LearnerVerse",
             description=description,
             image=image,
             url=canonical_url,
@@ -195,6 +240,7 @@ async def share_profile(
             og_type="profile",
             twitter_card="summary",
             tags=profile_tags,
+            json_ld=profile_json_ld,
         )
     )
 
@@ -218,7 +264,7 @@ async def share_certificate(
     if not cert:
         return HTMLResponse(
             content=_build_og_html(
-                title="Certificate Not Found - LearnerVerse",
+                title="Certificate Not Found | LearnerVerse",
                 description="This certificate could not be found.",
                 image=settings.DEFAULT_OG_IMAGE_URL or None,
                 url=canonical_url,
@@ -253,14 +299,40 @@ async def share_certificate(
     desc_parts.append(f"ID: {cert.certificate_uid}")
     description = _truncate(" · ".join(desc_parts), 240)
 
+    # JSON-LD structured data for certificate
+    cert_json_ld = {
+        "@context": "https://schema.org",
+        "@type": "EducationalOccupationalCredential",
+        "name": f"Certificate of Completion - {cert.course_title}",
+        "description": description,
+        "url": canonical_url,
+        "credentialCategory": "Certificate of Completion",
+        "dateCreated": cert.completed_at.isoformat(),
+        "recognizedBy": {
+            "@type": "Organization",
+            "name": "LearnerVerse",
+            "url": frontend_base,
+        },
+        "about": {
+            "@type": "Course",
+            "name": cert.course_title,
+        },
+    }
+    if creator_name:
+        cert_json_ld["about"]["provider"] = {
+            "@type": "Person",
+            "name": creator_name,
+        }
+
     return HTMLResponse(
         content=_build_og_html(
-            title=f"{cert.course_title} - Certificate · {cert.user_name} - LearnerVerse",
+            title=f"{cert.course_title} - Certificate | {cert.user_name} | LearnerVerse",
             description=description,
             image=image,
             url=canonical_url,
             redirect_url=canonical_url,
             creator=cert.user_name,
+            json_ld=cert_json_ld,
         )
     )
 
@@ -279,6 +351,7 @@ def _build_og_html(
     twitter_card: str = "summary_large_image",
     creator: str | None = None,
     tags: list[str] | None = None,
+    json_ld: dict | None = None,
 ) -> str:
     """Build minimal HTML with OpenGraph and Twitter Card meta tags."""
     t = _escape(title)
@@ -312,6 +385,14 @@ def _build_og_html(
                 f'\n    <meta property="article:tag" content="{tag}" />' for tag in clean_tags
             )
 
+    json_ld_tag = ""
+    if json_ld:
+        json_ld_tag = (
+            '\n    <script type="application/ld+json">'
+            + json.dumps(json_ld, ensure_ascii=False)
+            + "</script>"
+        )
+
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -332,7 +413,7 @@ def _build_og_html(
     <!-- Twitter Card -->
     <meta name="twitter:card" content="{_escape(twitter_card)}" />
     <meta name="twitter:title" content="{t}" />
-    <meta name="twitter:description" content="{d}" />{extra_meta}
+    <meta name="twitter:description" content="{d}" />{extra_meta}{json_ld_tag}
 
     <!-- Redirect for JavaScript-enabled browsers -->
     <meta http-equiv="refresh" content="0;url={redirect}" />

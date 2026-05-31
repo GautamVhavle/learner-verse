@@ -33,11 +33,11 @@ describe("useKeyboardShortcuts", () => {
         { key: "k", ctrlKey: true, action, description: "test" },
       ]),
     );
-    // Without ctrl — should not fire
+    // Without ctrl - should not fire
     fireEvent.keyDown(document, { key: "k" });
     expect(action).not.toHaveBeenCalled();
 
-    // With ctrl — should fire
+    // With ctrl - should fire
     fireEvent.keyDown(document, { key: "k", ctrlKey: true });
     expect(action).toHaveBeenCalledOnce();
   });

@@ -24,7 +24,7 @@ import {
   CheckCircle2,
   User as UserIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CertificatePreview } from "@/components/certificate/CertificatePreview";
 import { CertificateDownload } from "@/components/certificate/CertificateDownload";
 import { VerifiedBadge } from "@/components/shared/VerifiedBadge";
@@ -102,6 +102,14 @@ export default function CertificateSharePage() {
   const shareUrl =
     typeof window !== "undefined" ? `${window.location.origin}/certificates/share/${uid}` : "";
 
+  useEffect(() => {
+    if (certificate) {
+      document.title = `${certificate.course_title} - Certificate | ${certificate.user_name} | LearnerVerse`;
+    } else {
+      document.title = "Certificate | LearnerVerse";
+    }
+  }, [certificate]);
+
   const toggleSection = (idx: number) =>
     setExpandedSections((prev) => {
       const next = new Set(prev);
@@ -173,14 +181,14 @@ export default function CertificateSharePage() {
           borderColor: t.border,
         }}
       >
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3">
-          <div className="flex items-center gap-2">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-5">
+          <button onClick={() => navigate("/")} className="flex items-center gap-2">
             <img src="/logo.svg" alt="" className="size-6" />
             <span className="text-sm font-semibold" style={{ color: t.text }}>
               Learner Verse
             </span>
-          </div>
-          <div className="flex items-center gap-3">
+          </button>
+          <div className="flex items-center gap-2 sm:gap-3">
             <div
               className="flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold"
               style={{ background: t.greenSubtle, color: t.green }}
@@ -207,13 +215,13 @@ export default function CertificateSharePage() {
           className="pointer-events-none absolute inset-0"
           style={{ background: t.heroOverlay }}
         />
-        <div className="relative mx-auto max-w-6xl px-5 py-10 sm:py-14">
+        <div className="relative mx-auto max-w-6xl px-4 py-8 sm:px-5 sm:py-14">
           <div className="flex items-center gap-2 text-xs font-medium" style={{ color: t.green }}>
             <CheckCircle2 className="size-3.5" />
             Certificate of Completion
           </div>
           <h1
-            className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl"
+            className="mt-3 text-2xl font-extrabold tracking-tight sm:text-3xl lg:text-4xl"
             style={{ color: t.text }}
           >
             {certificate.course_title}
@@ -247,10 +255,10 @@ export default function CertificateSharePage() {
       </div>
 
       {/* ══════════ Main Content ══════════ */}
-      <div className="mx-auto max-w-6xl px-5 py-10 lg:py-14">
-        <div className="grid items-start gap-10 lg:grid-cols-[1fr_400px]">
-          {/* ── Left Column ── */}
-          <div className="space-y-6">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-5 sm:py-10 lg:py-14">
+        <div className="grid items-start gap-8 sm:gap-10 lg:grid-cols-[1fr_400px]">
+          {/* ── Left Column (appears second on mobile, first on desktop) ── */}
+          <div className="order-2 space-y-6 lg:order-1">
             {/* About */}
             {certificate.course_description && (
               <Card t={t}>
@@ -268,7 +276,7 @@ export default function CertificateSharePage() {
                 style={{ background: t.cardBg, borderColor: t.border }}
               >
                 <div className="px-5 py-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-2">
                       <div
                         className="flex size-7 items-center justify-center rounded-lg"
@@ -301,8 +309,8 @@ export default function CertificateSharePage() {
             )}
           </div>
 
-          {/* ── Right Column ── */}
-          <div className="space-y-5 lg:sticky lg:top-20 lg:self-start">
+          {/* ── Right Column (appears first on mobile, second on desktop) ── */}
+          <div className="order-1 space-y-5 lg:order-2 lg:sticky lg:top-20 lg:self-start">
             <CertificatePreview certificate={certificate} compact />
 
             {/* Actions */}
@@ -341,8 +349,8 @@ export default function CertificateSharePage() {
       </div>
 
       {/* ══════════ Footer ══════════ */}
-      <footer className="border-t py-8" style={{ borderColor: t.border }}>
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-2 px-5 text-center">
+      <footer className="border-t py-6 sm:py-8" style={{ borderColor: t.border }}>
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-2 px-4 text-center sm:px-5">
           <div className="flex items-center gap-1.5 text-xs font-medium" style={{ color: t.green }}>
             <ShieldCheck className="size-3" />
             Verified by Learner Verse
@@ -373,7 +381,7 @@ function Pill({
 }) {
   return (
     <div
-      className="flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-medium"
+      className="flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-medium sm:px-3 sm:py-1.5 sm:text-[11px]"
       style={{
         background: t.pillBg,
         borderColor: t.pillBorder,
@@ -390,7 +398,7 @@ function Pill({
 
 function Card({ children, t }: { children: React.ReactNode; t: Tokens }) {
   return (
-    <div className="rounded-xl border p-5" style={{ background: t.cardBg, borderColor: t.border }}>
+    <div className="rounded-xl border p-4 sm:p-5" style={{ background: t.cardBg, borderColor: t.border }}>
       {children}
     </div>
   );
@@ -465,7 +473,7 @@ function SyllabusSection({
   return (
     <div className="border-t" style={{ borderColor: t.borderSubtle }}>
       <button
-        className="flex w-full items-center gap-3 px-5 py-3.5 text-left transition-colors"
+        className="flex w-full items-center gap-2.5 px-4 py-3 text-left transition-colors sm:gap-3 sm:px-5 sm:py-3.5"
         style={{ background: "transparent" }}
         onMouseEnter={(e) => (e.currentTarget.style.background = t.cardBgHover)}
         onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
@@ -494,13 +502,13 @@ function SyllabusSection({
       {expanded && (
         <div className="pb-2">
           {section.lessons.map((lesson, i) => (
-            <div key={i} className="flex items-center gap-3 py-1.5 pr-5 pl-[3.75rem]">
+            <div key={i} className="flex items-center gap-3 py-1.5 pr-4 pl-10 sm:pr-5 sm:pl-[3.75rem]">
               {lesson.lesson_type === "video" ? (
                 <PlayCircle className="size-3.5 shrink-0" style={{ color: t.textMuted }} />
               ) : (
                 <StickyNote className="size-3.5 shrink-0" style={{ color: t.textMuted }} />
               )}
-              <span className="text-xs" style={{ color: t.textSec }}>
+              <span className="min-w-0 break-words text-xs" style={{ color: t.textSec }}>
                 {lesson.title}
               </span>
             </div>

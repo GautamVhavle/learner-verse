@@ -31,17 +31,19 @@ export function CertificatePreview({ certificate, compact }: CertificatePreviewP
                 <Loader2 className="size-5 animate-spin" style={{ color: "#6366f1" }} />
               </div>
             ) : (
-              <div className="relative h-full w-full">
+              <object
+                data={`${url}#toolbar=0&navpanes=0&scrollbar=0&view=Fit`}
+                type="application/pdf"
+                className="h-full w-full"
+                title="Certificate Preview"
+              >
                 <iframe
                   src={`${url}#toolbar=0&navpanes=0&scrollbar=0&view=Fit`}
                   title="Certificate Preview"
                   className="h-full w-full"
                   style={{ border: "none" }}
-                  sandbox="allow-same-origin"
                 />
-                {/* Block all user interaction with the PDF */}
-                <div className="absolute inset-0" />
-              </div>
+              </object>
             )
           }
         </BlobProvider>

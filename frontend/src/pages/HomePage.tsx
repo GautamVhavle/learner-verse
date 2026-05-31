@@ -30,7 +30,7 @@ function SectionDivider() {
 
 export default function HomePage() {
   useEffect(() => {
-    document.title = "LearnerVerse — Turn Any YouTube Playlist into a Course with AI Quizzes";
+    document.title = "LearnerVerse | Turn Any YouTube Playlist into a Course with AI Quizzes";
   }, []);
 
   return (

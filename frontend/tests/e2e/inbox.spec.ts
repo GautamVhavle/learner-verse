@@ -85,7 +85,7 @@ async function createCourseWithGoal(title: string): Promise<string> {
       headers: JSON_HEADERS,
       body: JSON.stringify({ notes_markdown: "Some notes" }),
     }),
-    // Publish after content — but status validation checks lesson content, so chain it
+    // Publish after content - but status validation checks lesson content, so chain it
   ]);
 
   await fetch(`${API}/courses/${course.id}/status`, {
@@ -109,7 +109,7 @@ async function createCourseWithGoal(title: string): Promise<string> {
 
 // ─── Fast tests (no course setup needed) ─────────────────────────
 
-test.describe("Inbox — navigation", () => {
+test.describe("Inbox - navigation", () => {
   test.beforeEach(async () => {
     await ensureOnboarded();
   });
@@ -144,7 +144,7 @@ test.describe("Inbox — navigation", () => {
 
 // ─── Notification tests (need course + goal setup) ───────────────
 
-test.describe.serial("Inbox — notifications", () => {
+test.describe.serial("Inbox - notifications", () => {
   let courseId: string;
 
   test.beforeAll(async () => {
@@ -205,7 +205,7 @@ test.describe.serial("Inbox — notifications", () => {
     const card = page.getByTestId("notification-card").first();
     await expect(card).toBeVisible({ timeout: 10_000 });
 
-    // Mark read — wait for the API to respond
+    // Mark read - wait for the API to respond
     await card.hover();
     const [markReadResponse] = await Promise.all([
       page.waitForResponse(
@@ -215,7 +215,7 @@ test.describe.serial("Inbox — notifications", () => {
     ]);
     expect(markReadResponse.ok()).toBeTruthy();
 
-    // Delete — wait for the API to respond
+    // Delete - wait for the API to respond
     await card.hover();
     const [deleteResponse] = await Promise.all([
       page.waitForResponse(

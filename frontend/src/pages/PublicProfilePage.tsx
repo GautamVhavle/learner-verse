@@ -337,6 +337,10 @@ export default function PublicProfilePage() {
 }
 
 function ProfileContent({ profile }: { profile: PublicProfile }) {
+  useEffect(() => {
+    document.title = `${profile.display_name} | LearnerVerse`;
+  }, [profile.display_name]);
+
   const handleShare = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);

@@ -23,6 +23,8 @@ import {
   Download,
   Upload,
 } from "lucide-react";
+import { courseImportSchema, formatZodErrors } from "@/lib/course-import-schema";
+import { CourseImportInfoDialog } from "@/components/course/CourseImportInfoDialog";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -126,18 +128,22 @@ export default function CourseBuilderPage() {
     reader.onload = () => {
       try {
         const parsed = JSON.parse(reader.result as string);
-        if (parsed.format !== "learnerverse-course-export" || parsed.version !== 1) {
-          toast.error("Invalid file: not a LearnerVerse course export.");
+        const result = courseImportSchema.safeParse(parsed);
+        if (!result.success) {
+          const errors = formatZodErrors(result.error);
+          toast.error(errors[0], {
+            description: errors.length > 1 ? `+ ${errors.length - 1} more error(s)` : undefined,
+          });
           setImportValidating(false);
           return;
         }
-        const courseTitle = parsed.course?.title ?? "Unknown";
-        const sectionCount = parsed.sections?.length ?? 0;
-        const lessonCount =
-          parsed.sections?.reduce(
-            (sum: number, s: { lessons?: unknown[] }) => sum + (s.lessons?.length ?? 0),
-            0,
-          ) ?? 0;
+        const validated = result.data;
+        const courseTitle = validated.course.title;
+        const sectionCount = validated.sections.length;
+        const lessonCount = validated.sections.reduce(
+          (sum, s) => sum + s.lessons.length,
+          0,
+        );
         setImportPayload(parsed);
         setImportSummary(
           `"${courseTitle}" - ${sectionCount} section${sectionCount !== 1 ? "s" : ""}, ${lessonCount} lesson${lessonCount !== 1 ? "s" : ""}`,
@@ -345,6 +351,7 @@ export default function CourseBuilderPage() {
                 )}
                 {importValidating ? "Validating…" : "Import"}
               </Button>
+              <CourseImportInfoDialog />
             </>
           )}
 
