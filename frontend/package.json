@@ -4,6 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "ensure-symlinks": "node scripts/ensure-symlinks.mjs",
+    "predev": "node scripts/ensure-symlinks.mjs",
+    "prebuild": "node scripts/ensure-symlinks.mjs",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
