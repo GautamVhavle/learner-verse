@@ -49,6 +49,9 @@ def _parse_initial_data(html: str) -> dict:
 def _extract_videos_from_data(data: dict) -> tuple[str, list[dict]]:
     """Walk the ytInitialData structure to find playlist videos.
 
+    Supports both the current ``lockupViewModel`` schema (YouTube 2025+) and
+    the legacy ``playlistVideoRenderer`` schema for backward compatibility.
+
     Returns (playlist_title, list of video dicts with id/title/channel).
     """
     videos = []
@@ -67,6 +70,30 @@ def _extract_videos_from_data(data: dict) -> tuple[str, list[dict]]:
             for section in section_contents:
                 items_renderer = section.get("itemSectionRenderer", {})
                 for content in items_renderer.get("contents", []):
+                    # ── Current schema (YouTube 2025+): lockupViewModel ──────
+                    lv = content.get("lockupViewModel", {})
+                    if lv:
+                        if lv.get("contentType") != "LOCKUP_CONTENT_TYPE_VIDEO":
+                            continue
+                        vid_id = lv.get("contentId", "")
+                        if not vid_id:
+                            continue
+                        meta = lv.get("metadata", {}).get("lockupMetadataViewModel", {})
+                        title = meta.get("title", {}).get("content", "Untitled")
+                        a11y_label = (
+                            meta.get("image", {})
+                            .get("decoratedAvatarViewModel", {})
+                            .get("a11yLabel", "")
+                        )
+                        channel = (
+                            a11y_label.replace("Go to channel ", "").strip()
+                            if "Go to channel" in a11y_label
+                            else "Unknown"
+                        )
+                        videos.append({"video_id": vid_id, "title": title, "channel": channel})
+                        continue
+
+                    # ── Legacy schema: playlistVideoListRenderer ─────────────
                     playlist_renderer = content.get("playlistVideoListRenderer", {})
                     for video in playlist_renderer.get("contents", []):
                         vr = video.get("playlistVideoRenderer")
