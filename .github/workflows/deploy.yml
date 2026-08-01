@@ -49,7 +49,7 @@ jobs:
           cp private/frontend/src/types/subscription.ts frontend/src/types/subscription.ts
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -154,7 +154,7 @@ jobs:
           cp private/backend/app/api/v1/endpoints/subscription.py backend/app/api/v1/endpoints/subscription.py
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
