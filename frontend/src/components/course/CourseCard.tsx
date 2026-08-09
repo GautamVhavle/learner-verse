@@ -175,7 +175,7 @@ export function CourseCard({
                 <Share2 className="size-3.5" />
               </button>
             )}
-            {course.tags.slice(0, 3).map((tag) => (
+            {course.tags.slice(0, 2).map((tag) => (
               <span
                 key={tag.id}
                 className="bg-bg-tertiary text-text-secondary max-w-full truncate rounded-full px-2 py-0.5 text-[10px]"
@@ -184,8 +184,16 @@ export function CourseCard({
                 {tag.name}
               </span>
             ))}
-            {course.tags.length > 3 && (
-              <span className="text-text-tertiary text-[10px]">+{course.tags.length - 3}</span>
+            {course.tags.length > 2 && (
+              <span
+                className="text-text-tertiary shrink-0 text-[10px]"
+                title={course.tags
+                  .slice(2)
+                  .map((tag) => tag.name)
+                  .join(", ")}
+              >
+                +{course.tags.length - 2}
+              </span>
             )}
           </div>
         </div>
