@@ -77,6 +77,11 @@ async def test_mcp_can_create_review_and_publish_curated_course(
     assert created.lesson_count == 3
     assert created.validation_errors == []
 
+    courses = await server.list_courses_for_review()
+    assert courses.total == 1
+    assert courses.courses[0].course_id == created.course_id
+    assert courses.courses[0].lesson_count == 3
+
     review = await server.get_course_for_review(created.course_id)
     assert review.course["sections"][0]["lessons"][2]["quiz_questions"][0]["correct_option"] == 0
 

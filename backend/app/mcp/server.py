@@ -55,6 +55,7 @@ def get_capabilities() -> Capabilities:
     tools = [
         "validate_course_spec",
         "create_course_from_export",
+        "list_courses_for_review",
         "get_course_for_review",
         "publish_course",
     ]
@@ -205,6 +206,22 @@ class CourseReviewResult(CourseMutationResult):
     course: dict
 
 
+class CourseSummary(BaseModel):
+    course_id: str
+    title: str
+    status: str
+    is_public: bool
+    section_count: int
+    lesson_count: int
+    has_issues: bool
+    course_url: str
+
+
+class CourseListResult(BaseModel):
+    courses: list[CourseSummary]
+    total: int
+
+
 def _course_url(course_id: UUID) -> str:
     return f"{settings.FRONTEND_URL.rstrip('/')}/courses/{course_id}"
 
@@ -268,6 +285,33 @@ async def create_course_from_export(
                 await db.rollback()
             raise
         return await _course_result(service, imported.id, user_id)
+
+
+@mcp.tool(
+    name="list_courses_for_review",
+    description="List owned active courses so an agent can resume safely without duplicate creation.",
+    structured_output=True,
+)
+async def list_courses_for_review() -> CourseListResult:
+    user_id = _mcp_user_id("course:write")
+    async with async_session_maker() as db:
+        result = await CourseService(db).list_courses(user_id)
+        return CourseListResult(
+            courses=[
+                CourseSummary(
+                    course_id=str(course.id),
+                    title=course.title,
+                    status=course.status,
+                    is_public=course.is_public,
+                    section_count=course.section_count,
+                    lesson_count=course.lesson_count,
+                    has_issues=course.has_issues,
+                    course_url=_course_url(course.id),
+                )
+                for course in result.items
+            ],
+            total=result.total,
+        )
 
 
 @mcp.tool(

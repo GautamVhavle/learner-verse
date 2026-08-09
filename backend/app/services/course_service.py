@@ -582,16 +582,17 @@ class CourseService:
 
         for sec_idx, sec_data in enumerate(sections_data):
             section = Section(
+                id=uuid.uuid4(),
                 course_id=course_id,
                 title=sec_data["title"][:200],
                 description=sec_data.get("description"),
                 position=sec_data.get("position", sec_idx),
             )
             self.db.add(section)
-            await self.db.flush()
 
             for les_idx, les_data in enumerate(sec_data.get("lessons", [])):
                 lesson = Lesson(
+                    id=uuid.uuid4(),
                     section_id=section.id,
                     title=les_data["title"][:200],
                     lesson_type=les_data.get("lesson_type", "video"),
@@ -604,7 +605,6 @@ class CourseService:
                     position=les_data.get("position", les_idx),
                 )
                 self.db.add(lesson)
-                await self.db.flush()
 
                 # Reference links
                 for link_idx, link_data in enumerate(les_data.get("reference_links", [])):
