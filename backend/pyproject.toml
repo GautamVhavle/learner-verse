@@ -20,6 +20,11 @@ dependencies = [
     "sentry-sdk[fastapi]>=2.0.0",
     "langchain-openrouter>=0.2.1",
     "razorpay>=2.0.1",
+    "dramatiq[redis]>=2.2.0,<3.0.0",
+    "redis>=5.0.0,<7.0.0",
+    # Official SDK v2 is required for MCP 2026-07-28. It is pinned deliberately
+    # because v2 remains a pre-release with breaking changes between releases.
+    "mcp==2.0.0b2",
 ]
 
 [dependency-groups]

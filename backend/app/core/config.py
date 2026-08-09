@@ -46,6 +46,45 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = "./uploads"
     MAX_UPLOAD_SIZE_MB: int = 5
 
+    # Private production assets.  These are deliberately separate from the
+    # legacy public thumbnail bucket above: production media must never rely
+    # on a permanent public URL.
+    PRODUCTION_ASSET_DIR: str = "./production-assets"
+    PRODUCTION_MAX_ASSET_SIZE_MB: int = 1024
+    PRODUCTION_UPLOAD_INTENT_TTL_SECONDS: int = 3600
+    PRODUCTION_SIGNED_URL_TTL_SECONDS: int = 300
+    PRODUCTION_REMOTE_FETCH_MAX_BYTES: int = 104857600
+    PRODUCTION_REMOTE_FETCH_TIMEOUT_SECONDS: float = 20.0
+    # Comma separated url-safe base64 Fernet keys. The first encrypts; all
+    # subsequent keys decrypt during a rotation. Empty is development-only.
+    CREDENTIAL_ENCRYPTION_KEYS: str = ""
+
+    # MCP is mounted on this FastAPI application at /mcp. Defaults remain
+    # loopback-only; deployments must override all three public URL settings.
+    # MCP transport security compares the complete Host header. Local
+    # development therefore needs the explicit wildcard-port forms.
+    MCP_ALLOWED_HOSTS: str = "127.0.0.1,127.0.0.1:*,localhost,localhost:*"
+    MCP_ALLOWED_ORIGINS: str = ""
+    MCP_PUBLIC_URL: str = "http://localhost:8000/mcp/"
+    MCP_ISSUER_URL: str = "http://localhost:8000/"
+    MCP_ALLOW_REMOTE_SINGLE_USER: bool = False
+    MCP_PAT_SIGNING_KEY: str = ""
+
+    # Release controls: disabled capabilities fail closed until deliberately
+    # enabled in the intended rollout environment.
+    MCP_ENABLED: bool = True
+    MCP_HTTP_ENABLED: bool = True
+    MCP_STDIO_ENABLED: bool = True
+    # Build submission requires the Redis dispatcher, database worker and
+    # renderer stack. Keep it fail-closed on web-only deployments.
+    PRODUCTION_PIPELINE_ENABLED: bool = False
+    GENERATED_ASSETS_ENABLED: bool = True
+    MCP_TASKS_EXTENSION_ENABLED: bool = False
+    PRODUCTION_MAX_CONCURRENT_JOBS: int = 3
+    PRODUCTION_MAX_TOKENS_PER_USER: int = 10
+    PRODUCTION_ASSET_RETENTION_DAYS: int = 30
+    PRODUCTION_PREVIEW_RETENTION_DAYS: int = 7
+
     # Supabase Storage
     SUPABASE_URL: str = ""
     SUPABASE_SERVICE_KEY: str = ""
@@ -58,6 +97,13 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-2.5-flash"
     GEMINI_BASE_URL: str = "https://generativelanguage.googleapis.com/v1beta"
+
+    # Durable jobs / shared limits. Redis is intentionally optional for local
+    # unit tests; production deployments must set JOBS_REDIS_URL.
+    JOBS_REDIS_URL: str = "redis://localhost:6379/0"
+    JOBS_QUEUE_NAME: str = "learnerverse-jobs"
+    JOBS_LEASE_SECONDS: int = 60
+    JOBS_OUTBOX_POLL_SECONDS: float = 1.0
 
     # Payment Gateway
     # Set to true only when the private payment submodule is present

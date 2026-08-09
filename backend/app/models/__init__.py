@@ -16,7 +16,29 @@ from app.models.discussion_message import DiscussionMessage
 from app.models.enrollment import CourseEnrollment
 from app.models.lesson import Lesson
 from app.models.lesson_progress import LessonProgress
+from app.models.mcp_token import McpPersonalAccessToken
 from app.models.notification import Notification
+from app.models.production import (
+    IdempotencyRecord,
+    JobAttempt,
+    JobEvent,
+    OutboxMessage,
+    ProductionProject,
+    ProductionRun,
+    ProductionSpecVersion,
+    UsageLedger,
+)
+from app.models.production_assets import (
+    BudgetReservation,
+    ProductionArtifact,
+    ProductionAsset,
+    ProductionAssetBinding,
+    ProductionAssetUploadIntent,
+    ProductionAssetVersion,
+    ProductionQaReport,
+    ProviderCredential,
+    RenderManifest,
+)
 from app.models.quiz_attempt import QuizAttempt
 from app.models.quiz_question import QuizQuestion
 from app.models.rating import CourseRating
@@ -29,6 +51,7 @@ from app.models.verification_request import VerificationRequest
 
 __all__ = [
     "ActivityLog",
+    "BudgetReservation",
     "Base",
     "Certificate",
     "ChatMessage",
@@ -39,15 +62,32 @@ __all__ = [
     "CourseStudyState",
     "DiscussionMessage",
     "Lesson",
+    "McpPersonalAccessToken",
     "LessonProgress",
     "Notification",
+    "IdempotencyRecord",
+    "JobAttempt",
+    "JobEvent",
+    "OutboxMessage",
+    "ProductionProject",
+    "ProductionAsset",
+    "ProductionArtifact",
+    "ProductionAssetBinding",
+    "ProductionAssetUploadIntent",
+    "ProductionAssetVersion",
+    "ProductionQaReport",
+    "ProductionRun",
+    "ProductionSpecVersion",
     "QuizAttempt",
+    "ProviderCredential",
+    "RenderManifest",
     "QuizQuestion",
     "ReferenceLink",
     "Section",
     "StudyNote",
     "Tag",
     "User",
+    "UsageLedger",
     "VerificationRequest",
     "course_tags",
 ]

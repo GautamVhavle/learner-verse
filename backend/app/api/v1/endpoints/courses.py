@@ -18,6 +18,7 @@ from app.schemas.course import (
     StatusUpdateResponse,
     ValidationError,
 )
+from app.schemas.course_export import LearnerVerseCourseExportV1
 from app.services.course_service import CourseService
 
 router = APIRouter(prefix="/courses", tags=["courses"])
@@ -161,7 +162,7 @@ async def export_course(
 @router.post("/{course_id}/import", response_model=CourseResponse)
 async def import_course(
     course_id: uuid.UUID,
-    payload: dict,
+    payload: LearnerVerseCourseExportV1,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -169,7 +170,7 @@ async def import_course(
     import json
 
     # Enforce payload size limit to prevent DoS (10.1)
-    payload_size = len(json.dumps(payload))
+    payload_size = len(json.dumps(payload.model_dump(mode="json")))
     if payload_size > 5_000_000:  # 5 MB
         from fastapi import HTTPException, status
 
@@ -179,22 +180,4 @@ async def import_course(
         )
 
     # Enforce section/lesson count limits
-    sections = payload.get("sections", [])
-    if isinstance(sections, list):
-        if len(sections) > 50:
-            from fastapi import HTTPException, status
-
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Too many sections. Maximum 50.",
-            )
-        total_lessons = sum(len(s.get("lessons", [])) for s in sections if isinstance(s, dict))
-        if total_lessons > 500:
-            from fastapi import HTTPException, status
-
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Too many lessons. Maximum 500.",
-            )
-
     return await _service(db).import_course(course_id, user.id, payload)

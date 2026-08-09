@@ -1,0 +1,546 @@
+{
+  "$defs": {
+    "AssetMode": {
+      "enum": [
+        "reusable",
+        "new",
+        "upload"
+      ],
+      "title": "AssetMode",
+      "type": "string"
+    },
+    "AssetRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "$ref": "#/$defs/AssetMode"
+        },
+        "asset_id": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Asset Id"
+        },
+        "generation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GenerationRequest"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "upload": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UploadReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "license_assertion": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "License Assertion",
+          "type": "string"
+        }
+      },
+      "required": [
+        "mode",
+        "license_assertion"
+      ],
+      "title": "AssetRequest",
+      "type": "object"
+    },
+    "BuildDefaults": {
+      "additionalProperties": false,
+      "properties": {
+        "locale": {
+          "default": "en-US",
+          "pattern": "^[a-z]{2,3}(-[A-Z]{2})?$",
+          "title": "Locale",
+          "type": "string"
+        },
+        "resolution": {
+          "default": "1920x1080",
+          "pattern": "^\\d{3,5}x\\d{3,5}$",
+          "title": "Resolution",
+          "type": "string"
+        },
+        "fps": {
+          "default": 30,
+          "maximum": 60,
+          "minimum": 1,
+          "title": "Fps",
+          "type": "integer"
+        },
+        "voice_profile": {
+          "default": "default",
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Voice Profile",
+          "type": "string"
+        },
+        "caption_style": {
+          "default": "learnerverse-default",
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Caption Style",
+          "type": "string"
+        },
+        "template": {
+          "default": "educational-v1",
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Template",
+          "type": "string"
+        },
+        "music": {
+          "$ref": "#/$defs/MusicSettings"
+        }
+      },
+      "title": "BuildDefaults",
+      "type": "object"
+    },
+    "BuildPolicies": {
+      "additionalProperties": false,
+      "properties": {
+        "max_estimated_cost": {
+          "default": 5.0,
+          "maximum": 10000,
+          "minimum": 0,
+          "title": "Max Estimated Cost",
+          "type": "number"
+        },
+        "allow_generated_assets": {
+          "default": true,
+          "title": "Allow Generated Assets",
+          "type": "boolean"
+        },
+        "require_human_review_before_publish": {
+          "default": true,
+          "title": "Require Human Review Before Publish",
+          "type": "boolean"
+        }
+      },
+      "title": "BuildPolicies",
+      "type": "object"
+    },
+    "CourseMetadata": {
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "description": {
+          "maxLength": 10000,
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "category": {
+          "default": "other",
+          "maxLength": 30,
+          "minLength": 1,
+          "title": "Category",
+          "type": "string"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Tags",
+          "type": "array"
+        },
+        "publish_when_complete": {
+          "default": false,
+          "title": "Publish When Complete",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "title",
+        "description"
+      ],
+      "title": "CourseMetadata",
+      "type": "object"
+    },
+    "DurationPolicy": {
+      "enum": [
+        "fit_narration",
+        "fixed"
+      ],
+      "title": "DurationPolicy",
+      "type": "string"
+    },
+    "GenerationRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "prompt": {
+          "maxLength": 4000,
+          "minLength": 1,
+          "title": "Prompt",
+          "type": "string"
+        },
+        "kind": {
+          "default": "illustration",
+          "maxLength": 50,
+          "minLength": 1,
+          "title": "Kind",
+          "type": "string"
+        },
+        "aspect_ratio": {
+          "default": "16:9",
+          "pattern": "^\\d{1,2}:\\d{1,2}$",
+          "title": "Aspect Ratio",
+          "type": "string"
+        }
+      },
+      "required": [
+        "prompt"
+      ],
+      "title": "GenerationRequest",
+      "type": "object"
+    },
+    "LessonBuildSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "title": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "learning_objectives": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "minItems": 1,
+          "title": "Learning Objectives",
+          "type": "array"
+        },
+        "script": {
+          "$ref": "#/$defs/LessonScript"
+        },
+        "quiz": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LessonQuiz"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "learning_objectives",
+        "script"
+      ],
+      "title": "LessonBuildSpec",
+      "type": "object"
+    },
+    "LessonQuiz": {
+      "additionalProperties": false,
+      "properties": {
+        "questions": {
+          "items": {
+            "$ref": "#/$defs/QuizQuestionInput"
+          },
+          "maxItems": 20,
+          "minItems": 1,
+          "title": "Questions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "questions"
+      ],
+      "title": "LessonQuiz",
+      "type": "object"
+    },
+    "LessonScript": {
+      "additionalProperties": false,
+      "properties": {
+        "narration": {
+          "maxLength": 50000,
+          "minLength": 1,
+          "title": "Narration",
+          "type": "string"
+        },
+        "scenes": {
+          "items": {
+            "$ref": "#/$defs/Scene"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "title": "Scenes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "narration",
+        "scenes"
+      ],
+      "title": "LessonScript",
+      "type": "object"
+    },
+    "MusicSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        }
+      },
+      "title": "MusicSettings",
+      "type": "object"
+    },
+    "QuizQuestionInput": {
+      "additionalProperties": false,
+      "properties": {
+        "question": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Question",
+          "type": "string"
+        },
+        "options": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 6,
+          "minItems": 2,
+          "title": "Options",
+          "type": "array"
+        },
+        "correct_option": {
+          "minimum": 0,
+          "title": "Correct Option",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "question",
+        "options",
+        "correct_option"
+      ],
+      "title": "QuizQuestionInput",
+      "type": "object"
+    },
+    "Scene": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/$defs/SceneType"
+        },
+        "duration_policy": {
+          "$ref": "#/$defs/DurationPolicy",
+          "default": "fit_narration"
+        },
+        "duration_seconds": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "maximum": 600,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Duration Seconds"
+        },
+        "on_screen_text": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "On Screen Text",
+          "type": "array"
+        },
+        "asset_refs": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Asset Refs",
+          "type": "array"
+        },
+        "speaker_notes": {
+          "anyOf": [
+            {
+              "maxLength": 10000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Speaker Notes"
+        }
+      },
+      "required": [
+        "id",
+        "type"
+      ],
+      "title": "Scene",
+      "type": "object"
+    },
+    "SceneType": {
+      "enum": [
+        "title",
+        "text",
+        "image",
+        "image-with-callouts",
+        "code",
+        "quote",
+        "bullet-list",
+        "quiz-prompt",
+        "section-divider",
+        "outro"
+      ],
+      "title": "SceneType",
+      "type": "string"
+    },
+    "SectionBuildSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "title": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "lessons": {
+          "items": {
+            "$ref": "#/$defs/LessonBuildSpec"
+          },
+          "maxItems": 500,
+          "minItems": 1,
+          "title": "Lessons",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "lessons"
+      ],
+      "title": "SectionBuildSpec",
+      "type": "object"
+    },
+    "UploadReference": {
+      "additionalProperties": false,
+      "properties": {
+        "asset_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Asset Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "asset_id"
+      ],
+      "title": "UploadReference",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "default": "https://learnerverse.xyz/schemas/course-build-spec-v1.json",
+      "title": "$Schema",
+      "type": "string"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "request_id": {
+      "maxLength": 128,
+      "minLength": 8,
+      "pattern": "^[A-Za-z0-9._:-]+$",
+      "title": "Request Id",
+      "type": "string"
+    },
+    "course": {
+      "$ref": "#/$defs/CourseMetadata"
+    },
+    "defaults": {
+      "$ref": "#/$defs/BuildDefaults"
+    },
+    "sections": {
+      "items": {
+        "$ref": "#/$defs/SectionBuildSpec"
+      },
+      "maxItems": 50,
+      "minItems": 1,
+      "title": "Sections",
+      "type": "array"
+    },
+    "assets": {
+      "additionalProperties": {
+        "$ref": "#/$defs/AssetRequest"
+      },
+      "maxProperties": 500,
+      "title": "Assets",
+      "type": "object"
+    },
+    "policies": {
+      "$ref": "#/$defs/BuildPolicies"
+    }
+  },
+  "required": [
+    "request_id",
+    "course",
+    "sections"
+  ],
+  "title": "CourseBuildSpec",
+  "type": "object"
+}

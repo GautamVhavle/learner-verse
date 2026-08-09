@@ -9,6 +9,7 @@ import logging
 import time
 import traceback
 from contextlib import asynccontextmanager
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import sentry_sdk
@@ -23,6 +24,7 @@ from app.api.v1.router import api_v1_router
 from app.core.config import settings
 from app.core.database import async_session_maker
 from app.core.storage import ensure_bucket
+from app.mcp.server import mcp, streamable_app
 from app.models.user import User
 
 # ── Sentry error tracking ─────────────────────────────────────────────────────
@@ -57,7 +59,10 @@ async def lifespan(app: FastAPI):
             "Supabase Storage unavailable at startup - thumbnail uploads will fail.\nReason: %s",
             exc,
         )
-    yield
+    # A mounted MCP subapplication does not run its own lifespan. The SDK
+    # requires this context to own Streamable HTTP sessions.
+    async with mcp.session_manager.run():
+        yield
 
 
 async def _ensure_default_user() -> None:
@@ -124,12 +129,25 @@ async def _ensure_background_task_tables() -> None:
         """)
         )
 
-        await session.execute(
-            text("DELETE FROM organize_tasks WHERE created_at < NOW() - INTERVAL '10 minutes'")
-        )
-        await session.execute(
-            text("DELETE FROM playlist_import_tasks WHERE created_at < NOW() - INTERVAL '1 hour'")
-        )
+        if "sqlite" in settings.DATABASE_URL:
+            now = datetime.now(UTC)
+            await session.execute(
+                text("DELETE FROM organize_tasks WHERE created_at < :cutoff"),
+                {"cutoff": now - timedelta(minutes=10)},
+            )
+            await session.execute(
+                text("DELETE FROM playlist_import_tasks WHERE created_at < :cutoff"),
+                {"cutoff": now - timedelta(hours=1)},
+            )
+        else:
+            await session.execute(
+                text("DELETE FROM organize_tasks WHERE created_at < NOW() - INTERVAL '10 minutes'")
+            )
+            await session.execute(
+                text(
+                    "DELETE FROM playlist_import_tasks WHERE created_at < NOW() - INTERVAL '1 hour'"
+                )
+            )
         await session.commit()
 
 
@@ -170,6 +188,16 @@ def _validate_config() -> None:
             'Generate a secure secret: python -c "import secrets; print(secrets.token_urlsafe(32))"'
         )
 
+    remote_hosts = {host.split(":", 1)[0] for host in settings.MCP_ALLOWED_HOSTS.split(",")}
+    if (
+        settings.SINGLE_USER_MODE
+        and not settings.MCP_ALLOW_REMOTE_SINGLE_USER
+        and not remote_hosts <= {"localhost", "127.0.0.1", "[::1]"}
+    ):
+        raise RuntimeError(
+            "Single-user MCP may only bind loopback hosts unless MCP_ALLOW_REMOTE_SINGLE_USER=true."
+        )
+
 
 app = FastAPI(
     title="Learner Verse API",
@@ -187,6 +215,8 @@ app.add_middleware(
 )
 
 app.include_router(api_v1_router)
+if settings.MCP_ENABLED and settings.MCP_HTTP_ENABLED:
+    app.mount("/mcp", streamable_app())
 
 # Serve locally-uploaded files when Supabase is not configured.
 _upload_dir = Path(settings.UPLOAD_DIR)

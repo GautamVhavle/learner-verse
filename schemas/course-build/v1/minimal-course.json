@@ -1,0 +1,33 @@
+{
+  "$schema": "https://learnerverse.xyz/schemas/course-build-spec-v1.json",
+  "schema_version": "1.0",
+  "request_id": "example-minimal-course-001",
+  "course": {
+    "title": "Welcome to LearnerVerse",
+    "description": "A concise example course used for validation and integration tests."
+  },
+  "sections": [
+    {
+      "id": "introduction",
+      "title": "Introduction",
+      "lessons": [
+        {
+          "id": "welcome",
+          "title": "Welcome",
+          "learning_objectives": ["Understand the course outcome"],
+          "script": {
+            "narration": "Welcome to the course. In this lesson, you will understand the outcome.",
+            "scenes": [
+              {
+                "id": "welcome-title",
+                "type": "title",
+                "duration_policy": "fit_narration",
+                "on_screen_text": ["Welcome"]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

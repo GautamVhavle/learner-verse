@@ -115,7 +115,6 @@ jobs:
 
       - name: Lint
         run: cd frontend && npm run lint
-        continue-on-error: true  # TODO: fix existing React compiler warnings
 
       - name: Format check
         run: cd frontend && npx prettier --check "src/**/*.{ts,tsx,css}"

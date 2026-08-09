@@ -1,0 +1,275 @@
+{
+  "$defs": {
+    "CaptionCue": {
+      "additionalProperties": false,
+      "properties": {
+        "start_ms": {
+          "minimum": 0,
+          "title": "Start Ms",
+          "type": "integer"
+        },
+        "end_ms": {
+          "exclusiveMinimum": 0,
+          "title": "End Ms",
+          "type": "integer"
+        },
+        "text": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "start_ms",
+        "end_ms",
+        "text"
+      ],
+      "title": "CaptionCue",
+      "type": "object"
+    },
+    "ManifestAsset": {
+      "additionalProperties": false,
+      "properties": {
+        "asset_id": {
+          "title": "Asset Id",
+          "type": "string"
+        },
+        "version_id": {
+          "title": "Version Id",
+          "type": "string"
+        },
+        "checksum": {
+          "title": "Checksum",
+          "type": "string"
+        },
+        "object_key": {
+          "title": "Object Key",
+          "type": "string"
+        },
+        "media_type": {
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "asset_id",
+        "version_id",
+        "checksum",
+        "object_key",
+        "media_type"
+      ],
+      "title": "ManifestAsset",
+      "type": "object"
+    },
+    "RenderLesson": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "duration_ms": {
+          "title": "Duration Ms",
+          "type": "integer"
+        },
+        "scenes": {
+          "items": {
+            "$ref": "#/$defs/RenderScene"
+          },
+          "title": "Scenes",
+          "type": "array"
+        },
+        "captions": {
+          "items": {
+            "$ref": "#/$defs/CaptionCue"
+          },
+          "title": "Captions",
+          "type": "array"
+        },
+        "tracks": {
+          "items": {
+            "$ref": "#/$defs/RenderTrack"
+          },
+          "title": "Tracks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "duration_ms",
+        "scenes",
+        "captions",
+        "tracks"
+      ],
+      "title": "RenderLesson",
+      "type": "object"
+    },
+    "RenderScene": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        },
+        "start_ms": {
+          "minimum": 0,
+          "title": "Start Ms",
+          "type": "integer"
+        },
+        "duration_ms": {
+          "exclusiveMinimum": 0,
+          "maximum": 600000,
+          "title": "Duration Ms",
+          "type": "integer"
+        },
+        "on_screen_text": {
+          "items": {
+            "type": "string"
+          },
+          "title": "On Screen Text",
+          "type": "array"
+        },
+        "asset_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Asset Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "start_ms",
+        "duration_ms"
+      ],
+      "title": "RenderScene",
+      "type": "object"
+    },
+    "RenderTrack": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "asset_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Asset Ref"
+        },
+        "start_ms": {
+          "minimum": 0,
+          "title": "Start Ms",
+          "type": "integer"
+        },
+        "end_ms": {
+          "exclusiveMinimum": 0,
+          "title": "End Ms",
+          "type": "integer"
+        },
+        "volume": {
+          "default": 1,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Volume",
+          "type": "number"
+        }
+      },
+      "required": [
+        "kind",
+        "start_ms",
+        "end_ms"
+      ],
+      "title": "RenderTrack",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "input_checksum": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Input Checksum",
+      "type": "string"
+    },
+    "resolution": {
+      "pattern": "^\\d+x\\d+$",
+      "title": "Resolution",
+      "type": "string"
+    },
+    "fps": {
+      "maximum": 60,
+      "minimum": 1,
+      "title": "Fps",
+      "type": "integer"
+    },
+    "locale": {
+      "title": "Locale",
+      "type": "string"
+    },
+    "template": {
+      "title": "Template",
+      "type": "string"
+    },
+    "safe_area": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Safe Area",
+      "type": "object"
+    },
+    "watermark": {
+      "title": "Watermark",
+      "type": "string"
+    },
+    "assets": {
+      "additionalProperties": {
+        "$ref": "#/$defs/ManifestAsset"
+      },
+      "title": "Assets",
+      "type": "object"
+    },
+    "lessons": {
+      "items": {
+        "$ref": "#/$defs/RenderLesson"
+      },
+      "title": "Lessons",
+      "type": "array"
+    }
+  },
+  "required": [
+    "input_checksum",
+    "resolution",
+    "fps",
+    "locale",
+    "template",
+    "safe_area",
+    "watermark",
+    "assets",
+    "lessons"
+  ],
+  "title": "RenderManifestV1",
+  "type": "object"
+}

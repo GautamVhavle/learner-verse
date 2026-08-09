@@ -7,7 +7,7 @@ from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, Integer, St
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
-from app.models.types import UUIDType
+from app.models.types import JSONVariant, UUIDType
 
 
 class Lesson(Base):
@@ -37,6 +37,12 @@ class Lesson(Base):
     youtube_thumbnail: Mapped[str | None] = mapped_column(Text, nullable=True)
     youtube_duration: Mapped[str | None] = mapped_column(String(20), nullable=True)
     youtube_channel: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    # Generated/uploaded media coexists with legacy YouTube lessons.
+    video_asset_id: Mapped[uuid.UUID | None] = mapped_column(UUIDType, nullable=True)
+    captions_asset_id: Mapped[uuid.UUID | None] = mapped_column(UUIDType, nullable=True)
+    video_source: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    video_duration_seconds: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    video_provenance: Mapped[dict | None] = mapped_column(JSONVariant, nullable=True)
     notes_markdown: Mapped[str | None] = mapped_column(Text, nullable=True)
     position: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     created_at: Mapped[datetime] = mapped_column(

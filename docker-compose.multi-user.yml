@@ -45,6 +45,8 @@ services:
       - "${BACKEND_PORT:-8000}:8000"
     volumes:
       - uploads:/app/uploads
+    environment:
+      JOBS_REDIS_URL: "redis://redis:6379/0"
     depends_on:
       db:
         condition: service_healthy
@@ -54,6 +56,42 @@ services:
       timeout: 5s
       retries: 5
       start_period: 20s
+
+  redis:
+    image: redis:7-alpine
+    container_name: learnerverse-multi-redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  jobs-worker:
+    image: learnerverse-multi-backend
+    restart: unless-stopped
+    env_file: .env.multi-user
+    environment:
+      JOBS_REDIS_URL: "redis://redis:6379/0"
+    command: ["uv", "run", "dramatiq", "app.jobs.dramatiq_app"]
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  outbox-dispatcher:
+    image: learnerverse-multi-backend
+    restart: unless-stopped
+    env_file: .env.multi-user
+    environment:
+      JOBS_REDIS_URL: "redis://redis:6379/0"
+    command: ["uv", "run", "python", "-m", "app.jobs.outbox_runner"]
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   # ── Frontend (React + Nginx) ───────────────────────────────
   frontend:

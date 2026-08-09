@@ -58,8 +58,19 @@ jobs:
         with:
           version: "latest"
 
-      - name: Backend lint
-        run: cd backend && uv sync && uv run ruff check app/ --exclude app/api/v1/endpoints/subscription.py --exclude app/services/subscription_service.py
+      - name: Backend checks
+        env:
+          SINGLE_USER_MODE: "true"
+          DATABASE_URL: "sqlite+aiosqlite:///test.db"
+          SECRET_KEY: "test-secret-key-12345678901234567890123456789012"
+          SENTRY_ENVIRONMENT: "test"
+        run: |
+          cd backend
+          uv sync
+          uv run ruff check app/ --exclude app/api/v1/endpoints/subscription.py --exclude app/services/subscription_service.py
+          uv run ruff format app/ --check --exclude app/api/v1/endpoints/subscription.py --exclude app/services/subscription_service.py
+          uv run alembic heads
+          uv run pytest tests/ -q
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -71,7 +82,11 @@ jobs:
       - name: Frontend checks
         run: |
           cd frontend && npm ci
+          npx prettier --write src/hooks/useSubscription.ts src/components/subscription/ProGateDialog.tsx src/components/subscription/CongratulationsDialog.tsx src/components/home/PricingSection.tsx src/pages/PricingPage.tsx src/pages/RenewPage.tsx src/types/subscription.ts
           npx tsc --noEmit
+          npm run lint
+          npx prettier --check "src/**/*.{ts,tsx,css}"
+          npm run test -- --run
           npm run build
 
   deploy-frontend:
@@ -123,6 +138,7 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           VITE_SUPERADMIN_EMAILS: ${{ secrets.SUPERADMIN_EMAILS }}
           VITE_PAYMENT_GATEWAY_ENABLED: "true"
+          VITE_API_BASE_URL: "https://learner-verse.fastapicloud.dev/api/v1"
         run: |
           cd frontend
           vercel pull --yes --environment=production --token=$VERCEL_TOKEN
@@ -163,6 +179,21 @@ jobs:
         with:
           version: "latest"
 
+      # FastAPI Cloud packages and runs the Python app directly; it does not
+      # execute backend/entrypoint.sh. Apply additive migrations before the
+      # zero-downtime rollout so old and new app revisions can share the DB.
+      - name: Run production database migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "DATABASE_URL GitHub secret is required for backend migrations."
+            exit 1
+          fi
+          cd backend
+          uv sync
+          uv run alembic upgrade head
+
       - name: Deploy to FastAPI Cloud
         env:
           FASTAPI_CLOUD_TOKEN: ${{ secrets.FASTAPI_CLOUD_TOKEN }}
@@ -171,4 +202,11 @@ jobs:
           mkdir -p .fastapicloud
           echo '{"app_id":"${{ secrets.FASTAPI_CLOUD_APP_ID }}","team_id":"${{ secrets.FASTAPI_CLOUD_TEAM_ID }}"}' > .fastapicloud/cloud.json
           uv sync
+          uv run fastapi cloud env set MCP_ENABLED true .
+          uv run fastapi cloud env set MCP_HTTP_ENABLED true .
+          uv run fastapi cloud env set MCP_ALLOWED_HOSTS learner-verse.fastapicloud.dev .
+          uv run fastapi cloud env set MCP_PUBLIC_URL https://learner-verse.fastapicloud.dev/mcp/ .
+          uv run fastapi cloud env set MCP_ISSUER_URL https://learner-verse.fastapicloud.dev/ .
+          uv run fastapi cloud env set CORS_ORIGINS https://learnerverse.xyz .
+          uv run fastapi cloud env set PRODUCTION_PIPELINE_ENABLED false .
           uv run fastapi cloud deploy

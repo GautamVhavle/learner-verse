@@ -63,3 +63,10 @@ pgdata/
 .vercel
 .env*.local
 test.db
+
+# === Local MCP/course-generation output ===
+# Generated course drafts and test databases are workstation-only. Course
+# content is persisted through the API; these files must not be deployed.
+/artifacts/
+/backend/test_playlist.db
+/backend/production-assets/

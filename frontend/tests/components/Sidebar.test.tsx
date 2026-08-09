@@ -136,6 +136,7 @@ describe("Sidebar", () => {
     expect(screen.getByText("Analytics")).toBeInTheDocument();
     expect(screen.getByText("Trash")).toBeInTheDocument();
     expect(screen.getByText("Settings")).toBeInTheDocument();
+    expect(screen.getByText("Use MCP")).toBeInTheDocument();
   });
 
   it("shows learner navigation in learner mode", () => {

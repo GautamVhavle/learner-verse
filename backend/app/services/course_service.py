@@ -24,6 +24,7 @@ from app.schemas.course import (
     StatusUpdateResponse,
     ValidationError,
 )
+from app.schemas.course_export import LearnerVerseCourseExportV1
 
 MAX_COURSES_PER_USER = 50
 
@@ -458,10 +459,12 @@ class CourseService:
         }
 
     async def import_course(
-        self, course_id: uuid.UUID, user_id: uuid.UUID, payload: dict
+        self, course_id: uuid.UUID, user_id: uuid.UUID, payload: LearnerVerseCourseExportV1
     ) -> CourseResponse:
         """Validate and import a course JSON, replacing all existing content."""
         from app.models.reference_link import ReferenceLink as ReferenceLinkModel
+
+        payload = payload.model_dump(mode="python")
 
         # --- Validate top-level structure ---
         if payload.get("format") != "learnerverse-course-export":

@@ -16,6 +16,7 @@ import {
   LayoutDashboard,
   LineChart,
   Settings,
+  PlugZap,
   Target,
   Trash2,
   type LucideIcon,
@@ -54,6 +55,7 @@ export const LEARNER_EXTRA: NavLink[] = [];
 
 /** Bottom secondary navigation (settings, help, about). */
 export const SECONDARY_LINKS: NavLink[] = [
+  { title: "Use MCP", icon: PlugZap, path: "/mcp" },
   { title: "Settings", icon: Settings, path: "/settings" },
   { title: "Help", icon: HelpCircle, path: "/help" },
 ];

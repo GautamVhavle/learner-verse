@@ -1,0 +1,1 @@
+{"name":"learnerverse-render-worker","private":true,"version":"0.1.0","engines":{"node":">=22"},"dependencies":{"@remotion/renderer":"4.0.402","remotion":"4.0.402"},"scripts":{"render":"node dist/render.js"}}

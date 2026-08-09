@@ -20,6 +20,7 @@ import {
   Crown,
 } from "lucide-react";
 import { PreferencesSection } from "@/components/settings/PreferencesSection";
+import { McpIntegrationsSection } from "@/components/settings/McpIntegrationsSection";
 import { DangerZoneSection } from "@/components/settings/DangerZoneSection";
 import { useUserQuery, useUpdateUserMutation } from "@/hooks/useUser";
 import { PAYMENT_GATEWAY_ENABLED } from "@/lib/payment";
@@ -114,6 +115,7 @@ export default function SettingsPage() {
           autoPlayNext={user.auto_play_next ?? true}
           onSave={(data) => save(data)}
         />
+        <McpIntegrationsSection />
 
         {/* ── Appearance ────────────────────────────────────────── */}
         <section className="border-border-default bg-bg-secondary space-y-4 rounded-xl border p-5">

@@ -37,11 +37,15 @@ def do_run_migrations(connection) -> None:
 
 
 async def run_async_migrations() -> None:
+    engine_config = config.get_section(config.config_ini_section, {})
+    connect_args = {}
+    if not settings.DATABASE_URL.startswith("sqlite"):
+        connect_args = {"statement_cache_size": 0, "server_settings": {"search_path": "public"}}
     connectable = async_engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        engine_config,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
-        connect_args={"statement_cache_size": 0, "server_settings": {"search_path": "public"}},
+        connect_args=connect_args,
     )
     async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)

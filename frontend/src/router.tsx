@@ -34,6 +34,7 @@ const LoginPage = lazy(() => import("@/pages/LoginPage"));
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
 const HelpPage = lazy(() => import("@/pages/HelpPage"));
+const McpGuidePage = lazy(() => import("@/pages/McpGuidePage"));
 const InboxPage = lazy(() => import("@/pages/InboxPage"));
 const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
 const HomePage = lazy(() => import("@/pages/HomePage"));
@@ -81,6 +82,7 @@ function SharedRoutes() {
       <Route path="settings" element={<SettingsPage />} />
       <Route path="profile" element={<ProfilePage />} />
       <Route path="help" element={<HelpPage />} />
+      <Route path="mcp" element={<McpGuidePage />} />
       <Route path="inbox" element={<InboxPage />} />
       {PAYMENT_GATEWAY_ENABLED && <Route path="renew" element={<RenewPage />} />}
     </>
