@@ -12,6 +12,12 @@ FastAPI Cloud web deployment does not by itself run this repository's Redis,
 outbox, jobs, and rendering services, so the production pipeline flag must stay
 off until those services are separately deployed and observed as healthy.
 
+FastAPI Cloud starts the ASGI app directly rather than the Docker entrypoint.
+Its deployment workflow sets `RUN_MIGRATIONS_ON_STARTUP=true`; application
+startup serializes Alembic with a PostgreSQL advisory lock before accepting
+requests. Docker deployments continue to migrate in `backend/entrypoint.sh` and
+should leave the startup flag off.
+
 ## SLOs and alerts
 
 Alert on MCP availability below 99.9%, p95 discovery latency above 1 second, queue age above 60 seconds, render failures above 2%, worker heartbeat loss, provider/storage errors, budget reservation failures, and abnormal token authentication failures.

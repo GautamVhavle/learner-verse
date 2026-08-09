@@ -23,6 +23,7 @@ from app.api.dependencies import SINGLE_USER_ID
 from app.api.v1.router import api_v1_router
 from app.core.config import settings
 from app.core.database import async_session_maker
+from app.core.migrations import run_startup_migrations
 from app.core.storage import ensure_bucket
 from app.mcp.server import mcp, streamable_app
 from app.models.user import User
@@ -44,6 +45,7 @@ sentry_sdk.init(
 async def lifespan(app: FastAPI):
     """Application lifespan hook: ensures the default user and storage bucket exist."""
     _validate_config()
+    await run_startup_migrations()
 
     if settings.SINGLE_USER_MODE:
         await _ensure_default_user()

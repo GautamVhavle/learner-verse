@@ -41,6 +41,7 @@ class Settings(BaseSettings):
     CORS_ORIGINS: str = "http://localhost:5173"
     FRONTEND_URL: str = "http://localhost:5173"
     DEFAULT_OG_IMAGE_URL: str = "https://learnerverse.xyz/preview.png"
+    RUN_MIGRATIONS_ON_STARTUP: bool = False
 
     # Storage
     UPLOAD_DIR: str = "./uploads"

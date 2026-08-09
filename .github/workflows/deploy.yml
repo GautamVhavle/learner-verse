@@ -179,21 +179,6 @@ jobs:
         with:
           version: "latest"
 
-      # FastAPI Cloud packages and runs the Python app directly; it does not
-      # execute backend/entrypoint.sh. Apply additive migrations before the
-      # zero-downtime rollout so old and new app revisions can share the DB.
-      - name: Run production database migrations
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: |
-          if [ -z "$DATABASE_URL" ]; then
-            echo "DATABASE_URL GitHub secret is required for backend migrations."
-            exit 1
-          fi
-          cd backend
-          uv sync
-          uv run alembic upgrade head
-
       - name: Deploy to FastAPI Cloud
         env:
           FASTAPI_CLOUD_TOKEN: ${{ secrets.FASTAPI_CLOUD_TOKEN }}
@@ -209,4 +194,5 @@ jobs:
           uv run fastapi cloud env set MCP_ISSUER_URL https://learner-verse.fastapicloud.dev/ .
           uv run fastapi cloud env set CORS_ORIGINS https://learnerverse.xyz .
           uv run fastapi cloud env set PRODUCTION_PIPELINE_ENABLED false .
+          uv run fastapi cloud env set RUN_MIGRATIONS_ON_STARTUP true .
           uv run fastapi cloud deploy
