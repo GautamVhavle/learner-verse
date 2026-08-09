@@ -1,4 +1,4 @@
-"""Current MCP 2026-07-28 discovery server; mutations arrive in Batch D."""
+"""LearnerVerse MCP 2026-07-28 server and scoped course-authoring tools."""
 
 from __future__ import annotations
 
@@ -20,8 +20,11 @@ from app.production.orchestration import BuildSubmissionResult, ProductionOrches
 from app.production.render.schemas import RenderManifestV1
 from app.production.schemas.v1.course_build import CourseBuildSpec
 from app.production.services.spec_service import ProductionSpecService
+from app.schemas.course import CourseCreate, CourseUpdate
+from app.schemas.course_export import LearnerVerseCourseExportV1
+from app.services.course_service import CourseService
 
-INSTRUCTIONS = """LearnerVerse builds reviewable private course videos from CourseBuildSpec. Read learnerverse://workflow and the schema resources. Validate first; upload local files only through explicit asset tools; submit once with an idempotency key; poll jobs; approve review and publish only after the user explicitly authorizes publication."""
+INSTRUCTIONS = """LearnerVerse creates curated courses and builds reviewable private course videos. For video, reading, reference-link, and quiz curricula, call create_course_from_export, inspect get_course_for_review, and call publish_course only after explicit authorization. For generated-video production, read learnerverse://workflow and the CourseBuildSpec schema, validate first, submit once with an idempotency key, and poll jobs without busy-looping."""
 mcp = MCPServer(
     name="LearnerVerse",
     version="0.1.0",
@@ -49,14 +52,23 @@ class Capabilities(BaseModel):
     structured_output=True,
 )
 def get_capabilities() -> Capabilities:
+    tools = [
+        "validate_course_spec",
+        "create_course_from_export",
+        "get_course_for_review",
+        "publish_course",
+    ]
+    if settings.PRODUCTION_PIPELINE_ENABLED:
+        tools.extend(["build_course_from_spec", "get_job", "cancel_job"])
     return Capabilities(
         protocol_target="2026-07-28",
-        tools=["validate_course_spec", "build_course_from_spec", "get_job", "cancel_job"]
-        if settings.MCP_ENABLED
-        else [],
-        mutations_available=settings.MCP_ENABLED and settings.PRODUCTION_PIPELINE_ENABLED,
+        tools=tools if settings.MCP_ENABLED else [],
+        mutations_available=settings.MCP_ENABLED,
         tasks_extension={"supported": settings.MCP_TASKS_EXTENSION_ENABLED},
-        next_action="Read learnerverse://workflow, validate the spec, then submit one idempotent build.",
+        next_action=(
+            "Use create_course_from_export for curated video, reading, and quiz courses; "
+            "review before calling publish_course with confirm=true."
+        ),
     )
 
 
@@ -178,6 +190,123 @@ async def cancel_job(job_id: str) -> JobResult:
         )
 
 
+class CourseMutationResult(BaseModel):
+    course_id: str
+    title: str
+    status: str
+    is_public: bool
+    section_count: int
+    lesson_count: int
+    validation_errors: list[dict]
+    course_url: str
+
+
+class CourseReviewResult(CourseMutationResult):
+    course: dict
+
+
+def _course_url(course_id: UUID) -> str:
+    return f"{settings.FRONTEND_URL.rstrip('/')}/courses/{course_id}"
+
+
+async def _course_result(
+    service: CourseService, course_id: UUID, user_id: UUID
+) -> CourseMutationResult:
+    course = await service.get_course(course_id, user_id)
+    errors = await service.validate_course(course_id, user_id)
+    return CourseMutationResult(
+        course_id=str(course.id),
+        title=course.title,
+        status=course.status,
+        is_public=course.is_public,
+        section_count=course.section_count,
+        lesson_count=course.lesson_count,
+        validation_errors=[error.model_dump(mode="json") for error in errors],
+        course_url=_course_url(course.id),
+    )
+
+
+@mcp.tool(
+    name="create_course_from_export",
+    description=(
+        "Create a private draft course from LearnerVerse export v1 content, including video, "
+        "reading, reference-link, and quiz lessons. Review the result before publishing."
+    ),
+    structured_output=True,
+)
+async def create_course_from_export(
+    payload: dict, thumbnail_url: str | None = None
+) -> CourseMutationResult:
+    user_id = _mcp_user_id("course:write")
+    export = LearnerVerseCourseExportV1.model_validate(payload)
+    safe_payload = export.model_dump(mode="python")
+    safe_payload["course"]["status"] = "draft"
+    safe_payload["course"]["is_public"] = False
+    export = LearnerVerseCourseExportV1.model_validate(safe_payload)
+
+    async with async_session_maker() as db:
+        service = CourseService(db)
+        course = await service.create_course(
+            user_id,
+            CourseCreate(
+                title=export.course.title,
+                description=export.course.description,
+                thumbnail_url=thumbnail_url,
+                category=export.course.category,
+                tags=export.course.tags,
+            ),
+        )
+        try:
+            imported = await service.import_course(course.id, user_id, export)
+        except Exception:
+            await db.rollback()
+            # Creation commits before import; remove the new empty draft if import fails.
+            try:
+                await service.soft_delete(course.id, user_id)
+                await service.permanent_delete(course.id, user_id)
+            except Exception:
+                await db.rollback()
+            raise
+        return await _course_result(service, imported.id, user_id)
+
+
+@mcp.tool(
+    name="get_course_for_review",
+    description="Return an owned course export and validation report before publication.",
+    structured_output=True,
+)
+async def get_course_for_review(course_id: str) -> CourseReviewResult:
+    user_id = _mcp_user_id("course:write")
+    parsed_id = UUID(course_id)
+    async with async_session_maker() as db:
+        service = CourseService(db)
+        result = await _course_result(service, parsed_id, user_id)
+        export = await service.export_course(parsed_id, user_id)
+        return CourseReviewResult(**result.model_dump(), course=export)
+
+
+@mcp.tool(
+    name="publish_course",
+    description=(
+        "Validate and publicly publish an owned course. Requires course:publish and explicit "
+        "confirm=true; validation failures leave the course private."
+    ),
+    structured_output=True,
+)
+async def publish_course(course_id: str, confirm: bool = False) -> CourseMutationResult:
+    if not confirm:
+        raise PermissionError("Publishing requires explicit confirm=true.")
+    user_id = _mcp_user_id("course:publish")
+    parsed_id = UUID(course_id)
+    async with async_session_maker() as db:
+        service = CourseService(db)
+        status_result = await service.update_status(parsed_id, user_id, "ready")
+        if not status_result.valid:
+            return await _course_result(service, parsed_id, user_id)
+        await service.update_course(parsed_id, user_id, CourseUpdate(is_public=True))
+        return await _course_result(service, parsed_id, user_id)
+
+
 @mcp.resource("learnerverse://workflow", name="LearnerVerse workflow", mime_type="text/markdown")
 def workflow() -> str:
     return INSTRUCTIONS
@@ -189,7 +318,7 @@ def workflow() -> str:
     mime_type="text/markdown",
 )
 def golden_workflow() -> str:
-    return "get_capabilities → read schema → validate_course_spec → build_course_from_spec(dry_run=true) → build_course_from_spec(dry_run=false,idempotency_key=...) → get_job until review/completed → approve/publish only with explicit user confirmation."
+    return "get_capabilities → create_course_from_export → get_course_for_review → publish_course(confirm=true) only after explicit user confirmation. Generated-video workflow: read schema → validate_course_spec → dry-run → submit once → poll → review → publish."
 
 
 @mcp.resource(
