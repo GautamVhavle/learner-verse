@@ -187,12 +187,6 @@ jobs:
           mkdir -p .fastapicloud
           echo '{"app_id":"${{ secrets.FASTAPI_CLOUD_APP_ID }}","team_id":"${{ secrets.FASTAPI_CLOUD_TEAM_ID }}"}' > .fastapicloud/cloud.json
           uv sync
-          uv run fastapi cloud env set MCP_ENABLED true .
-          uv run fastapi cloud env set MCP_HTTP_ENABLED true .
-          uv run fastapi cloud env set MCP_ALLOWED_HOSTS learner-verse.fastapicloud.dev .
-          uv run fastapi cloud env set MCP_PUBLIC_URL https://learner-verse.fastapicloud.dev/mcp/ .
-          uv run fastapi cloud env set MCP_ISSUER_URL https://learner-verse.fastapicloud.dev/ .
-          uv run fastapi cloud env set CORS_ORIGINS https://learnerverse.xyz .
-          uv run fastapi cloud env set PRODUCTION_PIPELINE_ENABLED false .
-          uv run fastapi cloud env set RUN_MIGRATIONS_ON_STARTUP true .
+          # Runtime configuration is managed persistently in FastAPI Cloud.
+          # The CI deploy token intentionally has deployment-only permissions.
           uv run fastapi cloud deploy
