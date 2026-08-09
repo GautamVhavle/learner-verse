@@ -162,12 +162,14 @@ export function CourseCard({
           </p>
 
           {/* Tags & Status */}
-          <div className="mt-auto flex items-center gap-2 pt-1">
-            <CourseStatusBadge status={course.status} />
+          <div className="mt-auto flex min-w-0 flex-wrap items-center gap-1.5 overflow-hidden pt-1">
+            <div className="shrink-0">
+              <CourseStatusBadge status={course.status} />
+            </div>
             {course.is_public && (
               <button
                 onClick={handleShare}
-                className="text-text-tertiary hover:text-accent-blue ml-auto rounded-md p-1 opacity-0 transition-opacity group-hover:opacity-100"
+                className="text-text-tertiary hover:text-accent-blue ml-auto shrink-0 rounded-md p-1 opacity-0 transition-opacity group-hover:opacity-100"
                 title="Copy share link"
               >
                 <Share2 className="size-3.5" />
@@ -176,7 +178,8 @@ export function CourseCard({
             {course.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag.id}
-                className="bg-bg-tertiary text-text-secondary rounded-full px-2 py-0.5 text-[10px]"
+                className="bg-bg-tertiary text-text-secondary max-w-full truncate rounded-full px-2 py-0.5 text-[10px]"
+                title={tag.name}
               >
                 {tag.name}
               </span>

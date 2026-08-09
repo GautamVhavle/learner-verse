@@ -6,6 +6,7 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.mcp import server
+from app.models.course import Course
 from app.models.user import User
 
 
@@ -84,6 +85,14 @@ async def test_mcp_can_create_review_and_publish_curated_course(
 
     review = await server.get_course_for_review(created.course_id)
     assert review.course["sections"][0]["lessons"][2]["quiz_questions"][0]["correct_option"] == 0
+
+    updated = await server.update_course_thumbnail(
+        created.course_id, "https://learnerverse.example/docker-essentials.png"
+    )
+    assert updated.course_id == created.course_id
+    stored_course = await db_session.get(Course, uuid.UUID(created.course_id))
+    assert stored_course is not None
+    assert stored_course.thumbnail_url == "https://learnerverse.example/docker-essentials.png"
 
     with pytest.raises(PermissionError, match="confirm=true"):
         await server.publish_course(created.course_id)

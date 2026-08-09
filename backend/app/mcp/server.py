@@ -57,6 +57,7 @@ def get_capabilities() -> Capabilities:
         "create_course_from_export",
         "list_courses_for_review",
         "get_course_for_review",
+        "update_course_thumbnail",
         "publish_course",
     ]
     if settings.PRODUCTION_PIPELINE_ENABLED:
@@ -327,6 +328,21 @@ async def get_course_for_review(course_id: str) -> CourseReviewResult:
         result = await _course_result(service, parsed_id, user_id)
         export = await service.export_course(parsed_id, user_id)
         return CourseReviewResult(**result.model_dump(), course=export)
+
+
+@mcp.tool(
+    name="update_course_thumbnail",
+    description="Update an owned course thumbnail to a public HTTP(S) image URL.",
+    structured_output=True,
+)
+async def update_course_thumbnail(course_id: str, thumbnail_url: str) -> CourseMutationResult:
+    user_id = _mcp_user_id("course:write")
+    parsed_id = UUID(course_id)
+    update = CourseUpdate(thumbnail_url=thumbnail_url)
+    async with async_session_maker() as db:
+        service = CourseService(db)
+        await service.update_course(parsed_id, user_id, update)
+        return await _course_result(service, parsed_id, user_id)
 
 
 @mcp.tool(
