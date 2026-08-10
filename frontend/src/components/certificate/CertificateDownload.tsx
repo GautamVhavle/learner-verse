@@ -6,9 +6,15 @@
  * sits on a single page with balanced whitespace.
  */
 import { Document, Page, Text, View, StyleSheet, pdf, Image } from "@react-pdf/renderer";
+import { Buffer } from "buffer";
 import { Download, Loader2 } from "lucide-react";
 import { useState } from "react";
 import type { CertificateResponse } from "@/types/certificate";
+
+// @react-pdf's font tooling expects Node's Buffer global. Vite does not
+// provide Node globals in browser builds, so install the small browser shim
+// before a certificate is rendered or downloaded.
+globalThis.Buffer ??= Buffer;
 
 /* ── Palette ───────────────────────────────────────── */
 const C = {

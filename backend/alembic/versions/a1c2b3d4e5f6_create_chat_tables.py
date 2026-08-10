@@ -21,10 +21,10 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     op.create_table(
         "chat_threads",
-        sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
+        sa.Column("id", sa.Uuid(), primary_key=True),
         sa.Column(
             "user_id",
-            postgresql.UUID(as_uuid=True),
+            sa.Uuid(),
             sa.ForeignKey("users.id", ondelete="CASCADE"),
             nullable=False,
         ),
@@ -46,10 +46,10 @@ def upgrade() -> None:
 
     op.create_table(
         "chat_messages",
-        sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
+        sa.Column("id", sa.Uuid(), primary_key=True),
         sa.Column(
             "thread_id",
-            postgresql.UUID(as_uuid=True),
+            sa.Uuid(),
             sa.ForeignKey("chat_threads.id", ondelete="CASCADE"),
             nullable=False,
         ),

@@ -156,37 +156,31 @@ docker compose up --build         # backend :8000, frontend :3000
 
 ### Single-User Mode (Self-Hosted)
 
-Perfect for personal learning or small teams. No Auth0, no external dependencies - just PostgreSQL + FastAPI + React in a single Docker container.
+For one trusted person. No Auth0 is required, but there is no login boundary, so this mode is not suitable for a school or an untrusted network.
 
 **Setup:**
 
 ```bash
-# 1. Copy the sample environment
-cp single_user.sample.env .env.single-user
-
-# 2. (Optional) Edit .env.single-user to customize:
-#    - POSTGRES_HOST_PORT: change if 5433 is already in use
-#    - Add API keys for AI features (OPENROUTER_API_KEY, GEMINI_API_KEY)
-nano .env.single-user
-
-# 3. Start the entire stack with one command
-docker compose --env-file .env.single-user -f docker-compose.single-user.yml up --build
+./scripts/self-host.sh setup single
+# Optionally add OPENROUTER_API_KEY or GEMINI_API_KEY to .env.single-user
+./scripts/self-host.sh up single
 ```
 
-Then open **http://localhost:3000** - you're automatically logged in as `local@learnerverse.dev` with all Pro features unlocked.
+Then open **http://localhost:3000** - you're automatically logged in as `local@learnerverse.dev` with feature gates unlocked.
 
 **Features in Single-User Mode:**
-- ✅ All Pro features enabled (AI tutor, unlimited quizzes, certificates)
+- ✅ Courses, quizzes, progress, certificates, goals, discussions, and local uploads
+- ✅ AI tutor and AI generation when an AI provider key is configured
 - ✅ Local file storage (no Supabase)
 - ✅ No authentication (always logged in)
 - ✅ PostgreSQL database (data persisted in Docker volumes)
 - ✅ Runs on any machine with Docker
 
-To stop: `docker compose --env-file .env.single-user -f docker-compose.single-user.yml down`
+To stop without deleting data: `./scripts/self-host.sh down single`
 
 ### Multi-User Mode (Self-Hosted)
 
-For teams, classrooms, or communities. Uses Auth0 for authentication so multiple users can sign up, track their own progress, and earn individual certificates. Payment gateway is disabled - all users get full access.
+For schools, classrooms, or communities. Uses Auth0 for authentication so users have isolated progress, notes, and certificates. Payment gating is disabled, so all authenticated users receive the complete supported LMS feature set.
 
 **Prerequisites:**
 - A free [Auth0](https://auth0.com) account
@@ -195,14 +189,11 @@ For teams, classrooms, or communities. Uses Auth0 for authentication so multiple
 **Setup:**
 
 ```bash
-# 1. Copy the sample environment
-cp multi_user.sample.env .env.multi-user
-
-# 2. Fill in your Auth0 credentials and (optional) API keys
+./scripts/self-host.sh setup multi
+# Fill in Auth0, the public school URL, an admin email, and optional AI keys
 nano .env.multi-user
-
-# 3. Start the entire stack with one command
-docker compose --env-file .env.multi-user -f docker-compose.multi-user.yml up --build
+./scripts/self-host.sh check multi
+./scripts/self-host.sh up multi
 ```
 
 Then open **http://localhost:3000** - users can sign up and log in via Auth0.
@@ -215,7 +206,9 @@ Then open **http://localhost:3000** - users can sign up and log in via Auth0.
 - ✅ Local file storage (no Supabase)
 - ✅ PostgreSQL database (data persisted in Docker volumes)
 
-To stop: `docker compose --env-file .env.multi-user -f docker-compose.multi-user.yml down`
+For HTTPS, backups, upgrades, feature dependencies, verification, and troubleshooting, follow the **[complete self-hosting guide](docs/self-hosting.md)**.
+
+To stop without deleting data: `./scripts/self-host.sh down multi`
 
 ---
 
@@ -296,25 +289,25 @@ See [`.github/workflows/`](.github/workflows/) for the pipeline configuration.
 
 ### Self-Hosting
 
-LearnerVerse supports three deployment modes:
+Use multi-user mode for a school. It provides Auth0 login and isolated accounts while keeping the database and backend private inside the Docker network. Single-user mode has no login boundary and is only for one trusted person or a tightly controlled private network.
 
-| Mode | Auth | AI Features | Payment UI |
-|------|------|------------|------------|
-| **Single-user** | None (`SINGLE_USER_MODE=true`) | All unlocked | Hidden |
-| **Multi-user** | Auth0 | All unlocked | Hidden |
-| **Hosted SaaS** | Auth0 + payment module | Gated behind subscription | Visible |
-
-By default, `PAYMENT_GATEWAY_ENABLED=false` -- every user gets full access. No pricing pages, upgrade banners, or paywall dialogs appear. Self-hosters get the complete feature set out of the box.
+| Mode | Intended use | Authentication | Payment UI |
+|------|--------------|----------------|------------|
+| **Multi-user** | Schools and teams | Auth0 | Hidden |
+| **Single-user** | One trusted operator | None | Hidden |
 
 ```bash
 git clone https://github.com/GautamVhavle/learner-verse.git
 cd learner-verse
-make setup        # copy sample.env files
-# Edit .env and frontend/.env with your settings
-make docker       # start everything
+./scripts/self-host.sh setup multi
+# Configure the Auth0 and public-hostname values in .env.multi-user
+./scripts/self-host.sh check multi
+./scripts/self-host.sh up multi
 ```
 
-The app will be available at `http://localhost:3000` (frontend) and `http://localhost:8000` (backend API).
+The application is served from one public origin (port `3000` by default); `/api`, `/uploads`, and `/mcp` are routed internally. PostgreSQL and the backend API are not published as host ports. AI features require an OpenRouter or Gemini key, and email delivery is not currently implemented.
+
+See the [complete school self-hosting guide](docs/self-hosting.md) for TLS, Auth0 callback URLs, backups, upgrades, health checks, and the feature dependency matrix.
 
 ---
 

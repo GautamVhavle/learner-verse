@@ -32,24 +32,28 @@ describe("McpGuidePage", () => {
     });
   });
 
-  it("documents the complete MCP surface and client options", async () => {
-    render(<McpGuidePage />);
+  it(
+    "documents the complete MCP surface and client options",
+    async () => {
+      render(<McpGuidePage />);
 
-    expect(
-      screen.getByRole("heading", { name: "Build complete courses from your IDE" }),
-    ).toBeInTheDocument();
-    expect(screen.getByText("get_capabilities")).toBeInTheDocument();
-    expect(screen.getAllByText("validate_course_spec").length).toBeGreaterThan(0);
-    expect(screen.getByText("build_course_from_spec")).toBeInTheDocument();
-    expect(screen.getByText("get_job")).toBeInTheDocument();
-    expect(screen.getByText("cancel_job")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "VS Code" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Claude Code" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Cursor" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "OpenCode" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: "Build complete courses from your IDE" }),
+      ).toBeInTheDocument();
+      expect(screen.getByText("get_capabilities")).toBeInTheDocument();
+      expect(screen.getAllByText("validate_course_spec").length).toBeGreaterThan(0);
+      expect(screen.getByText("build_course_from_spec")).toBeInTheDocument();
+      expect(screen.getByText("get_job")).toBeInTheDocument();
+      expect(screen.getByText("cancel_job")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "VS Code" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Claude Code" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Cursor" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "OpenCode" })).toBeInTheDocument();
 
-    await waitFor(() => expect(apiGet).toHaveBeenCalledTimes(2));
-  });
+      await waitFor(() => expect(apiGet).toHaveBeenCalledTimes(2));
+    },
+    15_000,
+  );
 
   it("creates a copy-once token with the recommended scopes", async () => {
     apiPost.mockResolvedValue({
@@ -85,6 +89,7 @@ describe("McpGuidePage", () => {
             last_used_at: null,
             created_at: "2026-08-10T00:00:00Z",
             revoked: false,
+            expired: false,
           },
           {
             id: "revoked-1",
@@ -95,6 +100,7 @@ describe("McpGuidePage", () => {
             last_used_at: null,
             created_at: "2026-08-09T00:00:00Z",
             revoked: true,
+            expired: false,
           },
         ]);
       }

@@ -1,4 +1,5 @@
-import uuid
+import os
+from pathlib import Path
 
 import pytest
 from httpx import ASGITransport, AsyncClient
@@ -6,21 +7,20 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
 
-# Force single-user mode for tests before importing settings
-import os
-
+# Force single-user mode for tests before importing settings.
 os.environ["SINGLE_USER_MODE"] = "true"
 
 from app.core.config import settings
 from app.core.database import get_db
 from app.models.base import Base
 
-# ── Safety check: never run tests against a remote / production database ──
+# ── Safety check: only run destructive fixtures against a named test database ──
 _db_url = settings.DATABASE_URL.lower()
-if "supabase" in _db_url or "neon" in _db_url or "amazonaws" in _db_url:
+_database_name = Path(_db_url.rsplit("/", 1)[-1].split("?", 1)[0]).name
+if "test" not in _database_name and ":memory:" not in _db_url:
     raise RuntimeError(
-        "Refusing to run tests against a remote database!\n"
-        "Tests TRUNCATE all tables. Set DATABASE_URL to a local Postgres instance.\n"
+        "Refusing to run destructive tests against a database not named as a test database!\n"
+        "Set DATABASE_URL to SQLite test.db or a local Postgres database containing 'test'.\n"
         "Example: DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/learnerverse_test"
     )
 
@@ -42,9 +42,10 @@ TestSessionLocal = async_sessionmaker(test_engine, class_=AsyncSession, expire_o
 
 @pytest.fixture(scope="session", autouse=True)
 async def _create_tables():
-    """Create all tables for SQLite (Postgres uses Alembic migrations)."""
+    """Recreate SQLite test tables so an old local schema cannot poison a run."""
     if "sqlite" in settings.DATABASE_URL:
         async with test_engine.begin() as conn:
+            await conn.run_sync(Base.metadata.drop_all)
             await conn.run_sync(Base.metadata.create_all)
 
     async with test_engine.begin() as conn:

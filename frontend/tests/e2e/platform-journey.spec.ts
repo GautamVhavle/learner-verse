@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-const API = "http://localhost:8000/api/v1";
+const API = process.env.E2E_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
 /**
  * Phase 20 - Full Platform E2E Journey
@@ -130,7 +130,7 @@ test.describe.serial("Full Platform Journey", () => {
   // ── Creator Dashboard ─────────────────────────────────
 
   test("creator dashboard shows the course", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/creator");
     await page.evaluate(() => {
       localStorage.setItem("learnerverse-mode", JSON.stringify({ state: { mode: "creator" }, version: 0 }));
     });
@@ -144,21 +144,21 @@ test.describe.serial("Full Platform Journey", () => {
 
   // ── Study Mode ─────────────────────────────────────────
 
-  test("learner dashboard shows ready course", async ({ page }) => {
+  test("learner dashboard does not auto-enrol an owned course", async ({ page }) => {
     // Set student mode before navigating
-    await page.goto("/");
+    await page.goto("/learner");
     await page.evaluate(() => {
       localStorage.setItem("learnerverse-mode", JSON.stringify({ state: { mode: "student" }, version: 0 }));
     });
-    await page.goto("/");
+    await page.goto("/learner");
     await page.waitForLoadState("networkidle");
 
-    // Should see the course in learner/student mode (scoped to main content to avoid sidebar match)
-    await expect(page.locator("#main-content").getByText("E2E Test Course")).toBeVisible({ timeout: 10000 });
+    // Publishing a creator-owned course must not fabricate an enrollment.
+    await expect(page.getByText("No courses enrolled yet")).toBeVisible({ timeout: 10_000 });
   });
 
   test("study page shows course overview with sections", async ({ page }) => {
-    await page.goto(`/study/${courseId}`);
+    await page.goto(`/learner/study/${courseId}`);
     await page.waitForLoadState("networkidle");
 
     await expect(page.locator("#main-content").getByRole("heading", { name: "E2E Test Course" })).toBeVisible();
@@ -170,7 +170,7 @@ test.describe.serial("Full Platform Journey", () => {
   });
 
   test("lesson page renders markdown content", async ({ page }) => {
-    await page.goto(`/study/${courseId}/lessons/${lesson1Id}`);
+    await page.goto(`/learner/study/${courseId}/lessons/${lesson1Id}`);
     await page.waitForLoadState("networkidle");
 
     await expect(page.getByRole("heading", { name: "Introduction" })).toBeVisible();
@@ -179,7 +179,7 @@ test.describe.serial("Full Platform Journey", () => {
   });
 
   test("lesson page has completion button", async ({ page }) => {
-    await page.goto(`/study/${courseId}/lessons/${lesson1Id}`);
+    await page.goto(`/learner/study/${courseId}/lessons/${lesson1Id}`);
     await page.waitForLoadState("networkidle");
 
     const completionBtn = page.getByRole("button", { name: /mark.*complete|completed/i });
@@ -195,7 +195,7 @@ test.describe.serial("Full Platform Journey", () => {
     await completeLessonViaAPI(lesson3Id);
 
     // Visit study page to see progress
-    await page.goto(`/study/${courseId}`);
+    await page.goto(`/learner/study/${courseId}`);
     await page.waitForLoadState("networkidle");
 
     // Progress should show 100%
@@ -217,15 +217,15 @@ test.describe.serial("Full Platform Journey", () => {
   });
 
   test("certificates page shows earned certificate", async ({ page }) => {
-    await page.goto("/certificates");
+    await page.goto("/learner/certificates");
     await page.waitForLoadState("networkidle");
 
-    await expect(page.locator("#main-content").getByText("E2E Test Course")).toBeVisible();
-    await expect(page.locator("#main-content").getByText(/LV-/)).toBeVisible();
+    await expect(page.locator("#main-content").getByText("E2E Test Course").first()).toBeVisible();
+    await expect(page.locator("#main-content").getByText(/LV-/).first()).toBeVisible();
   });
 
   test("certificate preview dialog with share link", async ({ page }) => {
-    await page.goto("/certificates");
+    await page.goto("/learner/certificates");
     await page.waitForLoadState("networkidle");
 
     // Click on certificate card
@@ -236,8 +236,13 @@ test.describe.serial("Full Platform Journey", () => {
     await expect(page.getByText("Earned by Local User")).toBeVisible();
 
     // Should have Copy Link and Share buttons
-    await expect(page.getByTestId("copy-share-link")).toBeVisible();
-    await expect(page.getByRole("button", { name: /share/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Copy Link", exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Share", exact: true })).toBeVisible();
+
+    const downloadPromise = page.waitForEvent("download");
+    await page.getByRole("button", { name: "Download PDF", exact: true }).click();
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toMatch(/^LV-.*\.pdf$/);
   });
 
   test("certificate share endpoint works", async () => {
@@ -256,12 +261,8 @@ test.describe.serial("Full Platform Journey", () => {
   // ── Settings ───────────────────────────────────────────
 
   test("settings page has all sections", async ({ page }) => {
-    await page.goto("/settings");
+    await page.goto("/learner/settings");
     await page.waitForLoadState("networkidle");
-
-    // Profile section
-    await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
-    await expect(page.getByTestId("settings-display-name")).toBeVisible();
 
     // Preferences section
     await expect(page.getByRole("heading", { name: "Preferences" })).toBeVisible();
@@ -270,12 +271,9 @@ test.describe.serial("Full Platform Journey", () => {
     // Keyboard Shortcuts section
     await expect(page.getByRole("heading", { name: "Keyboard Shortcuts" })).toBeVisible();
 
-    // Data section
-    await expect(page.getByRole("heading", { name: "Data" })).toBeVisible();
-
-    // About section
-    await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
-    await expect(page.getByText("Version 1.0.0")).toBeVisible();
+    // Appearance and account sections
+    await expect(page.getByRole("heading", { name: "Appearance" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Account" })).toBeVisible();
   });
 
   // ── 404 Page ───────────────────────────────────────────
@@ -292,7 +290,7 @@ test.describe.serial("Full Platform Journey", () => {
   // ── Stats Page ─────────────────────────────────────────
 
   test("stats page shows activity after completions", async ({ page }) => {
-    await page.goto("/stats");
+    await page.goto("/learner/stats");
     await page.waitForLoadState("networkidle");
 
     await expect(page.getByRole("heading", { name: "Learning Stats" })).toBeVisible();
@@ -301,7 +299,7 @@ test.describe.serial("Full Platform Journey", () => {
   // ── Goals Page ─────────────────────────────────────────
 
   test("goals page shows goal for course", async ({ page }) => {
-    await page.goto("/goals");
+    await page.goto("/learner/goals");
     await page.waitForLoadState("networkidle");
 
     await expect(page.getByRole("heading", { name: "Learning Goals" })).toBeVisible();

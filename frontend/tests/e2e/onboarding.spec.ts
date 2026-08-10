@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-const API = "http://localhost:8000/api/v1";
+const API = process.env.E2E_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
 async function setOnboarding(complete: boolean) {
   await fetch(`${API}/auth/me`, {
@@ -31,7 +31,7 @@ test.describe.serial("Onboarding & Empty States", () => {
 
   test("shows onboarding for new user", async ({ page }) => {
     await setOnboarding(false);
-    await page.goto("/");
+    await page.goto("/creator");
     await expect(page.getByTestId("onboarding")).toBeVisible();
     await expect(page.getByTestId("onboarding-title")).toHaveText(
       "Welcome to Learner Verse",
@@ -40,7 +40,7 @@ test.describe.serial("Onboarding & Empty States", () => {
 
   test("can navigate through onboarding steps", async ({ page }) => {
     await setOnboarding(false);
-    await page.goto("/");
+    await page.goto("/creator");
     await expect(page.getByTestId("onboarding-title")).toHaveText(
       "Welcome to Learner Verse",
     );
@@ -60,7 +60,7 @@ test.describe.serial("Onboarding & Empty States", () => {
 
   test("completing onboarding shows dashboard", async ({ page }) => {
     await setOnboarding(false);
-    await page.goto("/");
+    await page.goto("/creator");
     await expect(page.getByTestId("onboarding")).toBeVisible();
 
     // Navigate to last step
@@ -78,7 +78,7 @@ test.describe.serial("Onboarding & Empty States", () => {
 
   test("onboarding persists after completion", async ({ page }) => {
     // Should already be complete from prior test
-    await page.goto("/");
+    await page.goto("/creator");
     // Should NOT see onboarding
     await expect(page.getByTestId("onboarding")).not.toBeVisible({
       timeout: 3000,
@@ -93,7 +93,7 @@ test.describe.serial("Onboarding & Empty States", () => {
 
   test("skip button completes onboarding", async ({ page }) => {
     await setOnboarding(false);
-    await page.goto("/");
+    await page.goto("/creator");
     await expect(page.getByTestId("onboarding")).toBeVisible();
 
     await page.getByTestId("onboarding-skip").click();
@@ -109,24 +109,24 @@ test.describe.serial("Onboarding & Empty States", () => {
   test("trash page shows empty state", async ({ page }) => {
     await cleanupCourses();
     await setOnboarding(true);
-    await page.goto("/trash");
+    await page.goto("/creator/trash");
     await expect(page.getByText("Trash is empty")).toBeVisible();
   });
 
   test("certificates page shows empty state", async ({ page }) => {
-    await page.goto("/certificates");
+    await page.goto("/learner/certificates");
     await expect(page.getByText("No certificates yet")).toBeVisible();
   });
 
   test("goals page shows empty state when no courses", async ({ page }) => {
-    await page.goto("/goals");
+    await page.goto("/learner/goals");
     await expect(
       page.getByRole("heading", { name: "Learning Goals" }),
     ).toBeVisible();
   });
 
   test("stats page shows empty state when no activity", async ({ page }) => {
-    await page.goto("/stats");
+    await page.goto("/learner/stats");
     await expect(
       page.getByRole("heading", { name: "Learning Stats" }),
     ).toBeVisible();

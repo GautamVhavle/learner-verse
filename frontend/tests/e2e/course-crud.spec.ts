@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-const API = "http://localhost:8000/api/v1";
+const API = process.env.E2E_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
 /** Delete all courses (active + trashed) to ensure test isolation. */
 async function cleanupCourses() {
@@ -20,7 +20,7 @@ async function cleanupCourses() {
 test.describe.serial("Course CRUD", () => {
   test.beforeEach(async ({ page }) => {
     await cleanupCourses();
-    await page.goto("/");
+    await page.goto("/creator");
     await page.evaluate(() => localStorage.clear());
     await page.reload();
     await page.waitForLoadState("networkidle");
@@ -43,8 +43,12 @@ test.describe.serial("Course CRUD", () => {
     // Submit via the dialog button
     await page.locator("[data-slot='dialog-content']").getByRole("button", { name: "Create Course" }).click();
 
-    // Dialog should close and course should appear
-    await expect(page.getByText("Test Course")).toBeVisible();
+    // Wait for the mutation to finish so text still present in the form cannot
+    // produce a false positive when course creation fails.
+    await expect(page.locator("[data-slot='dialog-content']")).toBeHidden();
+    await expect(
+      page.getByTestId("course-card").getByRole("heading", { name: "Test Course" }),
+    ).toBeVisible();
     // Tags should be visible
     await expect(page.getByText("testing")).toBeVisible();
   });

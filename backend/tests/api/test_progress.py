@@ -1,4 +1,10 @@
+import uuid
+
 import pytest
+from fastapi import HTTPException
+
+from app.schemas.progress import ProgressToggle
+from app.services.progress_service import ProgressService
 
 
 # --- Helpers ---
@@ -49,6 +55,27 @@ async def test_toggle_lesson_complete(client):
     assert data["lesson_id"] == lesson["id"]
     assert data["completed"] is True
     assert data["completed_at"] is not None
+
+
+@pytest.mark.asyncio
+async def test_progress_rejects_user_without_course_access(client, db_session):
+    """Knowing a private course UUID must not grant progress read/write access."""
+    await _ensure_user(client)
+    course = await _create_course(client)
+    section = await _create_section(client, course["id"])
+    lesson = await _create_lesson(client, section["id"])
+    stranger_id = uuid.uuid4()
+    service = ProgressService(db_session)
+
+    with pytest.raises(HTTPException) as read_error:
+        await service.get_course_progress(uuid.UUID(course["id"]), stranger_id)
+    assert read_error.value.status_code == 403
+
+    with pytest.raises(HTTPException) as write_error:
+        await service.toggle_lesson(
+            uuid.UUID(lesson["id"]), stranger_id, ProgressToggle(completed=True)
+        )
+    assert write_error.value.status_code == 403
 
 
 @pytest.mark.asyncio
@@ -126,8 +153,8 @@ async def test_course_progress_partial(client):
     course = await _create_course(client)
     section = await _create_section(client, course["id"])
     l1 = await _create_lesson(client, section["id"], title="L1")
-    l2 = await _create_lesson(client, section["id"], title="L2")
-    l3 = await _create_lesson(client, section["id"], title="L3")
+    await _create_lesson(client, section["id"], title="L2")
+    await _create_lesson(client, section["id"], title="L3")
 
     # Complete 1 of 3
     await client.put(
@@ -174,8 +201,8 @@ async def test_course_progress_multi_section(client):
     s1 = await _create_section(client, course["id"], title="Section 1")
     s2 = await _create_section(client, course["id"], title="Section 2")
     l1 = await _create_lesson(client, s1["id"], title="S1 L1")
-    l2 = await _create_lesson(client, s1["id"], title="S1 L2")
-    l3 = await _create_lesson(client, s2["id"], title="S2 L1")
+    await _create_lesson(client, s1["id"], title="S1 L2")
+    await _create_lesson(client, s2["id"], title="S2 L1")
 
     await client.put(
         f"/api/v1/progress/lessons/{l1['id']}",
@@ -283,12 +310,8 @@ async def test_progress_after_adding_new_lesson(client):
 
 
 @pytest.mark.asyncio
-async def test_progress_course_not_found_returns_zeros(client):
-    """Progress for non-existent course returns 200 with zero values."""
+async def test_progress_course_not_found_returns_404(client):
+    """A nonexistent UUID is not exposed as a synthetic empty course."""
     await _ensure_user(client)
     resp = await client.get("/api/v1/progress/courses/00000000-0000-0000-0000-000000000099")
-    assert resp.status_code == 200
-    data = resp.json()
-    assert data["percentage"] == 0
-    assert data["total_lessons"] == 0
-    assert data["completed_lessons"] == 0
+    assert resp.status_code == 404

@@ -23,7 +23,7 @@ COPY private/frontend/src/pages/RenewPage.tsx src/pages/RenewPage.tsx
 COPY private/frontend/src/types/subscription.ts src/types/subscription.ts
 
 # Build-time env vars baked into the static bundle.
-ARG VITE_API_BASE_URL=http://localhost:8000/api/v1
+ARG VITE_API_BASE_URL=/api/v1
 ARG VITE_SINGLE_USER_MODE=true
 ARG VITE_AUTH0_DOMAIN=""
 ARG VITE_AUTH0_CLIENT_ID=""
@@ -37,7 +37,7 @@ ENV VITE_AUTH0_CLIENT_ID=$VITE_AUTH0_CLIENT_ID
 ENV VITE_AUTH0_AUDIENCE=$VITE_AUTH0_AUDIENCE
 ENV VITE_PAYMENT_GATEWAY_ENABLED=$VITE_PAYMENT_GATEWAY_ENABLED
 
-RUN npx vite build
+RUN npm run build
 
 # ── Stage 2: Serve with nginx ────────────────────────────
 FROM nginx:alpine

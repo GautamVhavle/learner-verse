@@ -1,5 +1,6 @@
+from datetime import date
+
 import pytest
-from datetime import date, timedelta
 
 from app.services.stats_service import StatsService
 

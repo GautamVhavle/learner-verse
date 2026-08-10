@@ -26,6 +26,7 @@ from app.schemas.progress import (
     ProgressToggle,
     SectionProgressResponse,
 )
+from app.services.course_access_service import ensure_learning_access
 
 
 class ProgressService:
@@ -49,6 +50,7 @@ class ProgressService:
         """
         # Resolve lesson → course_id
         course_id = await self._get_course_id_for_lesson(lesson_id)
+        await ensure_learning_access(self.db, course_id, user_id)
 
         # Completion lock: reject if enrollment is already completed
         enrollment_repo = EnrollmentRepository(self.db)
@@ -86,6 +88,8 @@ class ProgressService:
         Returns per-section breakdowns, overall percentage, per-lesson
         completion map, lock status, and optional goal-pace analysis.
         """
+        await ensure_learning_access(self.db, course_id, user_id)
+
         # Fetch sections+lessons AND goal_date in parallel-friendly single session
         sections = await self._fetch_sections_with_lessons(course_id)
         all_lesson_ids = [lesson.id for section in sections for lesson in section.lessons]

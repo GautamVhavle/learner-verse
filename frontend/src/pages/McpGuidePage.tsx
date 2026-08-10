@@ -58,6 +58,7 @@ interface TokenSummary {
   last_used_at: string | null;
   created_at: string;
   revoked: boolean;
+  expired: boolean;
 }
 
 interface McpStatus {
@@ -684,10 +685,12 @@ export default function McpGuidePage() {
                         className={`rounded-full px-2 py-0.5 text-[9px] font-semibold ${
                           item.revoked
                             ? "bg-accent-red/10 text-accent-red"
-                            : "bg-accent-green/10 text-accent-green"
+                            : item.expired
+                              ? "bg-accent-amber/10 text-accent-amber"
+                              : "bg-accent-green/10 text-accent-green"
                         }`}
                       >
-                        {item.revoked ? "Revoked" : "Active"}
+                        {item.revoked ? "Revoked" : item.expired ? "Expired" : "Active"}
                       </span>
                     </div>
                     <div className="text-text-tertiary mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[10px]">

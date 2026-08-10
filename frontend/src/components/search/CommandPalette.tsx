@@ -1,7 +1,7 @@
 /**
  * Keyboard-driven command palette for searching courses, lessons, and notes.
  */
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BookOpen, FileText, GraduationCap, Layers, Search, StickyNote } from "lucide-react";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { useSearchQuery } from "@/hooks/useSearch";
@@ -45,7 +45,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   }, [query]);
 
   const { data, isFetching } = useSearchQuery(debouncedQuery);
-  const results = data?.results ?? [];
+  const results = useMemo(() => data?.results ?? [], [data?.results]);
 
   // Reset on open
   useEffect(() => {

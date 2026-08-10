@@ -1,5 +1,6 @@
 import pytest
 from mcp import Client
+
 from app.mcp.server import mcp
 
 

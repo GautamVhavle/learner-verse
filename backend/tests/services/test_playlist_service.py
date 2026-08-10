@@ -7,14 +7,14 @@ current ``lockupViewModel`` structure that YouTube switched to in 2025.
 import pytest
 
 from app.services.playlist_service import (
-    _extract_videos_from_data,
     _extract_playlist_id,
+    _extract_videos_from_data,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers: minimal fake ytInitialData payloads
 # ---------------------------------------------------------------------------
+
 
 def _make_lockup_item(video_id: str, title: str, channel: str) -> dict:
     """Build a minimal lockupViewModel entry matching the current YouTube schema."""
@@ -26,18 +26,14 @@ def _make_lockup_item(video_id: str, title: str, channel: str) -> dict:
                 "lockupMetadataViewModel": {
                     "title": {"content": title},
                     "image": {
-                        "decoratedAvatarViewModel": {
-                            "a11yLabel": f"Go to channel {channel}"
-                        }
+                        "decoratedAvatarViewModel": {"a11yLabel": f"Go to channel {channel}"}
                     },
                 }
             },
             "contentImage": {
                 "thumbnailViewModel": {
                     "image": {
-                        "sources": [
-                            {"url": f"https://i.ytimg.com/vi/{video_id}/hqdefault.jpg"}
-                        ]
+                        "sources": [{"url": f"https://i.ytimg.com/vi/{video_id}/hqdefault.jpg"}]
                     }
                 }
             },
@@ -66,13 +62,7 @@ def _wrap_in_data(items: list[dict], playlist_title: str = "Test Playlist") -> d
                         "tabRenderer": {
                             "content": {
                                 "sectionListRenderer": {
-                                    "contents": [
-                                        {
-                                            "itemSectionRenderer": {
-                                                "contents": items
-                                            }
-                                        }
-                                    ]
+                                    "contents": [{"itemSectionRenderer": {"contents": items}}]
                                 }
                             }
                         }
@@ -80,11 +70,7 @@ def _wrap_in_data(items: list[dict], playlist_title: str = "Test Playlist") -> d
                 ]
             }
         },
-        "header": {
-            "playlistHeaderRenderer": {
-                "title": {"simpleText": playlist_title}
-            }
-        },
+        "header": {"playlistHeaderRenderer": {"title": {"simpleText": playlist_title}}},
         "sidebar": {},
     }
 
@@ -92,6 +78,7 @@ def _wrap_in_data(items: list[dict], playlist_title: str = "Test Playlist") -> d
 # ---------------------------------------------------------------------------
 # _extract_playlist_id
 # ---------------------------------------------------------------------------
+
 
 def test_extract_playlist_id_standard():
     url = "https://www.youtube.com/playlist?list=PLIhvC56v63IJIujb5cyE13oLuyORZpdkL"
@@ -117,6 +104,7 @@ def test_extract_playlist_id_invalid_raises():
 # _extract_videos_from_data — new lockupViewModel schema (current YouTube)
 # ---------------------------------------------------------------------------
 
+
 def test_lockup_extracts_video_id():
     """The new lockupViewModel.contentId must be used as the video ID."""
     data = _wrap_in_data([_make_lockup_item("VbEx7B_PTOE", "Linux EP1", "NetworkChuck")])
@@ -126,7 +114,9 @@ def test_lockup_extracts_video_id():
 
 
 def test_lockup_extracts_title():
-    data = _wrap_in_data([_make_lockup_item("VbEx7B_PTOE", "Linux for Hackers EP1", "NetworkChuck")])
+    data = _wrap_in_data(
+        [_make_lockup_item("VbEx7B_PTOE", "Linux for Hackers EP1", "NetworkChuck")]
+    )
     _, videos = _extract_videos_from_data(data)
     assert videos[0]["title"] == "Linux for Hackers EP1"
 
@@ -204,6 +194,7 @@ def test_lockup_playlist_title_from_header():
 # _extract_videos_from_data — legacy playlistVideoRenderer schema (old YouTube)
 # ---------------------------------------------------------------------------
 
+
 def test_legacy_extracts_video_id():
     data = _wrap_in_data(
         [
@@ -237,6 +228,7 @@ def test_legacy_extracts_title_and_channel():
 # ---------------------------------------------------------------------------
 # Edge cases
 # ---------------------------------------------------------------------------
+
 
 def test_empty_data_returns_empty_videos():
     _, videos = _extract_videos_from_data({})

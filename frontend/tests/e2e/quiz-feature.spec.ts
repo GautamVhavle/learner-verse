@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-const API = "http://localhost:8000/api/v1";
+const API = process.env.E2E_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
 /**
  * Quiz Feature E2E - tests all three lesson types (video, reading, quiz)
@@ -295,7 +295,7 @@ test.describe.serial("Quiz Feature - All Lesson Types", () => {
   test("course builder shows all lesson types with correct badges", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/creator");
     await page.evaluate(() => {
       localStorage.setItem(
         "learnerverse-mode",
@@ -320,7 +320,7 @@ test.describe.serial("Quiz Feature - All Lesson Types", () => {
   test("creator can open quiz lesson and see quiz editor", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/creator");
     await page.evaluate(() => {
       localStorage.setItem(
         "learnerverse-mode",
@@ -330,16 +330,15 @@ test.describe.serial("Quiz Feature - All Lesson Types", () => {
     await page.goto(`/creator/courses/${courseId}/edit`);
     await page.waitForLoadState("networkidle");
 
+    // Published courses are deliberately read-only until the creator moves
+    // them back to draft.
+    await page.getByRole("button", { name: "Edit Course" }).click();
+
     // Click quiz lesson
     await page.getByText("Knowledge Check").click();
     await page.waitForLoadState("networkidle");
 
-    // Should see quiz type toggle selected
-    await expect(
-      page.getByRole("radio", { name: "Quiz" }),
-    ).toHaveAttribute("aria-checked", "true");
-
-    // Should see quiz questions
+    // The quiz-only editor confirms the selected lesson type.
     await expect(page.getByText("Quiz Questions (3)")).toBeVisible();
     await expect(page.getByText("What is 2 + 2?")).toBeVisible();
     await expect(
@@ -348,7 +347,7 @@ test.describe.serial("Quiz Feature - All Lesson Types", () => {
   });
 
   test("course preview shows quiz questions", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/creator");
     await page.evaluate(() => {
       localStorage.setItem(
         "learnerverse-mode",
@@ -370,7 +369,7 @@ test.describe.serial("Quiz Feature - All Lesson Types", () => {
   // ── Learner Mode UI ────────────────────────────────────
 
   test("learner study page shows all lesson types", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/learner");
     await page.evaluate(() => {
       localStorage.setItem(
         "learnerverse-mode",
@@ -443,12 +442,12 @@ test.describe.serial("Quiz Feature - All Lesson Types", () => {
     // Q1: "What is 2 + 2?" - select "4" (option B, index 1)
     await expect(page.getByText("Question 1 of 3")).toBeVisible({ timeout: 10000 });
     await page.getByText("4").click();
-    await page.getByRole("button", { name: "Next" }).click();
+    await page.locator("button").filter({ hasText: /^Next$/ }).click();
 
     // Q2: "Which planet is closest to the Sun?" - select "Mercury" (option C, index 2)
     await expect(page.getByText("Question 2 of 3")).toBeVisible();
     await page.getByText("Mercury").click();
-    await page.getByRole("button", { name: "Next" }).click();
+    await page.locator("button").filter({ hasText: /^Next$/ }).click();
 
     // Q3: "What color is the sky?" - select "Blue" (option C, index 2)
     await expect(page.getByText("Question 3 of 3")).toBeVisible();
@@ -459,7 +458,7 @@ test.describe.serial("Quiz Feature - All Lesson Types", () => {
 
     // Results
     await expect(page.getByText("Great job!")).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText("3/3")).toBeVisible();
+    await expect(page.getByRole("paragraph").filter({ hasText: /^3\/3$/ })).toBeVisible();
     await expect(page.getByText("100%")).toBeVisible();
   });
 

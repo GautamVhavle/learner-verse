@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -17,26 +17,59 @@ from app.models.mcp_token import McpPersonalAccessToken
 from app.models.production_assets import ProviderCredential
 from app.models.user import User
 from app.production.assets.credentials import CredentialCipher
-from app.production.personal_tokens import PersonalTokenService
+from app.production.permissions import Scope
+from app.production.personal_tokens import PersonalTokenService, TokenLimitExceeded
 
 router = APIRouter(prefix="/mcp-settings", tags=["mcp-settings"])
 
 
 class TokenCreate(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
     name: str = Field(min_length=1, max_length=100)
-    scopes: list[str] = Field(min_length=1)
+    scopes: list[str] = Field(min_length=1, max_length=len(Scope))
     expires_at: datetime | None = None
+
+    @field_validator("scopes")
+    @classmethod
+    def validate_scopes(cls, scopes: list[str]) -> list[str]:
+        allowed = {scope.value for scope in Scope}
+        normalized = sorted(set(scopes))
+        invalid = sorted(set(normalized) - allowed)
+        if invalid:
+            raise ValueError(f"unsupported MCP scopes: {', '.join(invalid)}")
+        return normalized
+
+    @field_validator("expires_at")
+    @classmethod
+    def validate_expiration(cls, expires_at: datetime | None) -> datetime | None:
+        if expires_at is None:
+            return None
+        normalized = (
+            expires_at.replace(tzinfo=UTC)
+            if expires_at.tzinfo is None
+            else expires_at.astimezone(UTC)
+        )
+        if normalized <= datetime.now(UTC):
+            raise ValueError("expiration must be in the future")
+        return normalized
 
 
 class CredentialInput(BaseModel):
-    provider: str
-    credential_kind: str
-    label: str = "default"
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    provider: str = Field(min_length=1, max_length=80)
+    credential_kind: str = Field(min_length=1, max_length=40)
+    label: str = Field(default="default", min_length=1, max_length=100)
     secret: str = Field(min_length=1, max_length=10000)
 
 
 def token_service(db: AsyncSession) -> PersonalTokenService:
-    return PersonalTokenService(db, settings.MCP_PAT_SIGNING_KEY or settings.SECRET_KEY)
+    return PersonalTokenService(
+        db,
+        settings.MCP_PAT_SIGNING_KEY or settings.SECRET_KEY,
+        max_active_tokens=settings.PRODUCTION_MAX_TOKENS_PER_USER,
+    )
 
 
 @router.get("/status")
@@ -55,7 +88,15 @@ async def create_token(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    row, secret = await token_service(db).create(user.id, body.name, body.scopes, body.expires_at)
+    try:
+        row, secret = await token_service(db).create(
+            user.id, body.name, body.scopes, body.expires_at
+        )
+    except TokenLimitExceeded as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Maximum of {exc.limit} active MCP tokens reached. Revoke an old key first.",
+        ) from exc
     return {
         "id": str(row.id),
         "token": secret,
@@ -73,6 +114,16 @@ async def list_tokens(user: User = Depends(get_current_user), db: AsyncSession =
             .order_by(McpPersonalAccessToken.revoked, McpPersonalAccessToken.created_at.desc())
         )
     ).all()
+    now = datetime.now(UTC)
+
+    def is_expired(row: McpPersonalAccessToken) -> bool:
+        if row.expires_at is None:
+            return False
+        expires_at = row.expires_at
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=UTC)
+        return expires_at <= now
+
     return [
         {
             "id": str(row.id),
@@ -83,6 +134,7 @@ async def list_tokens(user: User = Depends(get_current_user), db: AsyncSession =
             "last_used_at": row.last_used_at,
             "created_at": row.created_at,
             "revoked": row.revoked,
+            "expired": is_expired(row),
         }
         for row in rows
     ]
@@ -172,6 +224,7 @@ async def save_credential(
         db.add(row)
     else:
         row.encrypted_secret = cipher.encrypt(body.secret)
+        row.key_version = cipher.key_version
         row.masked_hint = cipher.masked(body.secret)
         row.active = True
     await db.commit()

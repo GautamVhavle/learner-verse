@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-const API = "http://localhost:8000/api/v1";
+const API = process.env.E2E_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
 /** Create a course with a section and two lessons, return IDs. */
 async function seedCourse() {
@@ -69,7 +69,7 @@ test.describe.serial("Focus Mode & Keyboard Shortcuts", () => {
   });
 
   test("F key toggles focus mode on lesson page", async ({ page }) => {
-    await page.goto(`/study/${courseId}/lessons/${lessonIds[0]}`);
+    await page.goto(`/learner/study/${courseId}/lessons/${lessonIds[0]}`);
     // Wait for lesson content to load
     await expect(page.getByRole("heading", { name: "Lesson One" })).toBeVisible();
 
@@ -101,7 +101,7 @@ test.describe.serial("Focus Mode & Keyboard Shortcuts", () => {
   });
 
   test("Escape exits focus mode", async ({ page }) => {
-    await page.goto(`/study/${courseId}/lessons/${lessonIds[0]}`);
+    await page.goto(`/learner/study/${courseId}/lessons/${lessonIds[0]}`);
     await expect(page.getByRole("heading", { name: "Lesson One" })).toBeVisible();
     await page.getByRole("heading", { name: "Lesson One" }).click();
 
@@ -115,7 +115,7 @@ test.describe.serial("Focus Mode & Keyboard Shortcuts", () => {
   });
 
   test("focus mode button click works", async ({ page }) => {
-    await page.goto(`/study/${courseId}/lessons/${lessonIds[0]}`);
+    await page.goto(`/learner/study/${courseId}/lessons/${lessonIds[0]}`);
     await expect(page.getByRole("heading", { name: "Lesson One" })).toBeVisible();
 
     // Click the focus mode toggle button (Maximize2 icon)
@@ -135,7 +135,7 @@ test.describe.serial("Focus Mode & Keyboard Shortcuts", () => {
   test("N and P keyboard shortcuts navigate between lessons", async ({
     page,
   }) => {
-    await page.goto(`/study/${courseId}/lessons/${lessonIds[0]}`);
+    await page.goto(`/learner/study/${courseId}/lessons/${lessonIds[0]}`);
     await expect(page.getByRole("heading", { name: "Lesson One" })).toBeVisible();
     await page.getByRole("heading", { name: "Lesson One" }).click();
 
@@ -150,7 +150,7 @@ test.describe.serial("Focus Mode & Keyboard Shortcuts", () => {
   });
 
   test("arrow keys navigate between lessons", async ({ page }) => {
-    await page.goto(`/study/${courseId}/lessons/${lessonIds[0]}`);
+    await page.goto(`/learner/study/${courseId}/lessons/${lessonIds[0]}`);
     await expect(page.getByRole("heading", { name: "Lesson One" })).toBeVisible();
     await page.getByRole("heading", { name: "Lesson One" }).click();
 
@@ -165,7 +165,7 @@ test.describe.serial("Focus Mode & Keyboard Shortcuts", () => {
   });
 
   test("FocusOverlay nav buttons work", async ({ page }) => {
-    await page.goto(`/study/${courseId}/lessons/${lessonIds[0]}`);
+    await page.goto(`/learner/study/${courseId}/lessons/${lessonIds[0]}`);
     await expect(page.getByRole("heading", { name: "Lesson One" })).toBeVisible();
     await page.getByRole("heading", { name: "Lesson One" }).click();
 
@@ -188,7 +188,7 @@ test.describe.serial("Focus Mode & Keyboard Shortcuts", () => {
   });
 
   test("? shortcut opens keyboard shortcuts modal", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/creator");
     await expect(page.getByRole("heading", { name: "My Courses" })).toBeVisible();
     await page.getByRole("heading", { name: "My Courses" }).click();
 
@@ -205,7 +205,7 @@ test.describe.serial("Focus Mode & Keyboard Shortcuts", () => {
   test("keyboard shortcuts don't fire when typing in input", async ({
     page,
   }) => {
-    await page.goto(`/study/${courseId}/lessons/${lessonIds[0]}`);
+    await page.goto(`/learner/study/${courseId}/lessons/${lessonIds[0]}`);
     await expect(page.getByRole("heading", { name: "Lesson One" })).toBeVisible();
 
     // Click on the study notes textarea to focus it
@@ -222,7 +222,7 @@ test.describe.serial("Focus Mode & Keyboard Shortcuts", () => {
   });
 
   test("Ctrl+K opens search palette", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/creator");
     await expect(page.getByRole("heading", { name: "My Courses" })).toBeVisible();
     await page.getByRole("heading", { name: "My Courses" }).click();
 

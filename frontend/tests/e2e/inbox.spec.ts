@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-const API = "http://localhost:8000/api/v1";
+const API = process.env.E2E_API_BASE_URL ?? "http://localhost:8000/api/v1";
 const JSON_HEADERS = { "Content-Type": "application/json" };
 
 /** Ensure the user has completed onboarding. */

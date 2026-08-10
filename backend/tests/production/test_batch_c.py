@@ -1,5 +1,6 @@
 import uuid
 from contextlib import asynccontextmanager
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from fastapi import FastAPI
@@ -14,7 +15,7 @@ from app.mcp.server import mcp, streamable_app
 from app.models.mcp_token import McpPersonalAccessToken
 from app.models.production import ProductionProject, ProductionSpecVersion
 from app.models.user import User
-from app.production.personal_tokens import PersonalTokenService
+from app.production.personal_tokens import PersonalTokenService, TokenLimitExceeded
 from app.production.pipeline import ProductionPipeline, QaGateError
 
 
@@ -69,6 +70,34 @@ async def test_personal_tokens_can_purge_all_revoked_rows(db_session: AsyncSessi
     assert await service.authenticate("not-a-token") is None
     assert await db_session.get(McpPersonalAccessToken, active.id) is not None
     assert await db_session.get(McpPersonalAccessToken, first.id) is None
+
+
+@pytest.mark.asyncio
+async def test_personal_token_limit_counts_only_usable_tokens(db_session: AsyncSession):
+    test_user = await user(db_session)
+    service = PersonalTokenService(db_session, "test-key", max_active_tokens=1)
+    first, _ = await service.create(test_user.id, "First", ["mcp:read"])
+
+    with pytest.raises(TokenLimitExceeded):
+        await service.create(test_user.id, "Second", ["mcp:read"])
+
+    await service.revoke(test_user.id, first.id)
+    replacement, _ = await service.create(test_user.id, "Replacement", ["mcp:read"])
+    assert replacement.id != first.id
+
+
+@pytest.mark.asyncio
+async def test_personal_token_rejects_expired_timestamp(db_session: AsyncSession):
+    test_user = await user(db_session)
+    service = PersonalTokenService(db_session, "test-key")
+
+    with pytest.raises(ValueError, match="future"):
+        await service.create(
+            test_user.id,
+            "Expired",
+            ["mcp:read"],
+            datetime.now(UTC) - timedelta(minutes=1),
+        )
 
 
 @pytest.mark.asyncio

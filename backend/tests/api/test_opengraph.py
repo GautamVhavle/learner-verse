@@ -5,7 +5,6 @@ import pytest
 
 from app.services.opengraph_service import OpenGraphData, fetch_opengraph
 
-
 MOCK_HTML = """
 <!DOCTYPE html>
 <html>

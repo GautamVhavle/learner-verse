@@ -10,14 +10,13 @@ from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.course import Course
-from app.models.enrollment import CourseEnrollment
 from app.models.lesson import Lesson
 from app.models.section import Section
 from app.repositories.study_note_repo import StudyNoteRepository
 from app.repositories.study_state_repo import StudyStateRepository
 from app.schemas.study_note import StudyNoteResponse, StudyNoteUpdate
 from app.schemas.study_state import StudyStateResponse, StudyStateUpdate
+from app.services.course_access_service import ensure_learning_access
 
 
 class StudyService:
@@ -30,21 +29,7 @@ class StudyService:
 
     async def _verify_course_access(self, course_id: uuid.UUID, user_id: uuid.UUID) -> None:
         """Verify user owns the course or is enrolled."""
-        owner = await self.db.execute(
-            select(Course.id).where(
-                Course.id == course_id, Course.user_id == user_id, Course.is_deleted.is_(False)
-            )
-        )
-        if owner.first():
-            return
-        enrolled = await self.db.execute(
-            select(CourseEnrollment.id).where(
-                CourseEnrollment.user_id == user_id,
-                CourseEnrollment.course_id == course_id,
-            )
-        )
-        if not enrolled.first():
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enrolled.")
+        await ensure_learning_access(self.db, course_id, user_id)
 
     async def _verify_lesson_access(self, lesson_id: uuid.UUID, user_id: uuid.UUID) -> None:
         """Verify user owns or is enrolled in the course containing this lesson."""
@@ -90,6 +75,16 @@ class StudyService:
         self, course_id: uuid.UUID, user_id: uuid.UUID, data: StudyStateUpdate
     ) -> StudyStateResponse:
         await self._verify_course_access(course_id, user_id)
+        lesson_in_course = await self.db.scalar(
+            select(Lesson.id)
+            .join(Section, Section.id == Lesson.section_id)
+            .where(Lesson.id == data.last_lesson_id, Section.course_id == course_id)
+        )
+        if lesson_in_course is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Last lesson must belong to the course.",
+            )
         state = await self.state_repo.upsert(user_id, course_id, data.last_lesson_id)
         await self.db.commit()
         return StudyStateResponse.model_validate(state)

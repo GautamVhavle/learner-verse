@@ -12,6 +12,8 @@ from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
+JSON = sa.JSON().with_variant(postgresql.JSONB(astext_type=sa.Text()), "postgresql")
+
 # revision identifiers, used by Alembic.
 revision: str = "6ec9fa3e41bf"
 down_revision: Union[str, None] = "f99f9abbc335"
@@ -25,13 +27,14 @@ def upgrade() -> None:
         "users",
         sa.Column(
             "social_links",
-            postgresql.JSONB(astext_type=sa.Text()),
+            JSON,
             server_default="[]",
             nullable=True,
         ),
     )
     op.execute("UPDATE users SET social_links = '[]' WHERE social_links IS NULL")
-    op.alter_column("users", "social_links", nullable=False)
+    with op.batch_alter_table("users") as batch_op:
+        batch_op.alter_column("social_links", nullable=False)
     op.add_column("users", sa.Column("cover_image_url", sa.String(), nullable=True))
     # ### end Alembic commands ###
 

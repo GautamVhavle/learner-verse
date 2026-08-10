@@ -13,7 +13,6 @@ from app.core.config import settings
 from app.core.database import get_db
 from app.core.openrouter import call_chat_completion, extract_json_from_response
 from app.models.course import Course
-from app.models.enrollment import CourseEnrollment
 from app.models.lesson import Lesson
 from app.models.section import Section
 from app.models.user import User
@@ -28,6 +27,7 @@ from app.schemas.quiz import (
     QuizQuestionUpdate,
     QuizSubmitRequest,
 )
+from app.services.course_access_service import ensure_learning_access
 
 logger = logging.getLogger(__name__)
 
@@ -67,36 +67,18 @@ async def _verify_learner_access(
 ) -> Lesson:
     """Confirm learner is enrolled in the course containing this quiz lesson."""
     result = await db.execute(
-        select(Lesson)
+        select(Lesson, Section.course_id)
         .join(Section, Section.id == Lesson.section_id)
-        .join(Course, Course.id == Section.course_id)
-        .where(
-            Lesson.id == lesson_id,
-            Course.is_deleted == False,  # noqa: E712
-        )
+        .where(Lesson.id == lesson_id)
     )
-    lesson = result.scalar_one_or_none()
-    if not lesson:
+    row = result.one_or_none()
+    if not row:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lesson not found.")
+    lesson, course_id = row
     if lesson.lesson_type != "quiz":
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Lesson is not a quiz.")
 
-    # Check enrollment or ownership
-    enroll = await db.execute(
-        select(CourseEnrollment.id)
-        .join(Section, Section.course_id == CourseEnrollment.course_id)
-        .where(
-            Section.id == lesson.section_id,
-            CourseEnrollment.user_id == user_id,
-        )
-    )
-    own = await db.execute(
-        select(Course.id)
-        .join(Section, Section.course_id == Course.id)
-        .where(Section.id == lesson.section_id, Course.user_id == user_id)
-    )
-    if not enroll.first() and not own.first():
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enrolled.")
+    await ensure_learning_access(db, course_id, user_id)
     return lesson
 
 

@@ -6,7 +6,7 @@
  * - Applied from user settings
  * - Persists across lesson navigation
  */
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 
 interface YTPlayerOptions {
   videoId: string;
@@ -60,51 +60,68 @@ interface YouTubeEmbedProps {
   onEnded?: () => void;
 }
 
-// Track if API is loaded globally
-let apiLoaded = false;
-const apiReadyPromise = new Promise<void>((resolve) => {
-  if (typeof window !== "undefined") {
+let apiReadyPromise: Promise<void> | null = null;
+
+/** Load the global YouTube API once without replacing another consumer's callback. */
+function loadYouTubeAPI(): Promise<void> {
+  if (typeof window === "undefined") return Promise.resolve();
+  if (window.YT?.Player) return Promise.resolve();
+  if (apiReadyPromise) return apiReadyPromise;
+
+  apiReadyPromise = new Promise<void>((resolve, reject) => {
+    const previousReadyHandler = window.onYouTubeIframeAPIReady;
     window.onYouTubeIframeAPIReady = () => {
-      apiLoaded = true;
+      previousReadyHandler?.();
       resolve();
     };
-  }
-});
 
-// Load YouTube API script once
-function loadYouTubeAPI() {
-  if (apiLoaded || typeof window === "undefined") return;
-  if (document.querySelector('script[src*="youtube.*api"]')) return;
+    const existingScript = document.querySelector<HTMLScriptElement>(
+      'script[src="https://www.youtube.com/iframe_api"]',
+    );
+    if (existingScript) return;
 
-  const script = document.createElement("script");
-  script.src = "https://www.youtube.com/iframe_api";
-  script.async = true;
-  script.defer = true;
-  document.head.appendChild(script);
+    const script = document.createElement("script");
+    script.src = "https://www.youtube.com/iframe_api";
+    script.async = true;
+    script.defer = true;
+    script.addEventListener(
+      "error",
+      () => {
+        apiReadyPromise = null;
+        reject(new Error("Failed to load the YouTube player API"));
+      },
+      { once: true },
+    );
+    document.head.appendChild(script);
+  });
+
+  return apiReadyPromise;
 }
 
 export function YouTubeEmbed({ videoId, title, playbackSpeed = 1, onEnded }: YouTubeEmbedProps) {
-  const containerId = `youtube-player-${videoId}`;
+  const instanceId = useId().replaceAll(":", "");
+  const containerId = `youtube-player-${videoId}-${instanceId}`;
   const playerRef = useRef<YTPlayer | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const onEndedRef = useRef(onEnded);
+  const playbackSpeedRef = useRef(playbackSpeed);
 
   // Keep ref in sync so the YT callback always sees the latest handler
   useEffect(() => {
     onEndedRef.current = onEnded;
   }, [onEnded]);
 
-  // Load YouTube API on mount
   useEffect(() => {
-    loadYouTubeAPI();
-  }, []);
+    playbackSpeedRef.current = playbackSpeed;
+  }, [playbackSpeed]);
 
   // Initialize player
   useEffect(() => {
-    async function initPlayer() {
-      await apiReadyPromise;
+    let cancelled = false;
 
-      if (!window.YT || playerRef.current) return;
+    async function initPlayer() {
+      await loadYouTubeAPI();
+
+      if (cancelled || !window.YT || playerRef.current) return;
 
       try {
         playerRef.current = new window.YT.Player(containerId, {
@@ -114,7 +131,8 @@ export function YouTubeEmbed({ videoId, title, playbackSpeed = 1, onEnded }: You
               // Set playback speed after player is ready
               const player = event.target;
               const availableSpeeds = player.getAvailablePlaybackRates();
-              const speedToSet = availableSpeeds.includes(playbackSpeed) ? playbackSpeed : 1;
+              const currentSpeed = playbackSpeedRef.current;
+              const speedToSet = availableSpeeds.includes(currentSpeed) ? currentSpeed : 1;
               player.setPlaybackRate(speedToSet);
             },
             onStateChange: (event) => {
@@ -137,6 +155,7 @@ export function YouTubeEmbed({ videoId, title, playbackSpeed = 1, onEnded }: You
     initPlayer();
 
     return () => {
+      cancelled = true;
       // Clean up player on unmount (but keep API loaded for next video)
       if (playerRef.current) {
         try {
@@ -164,7 +183,6 @@ export function YouTubeEmbed({ videoId, title, playbackSpeed = 1, onEnded }: You
 
   return (
     <div
-      ref={containerRef}
       className="bg-bg-tertiary relative w-full overflow-hidden rounded-lg"
       style={{ paddingBottom: "56.25%" }}
     >

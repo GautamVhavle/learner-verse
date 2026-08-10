@@ -8,12 +8,15 @@ const mockYTPlayer = {
   destroy: vi.fn(),
 };
 
-// Set up the YT global BEFORE importing the component.
-// The component captures window.onYouTubeIframeAPIReady in a module-level
-// promise at import time, so we need YT to exist before that.
+// Set up the YT global before importing the component so the loader can
+// immediately reuse an API that is already available on the page.
 window.YT = {
   // Must use `function` (not arrow) because the component calls `new YT.Player(...)`
-  Player: vi.fn(function (this: typeof mockYTPlayer, _el: string, opts: { events?: { onReady?: (e: { target: typeof mockYTPlayer }) => void } }) {
+  Player: vi.fn(function (
+    this: typeof mockYTPlayer,
+    _el: string,
+    opts: { events?: { onReady?: (e: { target: typeof mockYTPlayer }) => void } },
+  ) {
     Object.assign(this, mockYTPlayer);
     if (opts.events?.onReady) {
       Promise.resolve().then(() => opts.events!.onReady!({ target: this }));
@@ -26,25 +29,25 @@ window.YT = {
 // Import AFTER setting window.YT so the module sees it.
 import { YouTubeEmbed } from "@/components/lesson/YouTubeEmbed";
 
-// The module sets window.onYouTubeIframeAPIReady at load time.
-// Call it to resolve the internal apiReadyPromise.
-window.onYouTubeIframeAPIReady();
-
 beforeEach(() => {
   // Reset call counts but keep implementations
   mockYTPlayer.setPlaybackRate.mockClear();
-  mockYTPlayer.getAvailablePlaybackRates.mockClear().mockReturnValue([0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]);
+  mockYTPlayer.getAvailablePlaybackRates
+    .mockClear()
+    .mockReturnValue([0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]);
   mockYTPlayer.destroy.mockClear();
 
   // Recreate the Player mock so each test gets fresh onReady handling
-  (window.YT as unknown as { Player: unknown }).Player = vi.fn(
-    function (this: typeof mockYTPlayer, _el: string, opts: { events?: { onReady?: (e: { target: typeof mockYTPlayer }) => void } }) {
-      Object.assign(this, mockYTPlayer);
-      if (opts.events?.onReady) {
-        Promise.resolve().then(() => opts.events!.onReady!({ target: this }));
-      }
-    },
-  );
+  (window.YT as unknown as { Player: unknown }).Player = vi.fn(function (
+    this: typeof mockYTPlayer,
+    _el: string,
+    opts: { events?: { onReady?: (e: { target: typeof mockYTPlayer }) => void } },
+  ) {
+    Object.assign(this, mockYTPlayer);
+    if (opts.events?.onReady) {
+      Promise.resolve().then(() => opts.events!.onReady!({ target: this }));
+    }
+  });
 });
 
 describe("YouTubeEmbed", () => {
@@ -64,8 +67,22 @@ describe("YouTubeEmbed", () => {
       expect.stringContaining("youtube-player-dQw4w9WgXcQ"),
       expect.objectContaining({
         videoId: "dQw4w9WgXcQ",
-      })
+      }),
     );
+  });
+
+  it("uses a unique player container for duplicate video embeds", async () => {
+    render(
+      <>
+        <YouTubeEmbed videoId="dQw4w9WgXcQ" />
+        <YouTubeEmbed videoId="dQw4w9WgXcQ" />
+      </>,
+    );
+
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
+    const containerIds = vi.mocked(window.YT.Player).mock.calls.map(([containerId]) => containerId);
+    expect(new Set(containerIds).size).toBe(2);
   });
 
   it("sets playback speed when player is ready", async () => {
@@ -97,9 +114,7 @@ describe("YouTubeEmbed", () => {
   });
 
   it("uses custom title", () => {
-    const { container } = render(
-      <YouTubeEmbed videoId="dQw4w9WgXcQ" title="My Video" />
-    );
+    const { container } = render(<YouTubeEmbed videoId="dQw4w9WgXcQ" title="My Video" />);
     const playerDiv = container.querySelector("[title='My Video']");
     expect(playerDiv).toBeInTheDocument();
   });

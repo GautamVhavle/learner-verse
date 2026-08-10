@@ -161,11 +161,13 @@ class NotificationService:
         await self.db.commit()
         return notif
 
-    async def notify_course_completed(self, user_id: uuid.UUID, course_title: str) -> Notification:
+    async def notify_course_completed(
+        self, user_id: uuid.UUID, course_title: str
+    ) -> Notification | None:
         """Create a notification when a user completes all lessons in a course."""
         already = await self.repo.has_recent_of_type(user_id, "course_completed", course_title)
         if already:
-            return None  # type: ignore[return-value]
+            return None
         notification = Notification(
             user_id=user_id,
             type="course_completed",

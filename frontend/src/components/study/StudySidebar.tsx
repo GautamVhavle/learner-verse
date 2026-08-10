@@ -24,9 +24,12 @@ export function StudySidebar({
   useEffect(() => {
     if (!selectedLessonId) return;
     const section = sections.find((s) => s.lessons.some((l) => l.id === selectedLessonId));
-    if (section && !expanded.has(section.id)) {
+    if (section) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setExpanded((prev) => new Set([...prev, section.id]));
+      setExpanded((prev) => {
+        if (prev.has(section.id)) return prev;
+        return new Set([...prev, section.id]);
+      });
     }
   }, [selectedLessonId, sections]);
 

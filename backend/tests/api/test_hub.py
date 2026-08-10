@@ -80,7 +80,7 @@ async def test_hub_courses_empty(client):
 async def test_hub_courses_shows_public_ready(client):
     """Public + ready course appears in hub listing."""
     await _ensure_user(client)
-    course = await _setup_public_course(client, title="Visible Course")
+    await _setup_public_course(client, title="Visible Course")
 
     resp = await client.get("/api/v1/hub/courses")
     assert resp.status_code == 200

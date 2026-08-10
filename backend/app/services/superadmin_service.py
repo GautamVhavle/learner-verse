@@ -542,7 +542,7 @@ class SuperadminService:
             )
         if body.action == "reject" and not body.note:
             raise HTTPException(
-                status_code=http_status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=http_status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="A rejection note is required.",
             )
 

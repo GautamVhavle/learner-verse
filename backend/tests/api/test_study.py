@@ -1,5 +1,3 @@
-import uuid
-
 import pytest
 
 
@@ -88,6 +86,24 @@ async def test_study_state_upsert(client):
     )
     assert resp.status_code == 200
     assert resp.json()["last_lesson_id"] == lesson2["id"]
+
+
+@pytest.mark.asyncio
+async def test_study_state_rejects_lesson_from_another_course(client):
+    """A course's resume pointer cannot reference unrelated course content."""
+    await _ensure_user(client)
+    course = await _create_course(client, title="First course")
+    other_course = await _create_course(client, title="Second course")
+    other_section = await _create_section(client, other_course["id"])
+    other_lesson = await _create_lesson(client, other_section["id"])
+
+    resp = await client.put(
+        f"/api/v1/study/courses/{course['id']}/state",
+        json={"last_lesson_id": other_lesson["id"]},
+    )
+
+    assert resp.status_code == 400
+    assert resp.json()["detail"] == "Last lesson must belong to the course."
 
 
 # ============================================================

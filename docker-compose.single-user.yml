@@ -1,7 +1,7 @@
 # ─────────────────────────────────────────────────────────────
 # LearnerVerse - Single-User Mode (all-in-one)
 #
-# 1. Copy the sample env:  cp single_mode.sample.env .env.single-user
+# 1. Copy the sample env:  cp single_user.sample.env .env.single-user
 # 2. (Optional) Edit .env.single-user to add API keys, change ports, etc.
 # 3. Run:
 #      docker compose --env-file .env.single-user \
@@ -15,18 +15,15 @@ services:
   # ── PostgreSQL ─────────────────────────────────────────────
   db:
     image: postgres:17-alpine
-    container_name: learnerverse-db
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - "${POSTGRES_HOST_PORT:-5433}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -37,60 +34,20 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     image: learnerverse-single-backend
-    container_name: learnerverse-backend
     restart: unless-stopped
-    env_file: .env.single-user
-    ports:
-      - "${BACKEND_PORT:-8000}:8000"
+    init: true
+    env_file: ${SELF_HOST_ENV_FILE:-.env.single-user}
     volumes:
       - uploads:/app/uploads
-    environment:
-      JOBS_REDIS_URL: "redis://redis:6379/0"
     depends_on:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 20s
-
-  redis:
-    image: redis:7-alpine
-    container_name: learnerverse-redis
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-
-  jobs-worker:
-    image: learnerverse-single-backend
-    restart: unless-stopped
-    env_file: .env.single-user
-    environment:
-      JOBS_REDIS_URL: "redis://redis:6379/0"
-    command: ["uv", "run", "dramatiq", "app.jobs.dramatiq_app"]
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-
-  outbox-dispatcher:
-    image: learnerverse-single-backend
-    restart: unless-stopped
-    env_file: .env.single-user
-    environment:
-      JOBS_REDIS_URL: "redis://redis:6379/0"
-    command: ["uv", "run", "python", "-m", "app.jobs.outbox_runner"]
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
 
   # ── Frontend (React + Nginx) ───────────────────────────────
   frontend:
@@ -98,17 +55,18 @@ services:
       context: .                # Root context so private/ symlinks resolve
       dockerfile: frontend/Dockerfile.single-user
       args:
-        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+        # Self-hosted browsers always use Nginx's same-origin API proxy.
+        # Do not accept legacy localhost overrides from older env files.
+        VITE_API_BASE_URL: /api/v1
         VITE_SINGLE_USER_MODE: ${VITE_SINGLE_USER_MODE}
         VITE_AUTH0_DOMAIN: ${VITE_AUTH0_DOMAIN:-}
         VITE_AUTH0_CLIENT_ID: ${VITE_AUTH0_CLIENT_ID:-}
         VITE_AUTH0_AUDIENCE: ${VITE_AUTH0_AUDIENCE:-}
         VITE_PAYMENT_GATEWAY_ENABLED: ${VITE_PAYMENT_GATEWAY_ENABLED}
     image: learnerverse-single-frontend
-    container_name: learnerverse-frontend
     restart: unless-stopped
     ports:
-      - "3000:80"
+      - "${APP_BIND_ADDRESS:-127.0.0.1}:${APP_PORT:-3000}:80"
     depends_on:
       backend:
         condition: service_healthy

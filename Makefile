@@ -34,7 +34,7 @@ migration:
 test: test-backend test-frontend
 
 test-backend:
-	cd backend && uv run pytest -v
+	cd backend && DATABASE_URL=sqlite+aiosqlite:///test.db SECRET_KEY=test-secret-key-12345678901234567890123456789012 OPENROUTER_API_KEY=test-key ENVIRONMENT=test uv run pytest -v
 
 test-frontend:
 	cd frontend && npx vitest run

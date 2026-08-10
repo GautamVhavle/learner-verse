@@ -7,14 +7,14 @@ import { useUserQuery } from "@/hooks/useUser";
 /** Syncs server-side font_size preference to the <html> element class. */
 export function FontSizeSync() {
   const { data: user } = useUserQuery();
+  const fontSize = user?.font_size;
 
   useEffect(() => {
-    if (!user) return;
     const html = document.documentElement;
     html.classList.remove("font-large", "font-xl");
-    if (user.font_size === "large") html.classList.add("font-large");
-    else if (user.font_size === "xl") html.classList.add("font-xl");
-  }, [user?.font_size]);
+    if (fontSize === "large") html.classList.add("font-large");
+    else if (fontSize === "xl") html.classList.add("font-xl");
+  }, [fontSize]);
 
   return null;
 }

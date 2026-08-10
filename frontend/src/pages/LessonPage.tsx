@@ -40,7 +40,7 @@ export default function LessonPage() {
   const { data: course, isLoading: courseLoading } = useHubCourseQuery(courseId ?? "");
   const { data: sections, isLoading: sectionsLoading } = useHubSectionsQuery(courseId);
   const { data: user } = useUserQuery();
-  const updateState = useUpdateStudyStateMutation();
+  const { mutate: updateStudyState } = useUpdateStudyStateMutation();
   const { data: progress } = useCourseProgressQuery(courseId);
   const { data: existingCert } = useCourseCertificateQuery(courseId);
   const courseCompleted = progress?.is_locked ?? !!existingCert;
@@ -69,12 +69,12 @@ export default function LessonPage() {
   // Track study state - save the current lesson as last viewed
   useEffect(() => {
     if (courseId && lessonId) {
-      updateState.mutate({
+      updateStudyState({
         courseId,
         data: { last_lesson_id: lessonId },
       });
     }
-  }, [courseId, lessonId]);
+  }, [courseId, lessonId, updateStudyState]);
 
   const goToLesson = useCallback(
     (id: string) => navigate(`/study/${courseId}/lessons/${id}`),

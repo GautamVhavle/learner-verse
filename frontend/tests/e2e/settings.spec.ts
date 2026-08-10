@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-const API = "http://localhost:8000/api/v1";
+const API = process.env.E2E_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
 /** Reset user settings to defaults before each test. */
 async function resetUserSettings() {
@@ -20,7 +20,7 @@ async function resetUserSettings() {
 test.describe.serial("Settings Page", () => {
   test.beforeEach(async ({ page }) => {
     await resetUserSettings();
-    await page.goto("/settings");
+    await page.goto("/creator/settings");
     await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
   });
 
@@ -28,33 +28,35 @@ test.describe.serial("Settings Page", () => {
     await resetUserSettings();
   });
 
-  test("renders profile section with user data", async ({ page }) => {
-    await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
-    await expect(page.getByTestId("settings-display-name")).toHaveValue(
-      "Local User",
-    );
+  test("renders preferences and account data", async ({ page }) => {
+    await expect(page.getByRole("heading", { name: "Learning Preferences" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Account" })).toBeVisible();
     await expect(
-      page.getByRole("paragraph").filter({ hasText: "local@learnerverse.dev" }),
+      page.locator("#main-content").getByText("local@learnerverse.dev", { exact: true }),
     ).toBeVisible();
   });
 
-  test("can update display name", async ({ page }) => {
+  test("can update display name from the dedicated profile page", async ({ page }) => {
+    await page.getByTestId("user-profile-trigger").click();
+    await expect(page).toHaveURL(/\/creator\/profile$/);
+    await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
+    await page.getByRole("button", { name: "Edit" }).first().click();
     const input = page.getByTestId("settings-display-name");
     await input.clear();
     await input.pressSequentially("New Display Name", { delay: 30 });
 
-    // Wait for debounced save (600ms) to fire and the API response
+    // Profile details use explicit save rather than settings auto-save.
     const responsePromise = page.waitForResponse(
       (resp) => resp.url().includes("/auth/me") && resp.request().method() === "PUT",
     );
+    await page.getByRole("button", { name: "Save changes" }).click();
     await responsePromise;
 
     // Reload to verify persistence
     await page.reload();
-    await expect(page.getByTestId("settings-display-name")).toHaveValue(
-      "New Display Name",
-      { timeout: 10000 },
-    );
+    await expect(page.getByText("New Display Name", { exact: true }).first()).toBeVisible({
+      timeout: 10_000,
+    });
   });
 
   test("can change timezone", async ({ page }) => {
@@ -66,6 +68,9 @@ test.describe.serial("Settings Page", () => {
     await page.getByTestId("settings-timezone-search").fill("New_York");
     // Click the dropdown option (not the trigger)
     const tzOption = page.locator("button", { hasText: "America/New York" }).last();
+    const saveResponse = page.waitForResponse(
+      (resp) => resp.url().includes("/auth/me") && resp.request().method() === "PUT",
+    );
     await tzOption.click();
 
     // Should show the new timezone
@@ -73,10 +78,9 @@ test.describe.serial("Settings Page", () => {
       "America/New York",
     );
 
-    // Wait for save to finish
-    await page.waitForResponse(
-      (resp) => resp.url().includes("/auth/me") && resp.request().method() === "PUT",
-    );
+    // Wait for save to finish. Register the waiter before clicking so a fast
+    // local response cannot race ahead of the test.
+    await saveResponse;
 
     // Reload to verify persistence
     await page.reload();
@@ -232,14 +236,14 @@ test.describe.serial("Settings Page", () => {
   });
 
   test("navigates to settings from sidebar", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/creator");
     await expect(
       page.getByRole("heading", { name: "My Courses" }),
     ).toBeVisible();
 
     // Click Settings in sidebar
     await page.getByRole("button", { name: "Settings" }).click();
-    await expect(page).toHaveURL("/settings");
+    await expect(page).toHaveURL("/creator/settings");
     await expect(
       page.getByRole("heading", { name: "Settings" }),
     ).toBeVisible();

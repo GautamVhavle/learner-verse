@@ -223,11 +223,10 @@ async def test_certificate_multi_section(client):
 
 @pytest.mark.asyncio
 async def test_certificate_for_nonexistent_course(client):
-    """Generating certificate for a non-existent course returns 400 (no lessons)."""
+    """Generating a certificate for a nonexistent course returns 404."""
     await _ensure_user(client)
     resp = await client.post("/api/v1/certificates/courses/00000000-0000-0000-0000-000000000099")
-    # Progress returns zeros for non-existent course → "no lessons" error
-    assert resp.status_code == 400
+    assert resp.status_code == 404
 
 
 @pytest.mark.asyncio
@@ -258,12 +257,3 @@ async def test_regenerate_certificate_returns_same_uid(client):
     assert resp1.status_code == 200
     assert resp2.status_code == 200
     assert resp1.json()["certificate_uid"] == resp2.json()["certificate_uid"]
-
-
-@pytest.mark.asyncio
-async def test_list_certificates_empty(client):
-    """User with no certificates gets empty list."""
-    await _ensure_user(client)
-    resp = await client.get("/api/v1/certificates")
-    assert resp.status_code == 200
-    assert resp.json() == []

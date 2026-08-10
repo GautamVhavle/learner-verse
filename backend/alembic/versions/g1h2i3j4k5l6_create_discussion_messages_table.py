@@ -21,17 +21,17 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     op.create_table(
         "discussion_messages",
-        sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
+        sa.Column("id", sa.Uuid(), primary_key=True),
         sa.Column(
             "course_id",
-            postgresql.UUID(as_uuid=True),
+            sa.Uuid(),
             sa.ForeignKey("courses.id", ondelete="CASCADE"),
             nullable=False,
             index=True,
         ),
         sa.Column(
             "user_id",
-            postgresql.UUID(as_uuid=True),
+            sa.Uuid(),
             sa.ForeignKey("users.id", ondelete="SET NULL"),
             nullable=True,
             index=True,
@@ -41,7 +41,7 @@ def upgrade() -> None:
         sa.Column("content", sa.Text(), nullable=False),
         sa.Column(
             "reply_to_id",
-            postgresql.UUID(as_uuid=True),
+            sa.Uuid(),
             sa.ForeignKey("discussion_messages.id", ondelete="SET NULL"),
             nullable=True,
         ),

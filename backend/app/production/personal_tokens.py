@@ -8,16 +8,19 @@ import secrets
 import uuid
 from datetime import UTC, datetime
 
-from sqlalchemy import select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.mcp_token import McpPersonalAccessToken
 
 
 class PersonalTokenService:
-    def __init__(self, db: AsyncSession, signing_key: str) -> None:
+    def __init__(
+        self, db: AsyncSession, signing_key: str, max_active_tokens: int | None = None
+    ) -> None:
         self.db = db
         self.key = signing_key.encode()
+        self.max_active_tokens = max_active_tokens
 
     def _verify(self, token: str) -> str:
         return hmac.new(self.key, token.encode(), hashlib.sha256).hexdigest()
@@ -29,6 +32,30 @@ class PersonalTokenService:
         scopes: list[str],
         expires_at: datetime | None = None,
     ) -> tuple[McpPersonalAccessToken, str]:
+        now = datetime.now(UTC)
+        if expires_at is not None:
+            expires_at = (
+                expires_at.replace(tzinfo=UTC)
+                if expires_at.tzinfo is None
+                else expires_at.astimezone(UTC)
+            )
+            if expires_at <= now:
+                raise ValueError("token expiration must be in the future")
+
+        if self.max_active_tokens is not None:
+            active_count = await self.db.scalar(
+                select(func.count(McpPersonalAccessToken.id)).where(
+                    McpPersonalAccessToken.user_id == user_id,
+                    McpPersonalAccessToken.revoked.is_(False),
+                    or_(
+                        McpPersonalAccessToken.expires_at.is_(None),
+                        McpPersonalAccessToken.expires_at > now,
+                    ),
+                )
+            )
+            if int(active_count or 0) >= self.max_active_tokens:
+                raise TokenLimitExceeded(self.max_active_tokens)
+
         secret = secrets.token_urlsafe(32)
         prefix = "lvmcp_" + secrets.token_hex(6)
         token = prefix + "_" + secret
@@ -49,10 +76,13 @@ class PersonalTokenService:
         row = await self.db.scalar(
             select(McpPersonalAccessToken).where(McpPersonalAccessToken.token_prefix == prefix)
         )
+        expires_at = row.expires_at if row else None
+        if expires_at is not None and expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=UTC)
         if (
             not row
             or row.revoked
-            or (row.expires_at and row.expires_at <= datetime.now(UTC))
+            or (expires_at and expires_at <= datetime.now(UTC))
             or not hmac.compare_digest(row.verifier, self._verify(token))
         ):
             return None
@@ -103,3 +133,9 @@ class PersonalTokenService:
                 McpPersonalAccessToken.user_id == user_id,
             )
         )
+
+
+class TokenLimitExceeded(ValueError):
+    def __init__(self, limit: int) -> None:
+        super().__init__(f"maximum of {limit} active MCP tokens reached")
+        self.limit = limit

@@ -13,7 +13,7 @@ const DESKTOP = { width: 1440, height: 900 };
 test.describe("Responsive Layout", () => {
   test("mobile: sidebar hidden, header visible", async ({ page }) => {
     await page.setViewportSize(MOBILE);
-    await page.goto("/");
+    await page.goto("/creator");
     await page.waitForLoadState("networkidle");
 
     // On mobile the sidebar panel is hidden (rendered as a Sheet, closed by default).
@@ -32,7 +32,7 @@ test.describe("Responsive Layout", () => {
 
   test("mobile: can open sidebar via hamburger", async ({ page }) => {
     await page.setViewportSize(MOBILE);
-    await page.goto("/");
+    await page.goto("/creator");
     await page.waitForLoadState("networkidle");
 
     // Click sidebar trigger (hamburger)
@@ -46,7 +46,7 @@ test.describe("Responsive Layout", () => {
 
   test("tablet: layout works at 768px", async ({ page }) => {
     await page.setViewportSize(TABLET);
-    await page.goto("/");
+    await page.goto("/creator");
     await page.waitForLoadState("networkidle");
 
     // Header visible
@@ -58,7 +58,7 @@ test.describe("Responsive Layout", () => {
 
   test("desktop: full layout with sidebar", async ({ page }) => {
     await page.setViewportSize(DESKTOP);
-    await page.goto("/");
+    await page.goto("/creator");
     await page.waitForLoadState("networkidle");
 
     // Sidebar fully visible
@@ -73,7 +73,7 @@ test.describe("Responsive Layout", () => {
 
   test("mobile: settings page is readable", async ({ page }) => {
     await page.setViewportSize(MOBILE);
-    await page.goto("/settings");
+    await page.goto("/creator/settings");
     await page.waitForLoadState("networkidle");
 
     await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
@@ -82,7 +82,7 @@ test.describe("Responsive Layout", () => {
 
   test("mobile: certificates page is readable", async ({ page }) => {
     await page.setViewportSize(MOBILE);
-    await page.goto("/certificates");
+    await page.goto("/learner/certificates");
     await page.waitForLoadState("networkidle");
 
     await expect(page.getByRole("heading", { name: "Certificates", exact: true })).toBeVisible();

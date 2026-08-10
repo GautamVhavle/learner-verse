@@ -16,28 +16,30 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
 
+ENV PATH="/app/.venv/bin:${PATH}" \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+# Create the unprivileged runtime identity before copying files so ownership
+# can be assigned as layers are created instead of recursively rewriting the
+# entire virtual environment at the end of every build.
+RUN groupadd -r appuser \
+    && useradd -r -g appuser -d /app -s /usr/sbin/nologin appuser
+
 # Copy cached venv from deps stage
 COPY --from=deps /app/.venv /app/.venv
 COPY --from=deps /app/pyproject.toml /app/uv.lock ./
 
 # Copy application code
-COPY . .
+COPY --chown=appuser:appuser . .
 
-# Install the project itself (uses cached deps)
-RUN uv sync --frozen --no-dev
-
-# Create uploads directory
-RUN mkdir -p /app/uploads
-
-# Create non-root user for security
-RUN groupadd -r appuser && useradd -r -g appuser -d /app -s /sbin/nologin appuser \
-    && chown -R appuser:appuser /app
+# Writable application data is stored only in mounted volumes.
+RUN install -d -o appuser -g appuser /app/uploads /app/production-assets
 
 EXPOSE 8000
 
-# Entrypoint: run migrations then start the server
-COPY entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+# Entrypoint: run migrations then start the server.
+COPY --chown=appuser:appuser --chmod=755 entrypoint.sh /app/entrypoint.sh
 
 USER appuser
 

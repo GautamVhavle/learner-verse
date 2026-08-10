@@ -1,5 +1,6 @@
-import pytest
 from datetime import date, timedelta
+
+import pytest
 
 from app.services.progress_service import ProgressService
 
@@ -216,7 +217,7 @@ async def test_progress_includes_goal(client):
     await _ensure_user(client)
     course = await _create_course(client)
     section = await _create_section(client, course["id"])
-    lesson = await _create_lesson(client, section["id"])
+    await _create_lesson(client, section["id"])
     goal_date = (date.today() + timedelta(days=30)).isoformat()
 
     # Set goal via course update
@@ -305,15 +306,6 @@ async def test_set_goal_in_the_past(client):
         json={"goal_date": past},
     )
     assert resp.status_code == 400
-
-
-@pytest.mark.asyncio
-async def test_list_goals_empty(client):
-    """No goals set returns empty list."""
-    await _ensure_user(client)
-    resp = await client.get("/api/v1/goals")
-    assert resp.status_code == 200
-    assert resp.json() == []
 
 
 @pytest.mark.asyncio

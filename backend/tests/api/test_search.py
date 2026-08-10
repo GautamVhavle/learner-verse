@@ -56,7 +56,7 @@ async def test_search_empty_results(client):
 async def test_search_finds_course_by_title(client):
     """Search matches course title."""
     await _ensure_user(client)
-    course = await _create_course(client, title="React Fundamentals")
+    await _create_course(client, title="React Fundamentals")
     await _create_course(client, title="Python Basics")
 
     resp = await client.get("/api/v1/search", params={"q": "React"})

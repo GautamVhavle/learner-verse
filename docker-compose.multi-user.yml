@@ -1,14 +1,14 @@
 # ─────────────────────────────────────────────────────────────
 # LearnerVerse - Multi-User Mode (self-hosted)
 #
-# 1. Copy the sample env:  cp multi_mode.sample.env .env.multi-user
+# 1. Copy the sample env:  cp multi_user.sample.env .env.multi-user
 # 2. Fill in Auth0 credentials and any API keys
 # 3. Add http://localhost:3000 to your Auth0 allowed callbacks and origins
 # 4. Run:
 #      docker compose --env-file .env.multi-user \
 #        -f docker-compose.multi-user.yml up --build
 #
-# Includes: PostgreSQL + FastAPI + React + Auth0 authentication
+# Includes: PostgreSQL + FastAPI + React/Nginx + Auth0 authentication
 # Payment gateway is disabled - all users get full access.
 # ─────────────────────────────────────────────────────────────
 
@@ -16,18 +16,15 @@ services:
   # ── PostgreSQL ─────────────────────────────────────────────
   db:
     image: postgres:17-alpine
-    container_name: learnerverse-multi-db
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - "${POSTGRES_HOST_PORT:-5434}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -38,60 +35,20 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     image: learnerverse-multi-backend
-    container_name: learnerverse-multi-backend
     restart: unless-stopped
-    env_file: .env.multi-user
-    ports:
-      - "${BACKEND_PORT:-8000}:8000"
+    init: true
+    env_file: ${SELF_HOST_ENV_FILE:-.env.multi-user}
     volumes:
       - uploads:/app/uploads
-    environment:
-      JOBS_REDIS_URL: "redis://redis:6379/0"
     depends_on:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 20s
-
-  redis:
-    image: redis:7-alpine
-    container_name: learnerverse-multi-redis
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-
-  jobs-worker:
-    image: learnerverse-multi-backend
-    restart: unless-stopped
-    env_file: .env.multi-user
-    environment:
-      JOBS_REDIS_URL: "redis://redis:6379/0"
-    command: ["uv", "run", "dramatiq", "app.jobs.dramatiq_app"]
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-
-  outbox-dispatcher:
-    image: learnerverse-multi-backend
-    restart: unless-stopped
-    env_file: .env.multi-user
-    environment:
-      JOBS_REDIS_URL: "redis://redis:6379/0"
-    command: ["uv", "run", "python", "-m", "app.jobs.outbox_runner"]
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
 
   # ── Frontend (React + Nginx) ───────────────────────────────
   frontend:
@@ -99,7 +56,9 @@ services:
       context: .                # Root context so private/ symlinks resolve
       dockerfile: frontend/Dockerfile.multi-user
       args:
-        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+        # Self-hosted browsers always use Nginx's same-origin API proxy.
+        # Do not accept legacy localhost overrides from older env files.
+        VITE_API_BASE_URL: /api/v1
         VITE_SINGLE_USER_MODE: "false"
         VITE_AUTH0_DOMAIN: ${VITE_AUTH0_DOMAIN}
         VITE_AUTH0_CLIENT_ID: ${VITE_AUTH0_CLIENT_ID}
@@ -107,10 +66,9 @@ services:
         VITE_PAYMENT_GATEWAY_ENABLED: "false"
         VITE_SUPERADMIN_EMAILS: ${VITE_SUPERADMIN_EMAILS:-}
     image: learnerverse-multi-frontend
-    container_name: learnerverse-multi-frontend
     restart: unless-stopped
     ports:
-      - "3000:80"
+      - "${APP_BIND_ADDRESS:-0.0.0.0}:${APP_PORT:-3000}:80"
     depends_on:
       backend:
         condition: service_healthy

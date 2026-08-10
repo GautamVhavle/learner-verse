@@ -28,7 +28,7 @@ def upgrade() -> None:
     # set completed_at = MAX(lesson_progress.completed_at)
     op.execute(
         """
-        UPDATE course_enrollments ce
+        UPDATE course_enrollments AS ce
         SET completed_at = sub.max_completed_at
         FROM (
             SELECT
