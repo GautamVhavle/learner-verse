@@ -14,6 +14,11 @@ interface FAQ {
 
 const FAQS: FAQ[] = [
   {
+    question: "What is the LearnerVerse MCP server?",
+    answer:
+      "MCP (Model Context Protocol) lets an AI agent in tools such as VS Code, Codex, Claude Code, Cursor, or OpenCode securely work with LearnerVerse. After connecting a permission-scoped personal API key, you can describe a course in your IDE and the agent can validate its structure, add lessons and assets, create quizzes, and prepare it for review. Nothing has to be published until you approve it.",
+  },
+  {
     question: "Does watching on LearnerVerse count as YouTube views?",
     answer:
       "Yes! Videos are embedded using YouTube's official player, so every watch counts toward the creator's view count, watch time, and revenue. You're supporting the original creators while learning.",

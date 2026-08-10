@@ -7,6 +7,7 @@ import { Github } from "lucide-react";
 const FOOTER_LINKS = {
   Product: [
     { label: "Features", href: "#features" },
+    { label: "MCP for IDEs", href: "#mcp" },
     { label: "How It Works", href: "#how-it-works" },
     { label: "Pricing", href: "#pricing" },
     { label: "Testimonials", href: "#testimonials" },

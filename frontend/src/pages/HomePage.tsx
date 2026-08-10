@@ -8,6 +8,7 @@ import { HeroSection } from "@/components/home/HeroSection";
 import { SocialProofBar } from "@/components/home/SocialProofBar";
 import { ProblemSolution } from "@/components/home/ProblemSolution";
 import { FeaturesBento } from "@/components/home/FeaturesBento";
+import { McpShowcase } from "@/components/home/McpShowcase";
 import { AIShowcase } from "@/components/home/AIShowcase";
 import { CreatorShowcase } from "@/components/home/CreatorShowcase";
 import { HowItWorks } from "@/components/home/HowItWorks";
@@ -30,7 +31,7 @@ function SectionDivider() {
 
 export default function HomePage() {
   useEffect(() => {
-    document.title = "LearnerVerse | Turn Any YouTube Playlist into a Course with AI Quizzes";
+    document.title = "LearnerVerse | Build Complete Courses from YouTube or Your IDE";
   }, []);
 
   return (
@@ -43,6 +44,8 @@ export default function HomePage() {
         <ProblemSolution />
         <SectionDivider />
         <FeaturesBento />
+        <SectionDivider />
+        <McpShowcase />
         <SectionDivider />
         <AIShowcase />
         <SectionDivider />

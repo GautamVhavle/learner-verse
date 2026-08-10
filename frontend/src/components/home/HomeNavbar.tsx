@@ -17,6 +17,7 @@ import { gsap } from "@/lib/gsap";
 
 const NAV_LINKS = [
   { label: "Features", href: "#features" },
+  { label: "MCP", href: "#mcp" },
   { label: "How It Works", href: "#how-it-works" },
   { label: "Use Cases", href: "#testimonials" },
   { label: "Pricing", href: "#pricing" },
@@ -70,11 +71,15 @@ export function HomeNavbar() {
   }, []);
 
   const scrollTo = (href: string) => {
+    const target = document.querySelector(href);
     setMobileOpen(false);
-    const el = document.querySelector(href);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    if (!target) return;
+
+    const scroll = () => target.scrollIntoView({ behavior: "smooth", block: "start" });
+    // The mobile sheet restores focus to its trigger as it closes. Waiting for
+    // that transition prevents focus restoration from cancelling anchor scroll.
+    if (mobileOpen) window.setTimeout(scroll, 300);
+    else scroll();
   };
 
   return (

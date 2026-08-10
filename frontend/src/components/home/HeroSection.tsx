@@ -382,9 +382,9 @@ export function HeroSection() {
 
           {/* Subtext */}
           <p className="hero-subtext mb-8 max-w-lg text-sm leading-relaxed text-white/55 opacity-0 sm:text-base lg:text-lg">
-            Build your own courses from any YouTube link, or enroll in structured courses from
-            creators. AI quizzes, progress tracking, and certificates included. Free and open
-            source.
+            Build from any YouTube link, ask your AI agent to create a complete course through MCP,
+            or enroll in courses from creators. Quizzes, progress tracking, and certificates are
+            included.
           </p>
 
           {/* CTAs */}
