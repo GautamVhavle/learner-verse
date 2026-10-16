@@ -1,5 +1,6 @@
 """Public shareable link endpoint - serves OpenGraph HTML for social previews."""
 
+import html
 import json
 import re
 import uuid
@@ -25,15 +26,21 @@ router = APIRouter(prefix="/share", tags=["share"])
 
 
 def _escape(text: str | None) -> str:
-    """Escape HTML entities for safe meta tag embedding."""
+    """Escape HTML entities for safe meta tag and body embedding."""
     if not text:
         return ""
+    return html.escape(text, quote=True)
+
+
+def _json_for_script(data: dict) -> str:
+    """Serialize JSON-LD so it cannot break out of a script element."""
     return (
-        text.replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-        .replace('"', "&quot;")
-        .replace("'", "&#x27;")
+        json.dumps(data, ensure_ascii=True)
+        .replace("&", "\\u0026")
+        .replace("<", "\\u003c")
+        .replace(">", "\\u003e")
+        .replace("\u2028", "\\u2028")
+        .replace("\u2029", "\\u2029")
     )
 
 
@@ -394,9 +401,9 @@ def _build_og_html(
 
     json_ld_tag = ""
     if json_ld:
-        # Escape </script> sequences to prevent XSS breakout from JSON-LD block
-        safe_json = json.dumps(json_ld, ensure_ascii=False).replace("<", "\\u003c")
-        json_ld_tag = '\n    <script type="application/ld+json">' + safe_json + "</script>"
+        json_ld_tag = (
+            '\n    <script type="application/ld+json">' + _json_for_script(json_ld) + "</script>"
+        )
 
     return f"""<!DOCTYPE html>
 <html lang="en">

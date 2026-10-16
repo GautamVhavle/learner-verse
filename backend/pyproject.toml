@@ -10,12 +10,12 @@ dependencies = [
     "asyncpg>=0.30.0",
     "alembic>=1.14.0",
     "pydantic>=2.10.0",
-    "pydantic-settings>=2.7.0",
+    "pydantic-settings>=2.14.2",
     "python-dotenv>=1.0.1",
     "httpx>=0.28.0",
-    "python-multipart>=0.0.18",
-    "pyjwt>=2.12.1",
-    "cryptography>=46.0.5",
+    "python-multipart>=0.0.31",
+    "pyjwt>=2.15.0",
+    "cryptography>=50.0.0",
     "email-validator>=2.3.0",
     "sentry-sdk[fastapi]>=2.0.0",
     "langchain-openrouter>=0.2.1",
@@ -34,6 +34,15 @@ dev = [
     "httpx>=0.28.0",
     "ruff>=0.8.0",
     "aiosqlite>=0.20.0",
+]
+
+[tool.uv]
+constraint-dependencies = [
+    "anyio>=4.14.2",
+    "httpx2>=2.12.0",
+    "langsmith>=0.8.18",
+    "starlette>=1.3.1",
+    "urllib3>=2.8.0",
 ]
 
 [tool.ruff]

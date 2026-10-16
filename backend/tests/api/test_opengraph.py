@@ -40,6 +40,8 @@ def _mock_stream_client(html: str):
     # The inner response object (yielded by `async with client.stream(...)`)
     mock_resp = MagicMock()
     mock_resp.raise_for_status = MagicMock()
+    mock_resp.status_code = 200
+    mock_resp.headers = {}
 
     async def _aiter_bytes(chunk_size=8192):
         yield html_bytes
@@ -69,7 +71,7 @@ async def test_fetch_opengraph_success():
 
     with (
         patch("app.services.opengraph_service.httpx.AsyncClient", return_value=instance),
-        patch("app.services.opengraph_service._is_private_ip", return_value=False),
+        patch("app.services.opengraph_service._resolve_public_ip", return_value="93.184.216.34"),
     ):
         result = await fetch_opengraph("https://example.com/page")
 
@@ -86,7 +88,7 @@ async def test_fetch_opengraph_fallback_title():
 
     with (
         patch("app.services.opengraph_service.httpx.AsyncClient", return_value=instance),
-        patch("app.services.opengraph_service._is_private_ip", return_value=False),
+        patch("app.services.opengraph_service._resolve_public_ip", return_value="93.184.216.34"),
     ):
         result = await fetch_opengraph("https://example.com")
 
@@ -109,7 +111,7 @@ async def test_fetch_opengraph_relative_image():
 
     with (
         patch("app.services.opengraph_service.httpx.AsyncClient", return_value=instance),
-        patch("app.services.opengraph_service._is_private_ip", return_value=False),
+        patch("app.services.opengraph_service._resolve_public_ip", return_value="93.184.216.34"),
     ):
         result = await fetch_opengraph("https://example.com/page")
 
@@ -168,6 +170,70 @@ async def test_fetch_opengraph_ssrf_private_ip():
 
 
 @pytest.mark.asyncio
+async def test_fetch_opengraph_ssrf_metadata_ip():
+    with pytest.raises(ValueError, match="private or reserved"):
+        await fetch_opengraph("http://169.254.169.254/latest/meta-data")
+
+
+@pytest.mark.asyncio
+async def test_fetch_opengraph_pins_resolved_ip():
+    """The request connects to the checked IP, not the hostname."""
+    instance = _mock_stream_client("<title>Pinned</title>")
+
+    with (
+        patch("app.services.opengraph_service.httpx.AsyncClient", return_value=instance),
+        patch(
+            "app.services.opengraph_service._resolve_public_ip",
+            return_value="93.184.216.34",
+        ) as resolve,
+    ):
+        result = await fetch_opengraph("https://example.com/page")
+
+    assert result.title == "Pinned"
+    resolve.assert_called_once_with("example.com")
+    method, target = instance.stream.call_args.args
+    kwargs = instance.stream.call_args.kwargs
+    assert method == "GET"
+    assert "93.184.216.34" in str(target)
+    assert "example.com" not in str(target)
+    assert kwargs["headers"]["Host"] == "example.com"
+    assert kwargs["extensions"]["sni_hostname"] == "example.com"
+
+
+@pytest.mark.asyncio
+async def test_fetch_opengraph_blocks_redirect_to_metadata():
+    html_bytes = b"<title>nope</title>"
+    mock_resp = MagicMock()
+    mock_resp.status_code = 302
+    mock_resp.headers = {"location": "http://169.254.169.254/latest/meta-data"}
+    mock_resp.raise_for_status = MagicMock()
+
+    async def _aiter_bytes(chunk_size=8192):
+        yield html_bytes
+
+    mock_resp.aiter_bytes = _aiter_bytes
+    stream_cm = AsyncMock()
+    stream_cm.__aenter__ = AsyncMock(return_value=mock_resp)
+    stream_cm.__aexit__ = AsyncMock(return_value=False)
+    instance = MagicMock()
+    instance.stream = MagicMock(return_value=stream_cm)
+    instance.__aenter__ = AsyncMock(return_value=instance)
+    instance.__aexit__ = AsyncMock(return_value=False)
+
+    def _resolve(host: str) -> str:
+        if host == "example.com":
+            return "93.184.216.34"
+        raise ValueError("URL points to a private or reserved address.")
+
+    with (
+        patch("app.services.opengraph_service.httpx.AsyncClient", return_value=instance),
+        patch("app.services.opengraph_service._resolve_public_ip", side_effect=_resolve),
+    ):
+        with pytest.raises(ValueError, match="private or reserved"):
+            await fetch_opengraph("https://example.com/start")
+
+
+@pytest.mark.asyncio
 async def test_fetch_opengraph_no_title():
     """Page with no og:title and no <title> returns None for title."""
     html = "<html><head></head><body>No title here</body></html>"
@@ -175,7 +241,7 @@ async def test_fetch_opengraph_no_title():
 
     with (
         patch("app.services.opengraph_service.httpx.AsyncClient", return_value=instance),
-        patch("app.services.opengraph_service._is_private_ip", return_value=False),
+        patch("app.services.opengraph_service._resolve_public_ip", return_value="93.184.216.34"),
     ):
         result = await fetch_opengraph("https://example.com")
 
@@ -191,7 +257,7 @@ async def test_fetch_opengraph_protocol_relative_image():
 
     with (
         patch("app.services.opengraph_service.httpx.AsyncClient", return_value=instance),
-        patch("app.services.opengraph_service._is_private_ip", return_value=False),
+        patch("app.services.opengraph_service._resolve_public_ip", return_value="93.184.216.34"),
     ):
         result = await fetch_opengraph("https://example.com")
 
